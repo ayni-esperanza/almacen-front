@@ -14,6 +14,7 @@ export { useReports } from './hooks/useReports';
 // Services
 export { reportsService } from './services/reports.service';
 export { stockAlertsService } from './services/stock-alerts.service';
+export { pdfExportService } from './services/pdf-export.service';
 
 // Utils
 export * from './utils/mockData';

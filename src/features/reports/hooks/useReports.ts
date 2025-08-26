@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { reportsService } from '../services/reports.service';
+import { pdfExportService } from '../services/pdf-export.service';
 import { 
   ExpenseReport, 
   MonthlyExpenseData, 
@@ -114,7 +115,18 @@ export const useReports = () => {
 
   const exportToPDF = async (): Promise<void> => {
     try {
-      const blob = await reportsService.exportToPDF(expenseReports, filters);
+      const chartData = generateChartData();
+      const monthlyChartData = getMonthlyChartData();
+      
+      const blob = await pdfExportService.exportExpenseReport({
+        title: 'Reporte de Gastos Mensuales',
+        subtitle: `Análisis de gastos por ${filters.tipoReporte === 'area' ? 'área' : 'proyecto'}`,
+        data: expenseReports,
+        chartData,
+        monthlyChartData,
+        filters
+      });
+
       if (blob) {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');

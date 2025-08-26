@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Package, Filter, Download } from 'lucide-react';
 import { StockAlert, StockAlertFilters } from '../types';
 import { mockStockAlerts, filterStockAlerts } from '../utils/mockData';
+import { pdfExportService } from '../services/pdf-export.service';
 
 export const StockAlertPage: React.FC = () => {
   const [stockAlerts, setStockAlerts] = useState<StockAlert[]>([]);
@@ -83,9 +84,29 @@ export const StockAlertPage: React.FC = () => {
     return { total, criticos, bajos, totalStock, stockMinimo };
   };
 
-  const handleExport = () => {
-    // Función para exportar alertas (preparada para backend)
-    console.log('Exportando alertas de stock...');
+  const handleExport = async () => {
+    try {
+      const estadisticas = getEstadisticas();
+      
+      const blob = await pdfExportService.exportStockAlerts(
+        filteredAlerts,
+        filters,
+        estadisticas
+      );
+
+      if (blob) {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `alertas-stock-${new Date().toISOString().split('T')[0]}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
+    } catch (err) {
+      console.error('Error al exportar alertas de stock:', err);
+    }
   };
 
   if (error) {
