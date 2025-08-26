@@ -1,6 +1,9 @@
 import React from 'react';
 import { Product } from '../types';
 import { StockIndicator } from '../../../shared/components/StockIndicator';
+import { Pagination } from '../../../shared/components/Pagination';
+import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
+import { usePagination } from '../../../shared/hooks/usePagination';
 import { Package, Search, AlertCircle } from 'lucide-react';
 
 interface ProductTableProps {
@@ -20,6 +23,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   setSearchTerm,
   refetch
 }) => {
+  const {
+    paginatedData: paginatedProducts,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    handlePageChange,
+    handleItemsPerPageChange,
+  } = usePagination({ data: products, initialItemsPerPage: 15 });
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -83,30 +95,30 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         </div>
       </div>
       
-      <div className="overflow-x-auto">
-        {products.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <Package className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>No se encontraron productos</p>
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Código</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Descripción</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Costo U.</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Ubicación</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Entradas</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Salidas</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Stock Actual</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Unidad</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Proveedor</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Costo Total</th>
+      {products.length === 0 ? (
+        <div className="p-8 text-center text-gray-500">
+          <Package className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <p>No se encontraron productos</p>
+        </div>
+      ) : (
+        <>
+          <TableWithFixedHeader maxHeight="600px">
+            <thead className="bg-gray-50 sticky top-0 z-10">
+              <tr className="border-b border-gray-200">
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Código</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Descripción</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Costo U.</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Ubicación</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Entradas</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Salidas</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Stock Actual</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Unidad</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Proveedor</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Costo Total</th>
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {paginatedProducts.map((product) => (
                 <tr
                   key={product.id}
                   className={`border-b border-gray-100 hover:bg-green-50 transition-colors ${
@@ -132,9 +144,18 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 </tr>
               ))}
             </tbody>
-          </table>
-        )}
-      </div>
+          </TableWithFixedHeader>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+          />
+        </>
+      )}
     </div>
   );
 };

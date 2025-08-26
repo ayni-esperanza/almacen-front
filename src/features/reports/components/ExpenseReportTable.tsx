@@ -1,5 +1,8 @@
 import React from 'react';
 import { ExpenseReport } from '../types';
+import { Pagination } from '../../../shared/components/Pagination';
+import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
+import { usePagination } from '../../../shared/hooks/usePagination';
 
 interface ExpenseReportTableProps {
   data: ExpenseReport[];
@@ -10,6 +13,15 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = ({
   data,
   loading = false
 }) => {
+  const {
+    paginatedData: paginatedData,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    handlePageChange,
+    handleItemsPerPageChange,
+  } = usePagination({ data: data, initialItemsPerPage: 15 });
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-PE', {
       style: 'currency',
@@ -54,85 +66,92 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = ({
         </div>
       </div>
       
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Fecha
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Área
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Proyecto
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Código
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Descripción
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Cantidad
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Precio Unit.
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Responsable
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {data.map((item, index) => (
-              <tr key={index} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {formatDate(item.fecha)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.area}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.proyecto || '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {item.codigoProducto}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
-                  {item.descripcion}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.cantidad}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {formatCurrency(item.precioUnitario)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                  {formatCurrency(item.costoTotal)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.responsable || '-'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot className="bg-gray-50">
-            <tr>
-              <td colSpan={7} className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
-                Total General:
+      <TableWithFixedHeader maxHeight="600px">
+        <thead className="bg-gray-50 sticky top-0 z-10">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+              Fecha
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+              Área
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+              Proyecto
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+              Código
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+              Descripción
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+              Cantidad
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+              Precio Unit.
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+              Total
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+              Responsable
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {paginatedData.map((item, index) => (
+            <tr key={index} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {formatDate(item.fecha)}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
-                {formatCurrency(data.reduce((sum, item) => sum + item.costoTotal, 0))}
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {item.area}
               </td>
-              <td></td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {item.proyecto || '-'}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                {item.codigoProducto}
+              </td>
+              <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+                {item.descripcion}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {item.cantidad}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {formatCurrency(item.precioUnitario)}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                {formatCurrency(item.costoTotal)}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {item.responsable || '-'}
+              </td>
             </tr>
-          </tfoot>
-        </table>
-      </div>
+          ))}
+        </tbody>
+        <tfoot className="bg-gray-50">
+          <tr>
+            <td colSpan={7} className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
+              Total General:
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
+              {formatCurrency(data.reduce((sum, item) => sum + item.costoTotal, 0))}
+            </td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </TableWithFixedHeader>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+        onItemsPerPageChange={handleItemsPerPageChange}
+      />
     </div>
   );
 };

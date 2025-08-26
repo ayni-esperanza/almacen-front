@@ -3,6 +3,9 @@ import { AlertTriangle, Package, Filter, Download } from 'lucide-react';
 import { StockAlert, StockAlertFilters } from '../types';
 import { mockStockAlerts, filterStockAlerts } from '../utils/mockData';
 import { pdfExportService } from '../services/pdf-export.service';
+import { Pagination } from '../../../shared/components/Pagination';
+import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
+import { usePagination } from '../../../shared/hooks/usePagination';
 
 export const StockAlertPage: React.FC = () => {
   const [stockAlerts, setStockAlerts] = useState<StockAlert[]>([]);
@@ -12,6 +15,16 @@ export const StockAlertPage: React.FC = () => {
   const [filters, setFilters] = useState<StockAlertFilters>({
     mostrarSoloCriticos: false
   });
+
+  const {
+    paginatedData: paginatedAlerts,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    handlePageChange,
+    handleItemsPerPageChange,
+  } = usePagination({ data: filteredAlerts, initialItemsPerPage: 15 });
 
   // Cargar datos de alertas
   useEffect(() => {
@@ -322,80 +335,89 @@ export const StockAlertPage: React.FC = () => {
             No hay alertas de stock que coincidan con los filtros
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Código
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Descripción
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Stock Actual
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Stock Mínimo
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Ubicación
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Categoría
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Proveedor
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Última Actualización
-                  </th>
+          <>
+            <TableWithFixedHeader maxHeight="600px">
+            <thead className="bg-gray-50 sticky top-0 z-10">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Estado
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Código
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Descripción
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Stock Actual
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Stock Mínimo
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Ubicación
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Categoría
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Proveedor
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  Última Actualización
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {paginatedAlerts.map((alert) => (
+                <tr key={alert.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getEstadoColor(alert.estado)}`}>
+                      {getEstadoIcon(alert.estado)} {alert.estado.toUpperCase()}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {alert.codigo}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+                    {alert.descripcion}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <span className={`font-semibold ${alert.stockActual === 0 ? 'text-red-600' : alert.stockActual < 5 ? 'text-orange-600' : 'text-gray-900'}`}>
+                      {alert.stockActual}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {alert.stockMinimo}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {alert.ubicacion}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {alert.categoria}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {alert.proveedor}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {new Date(alert.ultimaActualizacion).toLocaleDateString('es-ES')}
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredAlerts.map((alert) => (
-                  <tr key={alert.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getEstadoColor(alert.estado)}`}>
-                        {getEstadoIcon(alert.estado)} {alert.estado.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {alert.codigo}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
-                      {alert.descripcion}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className={`font-semibold ${alert.stockActual === 0 ? 'text-red-600' : alert.stockActual < 5 ? 'text-orange-600' : 'text-gray-900'}`}>
-                        {alert.stockActual}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {alert.stockMinimo}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {alert.ubicacion}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {alert.categoria}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {alert.proveedor}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(alert.ultimaActualizacion).toLocaleDateString('es-ES')}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              ))}
+            </tbody>
+          </TableWithFixedHeader>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+          />
+            </>
+          )}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };

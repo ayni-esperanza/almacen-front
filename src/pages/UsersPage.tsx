@@ -3,12 +3,25 @@ import { Plus, Users, Edit, Trash2, AlertCircle } from 'lucide-react';
 import { User, UserRole } from '../features/auth/types';
 import { usersService } from '../shared/services/users.service';
 import { ProtectedComponent } from '../shared/components/ProtectedComponent';
+import { Pagination } from '../shared/components/Pagination';
+import { TableWithFixedHeader } from '../shared/components/TableWithFixedHeader';
 import { Permission } from '../shared/types/permissions';
+import { usePagination } from '../shared/hooks/usePagination';
 
 export const UsersPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    paginatedData: paginatedUsers,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    handlePageChange,
+    handleItemsPerPageChange,
+  } = usePagination({ data: users, initialItemsPerPage: 15 });
 
   const fetchUsers = async () => {
     try {
@@ -110,26 +123,26 @@ export const UsersPage = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        {users.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>No se encontraron usuarios</p>
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Usuario</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Nombre</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Email</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Rol</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700">Estado</th>
-                <th className="px-4 py-4 text-center font-semibold text-gray-700">Acciones</th>
+      {users.length === 0 ? (
+        <div className="p-8 text-center text-gray-500">
+          <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <p>No se encontraron usuarios</p>
+        </div>
+      ) : (
+        <>
+          <TableWithFixedHeader maxHeight="600px">
+            <thead className="bg-gray-50 sticky top-0 z-10">
+              <tr className="border-b border-gray-200">
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Usuario</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Nombre</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Email</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Rol</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Estado</th>
+                <th className="px-4 py-4 text-center font-semibold text-gray-700 bg-gray-50">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
+              {paginatedUsers.map((user) => (
                 <tr
                   key={user.id}
                   className="border-b border-gray-100 hover:bg-blue-50 transition-colors"
@@ -176,9 +189,18 @@ export const UsersPage = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
-        )}
-      </div>
+          </TableWithFixedHeader>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+          />
+        </>
+      )}
     </div>
   );
 };

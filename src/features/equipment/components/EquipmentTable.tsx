@@ -1,5 +1,8 @@
 import React from 'react';
 import { EquipmentReport } from '../types';
+import { Pagination } from '../../../shared/components/Pagination';
+import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
+import { usePagination } from '../../../shared/hooks/usePagination';
 import { Wrench, Clock, User, MapPin, Search } from 'lucide-react';
 
 interface EquipmentTableProps {
@@ -32,6 +35,16 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({ equipments }) =>
     equipment.areaProyecto.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const {
+    paginatedData: paginatedEquipments,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    handlePageChange,
+    handleItemsPerPageChange,
+  } = usePagination({ data: filteredEquipments, initialItemsPerPage: 15 });
+
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6">
@@ -55,93 +68,100 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({ equipments }) =>
         </div>
       </div>
       
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Equipo</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Serie/Código</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Cant.</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Estado Equipo</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Responsable</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Fecha Salida</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Hora Salida</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Área/Proyecto</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Firma</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Fecha Retorno</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Hora Retorno</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Estado Retorno</th>
-              <th className="px-3 py-4 text-left font-semibold text-gray-700">Firma Retorno</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredEquipments.map((equipment) => (
-              <tr
-                key={equipment.id}
-                className="border-b border-gray-100 hover:bg-blue-50 transition-colors"
-              >
-                <td className="px-3 py-4 font-medium text-gray-900">{equipment.equipo}</td>
-                <td className="px-3 py-4 font-mono text-gray-700">{equipment.serieCodigo}</td>
-                <td className="px-3 py-4 text-center font-medium">{equipment.cantidad}</td>
-                <td className="px-3 py-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(equipment.estadoEquipo)}`}>
-                    {equipment.estadoEquipo}
+      <TableWithFixedHeader maxHeight="600px">
+        <thead className="bg-gray-50 sticky top-0 z-10">
+          <tr className="border-b border-gray-200">
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Equipo</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Serie/Código</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Cant.</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Estado Equipo</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Responsable</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Fecha Salida</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Hora Salida</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Área/Proyecto</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Firma</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Fecha Retorno</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Hora Retorno</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Estado Retorno</th>
+            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Firma Retorno</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedEquipments.map((equipment) => (
+            <tr
+              key={equipment.id}
+              className="border-b border-gray-100 hover:bg-blue-50 transition-colors"
+            >
+              <td className="px-3 py-4 font-medium text-gray-900">{equipment.equipo}</td>
+              <td className="px-3 py-4 font-mono text-gray-700">{equipment.serieCodigo}</td>
+              <td className="px-3 py-4 text-center font-medium">{equipment.cantidad}</td>
+              <td className="px-3 py-4">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(equipment.estadoEquipo)}`}>
+                  {equipment.estadoEquipo}
+                </span>
+              </td>
+              <td className="px-3 py-4">
+                <div className="flex items-center space-x-2">
+                  <User className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-700">{equipment.responsable}</span>
+                </div>
+              </td>
+              <td className="px-3 py-4 text-gray-700">{equipment.fechaSalida}</td>
+              <td className="px-3 py-4">
+                <div className="flex items-center space-x-1">
+                  <Clock className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-700">{equipment.horaSalida}</span>
+                </div>
+              </td>
+              <td className="px-3 py-4">
+                <div className="flex items-center space-x-2">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                    {equipment.areaProyecto}
                   </span>
-                </td>
-                <td className="px-3 py-4">
-                  <div className="flex items-center space-x-2">
-                    <User className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-700">{equipment.responsable}</span>
-                  </div>
-                </td>
-                <td className="px-3 py-4 text-gray-700">{equipment.fechaSalida}</td>
-                <td className="px-3 py-4">
+                </div>
+              </td>
+              <td className="px-3 py-4 font-mono text-blue-600 font-medium">{equipment.firma}</td>
+              <td className="px-3 py-4 text-gray-700">{equipment.fechaRetorno || '-'}</td>
+              <td className="px-3 py-4">
+                {equipment.horaRetorno ? (
                   <div className="flex items-center space-x-1">
                     <Clock className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-700">{equipment.horaSalida}</span>
+                    <span className="text-gray-700">{equipment.horaRetorno}</span>
                   </div>
-                </td>
-                <td className="px-3 py-4">
-                  <div className="flex items-center space-x-2">
-                    <MapPin className="w-4 h-4 text-gray-400" />
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                      {equipment.areaProyecto}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-3 py-4 font-mono text-blue-600 font-medium">{equipment.firma}</td>
-                <td className="px-3 py-4 text-gray-700">{equipment.fechaRetorno || '-'}</td>
-                <td className="px-3 py-4">
-                  {equipment.horaRetorno ? (
-                    <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-700">{equipment.horaRetorno}</span>
-                    </div>
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
-                </td>
-                <td className="px-3 py-4">
-                  {equipment.estadoRetorno ? (
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(equipment.estadoRetorno)}`}>
-                      {equipment.estadoRetorno}
-                    </span>
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
-                </td>
-                <td className="px-3 py-4">
-                  {equipment.firmaRetorno ? (
-                    <span className="font-mono text-blue-600 font-medium">{equipment.firmaRetorno}</span>
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                ) : (
+                  <span className="text-gray-400">-</span>
+                )}
+              </td>
+              <td className="px-3 py-4">
+                {equipment.estadoRetorno ? (
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(equipment.estadoRetorno)}`}>
+                    {equipment.estadoRetorno}
+                  </span>
+                ) : (
+                  <span className="text-gray-400">-</span>
+                )}
+              </td>
+              <td className="px-3 py-4">
+                {equipment.firmaRetorno ? (
+                  <span className="font-mono text-blue-600 font-medium">{equipment.firmaRetorno}</span>
+                ) : (
+                  <span className="text-gray-400">-</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </TableWithFixedHeader>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+        onItemsPerPageChange={handleItemsPerPageChange}
+      />
     </div>
   );
 };
