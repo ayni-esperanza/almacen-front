@@ -3,12 +3,13 @@ import { Header } from '../shared/components/Header';
 import { DashboardTabs } from '../shared/components/DashboardTabs';
 import { useAuth } from '../shared/hooks/useAuth';
 import { generateExitReport } from '../features/reports/utils/pdfGenerator';
-import { salidas } from '../features/inventory/data/mockData';
+import { useMovements } from '../features/movements/hooks/useMovements';
 
 export const DashboardPage = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { exits } = useMovements();
 
   const handleLogout = () => {
     logout();
@@ -16,7 +17,7 @@ export const DashboardPage = () => {
   };
 
   const handleGenerateReport = () => {
-    generateExitReport(salidas);
+    generateExitReport(exits);
   };
 
   return (

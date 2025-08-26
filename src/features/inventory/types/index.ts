@@ -1,5 +1,5 @@
 export interface Product {
-  id: string;
+  id: number;
   codigo: string;
   descripcion: string;
   costoUnitario: number;
@@ -11,4 +11,6 @@ export interface Product {
   proveedor: string;
   costoTotal: number;
   categoria?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

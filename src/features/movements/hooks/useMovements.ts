@@ -1,0 +1,113 @@
+import { useState, useEffect } from 'react';
+import { MovementEntry, MovementExit } from '../types';
+import { movementsService, CreateEntryData, CreateExitData, UpdateExitQuantityData } from '../../../shared/services/movements.service';
+
+export interface UseMovementsReturn {
+  entries: MovementEntry[];
+  exits: MovementExit[];
+  loading: boolean;
+  error: string | null;
+  refetchEntries: () => Promise<void>;
+  refetchExits: () => Promise<void>;
+  createEntry: (entryData: CreateEntryData) => Promise<MovementEntry | null>;
+  createExit: (exitData: CreateExitData) => Promise<MovementExit | null>;
+  updateExitQuantity: (id: number, quantityData: UpdateExitQuantityData) => Promise<MovementExit | null>;
+}
+
+export const useMovements = (): UseMovementsReturn => {
+  const [entries, setEntries] = useState<MovementEntry[]>([]);
+  const [exits, setExits] = useState<MovementExit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchEntries = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await movementsService.getAllEntries();
+      setEntries(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cargar entradas');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchExits = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await movementsService.getAllExits();
+      setExits(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cargar salidas');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refetchEntries = async () => {
+    await fetchEntries();
+  };
+
+  const refetchExits = async () => {
+    await fetchExits();
+  };
+
+  const createEntry = async (entryData: CreateEntryData): Promise<MovementEntry | null> => {
+    try {
+      const newEntry = await movementsService.createEntry(entryData);
+      if (newEntry) {
+        await refetchEntries(); // Refresh the list
+      }
+      return newEntry;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al crear entrada');
+      throw err;
+    }
+  };
+
+  const createExit = async (exitData: CreateExitData): Promise<MovementExit | null> => {
+    try {
+      const newExit = await movementsService.createExit(exitData);
+      if (newExit) {
+        await refetchExits(); // Refresh the list
+      }
+      return newExit;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al crear salida');
+      throw err;
+    }
+  };
+
+  const updateExitQuantity = async (id: number, quantityData: UpdateExitQuantityData): Promise<MovementExit | null> => {
+    try {
+      const updatedExit = await movementsService.updateExitQuantity(id.toString(), quantityData);
+      if (updatedExit) {
+        await refetchExits(); // Refresh the list
+      }
+      return updatedExit;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al actualizar cantidad');
+      throw err;
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    fetchEntries();
+    fetchExits();
+  }, []);
+
+  return {
+    entries,
+    exits,
+    loading,
+    error,
+    refetchEntries,
+    refetchExits,
+    createEntry,
+    createExit,
+    updateExitQuantity
+  };
+};

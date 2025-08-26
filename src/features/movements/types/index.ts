@@ -1,5 +1,5 @@
 export interface MovementEntry {
-  id: string;
+  id: number;
   fecha: string;
   codigoProducto: string;
   descripcion: string;
@@ -7,10 +7,12 @@ export interface MovementEntry {
   cantidad: number;
   responsable?: string;
   area?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface MovementExit {
-  id: string;
+  id: number;
   fecha: string;
   codigoProducto: string;
   descripcion: string;
@@ -19,4 +21,6 @@ export interface MovementExit {
   responsable?: string;
   area?: string;
   proyecto?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

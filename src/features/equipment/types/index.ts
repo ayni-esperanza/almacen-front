@@ -1,9 +1,9 @@
 export interface EquipmentReport {
-  id: string;
+  id: number;
   equipo: string;
   serieCodigo: string;
   cantidad: number;
-  estadoEquipo: 'Bueno' | 'Regular' | 'Malo' | 'En Reparación';
+  estadoEquipo: 'Bueno' | 'Regular' | 'Malo' | 'En_Reparacion' | 'Danado';
   responsable: string;
   fechaSalida: string;
   horaSalida: string;
@@ -11,6 +11,8 @@ export interface EquipmentReport {
   firma: string;
   fechaRetorno?: string;
   horaRetorno?: string;
-  estadoRetorno?: 'Bueno' | 'Regular' | 'Malo' | 'Dañado';
+  estadoRetorno?: 'Bueno' | 'Regular' | 'Malo' | 'Danado';
   firmaRetorno?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

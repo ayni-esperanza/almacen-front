@@ -2,16 +2,20 @@ import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { EquipmentTable } from '../features/equipment/components/EquipmentTable';
 import { AddEquipmentForm } from '../features/equipment/components/AddEquipmentForm';
-import { equipmentReports } from '../features/inventory/data/mockData';
-import { EquipmentReport } from '../features/equipment/types';
+import { useEquipment } from '../features/equipment/hooks/useEquipment';
+import { CreateEquipmentData } from '../shared/services/equipment.service';
 
 export const EquipmentPage = () => {
   const [showAddForm, setShowAddForm] = useState(false);
-  const [equipments, setEquipments] = useState<EquipmentReport[]>(equipmentReports);
+  const equipmentData = useEquipment();
 
-  const handleAddEquipment = (data: any) => {
-    setEquipments([{ ...data, id: Date.now().toString() }, ...equipments]);
-    setShowAddForm(false);
+  const handleAddEquipment = async (data: CreateEquipmentData) => {
+    try {
+      await equipmentData.createEquipmentReport(data);
+      setShowAddForm(false);
+    } catch (error) {
+      console.error('Error adding equipment:', error);
+    }
   };
 
   return (
@@ -26,7 +30,13 @@ export const EquipmentPage = () => {
         </button>
       </div>
 
-      <EquipmentTable equipments={equipments} />
+      <EquipmentTable 
+        equipments={equipmentData.equipment}
+        loading={equipmentData.loading}
+        error={equipmentData.error}
+        refetch={equipmentData.refetch}
+        onReturn={equipmentData.returnEquipment}
+      />
 
       {showAddForm && (
         <AddEquipmentForm

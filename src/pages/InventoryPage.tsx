@@ -1,6 +1,8 @@
 import { ProductTable } from '../features/inventory/components/ProductTable';
-import { productos } from '../features/inventory/data/mockData';
+import { useInventory } from '../features/inventory/hooks/useInventory';
 
 export const InventoryPage = () => {
-  return <ProductTable products={productos} />;
+  const inventoryData = useInventory();
+  
+  return <ProductTable {...inventoryData} />;
 };

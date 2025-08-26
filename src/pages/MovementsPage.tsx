@@ -2,29 +2,32 @@ import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { MovementTable } from '../features/movements/components/MovementTable';
 import { AddMovementForm } from '../features/movements/components/AddMovementForm';
-import { entradas, salidas } from '../features/inventory/data/mockData';
-import { MovementEntry, MovementExit } from '../features/movements/types';
+import { useMovements } from '../features/movements/hooks/useMovements';
+import { CreateEntryData, CreateExitData } from '../shared/services/movements.service';
 
 export const MovementsPage = () => {
   const [activeSubTab, setActiveSubTab] = useState<'entradas' | 'salidas'>('entradas');
   const [showAddForm, setShowAddForm] = useState(false);
-  const [movementEntries, setMovementEntries] = useState<MovementEntry[]>(entradas);
-  const [movementExits, setMovementExits] = useState<MovementExit[]>(salidas);
+  const movementsData = useMovements();
 
-  const handleAddMovement = (data: any) => {
-    if (activeSubTab === 'entradas') {
-      setMovementEntries([data, ...movementEntries]);
-    } else {
-      setMovementExits([data, ...movementExits]);
+  const handleAddMovement = async (data: CreateEntryData | CreateExitData) => {
+    try {
+      if (activeSubTab === 'entradas') {
+        await movementsData.createEntry(data as CreateEntryData);
+      } else {
+        await movementsData.createExit(data as CreateExitData);
+      }
+      setShowAddForm(false);
+    } catch (error) {
+      console.error('Error adding movement:', error);
     }
-    setShowAddForm(false);
   };
 
-  const handleUpdateQuantity = (id: string, newQuantity: number) => {
-    if (activeSubTab === 'salidas') {
-      setMovementExits(movementExits.map(exit => 
-        exit.id === id ? { ...exit, cantidad: newQuantity } : exit
-      ));
+  const handleUpdateQuantity = async (id: number, newQuantity: number) => {
+    try {
+      await movementsData.updateExitQuantity(id, { cantidad: newQuantity });
+    } catch (error) {
+      console.error('Error updating quantity:', error);
     }
   };
 
@@ -66,11 +69,20 @@ export const MovementsPage = () => {
       </div>
 
       {activeSubTab === 'entradas' ? (
-        <MovementTable movements={movementEntries} type="entrada" />
+        <MovementTable 
+          movements={movementsData.entries} 
+          type="entrada" 
+          loading={movementsData.loading}
+          error={movementsData.error}
+          refetch={movementsData.refetchEntries}
+        />
       ) : (
         <MovementTable 
-          movements={movementExits} 
+          movements={movementsData.exits} 
           type="salida" 
+          loading={movementsData.loading}
+          error={movementsData.error}
+          refetch={movementsData.refetchExits}
           onUpdateQuantity={handleUpdateQuantity} 
         />
       )}
