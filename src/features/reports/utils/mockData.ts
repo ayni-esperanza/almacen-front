@@ -1,4 +1,4 @@
-import { ExpenseReport, MonthlyExpenseData, AreaExpenseData } from '../types';
+import { ExpenseReport, MonthlyExpenseData, AreaExpenseData, StockAlert } from '../types';
 
 // Datos de ejemplo para el reporte de gastos
 export const mockExpenseReports: ExpenseReport[] = [
@@ -85,6 +85,106 @@ export const mockExpenseReports: ExpenseReport[] = [
     cantidad: 2,
     costoTotal: 80.00,
     responsable: 'Pedro Sánchez'
+  }
+];
+
+// Datos de ejemplo para alertas de stock
+export const mockStockAlerts: StockAlert[] = [
+  {
+    id: '1',
+    codigo: 'AF2025',
+    descripcion: 'AFLOJA TODO',
+    stockActual: 3,
+    stockMinimo: 10,
+    ubicacion: 'Estante A-1',
+    categoria: 'Herramientas',
+    proveedor: 'Proveedor A',
+    ultimaActualizacion: '2025-01-30',
+    estado: 'critico'
+  },
+  {
+    id: '2',
+    codigo: 'AT055',
+    descripcion: 'ALAMBRE DE SOLDADURA',
+    stockActual: 7,
+    stockMinimo: 10,
+    ubicacion: 'Estante B-2',
+    categoria: 'Materiales',
+    proveedor: 'Proveedor B',
+    ultimaActualizacion: '2025-01-29',
+    estado: 'bajo'
+  },
+  {
+    id: '3',
+    codigo: 'AC1P1',
+    descripcion: 'ACOPLES',
+    stockActual: 0,
+    stockMinimo: 10,
+    ubicacion: 'Estante C-3',
+    categoria: 'Conectores',
+    proveedor: 'Proveedor C',
+    ultimaActualizacion: '2025-01-30',
+    estado: 'critico'
+  },
+  {
+    id: '4',
+    codigo: 'BC001',
+    descripcion: 'Brocha cerda 4"',
+    stockActual: 5,
+    stockMinimo: 10,
+    ubicacion: 'Estante D-4',
+    categoria: 'Herramientas',
+    proveedor: 'Proveedor D',
+    ultimaActualizacion: '2025-01-28',
+    estado: 'bajo'
+  },
+  {
+    id: '5',
+    codigo: 'AT001',
+    descripcion: 'Alambre trenzado - adriano',
+    stockActual: 2,
+    stockMinimo: 10,
+    ubicacion: 'Estante E-5',
+    categoria: 'Materiales',
+    proveedor: 'Proveedor E',
+    ultimaActualizacion: '2025-01-30',
+    estado: 'critico'
+  },
+  {
+    id: '6',
+    codigo: 'MT001',
+    descripcion: 'Martillo 2kg',
+    stockActual: 8,
+    stockMinimo: 10,
+    ubicacion: 'Estante F-6',
+    categoria: 'Herramientas',
+    proveedor: 'Proveedor F',
+    ultimaActualizacion: '2025-01-27',
+    estado: 'bajo'
+  },
+  {
+    id: '7',
+    codigo: 'TN001',
+    descripcion: 'Tornillos 3/8"',
+    stockActual: 1,
+    stockMinimo: 10,
+    ubicacion: 'Estante G-7',
+    categoria: 'Fijaciones',
+    proveedor: 'Proveedor G',
+    ultimaActualizacion: '2025-01-30',
+    estado: 'critico'
+  },
+  {
+    id: '8',
+    codigo: 'PN001',
+    descripcion: 'Pintura blanca 1L',
+    stockActual: 4,
+    stockMinimo: 10,
+    ubicacion: 'Estante H-8',
+    categoria: 'Pinturas',
+    proveedor: 'Proveedor H',
+    ultimaActualizacion: '2025-01-26',
+    estado: 'bajo'
   }
 ];
 
@@ -290,4 +390,39 @@ export const generateAreaData = (
   });
   
   return Array.from(areaMap.values());
+};
+
+// Función para filtrar alertas de stock
+export const filterStockAlerts = (
+  data: StockAlert[],
+  filters: {
+    categoria?: string;
+    ubicacion?: string;
+    estado?: 'critico' | 'bajo' | 'normal';
+    mostrarSoloCriticos?: boolean;
+  }
+): StockAlert[] => {
+  return data.filter(item => {
+    // Filtrar por categoría
+    if (filters.categoria && item.categoria !== filters.categoria) {
+      return false;
+    }
+
+    // Filtrar por ubicación
+    if (filters.ubicacion && item.ubicacion !== filters.ubicacion) {
+      return false;
+    }
+
+    // Filtrar por estado
+    if (filters.estado && item.estado !== filters.estado) {
+      return false;
+    }
+
+    // Mostrar solo críticos
+    if (filters.mostrarSoloCriticos && item.estado !== 'critico') {
+      return false;
+    }
+
+    return true;
+  });
 };

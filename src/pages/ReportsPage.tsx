@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { BarChart3, FileText, TrendingUp } from 'lucide-react';
+import { BarChart3, FileText, TrendingUp, AlertTriangle } from 'lucide-react';
 import { ExpenseReportPage } from '../features/reports/components/ExpenseReportPage';
+import { StockAlertPage } from '../features/reports/components/StockAlertPage';
 
-type ReportType = 'expenses' | 'inventory' | 'movements';
+type ReportType = 'expenses' | 'stock-alerts' | 'inventory' | 'movements';
 
 export const ReportsPage: React.FC = () => {
   const [activeReport, setActiveReport] = useState<ReportType>('expenses');
@@ -14,6 +15,13 @@ export const ReportsPage: React.FC = () => {
       description: 'Análisis de gastos por área y proyecto',
       icon: BarChart3,
       component: ExpenseReportPage
+    },
+    {
+      id: 'stock-alerts' as ReportType,
+      title: 'Alertas de Stock',
+      description: 'Productos con stock por debajo del mínimo',
+      icon: AlertTriangle,
+      component: StockAlertPage
     },
     // Aquí se pueden agregar más tipos de reportes en el futuro
     // {

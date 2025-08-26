@@ -45,3 +45,24 @@ export interface ChartData {
   gasto: number;
   movimientos: number;
 }
+
+// Nuevos tipos para alertas de stock
+export interface StockAlert {
+  id: string;
+  codigo: string;
+  descripcion: string;
+  stockActual: number;
+  stockMinimo: number;
+  ubicacion: string;
+  categoria: string;
+  proveedor: string;
+  ultimaActualizacion: string;
+  estado: 'critico' | 'bajo' | 'normal';
+}
+
+export interface StockAlertFilters {
+  categoria?: string;
+  ubicacion?: string;
+  estado?: 'critico' | 'bajo' | 'normal';
+  mostrarSoloCriticos?: boolean;
+}
