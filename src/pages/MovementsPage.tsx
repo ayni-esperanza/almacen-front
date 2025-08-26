@@ -23,9 +23,9 @@ export const MovementsPage = () => {
     }
   };
 
-  const handleUpdateQuantity = async (id: number, newQuantity: number) => {
+  const handleUpdateQuantity = async (id: string, newQuantity: number) => {
     try {
-      await movementsData.updateExitQuantity(id, { cantidad: newQuantity });
+      await movementsData.updateExitQuantity(parseInt(id), { cantidad: newQuantity });
     } catch (error) {
       console.error('Error updating quantity:', error);
     }
@@ -72,24 +72,18 @@ export const MovementsPage = () => {
         <MovementTable 
           movements={movementsData.entries} 
           type="entrada" 
-          loading={movementsData.loading}
-          error={movementsData.error}
-          refetch={movementsData.refetchEntries}
         />
       ) : (
         <MovementTable 
           movements={movementsData.exits} 
           type="salida" 
-          loading={movementsData.loading}
-          error={movementsData.error}
-          refetch={movementsData.refetchExits}
           onUpdateQuantity={handleUpdateQuantity} 
         />
       )}
 
       {showAddForm && (
         <AddMovementForm
-          type={activeSubTab}
+          type={activeSubTab === 'entradas' ? 'entrada' : 'salida'}
           onSubmit={handleAddMovement}
           onCancel={() => setShowAddForm(false)}
         />
