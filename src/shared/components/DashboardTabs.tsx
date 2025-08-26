@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Package, TrendingUp, TrendingDown, Wrench, Users } from 'lucide-react';
+import { Package, TrendingUp, TrendingDown, Wrench, Users, BarChart3 } from 'lucide-react';
 import { ProtectedComponent } from './ProtectedComponent';
 import { Permission } from '../types/permissions';
 
@@ -12,6 +12,7 @@ export const DashboardTabs = ({ currentPath }: DashboardTabsProps) => {
     { path: '/dashboard/inventory', label: 'Stock', icon: Package },
     { path: '/dashboard/movements', label: 'Movimientos', icon: TrendingUp },
     { path: '/dashboard/equipment', label: 'Equipos', icon: Wrench },
+    { path: '/dashboard/reports', label: 'Reportes', icon: BarChart3, permission: Permission.REPORTS_READ },
     { path: '/dashboard/users', label: 'Usuarios', icon: Users, permission: Permission.USERS_READ },
   ];
 
