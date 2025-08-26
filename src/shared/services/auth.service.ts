@@ -1,9 +1,10 @@
 import { apiClient } from './api';
-import { LoginCredentials, User } from '../../features/auth/types';
+import { LoginCredentials, User, UserRole } from '../../features/auth/types';
 
 export interface LoginResponse {
   access_token: string;
   username: string;
+  role: UserRole;
   isAuthenticated: boolean;
 }
 
@@ -30,7 +31,10 @@ class AuthService {
       localStorage.setItem('auth_token', response.data.access_token);
       
       const user: User = {
+        id: 0, // Will be set when we get profile
         username: response.data.username,
+        role: response.data.role,
+        isActive: true,
         isAuthenticated: true
       };
 
@@ -61,17 +65,14 @@ class AuthService {
     const token = localStorage.getItem('auth_token');
     if (!token) return null;
 
-    const response = await apiClient.get<{username: string; isAuthenticated: boolean}>('/auth/me');
+    const response = await apiClient.get<User>('/auth/me');
     
     if (response.error || !response.data) {
       localStorage.removeItem('auth_token');
       return null;
     }
 
-    return {
-      username: response.data.username,
-      isAuthenticated: response.data.isAuthenticated
-    };
+    return response.data;
   }
 
   isAuthenticated(): boolean {

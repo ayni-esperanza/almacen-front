@@ -4,6 +4,7 @@ import { DashboardPage } from '../pages/DashboardPage';
 import { InventoryPage } from '../pages/InventoryPage';
 import { MovementsPage } from '../pages/MovementsPage';
 import { EquipmentPage } from '../pages/EquipmentPage';
+import { UsersPage } from '../pages/UsersPage';
 import { ProtectedRoute } from './ProtectedRoute';
 
 const router = createBrowserRouter([
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
       {
         path: 'equipment',
         element: <EquipmentPage />,
+      },
+      {
+        path: 'users',
+        element: <UsersPage />,
       },
     ],
   },

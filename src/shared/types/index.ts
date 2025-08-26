@@ -1,4 +1,4 @@
-export type TabType = 'stock' | 'entradas' | 'salidas' | 'equipos';
+export type TabType = 'stock' | 'entradas' | 'salidas' | 'equipos' | 'users';
 
 // Re-export types from features for convenience
 export type { User, LoginCredentials } from '../../features/auth/types';
