@@ -1,15 +1,12 @@
 import React from 'react';
-import { LogOut, Package, FileText, User } from 'lucide-react';
-import { ProtectedComponent } from './ProtectedComponent';
-import { Permission } from '../types/permissions';
+import { LogOut, Package, User } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 interface HeaderProps {
   onLogout: () => void;
-  onGenerateReport: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onLogout, onGenerateReport }) => {
+export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
   const { user } = useAuth();
 
   return (
@@ -38,16 +35,6 @@ export const Header: React.FC<HeaderProps> = ({ onLogout, onGenerateReport }) =>
               </div>
             )}
 
-            <ProtectedComponent permission={Permission.REPORTS_GENERATE}>
-              <button
-                onClick={onGenerateReport}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                <FileText className="w-4 h-4" />
-                <span>Reporte PDF</span>
-              </button>
-            </ProtectedComponent>
-            
             <button
               onClick={onLogout}
               className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"

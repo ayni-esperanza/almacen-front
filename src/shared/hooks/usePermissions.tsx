@@ -30,6 +30,5 @@ export const usePermissions = () => {
     canUpdate: (module: string) => checkPermission(`${module}:update` as Permission),
     canDelete: (module: string) => checkPermission(`${module}:delete` as Permission),
     canManageUsers: () => checkPermission(Permission.USERS_READ),
-    canGenerateReports: () => checkPermission(Permission.REPORTS_GENERATE),
   };
 };

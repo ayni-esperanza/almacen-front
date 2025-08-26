@@ -21,7 +21,6 @@ export enum Permission {
 
   // Reports permissions
   REPORTS_READ = 'reports:read',
-  REPORTS_GENERATE = 'reports:generate',
 
   // User management permissions
   USERS_READ = 'users:read',
@@ -47,7 +46,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.EQUIPMENT_UPDATE,
     Permission.EQUIPMENT_DELETE,
     Permission.REPORTS_READ,
-    Permission.REPORTS_GENERATE,
     Permission.USERS_READ,
     Permission.USERS_CREATE,
     Permission.USERS_UPDATE,
@@ -68,7 +66,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.EQUIPMENT_UPDATE,
     Permission.EQUIPMENT_DELETE,
     Permission.REPORTS_READ,
-    Permission.REPORTS_GENERATE,
     Permission.USERS_READ,
     Permission.USERS_CREATE,
     Permission.USERS_UPDATE,
@@ -89,7 +86,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.EQUIPMENT_UPDATE,
     Permission.EQUIPMENT_DELETE,
     Permission.REPORTS_READ,
-    Permission.REPORTS_GENERATE,
     Permission.USERS_READ,
     Permission.USERS_CREATE,
     Permission.USERS_UPDATE,
