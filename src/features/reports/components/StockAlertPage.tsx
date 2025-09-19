@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Package, Filter, Download } from 'lucide-react';
 import { StockAlert, StockAlertFilters } from '../types';
-import { mockStockAlerts, filterStockAlerts } from '../utils/mockData';
-import { pdfExportService } from '../services/pdf-export.service';
+import { stockAlertsService } from '../services/stock-alerts.service';
 import { Pagination } from '../../../shared/components/Pagination';
 import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
 import { usePagination } from '../../../shared/hooks/usePagination';
@@ -32,9 +31,8 @@ export const StockAlertPage: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        // Simular carga de datos
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setStockAlerts(mockStockAlerts);
+        const data = await stockAlertsService.getStockAlerts(filters);
+        setStockAlerts(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al cargar alertas');
       } finally {
@@ -43,12 +41,11 @@ export const StockAlertPage: React.FC = () => {
     };
 
     loadStockAlerts();
-  }, []);
+  }, [filters]);
 
   // Aplicar filtros
   useEffect(() => {
-    const filtered = filterStockAlerts(stockAlerts, filters);
-    setFilteredAlerts(filtered);
+    setFilteredAlerts(stockAlerts);
   }, [stockAlerts, filters]);
 
   const updateFilters = (newFilters: Partial<StockAlertFilters>) => {
@@ -99,13 +96,7 @@ export const StockAlertPage: React.FC = () => {
 
   const handleExport = async () => {
     try {
-      const estadisticas = getEstadisticas();
-      
-      const blob = await pdfExportService.exportStockAlerts(
-        filteredAlerts,
-        filters,
-        estadisticas
-      );
+      const blob = await stockAlertsService.exportStockAlerts(filters);
 
       if (blob) {
         const url = window.URL.createObjectURL(blob);

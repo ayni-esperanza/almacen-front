@@ -34,8 +34,7 @@ export const useReports = () => {
     try {
       setLoading(true);
       setError(null);
-      // Usar datos de ejemplo mientras se implementa el backend
-      const data = filterExpenseReports(mockExpenseReports, filters);
+      const data = await reportsService.getExpenseReports(filters);
       setExpenseReports(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar reportes');
@@ -48,8 +47,7 @@ export const useReports = () => {
     try {
       setLoading(true);
       setError(null);
-      // Usar datos de ejemplo mientras se implementa el backend
-      const data = generateMonthlyData(mockExpenseReports, filters);
+      const data = await reportsService.getMonthlyExpenseData(filters);
       setMonthlyData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar datos mensuales');
@@ -62,8 +60,7 @@ export const useReports = () => {
     try {
       setLoading(true);
       setError(null);
-      // Usar datos de ejemplo mientras se implementa el backend
-      const data = generateAreaData(mockExpenseReports, filters);
+      const data = await reportsService.getAreaExpenseData(filters);
       setAreaData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar datos por área');
@@ -115,18 +112,7 @@ export const useReports = () => {
 
   const exportToPDF = async (): Promise<void> => {
     try {
-      const chartData = generateChartData();
-      const monthlyChartData = getMonthlyChartData();
-      
-      const blob = await pdfExportService.exportExpenseReport({
-        title: 'Reporte de Gastos Mensuales',
-        subtitle: `Análisis de gastos por ${filters.tipoReporte === 'area' ? 'área' : 'proyecto'}`,
-        data: expenseReports,
-        chartData,
-        monthlyChartData,
-        filters
-      });
-
+      const blob = await reportsService.exportExpenseReport(filters);
       if (blob) {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');

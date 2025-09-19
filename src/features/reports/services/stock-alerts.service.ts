@@ -49,14 +49,18 @@ class StockAlertsService {
       if (filters.estado) params.append('estado', filters.estado);
       if (filters.mostrarSoloCriticos) params.append('soloCriticos', 'true');
 
-      const response = await apiClient.get(`/reports/stock-alerts/export?${params.toString()}`);
-      
-      if (response.error) {
-        console.error('Error exporting stock alerts:', response.error);
-        return null;
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`http://localhost:3000/reports/stock-alerts/export?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to export stock alerts');
       }
-      
-      return response.data as Blob;
+
+      return await response.blob();
     } catch (error) {
       console.error('Error exporting stock alerts:', error);
       return null;
