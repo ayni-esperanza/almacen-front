@@ -80,7 +80,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({ movements, type, o
           </tr>
         </thead>
         <tbody>
-          {paginatedMovements.map((movement, index) => (
+          {paginatedMovements.map((movement) => (
             <tr
               key={movement.id}
               className="border-b border-gray-100 hover:bg-gray-50 transition-colors"

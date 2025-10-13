@@ -56,7 +56,8 @@ export const useMovements = (): UseMovementsReturn => {
 
   const createEntry = async (entryData: CreateEntryData): Promise<MovementEntry | null> => {
     try {
-      const newEntry = await movementsService.createEntry(entryData);
+      // Conecta directamente con el servicio de creación de entradas
+      const newEntry = await movementsService.createMovementEntry(entryData);
       if (newEntry) {
         await refetchEntries(); // Refresh the list
       }

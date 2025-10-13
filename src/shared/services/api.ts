@@ -1,5 +1,5 @@
 // Base API configuration and HTTP client
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:3001';
 
 export interface ApiResponse<T> {
   data?: T;
