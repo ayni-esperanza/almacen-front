@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { X, Wrench } from 'lucide-react';
 import { areas } from '../../inventory/data/mockData';
-import { EquipmentReport } from '../types';
+import { CreateEquipmentData } from '../../../shared/services/equipment.service';
 
 interface AddEquipmentFormProps {
-  onSubmit: (data: Omit<EquipmentReport, 'id'>) => void;
+  onSubmit: (data: CreateEquipmentData) => void;
   onCancel: () => void;
 }
 
@@ -28,12 +28,15 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
-      ...formData,
+      equipo: formData.equipo,
+      serieCodigo: formData.serieCodigo,
       cantidad: parseInt(formData.cantidad) || 1,
-      fechaRetorno: formData.fechaRetorno || undefined,
-      horaRetorno: formData.horaRetorno || undefined,
-      estadoRetorno: formData.estadoRetorno || undefined,
-      firmaRetorno: formData.firmaRetorno || undefined
+      estadoEquipo: formData.estadoEquipo,
+      responsable: formData.responsable,
+      fechaSalida: formData.fechaSalida,
+      horaSalida: formData.horaSalida,
+      areaProyecto: formData.areaProyecto,
+      firma: formData.firma
     });
   };
 

@@ -34,7 +34,9 @@ export const InventoryPage = () => {
         </div>
       </div>
 
-      <ProductTable {...inventoryData} />
+      <div className="container mx-auto">
+        <ProductTable {...inventoryData} />
+      </div>
 
       {showAddForm && (
         <AddProductForm

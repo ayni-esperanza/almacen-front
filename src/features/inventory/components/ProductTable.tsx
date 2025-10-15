@@ -1,10 +1,12 @@
 import React from 'react';
 import { Product } from '../types';
 import { StockIndicator } from '../../../shared/components/StockIndicator';
+import { ProductTableRow } from './ProductTableRow';
 import { Pagination } from '../../../shared/components/Pagination';
 import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
 import { usePagination } from '../../../shared/hooks/usePagination';
 import { Package, Search, AlertCircle } from 'lucide-react';
+import InventoryDashboard from './InventoryDashboard';
 
 interface ProductTableProps {
   products: Product[];
@@ -80,7 +82,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           <h2 className="text-xl font-bold">Inventario de Productos</h2>
         </div>
       </div>
-      
+      <InventoryDashboard />
       {/* Search Filter */}
       <div className="p-4 bg-gray-50 border-b">
         <div className="relative max-w-md">
@@ -106,42 +108,24 @@ export const ProductTable: React.FC<ProductTableProps> = ({
             <thead className="bg-gray-50 sticky top-0 z-10">
               <tr className="border-b border-gray-200">
                 <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Código</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Descripción</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Costo U.</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Nombre</th>
                 <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Ubicación</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Entradas</th>
                 <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Salidas</th>
                 <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Stock Actual</th>
                 <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Unidad</th>
                 <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Proveedor</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Costo Total</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Marca</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Categoría</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Costo Unitario</th>
               </tr>
             </thead>
             <tbody>
               {paginatedProducts.map((product) => (
-                <tr
+                <ProductTableRow
                   key={product.id}
-                  className={`border-b border-gray-100 hover:bg-green-50 transition-colors ${
-                    product.stockActual === 0 || product.stockActual <= 3 ? 'bg-red-50' : ''
-                  }`}
-                >
-                  <td className="px-4 py-4 font-medium text-gray-900">{product.codigo}</td>
-                  <td className="px-4 py-4 text-gray-700">{product.descripcion}</td>
-                  <td className="px-4 py-4 font-medium text-green-600">S/ {product.costoUnitario.toFixed(2)}</td>
-                  <td className="px-4 py-4">
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                      {product.ubicacion}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-center">{product.entradas}</td>
-                  <td className="px-4 py-4 text-center">{product.salidas}</td>
-                  <td className="px-4 py-4">
-                    <StockIndicator stock={product.stockActual} />
-                  </td>
-                  <td className="px-4 py-4 text-gray-600">{product.unidadMedida}</td>
-                  <td className="px-4 py-4 text-gray-600">{product.proveedor}</td>
-                  <td className="px-4 py-4 font-medium text-green-600">S/ {product.costoTotal.toFixed(2)}</td>
-                </tr>
+                  product={product}
+                  onEdit={refetch}
+                />
               ))}
             </tbody>
           </TableWithFixedHeader>

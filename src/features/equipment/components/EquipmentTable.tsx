@@ -4,9 +4,14 @@ import { Pagination } from '../../../shared/components/Pagination';
 import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
 import { usePagination } from '../../../shared/hooks/usePagination';
 import { Wrench, Clock, User, MapPin, Search } from 'lucide-react';
+import { ReturnEquipmentData } from '../../../shared/services/equipment.service';
 
 interface EquipmentTableProps {
   equipments: EquipmentReport[];
+  loading?: boolean;
+  error?: string | null;
+  refetch?: () => Promise<void>;
+  onReturn?: (id: number, returnData: ReturnEquipmentData) => Promise<EquipmentReport | null>;
 }
 
 const getStatusColor = (status: string) => {

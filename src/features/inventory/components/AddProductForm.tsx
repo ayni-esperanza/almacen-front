@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AddOptionModal } from '../../../shared/components/AddOptionModal';
 import { X } from 'lucide-react';
 
 interface AddProductFormProps {
@@ -10,16 +11,23 @@ interface AddProductFormProps {
 export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCancel, areas }) => {
   const [formData, setFormData] = useState({
     codigo: '',
-    descripcion: '',
+    nombre: '',
     costoUnitario: '',
     ubicacion: '',
     entradas: '0',
     salidas: '0',
-    stockActual: '0',
+    stockTotal: '0',
+    stockMinimo: '0',
     unidadMedida: '',
+    marca: '',
     proveedor: '',
     categoria: ''
   });
+
+  const [showUbicacionModal, setShowUbicacionModal] = useState(false);
+  const [showCategoriaModal, setShowCategoriaModal] = useState(false);
+  const [ubicaciones, setUbicaciones] = useState<string[]>(areas);
+  const [categorias, setCategorias] = useState<string[]>(['Herramientas', 'Lubricantes']);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,18 +35,16 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
     // Preparar datos según lo que espera el backend
     const productData = {
       codigo: formData.codigo,
-      descripcion: formData.descripcion,
+      nombre: formData.nombre,
       costoUnitario: parseFloat(formData.costoUnitario) || 0,
-      ubicacion: formData.ubicacion,
-      entradas: parseInt(formData.entradas) || 0,
-      salidas: parseInt(formData.salidas) || 0,
-      stockActual: parseInt(formData.stockActual) || 0,
       unidadMedida: formData.unidadMedida,
+      stockTotal: parseInt(formData.stockTotal) || 0,
+      stockMinimo: parseInt(formData.stockMinimo) || 0,
       proveedor: formData.proveedor,
-      ...(formData.categoria && { categoria: formData.categoria })
-      // costoTotal se calcula automáticamente en el backend
+      marca: formData.marca,
+      ubicacion: formData.ubicacion,
+      categoria: formData.categoria
     };
-    
     onSubmit(productData);
   };
 
@@ -63,180 +69,134 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
             </button>
           </div>
         </div>
-        
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Información Básica */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Código del Producto *</label>
-              <input
-                type="text"
-                name="codigo"
-                value={formData.codigo}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="Ej: AF2025"
-                required
-              />
+        <form onSubmit={handleSubmit} className="p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Columna izquierda */}
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Código del Producto *</label>
+                <input type="text" name="codigo" value={formData.codigo} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Costo Unitario *</label>
+                  <input type="number" name="costoUnitario" value={formData.costoUnitario} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required min="0" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Total *</label>
+                  <input type="number" name="stockTotal" value={formData.stockTotal || ''} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required min="0" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Proveedor *</label>
+                <select name="proveedor" value={formData.proveedor} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
+                  <option value="">Selecciona un Proveedor</option>
+                  {/* Aquí puedes mapear proveedores reales */}
+                  <option value="Proveedor 1">Proveedor 1</option>
+                  <option value="Proveedor 2">Proveedor 2</option>
+                </select>
+              </div>
+              <div className="flex gap-2 items-end">
+                <div className="w-full">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Ubicación *</label>
+                  <div className="flex flex-col gap-1">
+                    <select name="ubicacion" value={formData.ubicacion} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
+                      <option value="">Estante dentro del Almacén</option>
+                      {ubicaciones.map(area => (
+                        <option key={area} value={area}>{area}</option>
+                      ))}
+                    </select>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {ubicaciones.filter(u => !areas.includes(u)).map(area => (
+                        <span key={area} className="inline-flex items-center bg-gray-100 px-2 py-1 rounded text-xs">
+                          {area}
+                          <button type="button" className="ml-1 text-red-500" onClick={() => setUbicaciones(ubicaciones.filter(u => u !== area))}><X className="w-3 h-3" /></button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                  <button type="button" className="bg-gray-200 rounded-full p-2 ml-2" onClick={() => setShowUbicacionModal(true)}><span className="text-xl font-bold">+</span></button>
+              </div>
             </div>
-            
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Descripción *</label>
-              <input
-                type="text"
-                name="descripcion"
-                value={formData.descripcion}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="Descripción del producto"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Costos y Stock */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Costo Unitario (S/) *</label>
-              <input
-                type="number"
-                step="0.01"
-                name="costoUnitario"
-                value={formData.costoUnitario}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="0.00"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Unidad de Medida *</label>
-              <select
-                name="unidadMedida"
-                value={formData.unidadMedida}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                required
-              >
-                <option value="">Seleccionar unidad</option>
-                <option value="und">Unidad (und)</option>
-                <option value="lt">Litro (lt)</option>
-                <option value="kg">Kilogramo (kg)</option>
-                <option value="m">Metro (m)</option>
-                <option value="m2">Metro cuadrado (m²)</option>
-                <option value="m3">Metro cúbico (m³)</option>
-                <option value="pza">Pieza (pza)</option>
-                <option value="caja">Caja</option>
-                <option value="rollo">Rollo</option>
-                <option value="par">Par</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Stock y Movimientos */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Inicial</label>
-              <input
-                type="number"
-                name="stockActual"
-                value={formData.stockActual}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="0"
-                min="0"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Entradas Iniciales</label>
-              <input
-                type="number"
-                name="entradas"
-                value={formData.entradas}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="0"
-                min="0"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Salidas Iniciales</label>
-              <input
-                type="number"
-                name="salidas"
-                value={formData.salidas}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="0"
-                min="0"
-              />
+            {/* Columna derecha */}
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Nombre del Producto *</label>
+                <input type="text" name="nombre" value={formData.nombre || ''} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
+              </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Unidad de medida *</label>
+                  <select name="unidadMedida" value={formData.unidadMedida} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
+                    <option value="">Seleccionar unidad</option>
+                    <option value="und">Unidad (und)</option>
+                    <option value="lt">Litro (lt)</option>
+                    <option value="kg">Kilogramo (kg)</option>
+                    <option value="m">Metro (m)</option>
+                    <option value="m2">Metro cuadrado (m²)</option>
+                    <option value="m3">Metro cúbico (m³)</option>
+                    <option value="pza">Pieza (pza)</option>
+                    <option value="caja">Caja</option>
+                    <option value="rollo">Rollo</option>
+                    <option value="par">Par</option>
+                  </select>
+                </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Mínimo *</label>
+                  <input type="number" name="stockMinimo" value={formData.stockMinimo || ''} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required min="0" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Marca *</label>
+                <input type="text" name="marca" value={formData.marca || ''} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
+              </div>
+              <div className="flex gap-2 items-end">
+                <div className="w-full">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Categoría *</label>
+                  <div className="flex flex-col gap-1">
+                    <select name="categoria" value={formData.categoria} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
+                      <option value="">Selecciona una Categoría</option>
+                      {categorias.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {categorias.filter(c => c !== 'Herramientas' && c !== 'Lubricantes').map(cat => (
+                        <span key={cat} className="inline-flex items-center bg-gray-100 px-2 py-1 rounded text-xs">
+                          {cat}
+                          <button type="button" className="ml-1 text-red-500" onClick={() => setCategorias(categorias.filter(ca => ca !== cat))}><X className="w-3 h-3" /></button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                  <button type="button" className="bg-gray-200 rounded-full p-2 ml-2" onClick={() => setShowCategoriaModal(true)}><span className="text-xl font-bold">+</span></button>
+              </div>
             </div>
           </div>
-
-          {/* Ubicación y Proveedor */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Ubicación *</label>
-              <select
-                name="ubicacion"
-                value={formData.ubicacion}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                required
-              >
-                <option value="">Seleccionar ubicación</option>
-                {areas.map(area => (
-                  <option key={area} value={area}>{area}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Proveedor *</label>
-              <input
-                type="text"
-                name="proveedor"
-                value={formData.proveedor}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="Nombre del proveedor"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Categoría */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Categoría</label>
-            <input
-              type="text"
-              name="categoria"
-              value={formData.categoria}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              placeholder="Ej: Herramientas, Lubricantes, etc."
-            />
-          </div>
-          
-          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium"
-            >
-              Guardar Producto
-            </button>
+          <div className="flex justify-end gap-4 pt-8 border-t border-gray-200 mt-8">
+            <button type="button" onClick={onCancel} className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">Cancelar</button>
+            <button type="submit" className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium">Agregar Producto</button>
           </div>
         </form>
+          {/* Modales para agregar opción */}
+          <AddOptionModal
+            isOpen={showUbicacionModal}
+            onClose={() => setShowUbicacionModal(false)}
+            onSubmit={(option: string) => {
+              if (option && !ubicaciones.includes(option)) setUbicaciones([...ubicaciones, option]);
+              setShowUbicacionModal(false);
+            }}
+            title="Nueva Ubicación"
+            label="Ubicación *"
+          />
+          <AddOptionModal
+            isOpen={showCategoriaModal}
+            onClose={() => setShowCategoriaModal(false)}
+            onSubmit={(option: string) => {
+              if (option && !categorias.includes(option)) setCategorias([...categorias, option]);
+              setShowCategoriaModal(false);
+            }}
+            title="Nueva Categoría"
+            label="Categoría *"
+          />
       </div>
     </div>
   );

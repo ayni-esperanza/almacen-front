@@ -6,6 +6,7 @@ import { MovementsPage } from '../pages/MovementsPage';
 import { EquipmentPage } from '../pages/EquipmentPage';
 import { UsersPage } from '../pages/UsersPage';
 import { ReportsPage } from '../pages/ReportsPage';
+import ProvidersPage from '../pages/ProvidersPage';
 import { ProtectedRoute } from './ProtectedRoute';
 
 const router = createBrowserRouter([
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: 'reports',
         element: <ReportsPage />,
+      },
+      {
+        path: 'providers',
+        element: <ProvidersPage />,
       },
     ],
   },

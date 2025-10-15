@@ -88,7 +88,7 @@ export const UsersPage = () => {
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6">
           <div className="flex items-center space-x-3">
-            <Users className="w-6 h-6" />
+            <Users className="w-5 h-5" />
             <h2 className="text-xl font-bold">Gestión de Usuarios</h2>
           </div>
         </div>
@@ -107,23 +107,31 @@ export const UsersPage = () => {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6">
+    <>
+      <div className="mb-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Users className="w-6 h-6" />
-            <h2 className="text-xl font-bold">Gestión de Usuarios</h2>
-          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Usuarios</h1>
           <ProtectedComponent permission={Permission.USERS_CREATE}>
-            <button className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+            <button
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center space-x-2 font-medium shadow-md"
+            >
               <Plus className="w-4 h-4" />
               <span>Nuevo Usuario</span>
             </button>
           </ProtectedComponent>
         </div>
       </div>
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="rounded-t-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Users className="w-6 h-6" />
+              <h2 className="text-xl font-bold">Gestión de Usuarios</h2>
+            </div>
+          </div>
+        </div>
 
-      {users.length === 0 ? (
+        {users.length === 0 ? (
         <div className="p-8 text-center text-gray-500">
           <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
           <p>No se encontraron usuarios</p>
@@ -202,5 +210,6 @@ export const UsersPage = () => {
         </>
       )}
     </div>
+    </>
   );
 };

@@ -80,9 +80,9 @@ export const Pagination: React.FC<PaginationProps> = ({
               className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value={10}>10</option>
-              <option value={15}>15</option>
-              <option value={25}>25</option>
+              <option value={20}>20</option>
               <option value={50}>50</option>
+              <option value={100}>100</option>
             </select>
             <span className="text-sm text-gray-700">por página</span>
           </div>
