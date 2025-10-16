@@ -3,7 +3,7 @@ import { EquipmentReport } from '../types';
 import { Pagination } from '../../../shared/components/Pagination';
 import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
 import { usePagination } from '../../../shared/hooks/usePagination';
-import { Wrench, Clock, User, MapPin, Search } from 'lucide-react';
+import { Wrench, Search } from 'lucide-react';
 import { ReturnEquipmentData } from '../../../shared/services/equipment.service';
 
 interface EquipmentTableProps {
@@ -12,33 +12,78 @@ interface EquipmentTableProps {
   error?: string | null;
   refetch?: () => Promise<void>;
   onReturn?: (id: number, returnData: ReturnEquipmentData) => Promise<EquipmentReport | null>;
+  onEdit?: (equipment: EquipmentReport) => void;
 }
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'Bueno':
-      return 'bg-green-100 text-green-800';
-    case 'Regular':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'Malo':
-    case 'Dañado':
-      return 'bg-red-100 text-red-800';
-    case 'En Reparación':
-      return 'bg-blue-100 text-blue-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
+const STATUS_PRESETS: Record<string, { label: string; badgeClass: string; dotClass: string }> = {
+  bueno: {
+    label: 'NORMAL',
+    badgeClass: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    dotClass: 'bg-emerald-500',
+  },
+  regular: {
+    label: 'BAJO',
+    badgeClass: 'border-amber-200 bg-amber-50 text-amber-700',
+    dotClass: 'bg-amber-500',
+  },
+  malo: {
+    label: 'CRÍTICO',
+    badgeClass: 'border-rose-200 bg-rose-50 text-rose-700',
+    dotClass: 'bg-rose-500',
+  },
+  dañado: {
+    label: 'CRÍTICO',
+    badgeClass: 'border-rose-200 bg-rose-50 text-rose-700',
+    dotClass: 'bg-rose-500',
+  },
+  danado: {
+    label: 'CRÍTICO',
+    badgeClass: 'border-rose-200 bg-rose-50 text-rose-700',
+    dotClass: 'bg-rose-500',
+  },
+  enrreparacion: {
+    label: 'REPARACIÓN',
+    badgeClass: 'border-sky-200 bg-sky-50 text-sky-700',
+    dotClass: 'bg-sky-500',
+  },
+  enreparacion: {
+    label: 'REPARACIÓN',
+    badgeClass: 'border-sky-200 bg-sky-50 text-sky-700',
+    dotClass: 'bg-sky-500',
+  },
 };
 
-export const EquipmentTable: React.FC<EquipmentTableProps> = ({ equipments }) => {
+const getStatusBadge = (status?: string | null) => {
+  if (!status) {
+    return {
+      label: 'SIN ESTADO',
+      badgeClass: 'border-gray-200 bg-gray-50 text-gray-500',
+      dotClass: 'bg-gray-400',
+    };
+  }
+
+  const normalized = status.toLowerCase().replace(/[^a-z]/g, '');
+  return STATUS_PRESETS[normalized] ?? {
+    label: status.toUpperCase(),
+    badgeClass: 'border-gray-200 bg-gray-50 text-gray-600',
+    dotClass: 'bg-gray-400',
+  };
+};
+
+export const EquipmentTable: React.FC<EquipmentTableProps> = ({ equipments, onEdit }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
   
-  const filteredEquipments = equipments.filter(equipment =>
-    equipment.equipo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    equipment.serieCodigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    equipment.responsable.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    equipment.areaProyecto.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredEquipments = equipments.filter(equipment => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+
+    return (
+      equipment.equipo.toLowerCase().includes(term) ||
+      equipment.serieCodigo.toLowerCase().includes(term) ||
+      equipment.responsable.toLowerCase().includes(term) ||
+      equipment.areaProyecto.toLowerCase().includes(term)
+    );
+  });
 
   const {
     paginatedData: paginatedEquipments,
@@ -51,111 +96,86 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({ equipments }) =>
   } = usePagination({ data: filteredEquipments, initialItemsPerPage: 15 });
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6">
-        <div className="flex items-center space-x-3">
-          <Wrench className="w-6 h-6" />
-          <h2 className="text-xl font-bold">Reporte de Salidas de Herramientas/Equipos</h2>
+    <div className="overflow-hidden rounded-xl bg-white shadow-lg">
+      <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white">
+        <div className="flex items-center gap-3">
+          <Wrench className="h-6 w-6" />
+          <h2 className="text-xl font-semibold">Reporte de Salidas de Herramientas/Equipos</h2>
         </div>
       </div>
-      
-      {/* Search Filter */}
-      <div className="p-4 bg-gray-50 border-b">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+
+      <div className="border-b bg-gray-50 px-6 py-4">
+        <div className="relative max-w-xl">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             placeholder="Buscar por equipo, código, responsable o área..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={event => setSearchTerm(event.target.value)}
+            className="w-full rounded-full border border-gray-300 bg-white py-2 pl-12 pr-4 text-sm text-gray-700 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
           />
         </div>
       </div>
-      
+
       <TableWithFixedHeader maxHeight="600px">
-        <thead className="bg-gray-50 sticky top-0 z-10">
-          <tr className="border-b border-gray-200">
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Equipo</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Serie/Código</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Cant.</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Estado Equipo</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Responsable</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Fecha Salida</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Hora Salida</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Área/Proyecto</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Firma</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Fecha Retorno</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Hora Retorno</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Estado Retorno</th>
-            <th className="px-3 py-4 text-left font-semibold text-gray-700 bg-gray-50">Firma Retorno</th>
+        <thead className="sticky top-0 z-10">
+          <tr className="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <th className="px-4 py-3 text-left">Código</th>
+            <th className="px-4 py-3 text-left">Nombre</th>
+            <th className="px-4 py-3 text-center">Cantidad</th>
+            <th className="px-4 py-3 text-left">Área/Proyecto</th>
+            <th className="px-4 py-3 text-left">Responsable</th>
+            <th className="px-4 py-3 text-left">Estado</th>
+            <th className="px-4 py-3 text-left">Fecha de S.</th>
+            <th className="px-4 py-3 text-left">Hora de S.</th>
+            <th className="px-4 py-3 text-left border-l border-blue-100">Estado R.</th>
+            <th className="px-4 py-3 text-left">Fecha de R.</th>
+            <th className="px-4 py-3 text-left">Hora de R.</th>
+            <th className="px-4 py-3 text-left">Responsable</th>
           </tr>
         </thead>
         <tbody>
-          {paginatedEquipments.map((equipment) => (
-            <tr
-              key={equipment.id}
-              className="border-b border-gray-100 hover:bg-blue-50 transition-colors"
-            >
-              <td className="px-3 py-4 font-medium text-gray-900">{equipment.equipo}</td>
-              <td className="px-3 py-4 font-mono text-gray-700">{equipment.serieCodigo}</td>
-              <td className="px-3 py-4 text-center font-medium">{equipment.cantidad}</td>
-              <td className="px-3 py-4">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(equipment.estadoEquipo)}`}>
-                  {equipment.estadoEquipo}
-                </span>
-              </td>
-              <td className="px-3 py-4">
-                <div className="flex items-center space-x-2">
-                  <User className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-700">{equipment.responsable}</span>
-                </div>
-              </td>
-              <td className="px-3 py-4 text-gray-700">{equipment.fechaSalida}</td>
-              <td className="px-3 py-4">
-                <div className="flex items-center space-x-1">
-                  <Clock className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-700">{equipment.horaSalida}</span>
-                </div>
-              </td>
-              <td className="px-3 py-4">
-                <div className="flex items-center space-x-2">
-                  <MapPin className="w-4 h-4 text-gray-400" />
-                  <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                    {equipment.areaProyecto}
+          {paginatedEquipments.map(equipment => {
+            const salidaStatus = getStatusBadge(equipment.estadoEquipo);
+            const retornoStatus = getStatusBadge(equipment.estadoRetorno ?? null);
+
+            return (
+              <tr
+                key={equipment.id}
+                onClick={() => onEdit?.(equipment)}
+                className={`border-b border-gray-100 bg-white text-sm text-gray-600 transition hover:bg-blue-50 ${
+                  onEdit ? 'cursor-pointer' : ''
+                }`}
+              >
+                <td className="px-4 py-4 font-medium text-gray-700">{equipment.serieCodigo}</td>
+                <td className="px-4 py-4 font-medium text-gray-700">{equipment.equipo}</td>
+                <td className="px-4 py-4 text-center font-semibold text-gray-700">{equipment.cantidad}</td>
+                <td className="px-4 py-4 text-gray-600">{equipment.areaProyecto}</td>
+                <td className="px-4 py-4 text-gray-600">{equipment.responsable}</td>
+                <td className="px-4 py-4">
+                  <span
+                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold ${salidaStatus.badgeClass}`}
+                  >
+                    <span className={`h-2 w-2 rounded-full ${salidaStatus.dotClass}`} />
+                    {salidaStatus.label}
                   </span>
-                </div>
-              </td>
-              <td className="px-3 py-4 font-mono text-blue-600 font-medium">{equipment.firma}</td>
-              <td className="px-3 py-4 text-gray-700">{equipment.fechaRetorno || '-'}</td>
-              <td className="px-3 py-4">
-                {equipment.horaRetorno ? (
-                  <div className="flex items-center space-x-1">
-                    <Clock className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-700">{equipment.horaRetorno}</span>
-                  </div>
-                ) : (
-                  <span className="text-gray-400">-</span>
-                )}
-              </td>
-              <td className="px-3 py-4">
-                {equipment.estadoRetorno ? (
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(equipment.estadoRetorno)}`}>
-                    {equipment.estadoRetorno}
+                </td>
+                <td className="px-4 py-4 text-gray-600">{equipment.fechaSalida}</td>
+                <td className="px-4 py-4 text-gray-600">{equipment.horaSalida}</td>
+                <td className="border-l border-blue-100 px-4 py-4">
+                  <span
+                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold ${retornoStatus.badgeClass}`}
+                  >
+                    <span className={`h-2 w-2 rounded-full ${retornoStatus.dotClass}`} />
+                    {retornoStatus.label}
                   </span>
-                ) : (
-                  <span className="text-gray-400">-</span>
-                )}
-              </td>
-              <td className="px-3 py-4">
-                {equipment.firmaRetorno ? (
-                  <span className="font-mono text-blue-600 font-medium">{equipment.firmaRetorno}</span>
-                ) : (
-                  <span className="text-gray-400">-</span>
-                )}
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className="px-4 py-4 text-gray-600">{equipment.fechaRetorno ?? '-'}</td>
+                <td className="px-4 py-4 text-gray-600">{equipment.horaRetorno ?? '-'}</td>
+                <td className="px-4 py-4 text-gray-600">{equipment.firmaRetorno ?? '-'}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </TableWithFixedHeader>
 

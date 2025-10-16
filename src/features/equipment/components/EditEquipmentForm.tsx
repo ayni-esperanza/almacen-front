@@ -1,57 +1,156 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, Wrench, X } from 'lucide-react';
+import { EquipmentReport } from '../types';
 import { areas } from '../../inventory/data/mockData';
-import { CreateEquipmentData } from '../../../shared/services/equipment.service';
+import { ReturnEquipmentData, UpdateEquipmentData } from '../../../shared/services/equipment.service';
 
-interface AddEquipmentFormProps {
-  onSubmit: (data: CreateEquipmentData) => void;
+interface EditEquipmentFormProps {
+  equipment: EquipmentReport;
+  onSubmit: (data: UpdateEquipmentData) => Promise<void> | void;
   onCancel: () => void;
+  onSubmitReturn?: (data: ReturnEquipmentData) => Promise<void> | void;
 }
 
-type EstadoEquipo = CreateEquipmentData['estadoEquipo'];
-type EstadoRetorno = '' | 'Bueno' | 'Regular' | 'Malo' | 'Danado';
+const EQUIPMENT_STATES: { value: UpdateEquipmentData['estadoEquipo']; label: string }[] = [
+  { value: 'Bueno', label: 'Bueno' },
+  { value: 'Regular', label: 'Regular' },
+  { value: 'Malo', label: 'Malo' },
+  { value: 'En_Reparacion', label: 'En reparación' },
+  { value: 'Danado', label: 'Dañado' },
+];
 
-export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({
-    equipo: '',
-    serieCodigo: '',
-    cantidad: '1',
-    estadoEquipo: '' as '' | EstadoEquipo,
-    responsable: '',
-    fechaSalida: new Date().toISOString().split('T')[0],
-    horaSalida: new Date().toTimeString().slice(0, 5),
-    areaProyecto: '',
-    firma: '',
-    fechaRetorno: '',
-    horaRetorno: '',
-    estadoRetorno: '' as EstadoRetorno,
-    firmaRetorno: '',
-  });
+const RETURN_STATES: { value: ReturnEquipmentData['estadoRetorno']; label: string }[] = [
+  { value: 'Bueno', label: 'Bueno' },
+  { value: 'Regular', label: 'Regular' },
+  { value: 'Malo', label: 'Malo' },
+  { value: 'Danado', label: 'Dañado' },
+];
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+type FormState = {
+  equipo: string;
+  serieCodigo: string;
+  cantidad: string;
+  estadoEquipo: UpdateEquipmentData['estadoEquipo'] | '';
+  responsable: string;
+  fechaSalida: string;
+  horaSalida: string;
+  areaProyecto: string;
+  firma: string;
+  fechaRetorno: string;
+  horaRetorno: string;
+  estadoRetorno: '' | ReturnEquipmentData['estadoRetorno'];
+  firmaRetorno: string;
+};
+
+const normalizeEquipmentState = (
+  value?: string | null,
+): UpdateEquipmentData['estadoEquipo'] | '' => {
+  if (!value) return '';
+  const normalized = value.toLowerCase().replace(/[^a-z]/g, '');
+  if (normalized.includes('repar')) return 'En_Reparacion';
+  if (normalized.includes('dan')) return 'Danado';
+  if (normalized.includes('malo')) return 'Malo';
+  if (normalized.includes('regular')) return 'Regular';
+  if (normalized.includes('bueno')) return 'Bueno';
+  return '';
+};
+
+const normalizeReturnState = (
+  value?: string | null,
+): ReturnEquipmentData['estadoRetorno'] | '' => {
+  if (!value) return '';
+  const normalized = value.toLowerCase().replace(/[^a-z]/g, '');
+  if (normalized.includes('dan')) return 'Danado';
+  if (normalized.includes('malo')) return 'Malo';
+  if (normalized.includes('regular')) return 'Regular';
+  if (normalized.includes('bueno')) return 'Bueno';
+  return '';
+};
+
+export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({ equipment, onSubmit, onCancel, onSubmitReturn }) => {
+  const [formData, setFormData] = useState<FormState>(() => ({
+    equipo: equipment.equipo ?? '',
+    serieCodigo: equipment.serieCodigo ?? '',
+    cantidad: String(equipment.cantidad ?? 1),
+    estadoEquipo: normalizeEquipmentState(equipment.estadoEquipo),
+    responsable: equipment.responsable ?? '',
+    fechaSalida: equipment.fechaSalida ?? '',
+    horaSalida: equipment.horaSalida ?? '',
+    areaProyecto: equipment.areaProyecto ?? '',
+    firma: equipment.firma ?? '',
+    fechaRetorno: equipment.fechaRetorno ?? '',
+    horaRetorno: equipment.horaRetorno ?? '',
+    estadoRetorno: normalizeReturnState(equipment.estadoRetorno),
+    firmaRetorno: equipment.firmaRetorno ?? '',
+  }));
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setFormData({
+      equipo: equipment.equipo ?? '',
+      serieCodigo: equipment.serieCodigo ?? '',
+      cantidad: String(equipment.cantidad ?? 1),
+      estadoEquipo: normalizeEquipmentState(equipment.estadoEquipo),
+      responsable: equipment.responsable ?? '',
+      fechaSalida: equipment.fechaSalida ?? '',
+      horaSalida: equipment.horaSalida ?? '',
+      areaProyecto: equipment.areaProyecto ?? '',
+      firma: equipment.firma ?? '',
+      fechaRetorno: equipment.fechaRetorno ?? '',
+      horaRetorno: equipment.horaRetorno ?? '',
+      estadoRetorno: normalizeReturnState(equipment.estadoRetorno),
+      firmaRetorno: equipment.firmaRetorno ?? '',
+    });
+  }, [equipment]);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (!formData.estadoEquipo) {
+      setErrorMessage('Selecciona un estado del equipo.');
       return;
     }
 
-    onSubmit({
-      equipo: formData.equipo,
-      serieCodigo: formData.serieCodigo,
-      cantidad: parseInt(formData.cantidad, 10) || 1,
-      estadoEquipo: formData.estadoEquipo,
-      responsable: formData.responsable,
-      fechaSalida: formData.fechaSalida,
-      horaSalida: formData.horaSalida,
-      areaProyecto: formData.areaProyecto,
-      firma: formData.firma,
-    });
-  };
+    setSubmitting(true);
+    setErrorMessage(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    try {
+      await onSubmit({
+        equipo: formData.equipo.trim(),
+        serieCodigo: formData.serieCodigo.trim(),
+        cantidad: parseInt(formData.cantidad, 10) || 1,
+        estadoEquipo: formData.estadoEquipo,
+        responsable: formData.responsable.trim(),
+        fechaSalida: formData.fechaSalida,
+        horaSalida: formData.horaSalida,
+        areaProyecto: formData.areaProyecto,
+        firma: formData.firma.trim(),
+      });
+
+      const hasReturnData = formData.fechaRetorno && formData.horaRetorno && formData.estadoRetorno && formData.firmaRetorno;
+      if (hasReturnData && onSubmitReturn && formData.estadoRetorno) {
+        await onSubmitReturn({
+          fechaRetorno: formData.fechaRetorno,
+          horaRetorno: formData.horaRetorno,
+          estadoRetorno: formData.estadoRetorno as ReturnEquipmentData['estadoRetorno'],
+          firmaRetorno: formData.firmaRetorno.trim(),
+        });
+      }
+
+      onCancel();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'No se pudo actualizar el reporte');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -60,12 +159,13 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
         <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white">
           <div className="flex items-center gap-3">
             <Wrench className="h-6 w-6" />
-            <h2 className="text-xl font-semibold">Nueva Salida de Herramientas/Equipos</h2>
+            <h2 className="text-xl font-semibold">Editar Salida de Herramientas/Equipos</h2>
           </div>
           <button
             type="button"
             onClick={onCancel}
             className="rounded-full p-1 transition-colors hover:bg-white/20"
+            disabled={submitting}
           >
             <X className="h-6 w-6" />
           </button>
@@ -83,6 +183,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                 className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 placeholder="Ingresa código"
                 required
+                disabled={submitting}
               />
             </label>
 
@@ -96,6 +197,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                 className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 placeholder="Nombre del equipo"
                 required
+                disabled={submitting}
               />
             </label>
 
@@ -109,6 +211,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                 onChange={handleChange}
                 className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 required
+                disabled={submitting}
               />
             </label>
           </div>
@@ -123,13 +226,14 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                   onChange={handleChange}
                   className="w-full appearance-none rounded-2xl border border-gray-300 px-4 py-3 pr-12 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                   required
+                  disabled={submitting}
                 >
                   <option value="">Todos los estados</option>
-                  <option value="Bueno">Bueno</option>
-                  <option value="Regular">Regular</option>
-                  <option value="Malo">Malo</option>
-                  <option value="En_Reparacion">En reparación</option>
-                  <option value="Danado">Dañado</option>
+                  {EQUIPMENT_STATES.map(state => (
+                    <option key={state.value} value={state.value}>
+                      {state.label}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               </div>
@@ -145,6 +249,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                 className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 placeholder="Nombre del responsable"
                 required
+                disabled={submitting}
               />
             </label>
           </div>
@@ -159,6 +264,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                 onChange={handleChange}
                 className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 required
+                disabled={submitting}
               />
             </label>
 
@@ -171,6 +277,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                 onChange={handleChange}
                 className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 required
+                disabled={submitting}
               />
             </label>
 
@@ -183,6 +290,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                   onChange={handleChange}
                   className="w-full appearance-none rounded-2xl border border-gray-300 px-4 py-3 pr-12 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                   required
+                  disabled={submitting}
                 >
                   <option value="">Selecciona un área</option>
                   {areas.map(area => (
@@ -206,6 +314,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
               className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
               placeholder="Firma del responsable"
               required
+              disabled={submitting}
             />
           </label>
 
@@ -221,6 +330,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                   value={formData.fechaRetorno}
                   onChange={handleChange}
                   className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  disabled={submitting}
                 />
               </label>
 
@@ -232,6 +342,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                   value={formData.horaRetorno}
                   onChange={handleChange}
                   className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  disabled={submitting}
                 />
               </label>
             </div>
@@ -245,12 +356,14 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                     value={formData.estadoRetorno}
                     onChange={handleChange}
                     className="w-full appearance-none rounded-2xl border border-gray-300 px-4 py-3 pr-12 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                    disabled={submitting}
                   >
                     <option value="">Todos los estados</option>
-                    <option value="Bueno">Bueno</option>
-                    <option value="Regular">Regular</option>
-                    <option value="Malo">Malo</option>
-                    <option value="Danado">Dañado</option>
+                    {RETURN_STATES.map(state => (
+                      <option key={state.value} value={state.value}>
+                        {state.label}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 </div>
@@ -265,24 +378,33 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                   onChange={handleChange}
                   className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                   placeholder="Firma de retorno"
+                  disabled={submitting}
                 />
               </label>
             </div>
           </div>
+
+          {errorMessage && (
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errorMessage}
+            </div>
+          )}
 
           <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onCancel}
               className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50"
+              disabled={submitting}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700"
+              className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700 disabled:opacity-60"
+              disabled={submitting}
             >
-              Agregar Reporte
+              {submitting ? 'Guardando...' : 'Guardar Cambios'}
             </button>
           </div>
         </form>

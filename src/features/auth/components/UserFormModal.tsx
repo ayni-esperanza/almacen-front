@@ -123,6 +123,8 @@ export const UserFormModal = ({
     await onDelete();
   };
 
+  const showDeleteAction = mode === 'edit' && canDelete && onDelete;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div className="w-full max-w-4xl rounded-3xl bg-white shadow-2xl">
@@ -281,8 +283,12 @@ export const UserFormModal = ({
             </div>
           )}
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {mode === 'edit' && canDelete && onDelete && (
+          <div
+            className={`flex flex-col gap-4 sm:flex-row sm:items-center ${
+              showDeleteAction ? 'sm:justify-between' : 'sm:justify-end'
+            }`}
+          >
+            {showDeleteAction && (
               <button
                 type="button"
                 onClick={handleDelete}
@@ -292,18 +298,18 @@ export const UserFormModal = ({
                 Eliminar Usuario
               </button>
             )}
-            <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
+            <div className="flex flex-col gap-4 self-end sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 sm:w-auto"
+                className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
                 disabled={isSubmitting}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="w-full rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700 sm:w-auto"
+                className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Guardando...' : submitButtonLabel}
