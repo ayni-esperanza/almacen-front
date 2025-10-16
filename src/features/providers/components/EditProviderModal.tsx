@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Image as ImageIcon, Minus, Plus } from 'lucide-react';
 import { Provider } from '../types';
 
 interface EditProviderModalProps {
@@ -12,48 +13,49 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({ isOpen, on
   const [name, setName] = useState(provider?.name || '');
   const [email, setEmail] = useState(provider?.email || '');
   const [address, setAddress] = useState(provider?.address || '');
-  const [phones, setPhones] = useState<string[]>(provider?.phones || ['']);
+  const [phones, setPhones] = useState<string[]>(provider?.phones?.length ? provider.phones : ['']);
   const [photoUrl, setPhotoUrl] = useState<string>(provider?.photoUrl || '');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  React.useEffect(() => {
-    if (provider) {
-      setName(provider.name);
-      setEmail(provider.email);
-      setAddress(provider.address);
-      setPhones(provider.phones);
-      setPhotoUrl(provider.photoUrl || '');
-    }
+  useEffect(() => {
+    if (!provider) return;
+    setName(provider.name);
+    setEmail(provider.email);
+    setAddress(provider.address);
+    setPhones(provider.phones.length ? provider.phones : ['']);
+    setPhotoUrl(provider.photoUrl || '');
   }, [provider]);
 
-  const handlePhoneChange = (idx: number, value: string) => {
-    const updated = [...phones];
-    updated[idx] = value;
-    setPhones(updated);
+  const handlePhoneChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    setPhones(prev => prev.map((phone, idx) => (idx === index ? value : phone)));
   };
 
   const handleAddPhone = () => {
-    if (phones.length < 4) setPhones([...phones, '']);
+    setPhones(prev => (prev.length >= 4 ? prev : [...prev, '']));
   };
 
-  const handleRemovePhone = (idx: number) => {
-    setPhones(phones.filter((_, i) => i !== idx));
+  const handleRemovePhone = (index: number) => {
+    setPhones(prev => prev.filter((_, idx) => idx !== index));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setPhotoUrl(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
     if (!provider) return;
+
     onEdit({ ...provider, name, email, address, phones, photoUrl });
     onClose();
   };
@@ -61,85 +63,148 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({ isOpen, on
   if (!isOpen || !provider) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl">
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg px-6 py-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold">Editar Proveedor</h3>
-          <button onClick={onClose} className="text-white text-2xl font-bold">×</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-4xl rounded-[32px] bg-white shadow-2xl">
+        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4 text-white">
+          <h3 className="text-lg font-semibold">Editar Proveedor</h3>
+          <button type="button" onClick={onClose} className="text-2xl font-bold leading-none">×</button>
         </div>
-        <form onSubmit={handleSubmit} className="px-8 py-6">
-          <div className="flex gap-8">
-            <div className="flex flex-col items-center w-1/4 justify-center py-2">
-              <label className="block text-sm font-medium mb-3 text-center" style={{ color: '#374151' }}>Foto de Perfil</label>
-              <div className="border-2 border-purple-400 rounded-lg p-4 mb-4 w-32 h-32 flex items-center justify-center bg-purple-50">
+
+        <form onSubmit={handleSubmit} className="px-8 pb-8 pt-6">
+          <div className="grid gap-8 md:grid-cols-[240px_minmax(0,1fr)]">
+            <div className="flex flex-col items-center">
+              <span className="mb-3 text-sm font-semibold text-gray-600">Foto de Perfil</span>
+              <div className="flex h-40 w-40 items-center justify-center rounded-[32px] border-[3px] border-purple-200 bg-purple-50">
                 {photoUrl ? (
-                  <img src={photoUrl} alt="Foto" className="w-28 h-28 object-cover rounded" />
+                  <img src={photoUrl} alt="Foto" className="h-full w-full rounded-[24px] object-cover" />
                 ) : (
-                  <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-user">
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
-                  </svg>
+                  <ImageIcon className="h-16 w-16 text-purple-400" />
                 )}
               </div>
               <input
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
+                className="hidden"
                 onChange={handleImageChange}
               />
               <button
                 type="button"
-                className="bg-purple-600 text-white px-4 py-2 rounded mb-2 text-sm"
+                className="mt-4 rounded-full bg-purple-600 px-5 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-purple-700"
                 onClick={() => fileInputRef.current?.click()}
               >
                 Cambiar Imagen
               </button>
             </div>
-            <div className="flex-1 grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: '#374151' }}>Nombre *</label>
-                <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full border rounded px-3 py-2 transition-all duration-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: '#374151' }}>Teléfono *</label>
-                <div className="flex gap-2">
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <label className="md:col-span-2">
+                <span className="mb-2 block text-sm font-semibold text-gray-700">Nombre *</span>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={event => setName(event.target.value)}
+                  required
+                  maxLength={255}
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  placeholder="Nombre del proveedor"
+                />
+              </label>
+
+              <label>
+                <span className="mb-2 block text-sm font-semibold text-gray-700">Teléfono *</span>
+                <div className="flex items-center gap-2">
                   <input
                     type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={phones[0]}
-                    onChange={e => handlePhoneChange(0, e.target.value)}
+                    onChange={event => handlePhoneChange(0, event.target.value)}
                     required
-                    className="w-full border rounded px-3 py-2 transition-all duration-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                    placeholder="Número principal"
                   />
-                  <button type="button" onClick={handleAddPhone} disabled={phones.length >= 4} className="bg-purple-600 text-white px-2 rounded text-lg">+</button>
+                  <button
+                    type="button"
+                    onClick={handleAddPhone}
+                    disabled={phones.length >= 4}
+                    className={`flex h-10 w-10 items-center justify-center rounded-full border border-purple-300 text-purple-600 transition-colors hover:bg-purple-50 ${phones.length >= 4 ? 'cursor-not-allowed opacity-40 hover:bg-transparent' : ''}`}
+                    title="Agregar teléfono"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
                 </div>
-                {phones.length > 1 && phones.slice(1).map((phone, idx) => (
-                  <div key={idx} className="flex gap-2 mt-2">
+              </label>
+
+              <label>
+                <span className="mb-2 block text-sm font-semibold text-gray-700">Email *</span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={event => setEmail(event.target.value)}
+                  required
+                  maxLength={255}
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  placeholder="correo@ejemplo.com"
+                />
+              </label>
+
+              <label className="md:col-span-2">
+                <span className="mb-2 block text-sm font-semibold text-gray-700">Dirección</span>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={event => setAddress(event.target.value)}
+                  maxLength={255}
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  placeholder="Dirección comercial"
+                />
+              </label>
+
+              {phones.slice(1).map((phone, idx) => (
+                <label key={idx} className="md:col-span-2">
+                  <span className="mb-2 block text-sm font-semibold text-gray-700">Teléfono adicional</span>
+                  <div className="flex items-center gap-2">
                     <input
                       type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       value={phone}
-                      onChange={e => handlePhoneChange(idx + 1, e.target.value)}
+                      onChange={event => handlePhoneChange(idx + 1, event.target.value)}
                       required
-                      className="w-full border rounded px-3 py-2 transition-all duration-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                      placeholder="Número adicional"
                     />
-                    <button type="button" onClick={() => handleRemovePhone(idx + 1)} className="bg-red-500 text-white px-2 rounded text-lg">–</button>
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePhone(idx + 1)}
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-red-200 text-red-500 transition-colors hover:bg-red-50"
+                      title="Eliminar teléfono"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
                   </div>
-                ))}
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: '#374151' }}>Email *</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full border rounded px-3 py-2 transition-all duration-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: '#374151' }}>Dirección</label>
-                <input type="text" value={address} onChange={e => setAddress(e.target.value)} className="w-full border rounded px-3 py-2 transition-all duration-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none" />
-              </div>
+                </label>
+              ))}
             </div>
           </div>
-          <hr className="my-6" />
-          <div className="flex justify-end gap-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-gray-200">Cancelar</button>
-            <button type="submit" className="px-4 py-2 rounded bg-purple-600 text-white">Guardar Cambios</button>
+
+          <hr className="my-8 border-gray-200" />
+
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 sm:w-auto"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="w-full rounded-full bg-purple-600 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-purple-700 sm:w-auto"
+            >
+              Guardar Cambios
+            </button>
           </div>
         </form>
       </div>

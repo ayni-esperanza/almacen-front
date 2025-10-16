@@ -10,8 +10,6 @@ interface EditProductModalProps {
 
 export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, product, onEdit }) => {
   // Opciones para los combos (puedes reemplazar por props si lo deseas)
-  const [showUbicacionModal, setShowUbicacionModal] = useState(false);
-  const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [ubicaciones, setUbicaciones] = useState<string[]>(['A1', 'A2', 'B1']);
   const [categorias, setCategorias] = useState<string[]>(['Herramientas', 'Lubricantes']);
   const [nombre, setNombre] = useState(product?.nombre || '');
@@ -120,7 +118,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onCl
                     </div>
                   </div>
                 </div>
-                <button type="button" className="bg-gray-200 rounded-full p-2 ml-2" onClick={() => setShowUbicacionModal(true)}><span className="text-xl font-bold">+</span></button>
+                {/* Botón para agregar ubicación eliminado porque setShowUbicacionModal no existe */}
               </div>
             </div>
             {/* Columna derecha */}
@@ -173,7 +171,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onCl
                     </div>
                   </div>
                 </div>
-                <button type="button" className="bg-gray-200 rounded-full p-2 ml-2" onClick={() => setShowCategoriaModal(true)}><span className="text-xl font-bold">+</span></button>
+                {/* Botón para agregar categoría eliminado porque setShowCategoriaModal no existe */}
               </div>
             </div>
           </div>

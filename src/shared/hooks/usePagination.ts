@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 interface UsePaginationProps<T> {
   data: T[];
@@ -20,6 +20,10 @@ export const usePagination = <T>({ data, initialItemsPerPage = 15 }: UsePaginati
   }, [data.length, itemsPerPage]);
 
   const totalItems = data.length;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [data]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

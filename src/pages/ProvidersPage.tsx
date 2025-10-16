@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Plus, User, Phone, AlertCircle } from 'lucide-react';
+import { Plus, User, Phone, AlertCircle, Mail } from 'lucide-react';
 import { Provider } from '../features/providers/types';
 import { AddProviderModal } from '../features/providers/components/AddProviderModal';
 import { EditProviderModal } from '../features/providers/components/EditProviderModal';
@@ -93,7 +93,9 @@ const ProvidersPage = () => {
 
   // Función para abrir WhatsApp con el número
   const openWhatsApp = (phone: string) => {
-    const url = `https://wa.me/${phone}`;
+    const sanitized = phone.replace(/\D/g, '');
+    if (!sanitized) return;
+    const url = `https://wa.me/${sanitized}`;
     window.open(url, '_blank');
   };
 
@@ -180,8 +182,11 @@ const ProvidersPage = () => {
                         {provider.phones.map((phone, idx) => (
                           <button
                             key={idx}
-                            className="flex items-center px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium hover:bg-green-200 transition-colors"
-                            onClick={() => openWhatsApp(phone)}
+                            className="flex items-center px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium transition-colors hover:bg-green-200"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              openWhatsApp(phone);
+                            }}
                             type="button"
                             title={`Abrir WhatsApp de ${phone}`}
                           >
@@ -190,7 +195,12 @@ const ProvidersPage = () => {
                         ))}
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-gray-600 cursor-pointer" onClick={() => { setSelectedProvider(provider); setEditModalOpen(true); }}>{provider.email}</td>
+                    <td className="px-4 py-4 text-gray-600 cursor-pointer" onClick={() => { setSelectedProvider(provider); setEditModalOpen(true); }}>
+                      <span className="inline-flex items-center gap-2 rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
+                        <Mail className="h-4 w-4" />
+                        <span>{provider.email}</span>
+                      </span>
+                    </td>
                     <td className="px-4 py-4 text-gray-600 cursor-pointer" onClick={() => { setSelectedProvider(provider); setEditModalOpen(true); }}>{provider.address}</td>
                   </tr>
                 ))}

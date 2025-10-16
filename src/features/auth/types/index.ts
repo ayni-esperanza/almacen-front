@@ -12,6 +12,8 @@ export interface User {
   email: string | null;
   firstName: string | null;
   lastName: string | null;
+  phoneNumber?: string | null;
+  avatarUrl?: string | null;
   role: UserRole;
   isActive: boolean;
   isAuthenticated: boolean;
@@ -29,6 +31,8 @@ export interface CreateUserData {
   firstName?: string;
   lastName?: string;
   role: UserRole;
+  phoneNumber?: string;
+  avatarUrl?: string | null;
 }
 
 export interface UpdateUserData extends Partial<CreateUserData> {

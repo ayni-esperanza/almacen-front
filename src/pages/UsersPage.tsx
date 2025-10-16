@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Plus, Users, Edit, Trash2, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Plus, Users, AlertCircle, Phone, Mail } from 'lucide-react';
 import { User, UserRole } from '../features/auth/types';
 import { usersService } from '../shared/services/users.service';
 import { ProtectedComponent } from '../shared/components/ProtectedComponent';
@@ -7,11 +7,38 @@ import { Pagination } from '../shared/components/Pagination';
 import { TableWithFixedHeader } from '../shared/components/TableWithFixedHeader';
 import { Permission } from '../shared/types/permissions';
 import { usePagination } from '../shared/hooks/usePagination';
+import { usePermissions } from '../shared/hooks/usePermissions';
+import { UserFormModal, UserFormSubmitInput } from '../features/auth/components/UserFormModal';
 
 export const UsersPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [modalSubmitting, setModalSubmitting] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const { checkPermission } = usePermissions();
+  const canUpdateUsers = checkPermission(Permission.USERS_UPDATE);
+  const canDeleteUsers = checkPermission(Permission.USERS_DELETE);
+
+  const filteredUsers = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return users;
+
+    return users.filter((user) => {
+      const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ').toLowerCase();
+      return (
+        user.username.toLowerCase().includes(term) ||
+        (user.email?.toLowerCase() ?? '').includes(term) ||
+        fullName.includes(term) ||
+        user.role.toLowerCase().includes(term)
+      );
+    });
+  }, [users, searchTerm]);
 
   const {
     paginatedData: paginatedUsers,
@@ -21,7 +48,7 @@ export const UsersPage = () => {
     itemsPerPage,
     handlePageChange,
     handleItemsPerPageChange,
-  } = usePagination({ data: users, initialItemsPerPage: 15 });
+  } = usePagination({ data: filteredUsers, initialItemsPerPage: 15 });
 
   const fetchUsers = async () => {
     try {
@@ -55,14 +82,90 @@ export const UsersPage = () => {
     }
   };
 
-  const handleDeleteUser = async (userId: number) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-      try {
-        await usersService.deleteUser(userId);
-        await fetchUsers(); // Refresh the list
-      } catch (error) {
-        setError('Error al eliminar usuario');
+  const openWhatsApp = (phone: string) => {
+    const sanitized = phone.replace(/\D/g, '');
+    if (!sanitized) return;
+    window.open(`https://wa.me/${sanitized}`, '_blank');
+  };
+
+  const openCreateModal = () => {
+    setModalMode('create');
+    setSelectedUser(null);
+    setModalError(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (user: User) => {
+    if (!canUpdateUsers) return;
+    setModalMode('edit');
+    setSelectedUser(user);
+    setModalError(null);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedUser(null);
+    setModalError(null);
+  };
+
+  const buildAvatarValue = (values: UserFormSubmitInput) => values.avatarData ?? values.avatarUrl ?? undefined;
+
+  const handleSubmitModal = async (formValues: UserFormSubmitInput) => {
+    try {
+      setModalError(null);
+      setModalSubmitting(true);
+
+      if (modalMode === 'create') {
+        if (!formValues.password) {
+          throw new Error('La contraseña es obligatoria para crear un usuario.');
+        }
+
+        await usersService.createUser({
+          username: formValues.username,
+          password: formValues.password,
+          email: formValues.email,
+          role: formValues.role,
+          firstName: formValues.firstName,
+          lastName: formValues.lastName,
+          phoneNumber: formValues.phoneNumber,
+          avatarUrl: buildAvatarValue(formValues),
+        });
+      } else if (selectedUser) {
+        await usersService.updateUser(selectedUser.id, {
+          username: formValues.username,
+          email: formValues.email,
+          role: formValues.role,
+          firstName: formValues.firstName,
+          lastName: formValues.lastName,
+          phoneNumber: formValues.phoneNumber,
+          avatarUrl: buildAvatarValue(formValues) ?? null,
+          ...(formValues.password ? { password: formValues.password } : {}),
+        });
       }
+
+      await fetchUsers();
+      closeModal();
+    } catch (err) {
+      setModalError(err instanceof Error ? err.message : 'No se pudo guardar el usuario');
+    } finally {
+      setModalSubmitting(false);
+    }
+  };
+
+  const handleDeleteSelectedUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      setModalError(null);
+      setModalSubmitting(true);
+      await usersService.deleteUser(selectedUser.id);
+      await fetchUsers();
+      closeModal();
+    } catch (err) {
+      setModalError(err instanceof Error ? err.message : 'No se pudo eliminar el usuario');
+    } finally {
+      setModalSubmitting(false);
     }
   };
 
@@ -113,7 +216,9 @@ export const UsersPage = () => {
           <h1 className="text-2xl font-bold text-gray-900">Usuarios</h1>
           <ProtectedComponent permission={Permission.USERS_CREATE}>
             <button
+              type="button"
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center space-x-2 font-medium shadow-md"
+              onClick={openCreateModal}
             >
               <Plus className="w-4 h-4" />
               <span>Nuevo Usuario</span>
@@ -130,8 +235,19 @@ export const UsersPage = () => {
             </div>
           </div>
         </div>
+        <div className="border-b bg-gray-50 p-4">
+          <div className="relative w-full max-w-md">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Buscar por usuario, nombre, email o rol..."
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
+        </div>
 
-        {users.length === 0 ? (
+        {filteredUsers.length === 0 ? (
         <div className="p-8 text-center text-gray-500">
           <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
           <p>No se encontraron usuarios</p>
@@ -141,58 +257,82 @@ export const UsersPage = () => {
           <TableWithFixedHeader maxHeight="600px">
             <thead className="bg-gray-50 sticky top-0 z-10">
               <tr className="border-b border-gray-200">
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Foto</th>
                 <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Usuario</th>
                 <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Nombre</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Teléfono</th>
                 <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Email</th>
                 <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Rol</th>
                 <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Estado</th>
-                <th className="px-4 py-4 text-center font-semibold text-gray-700 bg-gray-50">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {paginatedUsers.map((user) => (
                 <tr
                   key={user.id}
-                  className="border-b border-gray-100 hover:bg-blue-50 transition-colors"
+                  onClick={canUpdateUsers ? () => openEditModal(user) : undefined}
+                  className={`border-b border-gray-100 transition-colors ${
+                    canUpdateUsers ? 'cursor-pointer hover:bg-blue-50' : 'hover:bg-gray-50'
+                  }`}
                 >
+                  <td className="px-4 py-4">
+                    {user.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt={user.username}
+                        className="h-10 w-10 rounded-full border border-gray-200 object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600 font-semibold">
+                        {user.firstName?.[0] || user.username[0]}
+                      </div>
+                    )}
+                  </td>
                   <td className="px-4 py-4 font-medium text-gray-900">{user.username}</td>
                   <td className="px-4 py-4 text-gray-700">
-                    {user.firstName && user.lastName 
-                      ? `${user.firstName} ${user.lastName}` 
-                      : '-'
-                    }
+                    {[user.firstName, user.lastName].filter(Boolean).join(' ') || '-'}
                   </td>
-                  <td className="px-4 py-4 text-gray-700">{user.email || '-'}</td>
+                  <td className="px-4 py-4 text-gray-700">
+                    {user.phoneNumber ? (
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openWhatsApp(user.phoneNumber || '');
+                        }}
+                        className="inline-flex items-center space-x-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+                        title="Abrir WhatsApp"
+                      >
+                        <Phone className="h-4 w-4" />
+                        <span>{user.phoneNumber}</span>
+                      </button>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
+                  <td className="px-4 py-4 text-gray-700">
+                    {user.email ? (
+                      <span className="inline-flex items-center space-x-2 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
+                        <Mail className="h-4 w-4" />
+                        <span>{user.email}</span>
+                      </span>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
                   <td className="px-4 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}>
+                    <span className={`px-2 py-1 text-xs font-medium ${getRoleBadgeColor(user.role)} rounded-full`}>
                       {user.role}
                     </span>
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      user.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span
+                      className={`px-2 py-1 text-xs font-medium ${
+                        user.isActive ? 'rounded-full bg-green-100 text-green-800' : 'rounded-full bg-red-100 text-red-800'
+                      }`}
+                    >
                       {user.isActive ? 'Activo' : 'Inactivo'}
                     </span>
-                  </td>
-                  <td className="px-4 py-4 text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      <ProtectedComponent permission={Permission.USERS_UPDATE}>
-                        <button className="text-blue-600 hover:text-blue-800 transition-colors">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                      </ProtectedComponent>
-                      <ProtectedComponent permission={Permission.USERS_DELETE}>
-                        <button 
-                          onClick={() => handleDeleteUser(user.id)}
-                          className="text-red-600 hover:text-red-800 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </ProtectedComponent>
-                    </div>
                   </td>
                 </tr>
               ))}
@@ -210,6 +350,17 @@ export const UsersPage = () => {
         </>
       )}
     </div>
+    <UserFormModal
+      isOpen={isModalOpen}
+      mode={modalMode}
+      initialUser={selectedUser ?? undefined}
+      isSubmitting={modalSubmitting}
+      errorMessage={modalError}
+      canDelete={modalMode === 'edit' && canDeleteUsers}
+      onClose={closeModal}
+      onSubmit={handleSubmitModal}
+      onDelete={modalMode === 'edit' && canDeleteUsers ? handleDeleteSelectedUser : undefined}
+    />
     </>
   );
 };
