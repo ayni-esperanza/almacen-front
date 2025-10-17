@@ -22,6 +22,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onCl
   const [proveedor, setProveedor] = useState(product?.proveedor || '');
   const [marca, setMarca] = useState(product?.marca || '');
   const [categoria, setCategoria] = useState(product?.categoria || '');
+  const inputClasses = 'w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30';
+  const labelClasses = 'block text-sm font-semibold text-gray-700 mb-2 dark:text-slate-200';
+  const chipClasses = 'inline-flex items-center rounded px-2 py-1 text-xs text-gray-700 bg-gray-100 dark:bg-slate-800 dark:text-slate-200';
 
   useEffect(() => {
     if (product) {
@@ -62,8 +65,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onCl
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white py-4 px-6 rounded-t-2xl">
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950">
+        <div className="rounded-t-2xl bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 text-white">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">Editar Producto</h2>
             <button
@@ -79,20 +82,20 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onCl
             {/* Columna izquierda */}
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Código del Producto *</label>
-                <input type="text" value={codigo} onChange={e => setCodigo(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
+                <label className={labelClasses}>Código del Producto *</label>
+                <input type="text" value={codigo} onChange={e => setCodigo(e.target.value)} className={inputClasses} required />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Costo Unitario *</label>
-                <input type="number" min={0} value={costoUnitario} onChange={e => setCostoUnitario(Number(e.target.value))} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
+                <label className={labelClasses}>Costo Unitario *</label>
+                <input type="number" min={0} value={costoUnitario} onChange={e => setCostoUnitario(Number(e.target.value))} className={inputClasses} required />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Actual *</label>
-                <input type="number" min={0} value={stockActual} onChange={e => setStockActual(Number(e.target.value))} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
+                <label className={labelClasses}>Stock Actual *</label>
+                <input type="number" min={0} value={stockActual} onChange={e => setStockActual(Number(e.target.value))} className={inputClasses} required />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Proveedor *</label>
-                <select value={proveedor} onChange={e => setProveedor(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
+                <label className={labelClasses}>Proveedor *</label>
+                <select value={proveedor} onChange={e => setProveedor(e.target.value)} className={`${inputClasses} appearance-none`} required>
                   <option value="">Selecciona un Proveedor</option>
                   <option value="Proveedor 1">Proveedor 1</option>
                   <option value="Proveedor 2">Proveedor 2</option>
@@ -100,9 +103,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onCl
               </div>
               <div className="flex gap-2 items-end">
                 <div className="w-full">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Ubicación *</label>
+                  <label className={labelClasses}>Ubicación *</label>
                   <div className="flex flex-col gap-1">
-                    <select value={ubicacion} onChange={e => setUbicacion(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
+                    <select value={ubicacion} onChange={e => setUbicacion(e.target.value)} className={`${inputClasses} appearance-none`} required>
                       <option value="">Estante dentro del Almacén</option>
                       {ubicaciones.map(area => (
                         <option key={area} value={area}>{area}</option>
@@ -110,9 +113,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onCl
                     </select>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {ubicaciones.filter(u => !['A1','A2','B1'].includes(u)).map(area => (
-                        <span key={area} className="inline-flex items-center bg-gray-100 px-2 py-1 rounded text-xs">
+                        <span key={area} className={`${chipClasses}`}>
                           {area}
-                          <button type="button" className="ml-1 text-red-500" onClick={() => setUbicaciones(ubicaciones.filter(u => u !== area))}>x</button>
+                          <button type="button" className="ml-1 text-red-500 dark:text-rose-300" onClick={() => setUbicaciones(ubicaciones.filter(u => u !== area))}>x</button>
                         </span>
                       ))}
                     </div>
@@ -124,12 +127,12 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onCl
             {/* Columna derecha */}
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Nombre del Producto *</label>
-                <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
+                <label className={labelClasses}>Nombre del Producto *</label>
+                <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} className={inputClasses} required />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Unidad de medida *</label>
-                <select value={unidadMedida} onChange={e => setUnidadMedida(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
+                <label className={labelClasses}>Unidad de medida *</label>
+                <select value={unidadMedida} onChange={e => setUnidadMedida(e.target.value)} className={`${inputClasses} appearance-none`} required>
                   <option value="">Seleccionar unidad</option>
                   <option value="und">Unidad (und)</option>
                   <option value="lt">Litro (lt)</option>
@@ -144,18 +147,18 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onCl
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Mínimo *</label>
-                <input type="number" min={0} value={stockMinimo} onChange={e => setStockMinimo(Number(e.target.value))} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
+                <label className={labelClasses}>Stock Mínimo *</label>
+                <input type="number" min={0} value={stockMinimo} onChange={e => setStockMinimo(Number(e.target.value))} className={inputClasses} required />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Marca *</label>
-                <input type="text" value={marca} onChange={e => setMarca(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
+                <label className={labelClasses}>Marca *</label>
+                <input type="text" value={marca} onChange={e => setMarca(e.target.value)} className={inputClasses} required />
               </div>
               <div className="flex gap-2 items-end">
                 <div className="w-full">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Categoría *</label>
+                  <label className={labelClasses}>Categoría *</label>
                   <div className="flex flex-col gap-1">
-                    <select value={categoria} onChange={e => setCategoria(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
+                    <select value={categoria} onChange={e => setCategoria(e.target.value)} className={`${inputClasses} appearance-none`} required>
                       <option value="">Selecciona una Categoría</option>
                       {categorias.map(cat => (
                         <option key={cat} value={cat}>{cat}</option>
@@ -163,9 +166,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onCl
                     </select>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {categorias.filter(c => c !== 'Herramientas' && c !== 'Lubricantes').map(cat => (
-                        <span key={cat} className="inline-flex items-center bg-gray-100 px-2 py-1 rounded text-xs">
+                        <span key={cat} className={chipClasses}>
                           {cat}
-                          <button type="button" className="ml-1 text-red-500" onClick={() => setCategorias(categorias.filter(ca => ca !== cat))}>x</button>
+                          <button type="button" className="ml-1 text-red-500 dark:text-rose-300" onClick={() => setCategorias(categorias.filter(ca => ca !== cat))}>x</button>
                         </span>
                       ))}
                     </div>
@@ -175,9 +178,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onCl
               </div>
             </div>
           </div>
-          <div className="flex justify-end gap-4 pt-8 border-t border-gray-200 mt-8">
-            <button type="button" onClick={onClose} className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">Cancelar</button>
-            <button type="submit" className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium">Guardar Cambios</button>
+          <div className="mt-8 flex justify-end gap-4 border-t border-gray-200 pt-8 dark:border-slate-800">
+            <button type="button" onClick={onClose} className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Cancelar</button>
+            <button type="submit" className="rounded-lg bg-green-500 px-6 py-3 font-medium text-white transition-colors hover:bg-green-600 dark:bg-emerald-500 dark:hover:bg-emerald-400">Guardar Cambios</button>
           </div>
         </form>
         {/* Modales para agregar opción */}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BarChart3, FileText, TrendingUp, AlertTriangle } from 'lucide-react';
+import { BarChart3, AlertTriangle } from 'lucide-react';
 import { ExpenseReportPage } from '../features/reports/components/ExpenseReportPage';
 import { StockAlertPage } from '../features/reports/components/StockAlertPage';
 
@@ -29,7 +29,7 @@ export const ReportsPage: React.FC = () => {
     //   title: 'Reporte de Inventario',
     //   description: 'Estado actual del inventario',
     //   icon: FileText,
-    //   component: InventoryReportPage
+  //   component: InventoryReportPage
     // },
     // {
     //   id: 'movements' as ReportType,
@@ -43,14 +43,14 @@ export const ReportsPage: React.FC = () => {
   const ActiveComponent = reports.find(r => r.id === activeReport)?.component;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+      <div className="border-b border-gray-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Reportes</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Reportes</h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
                 Análisis y estadísticas del sistema de almacén
               </p>
             </div>
@@ -59,8 +59,8 @@ export const ReportsPage: React.FC = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="border-b border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <nav className="-mb-px flex space-x-8">
             {reports.map((report) => {
               const Icon = report.icon;
@@ -70,8 +70,8 @@ export const ReportsPage: React.FC = () => {
                   onClick={() => setActiveReport(report.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                     activeReport === report.id
-                      ? 'border-green-500 text-green-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-green-500 text-green-600 dark:text-emerald-300'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-200'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -84,7 +84,7 @@ export const ReportsPage: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         {ActiveComponent && <ActiveComponent />}
       </div>
     </div>

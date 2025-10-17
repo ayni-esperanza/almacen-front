@@ -13,10 +13,10 @@ export const TableWithFixedHeader: React.FC<TableWithFixedHeaderProps> = ({
 }) => {
   return (
     <div 
-      className={`overflow-auto border border-gray-200 rounded-lg ${className}`}
+      className={`overflow-auto rounded-lg border border-gray-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 ${className}`}
       style={{ maxHeight }}
     >
-      <table className="w-full">
+      <table className="w-full text-sm text-gray-700 dark:text-slate-200">
         {children}
       </table>
     </div>

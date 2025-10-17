@@ -25,7 +25,7 @@ export const DashboardTabs = ({ currentPath }: DashboardTabsProps) => {
   };
 
   return (
-    <div className="flex items-center border-b border-gray-200 bg-gray-50 px-6">
+    <div className="flex items-center border-b border-gray-200 bg-gray-50 px-6 dark:border-slate-700 dark:bg-slate-900">
       {tabs.map(({ path, label, icon: Icon, permission }) => {
         const tabElement = (
           <Link
@@ -33,8 +33,8 @@ export const DashboardTabs = ({ currentPath }: DashboardTabsProps) => {
             to={path}
             className={`flex items-center space-x-2 px-6 py-4 text-sm font-medium transition-colors border-b-2 ${
               isActive(path)
-                ? 'text-blue-600 border-blue-600'
-                : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600'
             }`}
           >
             <Icon className="w-5 h-5" />

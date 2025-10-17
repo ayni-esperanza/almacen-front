@@ -13,26 +13,26 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({ product, onEdi
   return (
     <>
       <tr
-        className={`border-b border-gray-100 hover:bg-green-50 transition-colors ${
-          product.stockActual === 0 || product.stockActual <= 3 ? 'bg-red-50' : ''
+        className={`border-b border-gray-100 transition-colors hover:bg-green-50 dark:border-slate-800 dark:hover:bg-slate-800 ${
+          product.stockActual === 0 || product.stockActual <= 3 ? 'bg-red-50 dark:bg-rose-500/10' : 'bg-white dark:bg-slate-900'
         }`}
         onClick={() => setShowEditModal(true)}
         style={{ cursor: 'pointer' }}
       >
-        <td className="px-4 py-4 font-medium text-gray-900">{product.codigo}</td>
-        <td className="px-4 py-4 text-gray-700">{product.nombre}</td>
+        <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100">{product.codigo}</td>
+        <td className="px-4 py-4 text-gray-700 dark:text-slate-300">{product.nombre}</td>
         <td className="px-4 py-4">
-          <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+          <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-slate-800 dark:text-slate-200">
             {product.ubicacion}
           </span>
         </td>
-        <td className="px-4 py-4 text-center">{product.salidas}</td>
-        <td className="px-4 py-4">{product.stockActual}</td>
-        <td className="px-4 py-4 text-gray-600">{product.unidadMedida}</td>
-        <td className="px-4 py-4 text-gray-600">{product.proveedor}</td>
-        <td className="px-4 py-4 text-gray-600">{product.marca}</td>
-        <td className="px-4 py-4 text-gray-600">{product.categoria}</td>
-        <td className="px-4 py-4 font-medium text-green-600">S/ {product.costoUnitario?.toFixed(2) ?? '0.00'}</td>
+        <td className="px-4 py-4 text-center text-gray-700 dark:text-slate-200">{product.salidas}</td>
+        <td className="px-4 py-4 text-gray-700 dark:text-slate-200">{product.stockActual}</td>
+        <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{product.unidadMedida}</td>
+        <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{product.proveedor}</td>
+        <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{product.marca}</td>
+        <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{product.categoria}</td>
+        <td className="px-4 py-4 font-medium text-green-600 dark:text-emerald-300">S/ {product.costoUnitario?.toFixed(2) ?? '0.00'}</td>
       </tr>
       {showEditModal && (
         <EditProductModal

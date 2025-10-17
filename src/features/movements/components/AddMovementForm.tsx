@@ -22,6 +22,9 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
   }));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const entryInputClasses = "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/40";
+  const exitInputClasses = "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-rose-400 dark:focus:ring-rose-500/40";
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const parsedQuantity = parseInt(formData.cantidad, 10);
@@ -59,7 +62,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-3xl overflow-hidden rounded-[32px] bg-white shadow-2xl">
+      <div className="w-full max-w-3xl overflow-hidden rounded-[32px] bg-white shadow-2xl dark:bg-slate-950 dark:border dark:border-slate-800">
         <div className={`flex items-center justify-between rounded-t-[32px] bg-gradient-to-r ${gradientColor} px-6 py-4 text-white`}>
           <h2 className="text-xl font-semibold">
             {isEntry ? 'Nueva Entrada de Producto' : 'Nueva Salida de Producto'}
@@ -77,27 +80,27 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
           {isEntry ? (
             <>
               <div className="grid gap-5 md:grid-cols-2">
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Código del Producto *</span>
                   <input
                     type="text"
                     name="codigoProducto"
                     value={formData.codigoProducto}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    className={entryInputClasses}
                     placeholder="Ingresa el código"
                     required
                   />
                 </label>
 
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Nombre *</span>
                   <input
                     type="text"
                     name="descripcion"
                     value={formData.descripcion}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    className={entryInputClasses}
                     placeholder="Nombre del producto"
                     required
                   />
@@ -105,26 +108,26 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Fecha *</span>
                   <input
                     type="date"
                     name="fecha"
                     value={formData.fecha}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    className={entryInputClasses}
                     required
                   />
                 </label>
 
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Cantidad *</span>
                   <input
                     type="number"
                     name="cantidad"
                     value={formData.cantidad}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    className={entryInputClasses}
                     placeholder="Ingresa la cantidad"
                     min={1}
                     required
@@ -133,7 +136,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Precio Unitario (S/)</span>
                   <input
                     type="number"
@@ -142,20 +145,20 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
                     value={formData.precioUnitario}
                     onChange={handleChange}
                     min="0.01"
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    className={entryInputClasses}
                     placeholder="0.00"
                     required
                   />
                 </label>
 
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Área</span>
                   <input
                     type="text"
                     name="area"
                     value={formData.area}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    className={entryInputClasses}
                     placeholder="Área o proyecto"
                   />
                 </label>
@@ -164,7 +167,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
           ) : (
             <>
               <div className="grid gap-5 md:grid-cols-2">
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span className="flex items-center gap-2">
                     Fecha *
                   </span>
@@ -173,19 +176,19 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
                     name="fecha"
                     value={formData.fecha}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    className={exitInputClasses}
                     required
                   />
                 </label>
 
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Código *</span>
                   <input
                     type="text"
                     name="codigoProducto"
                     value={formData.codigoProducto}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    className={exitInputClasses}
                     placeholder="Ingresa el código"
                     required
                   />
@@ -193,27 +196,27 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Nombre *</span>
                   <input
                     type="text"
                     name="descripcion"
                     value={formData.descripcion}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    className={exitInputClasses}
                     placeholder="Nombre del producto"
                     required
                   />
                 </label>
 
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Cantidad *</span>
                   <input
                     type="number"
                     name="cantidad"
                     value={formData.cantidad}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    className={exitInputClasses}
                     placeholder="Ingresa la cantidad"
                     min={1}
                     required
@@ -222,15 +225,15 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
               </div>
 
               <div className="grid gap-5 md:grid-cols-3">
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Área *</span>
                   <div className="relative">
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
                     <select
                       name="area"
                       value={formData.area}
                       onChange={handleChange}
-                      className="w-full appearance-none rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                      className={`${exitInputClasses} appearance-none`}
                       required
                     >
                       <option value="" disabled>
@@ -245,27 +248,27 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
                   </div>
                 </label>
 
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Proyecto *</span>
                   <input
                     type="text"
                     name="proyecto"
                     value={formData.proyecto}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    className={exitInputClasses}
                     placeholder="Proyecto asignado"
                     required
                   />
                 </label>
 
-                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Responsable *</span>
                   <input
                     type="text"
                     name="responsable"
                     value={formData.responsable}
                     onChange={handleChange}
-                    className="rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    className={exitInputClasses}
                     placeholder="Nombre del responsable"
                     required
                   />

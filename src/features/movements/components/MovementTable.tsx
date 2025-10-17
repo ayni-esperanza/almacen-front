@@ -32,12 +32,12 @@ export const MovementTable: React.FC<MovementTableProps> = ({ movements, type, o
   } = usePagination({ data: filteredMovements, initialItemsPerPage: 15 });
 
   const isEntry = type === 'entrada';
-  const gradientColor = isEntry ? 'from-green-500 to-green-600' : 'from-red-500 to-red-600';
+  const gradientColor = isEntry ? 'from-green-500 to-green-600 dark:from-green-600 dark:to-emerald-700' : 'from-red-500 to-red-600 dark:from-red-600 dark:to-rose-700';
   const titleText = isEntry ? 'Entradas de Productos' : 'Salidas de Productos';
   const icon = isEntry ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />;
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="overflow-hidden rounded-xl bg-white shadow-lg dark:bg-slate-900 dark:border dark:border-slate-700">
       <div className={`bg-gradient-to-r ${gradientColor} text-white py-4 px-6`}>
         <div className="flex items-center space-x-3">
           {icon}
@@ -46,38 +46,38 @@ export const MovementTable: React.FC<MovementTableProps> = ({ movements, type, o
       </div>
       
       {/* Search Filter */}
-      <div className="p-4 bg-gray-50 border-b">
+      <div className="border-b bg-gray-50 p-4 dark:border-slate-700 dark:bg-slate-900">
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400 dark:text-slate-400" />
           <input
             type="text"
             placeholder="Buscar por código, descripción o responsable..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-green-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:ring-emerald-500"
           />
         </div>
       </div>
       
       <TableWithFixedHeader maxHeight="600px">
-        <thead className="bg-gray-50 sticky top-0 z-10">
-          <tr className="border-b border-gray-200">
-            <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Fecha</th>
-            <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Código</th>
+        <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-900">
+          <tr className="border-b border-gray-200 dark:border-slate-700">
+            <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-200">Fecha</th>
+            <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-200">Código</th>
             {isEntry ? (
               <>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Nombre</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Cantidad</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Área</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Costo U.</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-200">Nombre</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-200">Cantidad</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-200">Área</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-200">Costo U.</th>
               </>
             ) : (
               <>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Nombre</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Área</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Proyecto</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Responsable</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Cantidad</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-200">Nombre</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-200">Área</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-200">Proyecto</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-200">Responsable</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-200">Cantidad</th>
               </>
             )}
           </tr>
@@ -87,7 +87,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({ movements, type, o
             <tr>
               <td
                 colSpan={isEntry ? 6 : 7}
-                className="px-4 py-10 text-center text-sm text-gray-500"
+                className="px-4 py-10 text-center text-sm text-gray-500 dark:text-slate-400"
               >
                 No se encontraron {isEntry ? 'entradas' : 'salidas'} con los filtros aplicados.
               </td>
@@ -103,30 +103,30 @@ export const MovementTable: React.FC<MovementTableProps> = ({ movements, type, o
                     onEditExit(movement as MovementExit);
                   }
                 }}
-                className={`border-b border-gray-100 transition-colors ${
+                className={`border-b border-gray-100 transition-colors dark:border-slate-800 ${
                   (isEntry && onEditEntry) || (!isEntry && onEditExit)
-                    ? 'cursor-pointer hover:bg-gray-50'
-                    : 'hover:bg-gray-50'
+                    ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800'
+                    : 'hover:bg-gray-50 dark:hover:bg-slate-800'
                 }`}
               >
-                <td className="px-4 py-4 text-gray-700">{movement.fecha}</td>
-                <td className="px-4 py-4 font-medium text-gray-900">{movement.codigoProducto}</td>
+                <td className="px-4 py-4 text-gray-700 dark:text-slate-300">{movement.fecha}</td>
+                <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100">{movement.codigoProducto}</td>
                 {isEntry ? (
                   <>
-                    <td className="px-4 py-4 text-gray-700">{movement.descripcion}</td>
-                    <td className="px-4 py-4 font-medium text-gray-900">{movement.cantidad}</td>
-                    <td className="px-4 py-4 text-gray-600">{movement.area || '-'}</td>
-                    <td className="px-4 py-4 font-medium text-green-600">S/ {movement.precioUnitario.toFixed(2)}</td>
+                    <td className="px-4 py-4 text-gray-700 dark:text-slate-300">{movement.descripcion}</td>
+                    <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100">{movement.cantidad}</td>
+                    <td className="px-4 py-4 text-gray-600 dark:text-slate-400">{movement.area || '-'}</td>
+                    <td className="px-4 py-4 font-medium text-green-600 dark:text-emerald-400">S/ {movement.precioUnitario.toFixed(2)}</td>
                   </>
                 ) : (
                   <>
-                    <td className="px-4 py-4 text-gray-700">{movement.descripcion}</td>
-                    <td className="px-4 py-4 text-gray-600">{movement.area || '-'}</td>
-                    <td className="px-4 py-4 text-gray-600">
+                    <td className="px-4 py-4 text-gray-700 dark:text-slate-300">{movement.descripcion}</td>
+                    <td className="px-4 py-4 text-gray-600 dark:text-slate-400">{movement.area || '-'}</td>
+                    <td className="px-4 py-4 text-gray-600 dark:text-slate-400">
                       {'proyecto' in movement ? movement.proyecto || '-' : '-'}
                     </td>
-                    <td className="px-4 py-4 text-gray-600">{movement.responsable || '-'}</td>
-                    <td className="px-4 py-4 font-medium text-gray-900">{movement.cantidad}</td>
+                    <td className="px-4 py-4 text-gray-600 dark:text-slate-400">{movement.responsable || '-'}</td>
+                    <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100">{movement.cantidad}</td>
                   </>
                 )}
               </tr>

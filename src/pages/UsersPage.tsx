@@ -24,6 +24,7 @@ export const UsersPage = () => {
   const { checkPermission } = usePermissions();
   const canUpdateUsers = checkPermission(Permission.USERS_UPDATE);
   const canDeleteUsers = checkPermission(Permission.USERS_DELETE);
+  const searchInputClasses = 'w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400 dark:focus:ring-blue-500/40';
 
   const filteredUsers = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -70,15 +71,15 @@ export const UsersPage = () => {
   const getRoleBadgeColor = (role: UserRole): string => {
     switch (role) {
       case UserRole.JEFE:
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-200';
       case UserRole.GERENTE:
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-200';
       case UserRole.ASISTENTE:
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-emerald-500/20 dark:text-emerald-200';
       case UserRole.AYUDANTE:
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-amber-400/20 dark:text-amber-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-slate-700/30 dark:text-slate-200';
     }
   };
 
@@ -171,7 +172,7 @@ export const UsersPage = () => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6">
           <div className="flex items-center space-x-3">
             <Users className="w-6 h-6" />
@@ -180,7 +181,7 @@ export const UsersPage = () => {
         </div>
         <div className="p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando usuarios...</p>
+          <p className="mt-4 text-gray-600 dark:text-slate-300">Cargando usuarios...</p>
         </div>
       </div>
     );
@@ -188,7 +189,7 @@ export const UsersPage = () => {
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6">
           <div className="flex items-center space-x-3">
             <Users className="w-5 h-5" />
@@ -196,11 +197,11 @@ export const UsersPage = () => {
           </div>
         </div>
         <div className="p-8 text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 mb-4">{error}</p>
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
+          <p className="mb-4 text-red-600 dark:text-rose-300">{error}</p>
           <button
             onClick={fetchUsers}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
           >
             Reintentar
           </button>
@@ -213,7 +214,7 @@ export const UsersPage = () => {
     <>
       <div className="mb-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Usuarios</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Usuarios</h1>
           <ProtectedComponent permission={Permission.USERS_CREATE}>
             <button
               type="button"
@@ -226,7 +227,7 @@ export const UsersPage = () => {
           </ProtectedComponent>
         </div>
       </div>
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+  <div className="overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
         <div className="rounded-t-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -235,35 +236,35 @@ export const UsersPage = () => {
             </div>
           </div>
         </div>
-        <div className="border-b bg-gray-50 p-4">
+        <div className="border-b bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-900">
           <div className="relative w-full max-w-md">
             <input
               type="text"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Buscar por usuario, nombre, email o rol..."
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+              className={searchInputClasses}
             />
           </div>
         </div>
 
         {filteredUsers.length === 0 ? (
-        <div className="p-8 text-center text-gray-500">
-          <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+        <div className="p-8 text-center text-gray-500 dark:text-slate-400">
+          <Users className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-slate-600" />
           <p>No se encontraron usuarios</p>
         </div>
       ) : (
         <>
           <TableWithFixedHeader maxHeight="600px">
-            <thead className="bg-gray-50 sticky top-0 z-10">
-              <tr className="border-b border-gray-200">
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Foto</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Usuario</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Nombre</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Teléfono</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Email</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Rol</th>
-                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Estado</th>
+            <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-900">
+              <tr className="border-b border-gray-200 dark:border-slate-800">
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">Foto</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">Usuario</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">Nombre</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">Teléfono</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">Email</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">Rol</th>
+                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">Estado</th>
               </tr>
             </thead>
             <tbody>
@@ -271,8 +272,10 @@ export const UsersPage = () => {
                 <tr
                   key={user.id}
                   onClick={canUpdateUsers ? () => openEditModal(user) : undefined}
-                  className={`border-b border-gray-100 transition-colors ${
-                    canUpdateUsers ? 'cursor-pointer hover:bg-blue-50' : 'hover:bg-gray-50'
+                  className={`border-b border-gray-100 transition-colors dark:border-slate-800 ${
+                    canUpdateUsers
+                      ? 'cursor-pointer hover:bg-blue-50 dark:hover:bg-slate-800'
+                      : 'hover:bg-gray-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   <td className="px-4 py-4">
@@ -280,19 +283,19 @@ export const UsersPage = () => {
                       <img
                         src={user.avatarUrl}
                         alt={user.username}
-                        className="h-10 w-10 rounded-full border border-gray-200 object-cover"
+                        className="h-10 w-10 rounded-full border border-gray-200 object-cover dark:border-slate-700"
                       />
                     ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600 font-semibold">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full border border-blue-100 bg-blue-50 font-semibold text-blue-600 dark:border-blue-500/40 dark:bg-blue-500/15 dark:text-blue-200">
                         {user.firstName?.[0] || user.username[0]}
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-4 font-medium text-gray-900">{user.username}</td>
-                  <td className="px-4 py-4 text-gray-700">
+                  <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100">{user.username}</td>
+                  <td className="px-4 py-4 text-gray-700 dark:text-slate-300">
                     {[user.firstName, user.lastName].filter(Boolean).join(' ') || '-'}
                   </td>
-                  <td className="px-4 py-4 text-gray-700">
+                  <td className="px-4 py-4 text-gray-700 dark:text-slate-300">
                     {user.phoneNumber ? (
                       <button
                         type="button"
@@ -300,7 +303,7 @@ export const UsersPage = () => {
                           event.stopPropagation();
                           openWhatsApp(user.phoneNumber || '');
                         }}
-                        className="inline-flex items-center space-x-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+                        className="inline-flex items-center space-x-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-500/15 dark:text-emerald-200 dark:hover:bg-emerald-500/25"
                         title="Abrir WhatsApp"
                       >
                         <Phone className="h-4 w-4" />
@@ -310,9 +313,9 @@ export const UsersPage = () => {
                       '-'
                     )}
                   </td>
-                  <td className="px-4 py-4 text-gray-700">
+                  <td className="px-4 py-4 text-gray-700 dark:text-slate-300">
                     {user.email ? (
-                      <span className="inline-flex items-center space-x-2 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
+                      <span className="inline-flex items-center space-x-2 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/15 dark:text-blue-200">
                         <Mail className="h-4 w-4" />
                         <span>{user.email}</span>
                       </span>
@@ -328,7 +331,9 @@ export const UsersPage = () => {
                   <td className="px-4 py-4">
                     <span
                       className={`px-2 py-1 text-xs font-medium ${
-                        user.isActive ? 'rounded-full bg-green-100 text-green-800' : 'rounded-full bg-red-100 text-red-800'
+                        user.isActive
+                          ? 'rounded-full bg-green-100 text-green-800 dark:bg-emerald-500/15 dark:text-emerald-200'
+                          : 'rounded-full bg-red-100 text-red-800 dark:bg-rose-500/15 dark:text-rose-200'
                       }`}
                     >
                       {user.isActive ? 'Activo' : 'Inactivo'}

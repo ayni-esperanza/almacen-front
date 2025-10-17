@@ -55,148 +55,266 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
     });
   };
 
+  const labelClasses = 'block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2';
+  const inputClasses = 'w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30';
+  const selectClasses = 'w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30';
+  const chipClasses = 'inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-slate-800 dark:text-slate-200';
+  const iconButtonClasses = 'flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800';
+  const dividerClasses = 'border-t border-gray-200 pt-8 dark:border-slate-800';
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white py-4 px-6 rounded-t-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm dark:bg-slate-950/70">
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950">
+        <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 text-white">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">Nuevo Producto</h2>
             <button
               onClick={onCancel}
-              className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1 transition-colors"
+              className="rounded-full p-1 text-white transition-colors hover:bg-white/20 dark:hover:bg-white/10"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
         </div>
-        <form onSubmit={handleSubmit} className="p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Columna izquierda */}
+  <form onSubmit={handleSubmit} className="space-y-8 bg-white px-8 pb-8 pt-6 dark:bg-slate-950">
+          <div className="grid gap-8 md:grid-cols-2">
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Código del Producto *</label>
-                <input type="text" name="codigo" value={formData.codigo} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
+                <label className={labelClasses}>Código del Producto *</label>
+                <input
+                  type="text"
+                  name="codigo"
+                  value={formData.codigo}
+                  onChange={handleChange}
+                  className={inputClasses}
+                  required
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Costo Unitario *</label>
-                  <input type="number" name="costoUnitario" value={formData.costoUnitario} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required min="0" />
+                <label className={labelClasses}>Costo Unitario *</label>
+                <input
+                  type="number"
+                  name="costoUnitario"
+                  value={formData.costoUnitario}
+                  onChange={handleChange}
+                  className={inputClasses}
+                  min="0"
+                  required
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Total *</label>
-                  <input type="number" name="stockTotal" value={formData.stockTotal || ''} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required min="0" />
+                <label className={labelClasses}>Stock Total *</label>
+                <input
+                  type="number"
+                  name="stockTotal"
+                  value={formData.stockTotal || ''}
+                  onChange={handleChange}
+                  className={inputClasses}
+                  min="0"
+                  required
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Proveedor *</label>
-                <select name="proveedor" value={formData.proveedor} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
-                  <option value="">Selecciona un Proveedor</option>
-                  {/* Aquí puedes mapear proveedores reales */}
+                <label className={labelClasses}>Proveedor *</label>
+                <select
+                  name="proveedor"
+                  value={formData.proveedor}
+                  onChange={handleChange}
+                  className={selectClasses}
+                  required
+                >
+                  <option value="">Selecciona un proveedor</option>
                   <option value="Proveedor 1">Proveedor 1</option>
                   <option value="Proveedor 2">Proveedor 2</option>
                 </select>
               </div>
-              <div className="flex gap-2 items-end">
+              <div className="flex items-end gap-3">
                 <div className="w-full">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Ubicación *</label>
-                  <div className="flex flex-col gap-1">
-                    <select name="ubicacion" value={formData.ubicacion} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
-                      <option value="">Estante dentro del Almacén</option>
+                  <label className={labelClasses}>Ubicación *</label>
+                  <div className="flex flex-col gap-2">
+                    <select
+                      name="ubicacion"
+                      value={formData.ubicacion}
+                      onChange={handleChange}
+                      className={selectClasses}
+                      required
+                    >
+                      <option value="">Estante dentro del almacén</option>
                       {ubicaciones.map(area => (
-                        <option key={area} value={area}>{area}</option>
+                        <option key={area} value={area}>
+                          {area}
+                        </option>
                       ))}
                     </select>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {ubicaciones.filter(u => !areas.includes(u)).map(area => (
-                        <span key={area} className="inline-flex items-center bg-gray-100 px-2 py-1 rounded text-xs">
-                          {area}
-                          <button type="button" className="ml-1 text-red-500" onClick={() => setUbicaciones(ubicaciones.filter(u => u !== area))}><X className="w-3 h-3" /></button>
-                        </span>
-                      ))}
+                    <div className="flex flex-wrap gap-2">
+                      {ubicaciones
+                        .filter(u => !areas.includes(u))
+                        .map(area => (
+                          <span key={area} className={chipClasses}>
+                            {area}
+                            <button
+                              type="button"
+                              className="text-red-500 transition-colors hover:text-red-600"
+                              onClick={() => setUbicaciones(ubicaciones.filter(u => u !== area))}
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </span>
+                        ))}
                     </div>
                   </div>
                 </div>
-                  <button type="button" className="bg-gray-200 rounded-full p-2 ml-2" onClick={() => setShowUbicacionModal(true)}><span className="text-xl font-bold">+</span></button>
+                <button
+                  type="button"
+                  className={iconButtonClasses}
+                  onClick={() => setShowUbicacionModal(true)}
+                >
+                  <span className="text-xl font-bold">+</span>
+                </button>
               </div>
             </div>
-            {/* Columna derecha */}
+
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Nombre del Producto *</label>
-                <input type="text" name="nombre" value={formData.nombre || ''} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
-              </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Unidad de medida *</label>
-                  <select name="unidadMedida" value={formData.unidadMedida} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
-                    <option value="">Seleccionar unidad</option>
-                    <option value="und">Unidad (und)</option>
-                    <option value="lt">Litro (lt)</option>
-                    <option value="kg">Kilogramo (kg)</option>
-                    <option value="m">Metro (m)</option>
-                    <option value="m2">Metro cuadrado (m²)</option>
-                    <option value="m3">Metro cúbico (m³)</option>
-                    <option value="pza">Pieza (pza)</option>
-                    <option value="caja">Caja</option>
-                    <option value="rollo">Rollo</option>
-                    <option value="par">Par</option>
-                  </select>
-                </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Mínimo *</label>
-                  <input type="number" name="stockMinimo" value={formData.stockMinimo || ''} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required min="0" />
+                <label className={labelClasses}>Nombre del Producto *</label>
+                <input
+                  type="text"
+                  name="nombre"
+                  value={formData.nombre || ''}
+                  onChange={handleChange}
+                  className={inputClasses}
+                  required
+                />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Marca *</label>
-                <input type="text" name="marca" value={formData.marca || ''} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required />
+                <label className={labelClasses}>Unidad de medida *</label>
+                <select
+                  name="unidadMedida"
+                  value={formData.unidadMedida}
+                  onChange={handleChange}
+                  className={selectClasses}
+                  required
+                >
+                  <option value="">Seleccionar unidad</option>
+                  <option value="und">Unidad (und)</option>
+                  <option value="lt">Litro (lt)</option>
+                  <option value="kg">Kilogramo (kg)</option>
+                  <option value="m">Metro (m)</option>
+                  <option value="m2">Metro cuadrado (m²)</option>
+                  <option value="m3">Metro cúbico (m³)</option>
+                  <option value="pza">Pieza (pza)</option>
+                  <option value="caja">Caja</option>
+                  <option value="rollo">Rollo</option>
+                  <option value="par">Par</option>
+                </select>
               </div>
-              <div className="flex gap-2 items-end">
+              <div>
+                <label className={labelClasses}>Stock Mínimo *</label>
+                <input
+                  type="number"
+                  name="stockMinimo"
+                  value={formData.stockMinimo || ''}
+                  onChange={handleChange}
+                  className={inputClasses}
+                  min="0"
+                  required
+                />
+              </div>
+              <div>
+                <label className={labelClasses}>Marca *</label>
+                <input
+                  type="text"
+                  name="marca"
+                  value={formData.marca || ''}
+                  onChange={handleChange}
+                  className={inputClasses}
+                  required
+                />
+              </div>
+              <div className="flex items-end gap-3">
                 <div className="w-full">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Categoría *</label>
-                  <div className="flex flex-col gap-1">
-                    <select name="categoria" value={formData.categoria} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-3" required>
-                      <option value="">Selecciona una Categoría</option>
+                  <label className={labelClasses}>Categoría *</label>
+                  <div className="flex flex-col gap-2">
+                    <select
+                      name="categoria"
+                      value={formData.categoria}
+                      onChange={handleChange}
+                      className={selectClasses}
+                      required
+                    >
+                      <option value="">Selecciona una categoría</option>
                       {categorias.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
                       ))}
                     </select>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {categorias.filter(c => c !== 'Herramientas' && c !== 'Lubricantes').map(cat => (
-                        <span key={cat} className="inline-flex items-center bg-gray-100 px-2 py-1 rounded text-xs">
-                          {cat}
-                          <button type="button" className="ml-1 text-red-500" onClick={() => setCategorias(categorias.filter(ca => ca !== cat))}><X className="w-3 h-3" /></button>
-                        </span>
-                      ))}
+                    <div className="flex flex-wrap gap-2">
+                      {categorias
+                        .filter(c => c !== 'Herramientas' && c !== 'Lubricantes')
+                        .map(cat => (
+                          <span key={cat} className={chipClasses}>
+                            {cat}
+                            <button
+                              type="button"
+                              className="text-red-500 transition-colors hover:text-red-600"
+                              onClick={() => setCategorias(categorias.filter(ca => ca !== cat))}
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </span>
+                        ))}
                     </div>
                   </div>
                 </div>
-                  <button type="button" className="bg-gray-200 rounded-full p-2 ml-2" onClick={() => setShowCategoriaModal(true)}><span className="text-xl font-bold">+</span></button>
+                <button
+                  type="button"
+                  className={iconButtonClasses}
+                  onClick={() => setShowCategoriaModal(true)}
+                >
+                  <span className="text-xl font-bold">+</span>
+                </button>
               </div>
             </div>
           </div>
-          <div className="flex justify-end gap-4 pt-8 border-t border-gray-200 mt-8">
-            <button type="button" onClick={onCancel} className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">Cancelar</button>
-            <button type="submit" className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium">Agregar Producto</button>
+
+          <div className={`flex flex-col gap-4 ${dividerClasses} sm:flex-row sm:justify-end`}>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="rounded-full bg-green-500 px-6 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-green-600 dark:bg-green-500 dark:hover:bg-green-400"
+            >
+              Agregar Producto
+            </button>
           </div>
         </form>
-          {/* Modales para agregar opción */}
-          <AddOptionModal
-            isOpen={showUbicacionModal}
-            onClose={() => setShowUbicacionModal(false)}
-            onSubmit={(option: string) => {
-              if (option && !ubicaciones.includes(option)) setUbicaciones([...ubicaciones, option]);
-              setShowUbicacionModal(false);
-            }}
-            title="Nueva Ubicación"
-            label="Ubicación *"
-          />
-          <AddOptionModal
-            isOpen={showCategoriaModal}
-            onClose={() => setShowCategoriaModal(false)}
-            onSubmit={(option: string) => {
-              if (option && !categorias.includes(option)) setCategorias([...categorias, option]);
-              setShowCategoriaModal(false);
-            }}
-            title="Nueva Categoría"
-            label="Categoría *"
-          />
+        {/* Modales para agregar opción */}
+        <AddOptionModal
+          isOpen={showUbicacionModal}
+          onClose={() => setShowUbicacionModal(false)}
+          onSubmit={(option: string) => {
+            if (option && !ubicaciones.includes(option)) setUbicaciones([...ubicaciones, option]);
+            setShowUbicacionModal(false);
+          }}
+          title="Nueva Ubicación"
+          label="Ubicación *"
+        />
+        <AddOptionModal
+          isOpen={showCategoriaModal}
+          onClose={() => setShowCategoriaModal(false)}
+          onSubmit={(option: string) => {
+            if (option && !categorias.includes(option)) setCategorias([...categorias, option]);
+            setShowCategoriaModal(false);
+          }}
+          title="Nueva Categoría"
+          label="Categoría *"
+        />
       </div>
     </div>
   );

@@ -51,6 +51,8 @@ export const UserFormModal = ({
   const [showPassword, setShowPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarData, setAvatarData] = useState<string | null>(null);
+  const inputClasses = 'w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-300 dark:focus:ring-blue-500/30';
+  const labelClasses = 'mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200';
 
   const submitButtonLabel = useMemo(() => (mode === 'create' ? 'Agregar Usuario' : 'Guardar Cambios'), [mode]);
 
@@ -127,7 +129,7 @@ export const UserFormModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="w-full max-w-4xl rounded-3xl bg-white shadow-2xl">
+      <div className="w-full max-w-4xl rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950">
         <div className="flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white">
           <h2 className="text-xl font-semibold">{title}</h2>
           <button
@@ -142,8 +144,8 @@ export const UserFormModal = ({
         <form onSubmit={handleSubmit} className="px-8 pb-8 pt-6">
           <div className="grid gap-8 md:grid-cols-[220px_minmax(0,1fr)]">
             <div className="flex flex-col items-center justify-start">
-              <span className="mb-3 text-sm font-semibold text-gray-600">Foto de Perfil</span>
-              <div className="flex h-40 w-40 items-center justify-center rounded-[32px] border-4 border-blue-200 bg-blue-50">
+              <span className="mb-3 text-sm font-semibold text-gray-600 dark:text-slate-300">Foto de Perfil</span>
+              <div className="flex h-40 w-40 items-center justify-center rounded-[32px] border-4 border-blue-200 bg-blue-50 dark:border-blue-400/60 dark:bg-blue-500/15">
                 {avatarPreview ? (
                   <img
                     src={avatarPreview}
@@ -172,27 +174,27 @@ export const UserFormModal = ({
 
             <div className="grid gap-6 md:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className={labelClasses}>
                   Nombres *
                 </label>
                 <input
                   type="text"
                   value={fullName}
                   onChange={event => setFullName(event.target.value)}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className={inputClasses}
                   placeholder="Ingresa nombres"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className={labelClasses}>
                   Rol *
                 </label>
                 <select
                   value={role}
                   onChange={event => setRole(event.target.value as UserRole)}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className={`${inputClasses} appearance-none`}
                   required
                 >
                   {Object.values(UserRole).map(roleOption => (
@@ -204,49 +206,49 @@ export const UserFormModal = ({
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className={labelClasses}>
                   Usuario *
                 </label>
                 <input
                   type="text"
                   value={username}
                   onChange={event => setUsername(event.target.value)}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className={inputClasses}
                   placeholder="Nombre de usuario"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className={labelClasses}>
                   Teléfono *
                 </label>
                 <input
                   type="tel"
                   value={phoneNumber}
                   onChange={event => setPhoneNumber(event.target.value)}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className={inputClasses}
                   placeholder="e.g. 123456789"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className={labelClasses}>
                   Email *
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={event => setEmail(event.target.value)}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className={inputClasses}
                   placeholder="correo@ejemplo.com"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className={labelClasses}>
                   Contraseña {mode === 'create' ? '*' : ''}
                 </label>
                 <div className="relative">
@@ -254,7 +256,7 @@ export const UserFormModal = ({
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={event => setPassword(event.target.value)}
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                    className={`${inputClasses} pr-10`}
                     placeholder={mode === 'create' ? 'Ingresa contraseña' : 'Dejar en blanco para mantener'}
                     required={mode === 'create'}
                     minLength={mode === 'create' ? 6 : undefined}
@@ -262,23 +264,23 @@ export const UserFormModal = ({
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-500 dark:text-slate-400"
                     aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
                 {mode === 'edit' && (
-                  <p className="mt-1 text-xs text-gray-500">Deja el campo vacío si no deseas cambiar la contraseña.</p>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">Deja el campo vacío si no deseas cambiar la contraseña.</p>
                 )}
               </div>
             </div>
           </div>
 
-          <hr className="my-8 border-gray-200" />
+          <hr className="my-8 border-gray-200 dark:border-slate-800" />
 
           {errorMessage && (
-            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
               {errorMessage}
             </div>
           )}
@@ -292,7 +294,7 @@ export const UserFormModal = ({
               <button
                 type="button"
                 onClick={handleDelete}
-                className="rounded-full border border-red-200 px-6 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
+                className="rounded-full border border-red-200 px-6 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/10"
                 disabled={isSubmitting}
               >
                 Eliminar Usuario
@@ -302,14 +304,14 @@ export const UserFormModal = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                 disabled={isSubmitting}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700"
+                className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Guardando...' : submitButtonLabel}

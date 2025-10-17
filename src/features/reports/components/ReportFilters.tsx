@@ -14,24 +14,29 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
   areas,
   proyectos
 }) => {
-  const handleChange = (field: keyof ReportFiltersType, value: string) => {
+  const handleChange = (field: keyof ReportFiltersType, value: string | undefined) => {
     onFiltersChange({ [field]: value });
   };
 
+  const containerClasses = 'rounded-2xl border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-950';
+  const labelClasses = 'block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2';
+  const inputClasses = 'w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30';
+  const quickFilterButtonClasses = 'rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:bg-blue-500 dark:hover:bg-blue-400';
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Filtros del Reporte</h3>
+    <div className={containerClasses}>
+      <h3 className="mb-4 text-lg font-semibold text-gray-800 dark:text-slate-100">Filtros del Reporte</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Tipo de Reporte */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className={labelClasses}>
             Tipo de Reporte
           </label>
           <select
             value={filters.tipoReporte}
             onChange={(e) => handleChange('tipoReporte', e.target.value as 'area' | 'proyecto')}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+            className={inputClasses}
           >
             <option value="area">Por Área</option>
             <option value="proyecto">Por Proyecto</option>
@@ -40,40 +45,40 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
 
         {/* Fecha Inicio */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className={labelClasses}>
             Fecha Inicio
           </label>
           <input
             type="date"
             value={filters.fechaInicio}
             onChange={(e) => handleChange('fechaInicio', e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+            className={inputClasses}
           />
         </div>
 
         {/* Fecha Fin */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className={labelClasses}>
             Fecha Fin
           </label>
           <input
             type="date"
             value={filters.fechaFin}
             onChange={(e) => handleChange('fechaFin', e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+            className={inputClasses}
           />
         </div>
 
         {/* Área (solo si el tipo es por área) */}
         {filters.tipoReporte === 'area' && (
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className={labelClasses}>
               Área (Opcional)
             </label>
             <select
               value={filters.area || ''}
               onChange={(e) => handleChange('area', e.target.value || undefined)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              className={inputClasses}
             >
               <option value="">Todas las áreas</option>
               {areas.map(area => (
@@ -86,13 +91,13 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
         {/* Proyecto (solo si el tipo es por proyecto) */}
         {filters.tipoReporte === 'proyecto' && (
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className={labelClasses}>
               Proyecto (Opcional)
             </label>
             <select
               value={filters.proyecto || ''}
               onChange={(e) => handleChange('proyecto', e.target.value || undefined)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              className={inputClasses}
             >
               <option value="">Todos los proyectos</option>
               {proyectos.map(proyecto => (
@@ -116,7 +121,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
               fechaFin: lastDay.toISOString().split('T')[0]
             });
           }}
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
+          className={quickFilterButtonClasses}
         >
           Mes Actual
         </button>
@@ -132,7 +137,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
               fechaFin: lastDay.toISOString().split('T')[0]
             });
           }}
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
+          className={quickFilterButtonClasses}
         >
           Mes Anterior
         </button>
@@ -148,7 +153,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
               fechaFin: lastDay.toISOString().split('T')[0]
             });
           }}
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
+          className={quickFilterButtonClasses}
         >
           Año Actual
         </button>

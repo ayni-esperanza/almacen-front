@@ -1,11 +1,14 @@
 import { AuthProvider } from './shared/hooks/useAuth';
+import { ThemeProvider } from './shared/hooks/useTheme';
 import { AppRouter } from './router';
 
 function App() {
   return (
-    <AuthProvider>
-      <AppRouter />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
