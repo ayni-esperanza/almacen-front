@@ -1,14 +1,43 @@
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { MovementTable } from '../features/movements/components/MovementTable';
-import { AddMovementForm } from '../features/movements/components/AddMovementForm';
-import { useMovements } from '../features/movements/hooks/useMovements';
-import { CreateEntryData, CreateExitData } from '../shared/services/movements.service';
+import { useEffect, useMemo, useState } from 'react';
+import { Download, Plus } from 'lucide-react';
+import { MovementTable } from '../features/movements/components/MovementTable.tsx';
+import { AddMovementForm } from '../features/movements/components/AddMovementForm.tsx';
+import { useMovements } from '../features/movements/hooks/useMovements.ts';
+import { CreateEntryData, CreateExitData, UpdateEntryData, UpdateExitData } from '../shared/services/movements.service.ts';
+import { MovementEntry, MovementExit } from '../features/movements/types/index.ts';
+import { EditMovementForm } from '../features/movements/components/EditMovementForm.tsx';
+import { EditExitMovementForm } from '../features/movements/components/EditExitMovementForm.tsx';
 
 export const MovementsPage = () => {
   const [activeSubTab, setActiveSubTab] = useState<'entradas' | 'salidas'>('entradas');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<MovementEntry | null>(null);
+  const [selectedExit, setSelectedExit] = useState<MovementExit | null>(null);
   const movementsData = useMovements();
+
+  const sampleExitData = useMemo<MovementExit[]>(
+    () => [
+      {
+        id: 999999,
+        fecha: '17/10/2025',
+        codigoProducto: 'AF2025',
+        descripcion: 'Afloja Todo Aerosol 300ml',
+        precioUnitario: 12,
+        cantidad: 4,
+        responsable: 'María Gonzales',
+        area: 'MECANICA',
+        proyecto: 'Proyecto Alfa',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ],
+    []
+  );
+
+  useEffect(() => {
+    setSelectedEntry(null);
+    setSelectedExit(null);
+  }, [activeSubTab]);
 
   const handleAddMovement = async (data: CreateEntryData | CreateExitData) => {
     try {
@@ -23,12 +52,37 @@ export const MovementsPage = () => {
     }
   };
 
-  const handleUpdateQuantity = async (id: string, newQuantity: number) => {
+  const handleUpdateEntry = async (data: UpdateEntryData) => {
+    if (!selectedEntry) return;
     try {
-      await movementsData.updateExitQuantity(parseInt(id), { cantidad: newQuantity });
+      await movementsData.updateEntry(selectedEntry.id, data);
+      setSelectedEntry(null);
     } catch (error) {
-      console.error('Error updating quantity:', error);
+      console.error('Error updating entry:', error);
+      throw error;
     }
+  };
+
+  const handleUpdateExit = async (data: UpdateExitData) => {
+    if (!selectedExit) return;
+    const existsInApi = movementsData.exits.some((exit) => exit.id === selectedExit.id);
+    if (!existsInApi) {
+      setSelectedExit(null);
+      return;
+    }
+    try {
+      await movementsData.updateExit(selectedExit.id, data);
+      setSelectedExit(null);
+    } catch (error) {
+      console.error('Error updating exit:', error);
+      throw error;
+    }
+  };
+
+  const exitMovementsToDisplay = movementsData.exits.length > 0 ? movementsData.exits : sampleExitData;
+
+  const handleExportPdf = () => {
+    console.info('Exportar PDF aún no está implementado.');
   };
 
   return (
@@ -57,14 +111,22 @@ export const MovementsPage = () => {
               Salidas
             </button>
           </div>
-          
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors flex items-center space-x-2 font-medium shadow-md"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Agregar</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleExportPdf}
+              className="flex items-center space-x-2 rounded-lg bg-green-500 px-5 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-green-600"
+            >
+              <Download className="h-4 w-4" />
+              <span>Exportar PDF</span>
+            </button>
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center space-x-2 rounded-lg bg-green-500 px-6 py-2 font-medium text-white shadow-md transition-colors hover:bg-green-600"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Agregar</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -72,12 +134,13 @@ export const MovementsPage = () => {
         <MovementTable 
           movements={movementsData.entries} 
           type="entrada" 
+          onEditEntry={setSelectedEntry}
         />
       ) : (
         <MovementTable 
-          movements={movementsData.exits} 
-          type="salida" 
-          onUpdateQuantity={handleUpdateQuantity} 
+          movements={exitMovementsToDisplay} 
+          type="salida"
+          onEditExit={setSelectedExit}
         />
       )}
 
@@ -86,6 +149,22 @@ export const MovementsPage = () => {
           type={activeSubTab === 'entradas' ? 'entrada' : 'salida'}
           onSubmit={handleAddMovement}
           onCancel={() => setShowAddForm(false)}
+        />
+      )}
+
+      {selectedEntry && (
+        <EditMovementForm
+          entry={selectedEntry}
+          onSubmit={handleUpdateEntry}
+          onCancel={() => setSelectedEntry(null)}
+        />
+      )}
+
+      {selectedExit && (
+        <EditExitMovementForm
+          exit={selectedExit}
+          onSubmit={handleUpdateExit}
+          onCancel={() => setSelectedExit(null)}
         />
       )}
     </>

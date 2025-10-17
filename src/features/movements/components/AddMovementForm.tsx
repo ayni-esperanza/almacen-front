@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
-import { areas } from '../../inventory/data/mockData';
+import { ChevronDown, X } from 'lucide-react';
+import { areas } from '../../inventory/data/mockData.ts';
 
 interface AddMovementFormProps {
   type: 'entrada' | 'salida';
@@ -9,23 +9,39 @@ interface AddMovementFormProps {
 }
 
 export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({
+  const isEntry = type === 'entrada';
+  const [formData, setFormData] = useState(() => ({
     fecha: new Date().toISOString().split('T')[0],
     codigoProducto: '',
     descripcion: '',
-    precioUnitario: '',
-    cantidad: '',
+    precioUnitario: isEntry ? '' : '0',
+    cantidad: '1',
     responsable: '',
     area: '',
     proyecto: ''
-  });
+  }));
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const parsedQuantity = parseInt(formData.cantidad, 10);
+    if (!Number.isFinite(parsedQuantity) || parsedQuantity < 1) {
+      setErrorMessage('La cantidad debe ser al menos 1.');
+      return;
+    }
+
+    const parsedPrice = parseFloat(formData.precioUnitario || '0');
+    if (isEntry && (!Number.isFinite(parsedPrice) || parsedPrice <= 0)) {
+      setErrorMessage('El precio unitario debe ser mayor a 0.');
+      return;
+    }
+
+    setErrorMessage(null);
+
     onSubmit({
       ...formData,
-      precioUnitario: parseFloat(formData.precioUnitario) || 0,
-      cantidad: parseInt(formData.cantidad) || 0,
+      precioUnitario: Number.isFinite(parsedPrice) ? parsedPrice : 0,
+      cantidad: parsedQuantity || 1,
       id: Date.now().toString()
     });
   };
@@ -37,153 +53,246 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
     });
   };
 
-  const isEntry = type === 'entrada';
   const gradientColor = isEntry ? 'from-green-500 to-green-600' : 'from-red-500 to-red-600';
-  const buttonColor = isEntry ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600';
+  const buttonColor = isEntry ? 'bg-green-600 hover:bg-green-700' : 'bg-red-500 hover:bg-red-600';
+  const primaryButtonLabel = isEntry ? 'Guardar' : 'Agregar Producto';
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className={`bg-gradient-to-r ${gradientColor} text-white py-4 px-6 rounded-t-2xl`}>
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">
-              {isEntry ? 'Nueva Entrada de Producto' : 'Nueva Salida de Producto'}
-            </h2>
-            <button
-              onClick={onCancel}
-              className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-3xl overflow-hidden rounded-[32px] bg-white shadow-2xl">
+        <div className={`flex items-center justify-between rounded-t-[32px] bg-gradient-to-r ${gradientColor} px-6 py-4 text-white`}>
+          <h2 className="text-xl font-semibold">
+            {isEntry ? 'Nueva Entrada de Producto' : 'Nueva Salida de Producto'}
+          </h2>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-full p-1 transition-colors hover:bg-white/20"
+          >
+            <X className="h-6 w-6" />
+          </button>
         </div>
-        
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Fecha</label>
-              <input
-                type="date"
-                name="fecha"
-                value={formData.fecha}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Código Producto</label>
-              <input
-                type="text"
-                name="codigoProducto"
-                value={formData.codigoProducto}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="Ej: AF2025"
-                required
-              />
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Descripción</label>
-            <input
-              type="text"
-              name="descripcion"
-              value={formData.descripcion}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              placeholder="Descripción del producto"
-              required
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Precio Unitario (S/)</label>
-              <input
-                type="number"
-                step="0.01"
-                name="precioUnitario"
-                value={formData.precioUnitario}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="0.00"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Cantidad</label>
-              <input
-                type="number"
-                name="cantidad"
-                value={formData.cantidad}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="1"
-                required
-              />
-            </div>
-          </div>
-          
-          {!isEntry && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Responsable</label>
-                <input
-                  type="text"
-                  name="responsable"
-                  value={formData.responsable}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                  placeholder="Nombre del responsable"
-                />
+
+        <form onSubmit={handleSubmit} className="space-y-8 px-8 pb-8 pt-6">
+          {isEntry ? (
+            <>
+              <div className="grid gap-5 md:grid-cols-2">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Código del Producto *</span>
+                  <input
+                    type="text"
+                    name="codigoProducto"
+                    value={formData.codigoProducto}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    placeholder="Ingresa el código"
+                    required
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Nombre *</span>
+                  <input
+                    type="text"
+                    name="descripcion"
+                    value={formData.descripcion}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    placeholder="Nombre del producto"
+                    required
+                  />
+                </label>
               </div>
-              
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Área</label>
-                <select
-                  name="area"
-                  value={formData.area}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                >
-                  <option value="">Seleccionar área</option>
-                  {areas.map(area => (
-                    <option key={area} value={area}>{area}</option>
-                  ))}
-                </select>
+
+              <div className="grid gap-5 md:grid-cols-2">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Fecha *</span>
+                  <input
+                    type="date"
+                    name="fecha"
+                    value={formData.fecha}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    required
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Cantidad *</span>
+                  <input
+                    type="number"
+                    name="cantidad"
+                    value={formData.cantidad}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    placeholder="Ingresa la cantidad"
+                    min={1}
+                    required
+                  />
+                </label>
               </div>
-              
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Proyecto</label>
-                <input
-                  type="text"
-                  name="proyecto"
-                  value={formData.proyecto}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                  placeholder="Nombre del proyecto"
-                />
+
+              <div className="grid gap-5 md:grid-cols-2">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Precio Unitario (S/)</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="precioUnitario"
+                    value={formData.precioUnitario}
+                    onChange={handleChange}
+                    min="0.01"
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    placeholder="0.00"
+                    required
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Área</span>
+                  <input
+                    type="text"
+                    name="area"
+                    value={formData.area}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                    placeholder="Área o proyecto"
+                  />
+                </label>
               </div>
+            </>
+          ) : (
+            <>
+              <div className="grid gap-5 md:grid-cols-2">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span className="flex items-center gap-2">
+                    Fecha *
+                  </span>
+                  <input
+                    type="date"
+                    name="fecha"
+                    value={formData.fecha}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    required
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Código *</span>
+                  <input
+                    type="text"
+                    name="codigoProducto"
+                    value={formData.codigoProducto}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    placeholder="Ingresa el código"
+                    required
+                  />
+                </label>
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-2">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Nombre *</span>
+                  <input
+                    type="text"
+                    name="descripcion"
+                    value={formData.descripcion}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    placeholder="Nombre del producto"
+                    required
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Cantidad *</span>
+                  <input
+                    type="number"
+                    name="cantidad"
+                    value={formData.cantidad}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    placeholder="Ingresa la cantidad"
+                    min={1}
+                    required
+                  />
+                </label>
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-3">
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Área *</span>
+                  <div className="relative">
+                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                    <select
+                      name="area"
+                      value={formData.area}
+                      onChange={handleChange}
+                      className="w-full appearance-none rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                      required
+                    >
+                      <option value="" disabled>
+                        Todas las áreas
+                      </option>
+                      {areas.map((area) => (
+                        <option key={area} value={area}>
+                          {area}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </label>
+
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Proyecto *</span>
+                  <input
+                    type="text"
+                    name="proyecto"
+                    value={formData.proyecto}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    placeholder="Proyecto asignado"
+                    required
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+                  <span>Responsable *</span>
+                  <input
+                    type="text"
+                    name="responsable"
+                    value={formData.responsable}
+                    onChange={handleChange}
+                    className="rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    placeholder="Nombre del responsable"
+                    required
+                  />
+                </label>
+              </div>
+            </>
+          )}
+
+          {errorMessage && (
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errorMessage}
             </div>
           )}
-          
-          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+
+          <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className={`px-6 py-3 text-white rounded-lg transition-colors font-medium ${buttonColor}`}
+              className={`rounded-full px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors ${buttonColor}`}
             >
-              Guardar
+              {primaryButtonLabel}
             </button>
           </div>
         </form>

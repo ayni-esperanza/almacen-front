@@ -1,17 +1,18 @@
 import React from 'react';
-import { MovementEntry, MovementExit } from '../types';
+import { MovementEntry, MovementExit } from '../types/index.ts';
 import { Pagination } from '../../../shared/components/Pagination';
 import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
 import { usePagination } from '../../../shared/hooks/usePagination';
-import { TrendingUp, TrendingDown, Search, Plus, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Search } from 'lucide-react';
 
 interface MovementTableProps {
   movements: (MovementEntry | MovementExit)[];
   type: 'entrada' | 'salida';
-  onUpdateQuantity?: (id: string, newQuantity: number) => void;
+  onEditEntry?: (movement: MovementEntry) => void;
+  onEditExit?: (movement: MovementExit) => void;
 }
 
-export const MovementTable: React.FC<MovementTableProps> = ({ movements, type, onUpdateQuantity }) => {
+export const MovementTable: React.FC<MovementTableProps> = ({ movements, type, onEditEntry, onEditExit }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
   
   const filteredMovements = movements.filter(movement =>
@@ -34,14 +35,6 @@ export const MovementTable: React.FC<MovementTableProps> = ({ movements, type, o
   const gradientColor = isEntry ? 'from-green-500 to-green-600' : 'from-red-500 to-red-600';
   const titleText = isEntry ? 'Entradas de Productos' : 'Salidas de Productos';
   const icon = isEntry ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />;
-
-  const handleQuantityChange = (id: number, delta: number) => {
-    const movement = movements.find(m => m.id === id);
-    if (movement && onUpdateQuantity) {
-      const newQuantity = Math.max(1, movement.cantidad + delta);
-      onUpdateQuantity(id.toString(), newQuantity);
-    }
-  };
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -71,61 +64,74 @@ export const MovementTable: React.FC<MovementTableProps> = ({ movements, type, o
           <tr className="border-b border-gray-200">
             <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Fecha</th>
             <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Código</th>
-            <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Descripción</th>
-            <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Precio Unit.</th>
-            <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Cantidad</th>
-            {!isEntry && <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Responsable</th>}
-            {!isEntry && <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Área</th>}
-            {!isEntry && <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Proyecto</th>}
+            {isEntry ? (
+              <>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Nombre</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Cantidad</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Área</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Costo U.</th>
+              </>
+            ) : (
+              <>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Nombre</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Área</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Proyecto</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Responsable</th>
+                <th className="px-4 py-4 text-left font-semibold text-gray-700 bg-gray-50">Cantidad</th>
+              </>
+            )}
           </tr>
         </thead>
         <tbody>
-          {paginatedMovements.map((movement) => (
-            <tr
-              key={movement.id}
-              className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-            >
-              <td className="px-4 py-4 text-gray-700">{movement.fecha}</td>
-              <td className="px-4 py-4 font-medium text-gray-900">{movement.codigoProducto}</td>
-              <td className="px-4 py-4 text-gray-700">{movement.descripcion}</td>
-              <td className="px-4 py-4 font-medium text-green-600">S/ {movement.precioUnitario.toFixed(2)}</td>
-              <td className="px-4 py-4 text-center">
-                {!isEntry && onUpdateQuantity ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <button
-                      onClick={() => handleQuantityChange(movement.id, -1)}
-                      className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-                      disabled={movement.cantidad <= 1}
-                    >
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="font-medium min-w-[2rem] text-center">{movement.cantidad}</span>
-                    <button
-                      onClick={() => handleQuantityChange(movement.id, 1)}
-                      className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <span className="font-medium">{movement.cantidad}</span>
-                )}
+          {paginatedMovements.length === 0 ? (
+            <tr>
+              <td
+                colSpan={isEntry ? 6 : 7}
+                className="px-4 py-10 text-center text-sm text-gray-500"
+              >
+                No se encontraron {isEntry ? 'entradas' : 'salidas'} con los filtros aplicados.
               </td>
-              {!isEntry && (
-                <>
-                  <td className="px-4 py-4 text-gray-600">{movement.responsable || '-'}</td>
-                  <td className="px-4 py-4">
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                      {movement.area || '-'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-gray-600">
-                    {'proyecto' in movement ? movement.proyecto || '-' : '-'}
-                  </td>
-                </>
-              )}
             </tr>
-          ))}
+          ) : (
+            paginatedMovements.map((movement) => (
+              <tr
+                key={movement.id}
+                onClick={() => {
+                  if (isEntry && onEditEntry) {
+                    onEditEntry(movement as MovementEntry);
+                  } else if (!isEntry && onEditExit) {
+                    onEditExit(movement as MovementExit);
+                  }
+                }}
+                className={`border-b border-gray-100 transition-colors ${
+                  (isEntry && onEditEntry) || (!isEntry && onEditExit)
+                    ? 'cursor-pointer hover:bg-gray-50'
+                    : 'hover:bg-gray-50'
+                }`}
+              >
+                <td className="px-4 py-4 text-gray-700">{movement.fecha}</td>
+                <td className="px-4 py-4 font-medium text-gray-900">{movement.codigoProducto}</td>
+                {isEntry ? (
+                  <>
+                    <td className="px-4 py-4 text-gray-700">{movement.descripcion}</td>
+                    <td className="px-4 py-4 font-medium text-gray-900">{movement.cantidad}</td>
+                    <td className="px-4 py-4 text-gray-600">{movement.area || '-'}</td>
+                    <td className="px-4 py-4 font-medium text-green-600">S/ {movement.precioUnitario.toFixed(2)}</td>
+                  </>
+                ) : (
+                  <>
+                    <td className="px-4 py-4 text-gray-700">{movement.descripcion}</td>
+                    <td className="px-4 py-4 text-gray-600">{movement.area || '-'}</td>
+                    <td className="px-4 py-4 text-gray-600">
+                      {'proyecto' in movement ? movement.proyecto || '-' : '-'}
+                    </td>
+                    <td className="px-4 py-4 text-gray-600">{movement.responsable || '-'}</td>
+                    <td className="px-4 py-4 font-medium text-gray-900">{movement.cantidad}</td>
+                  </>
+                )}
+              </tr>
+            ))
+          )}
         </tbody>
       </TableWithFixedHeader>
 

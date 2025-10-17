@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { MovementEntry, MovementExit } from '../types';
-import { movementsService, CreateEntryData, CreateExitData, UpdateExitQuantityData } from '../../../shared/services/movements.service';
+import { MovementEntry, MovementExit } from '../types/index.ts';
+import { movementsService, CreateEntryData, CreateExitData, UpdateEntryData, UpdateExitData, UpdateExitQuantityData } from '../../../shared/services/movements.service.ts';
 
 export interface UseMovementsReturn {
   entries: MovementEntry[];
@@ -12,6 +12,8 @@ export interface UseMovementsReturn {
   createEntry: (entryData: CreateEntryData) => Promise<MovementEntry | null>;
   createExit: (exitData: CreateExitData) => Promise<MovementExit | null>;
   updateExitQuantity: (id: number, quantityData: UpdateExitQuantityData) => Promise<MovementExit | null>;
+  updateEntry: (id: number, entryData: UpdateEntryData) => Promise<MovementEntry | null>;
+  updateExit: (id: number, exitData: UpdateExitData) => Promise<MovementExit | null>;
 }
 
 export const useMovements = (): UseMovementsReturn => {
@@ -94,6 +96,32 @@ export const useMovements = (): UseMovementsReturn => {
     }
   };
 
+  const updateEntry = async (id: number, entryData: UpdateEntryData): Promise<MovementEntry | null> => {
+    try {
+      const updatedEntry = await movementsService.updateEntry(id, entryData);
+      if (updatedEntry) {
+        await refetchEntries();
+      }
+      return updatedEntry;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al actualizar la entrada');
+      throw err;
+    }
+  };
+
+  const updateExit = async (id: number, exitData: UpdateExitData): Promise<MovementExit | null> => {
+    try {
+      const updatedExit = await movementsService.updateExit(id, exitData);
+      if (updatedExit) {
+        await refetchExits();
+      }
+      return updatedExit;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al actualizar la salida');
+      throw err;
+    }
+  };
+
   // Initial load
   useEffect(() => {
     fetchEntries();
@@ -109,6 +137,8 @@ export const useMovements = (): UseMovementsReturn => {
     refetchExits,
     createEntry,
     createExit,
-    updateExitQuantity
+    updateExitQuantity,
+    updateEntry,
+    updateExit
   };
 };
