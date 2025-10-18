@@ -12,12 +12,19 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = ({
   title,
   loading = false
 }) => {
+  const containerClasses = 'rounded-[24px] border border-transparent bg-white p-6 shadow-md transition-colors dark:border-slate-800 dark:bg-slate-950';
+  const headingClasses = 'mb-4 text-lg font-semibold text-gray-800 dark:text-slate-100';
+  const metaTextClasses = 'text-sm text-gray-500 dark:text-slate-400';
+  const accentCurrencyClasses = 'text-green-600 dark:text-emerald-300';
+  const accentMovementClasses = 'text-blue-600 dark:text-sky-300';
+  const dividerClasses = 'mt-6 border-t border-gray-200 pt-4 dark:border-slate-800';
+
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">{title}</h3>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+      <div className={containerClasses}>
+        <h3 className={headingClasses}>{title}</h3>
+        <div className="flex h-64 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-green-500"></div>
         </div>
       </div>
     );
@@ -25,9 +32,9 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = ({
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">{title}</h3>
-        <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className={containerClasses}>
+        <h3 className={headingClasses}>{title}</h3>
+        <div className="flex h-64 items-center justify-center text-gray-500 dark:text-slate-400">
           No hay datos disponibles para mostrar
         </div>
       </div>
@@ -46,8 +53,8 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = ({
   const maxMovimientos = Math.max(...data.map(item => item.movimientos));
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">{title}</h3>
+    <div className={containerClasses}>
+      <h3 className={headingClasses}>{title}</h3>
       
       {/* Gráfico mejorado con barras CSS */}
       <div className="space-y-6">
@@ -57,14 +64,14 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = ({
           
           return (
             <div key={index} className="space-y-3">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h4 className="font-medium text-gray-900">{item.name}</h4>
-                  <div className="flex space-x-4 text-sm text-gray-500 mt-1">
-                    <span className="text-green-600 font-semibold">
+                  <h4 className="font-medium text-gray-900 dark:text-slate-100">{item.name}</h4>
+                  <div className={`mt-1 flex space-x-4 ${metaTextClasses}`}>
+                    <span className={`font-semibold ${accentCurrencyClasses}`}>
                       {formatCurrency(item.gasto)}
                     </span>
-                    <span className="text-blue-600">
+                    <span className={accentMovementClasses}>
                       {item.movimientos} movimientos
                     </span>
                   </div>
@@ -75,28 +82,28 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = ({
               <div className="space-y-2">
                 {/* Barra de gastos */}
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500 w-16">Gastos:</span>
-                  <div className="flex-1 bg-gray-200 rounded-full h-3">
+                  <span className="w-16 text-xs text-gray-500 dark:text-slate-400">Gastos:</span>
+                  <div className="h-3 flex-1 rounded-full bg-gray-200 dark:bg-slate-800">
                     <div 
-                      className="bg-green-500 h-3 rounded-full transition-all duration-500 ease-out"
+                      className="h-3 rounded-full bg-green-500 transition-all duration-500 ease-out dark:bg-emerald-500"
                       style={{ width: `${gastoPercentage}%` }}
                     ></div>
                   </div>
-                  <span className="text-xs text-gray-500 w-12 text-right">
+                  <span className="w-12 text-right text-xs text-gray-500 dark:text-slate-400">
                     {gastoPercentage.toFixed(1)}%
                   </span>
                 </div>
                 
                 {/* Barra de movimientos */}
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500 w-16">Movimientos:</span>
-                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                  <span className="w-16 text-xs text-gray-500 dark:text-slate-400">Movimientos:</span>
+                  <div className="h-2 flex-1 rounded-full bg-gray-200 dark:bg-slate-800">
                     <div 
-                      className="bg-blue-500 h-2 rounded-full transition-all duration-500 ease-out"
+                      className="h-2 rounded-full bg-blue-500 transition-all duration-500 ease-out dark:bg-sky-500"
                       style={{ width: `${movimientosPercentage}%` }}
                     ></div>
                   </div>
-                  <span className="text-xs text-gray-500 w-12 text-right">
+                  <span className="w-12 text-right text-xs text-gray-500 dark:text-slate-400">
                     {movimientosPercentage.toFixed(1)}%
                   </span>
                 </div>
@@ -107,17 +114,17 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = ({
       </div>
       
       {/* Resumen */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
+      <div className={dividerClasses}>
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
-            <div className="text-sm font-medium text-gray-500">Total Gastos</div>
-            <div className="text-lg font-bold text-green-600">
+            <div className={`text-sm font-medium ${metaTextClasses}`}>Total Gastos</div>
+            <div className={`text-lg font-bold ${accentCurrencyClasses}`}>
               {formatCurrency(data.reduce((sum, item) => sum + item.gasto, 0))}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-sm font-medium text-gray-500">Total Movimientos</div>
-            <div className="text-lg font-bold text-blue-600">
+            <div className={`text-sm font-medium ${metaTextClasses}`}>Total Movimientos</div>
+            <div className={`text-lg font-bold ${accentMovementClasses}`}>
               {data.reduce((sum, item) => sum + item.movimientos, 0)}
             </div>
           </div>
@@ -125,13 +132,13 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = ({
       </div>
       
       {/* Leyenda */}
-      <div className="mt-4 flex justify-center space-x-6 text-xs text-gray-500">
+      <div className="mt-4 flex justify-center space-x-6 text-xs text-gray-500 dark:text-slate-400">
         <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-green-500 rounded"></div>
+          <div className="h-3 w-3 rounded bg-green-500 dark:bg-emerald-500"></div>
           <span>Gastos</span>
         </div>
         <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-blue-500 rounded"></div>
+          <div className="h-3 w-3 rounded bg-blue-500 dark:bg-sky-500"></div>
           <span>Movimientos</span>
         </div>
       </div>

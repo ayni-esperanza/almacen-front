@@ -112,9 +112,15 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({ exit
     }
   };
 
+  const labelClasses = 'flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200';
+  const inputClasses = 'w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-rose-400 dark:focus:ring-rose-500/30';
+  const disabledInputClasses = 'w-full cursor-not-allowed rounded-2xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-gray-500 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-400';
+  const selectClasses = `${inputClasses} appearance-none`;
+  const footerButtonClasses = 'rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-3xl overflow-hidden rounded-[32px] bg-white shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm dark:bg-slate-950/70">
+      <div className="w-full max-w-3xl overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950">
         <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 text-white">
           <h2 className="text-xl font-semibold">Editar Salida de Producto</h2>
           <button
@@ -127,9 +133,9 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({ exit
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8 px-8 pb-8 pt-6">
+        <form onSubmit={handleSubmit} className="space-y-8 bg-white px-8 pb-8 pt-6 transition-colors dark:bg-slate-950">
           <div className="grid gap-5 md:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span className="flex items-center gap-2">
                 Fecha *
               </span>
@@ -138,47 +144,47 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({ exit
                 name="fecha"
                 value={formData.fecha}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                className={inputClasses}
                 required
                 disabled={submitting}
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Código *</span>
               <input
                 type="text"
                 name="codigoProducto"
                 value={formData.codigoProducto}
                 disabled
-                className="w-full cursor-not-allowed rounded-2xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-gray-500"
+                className={disabledInputClasses}
               />
             </label>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Nombre *</span>
               <input
                 type="text"
                 name="descripcion"
                 value={formData.descripcion}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                className={inputClasses}
                 placeholder="Nombre del producto"
                 required
                 disabled={submitting}
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Cantidad *</span>
               <input
                 type="number"
                 name="cantidad"
                 value={formData.cantidad}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                className={inputClasses}
                 placeholder="Ingresa la cantidad"
                 min={1}
                 required
@@ -188,15 +194,15 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({ exit
           </div>
 
           <div className="grid gap-5 md:grid-cols-3">
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Área *</span>
               <div className="relative">
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
                 <select
                   name="area"
                   value={formData.area}
                   onChange={handleChange}
-                  className="w-full appearance-none rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                  className={selectClasses}
                   required
                   disabled={submitting}
                 >
@@ -212,28 +218,28 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({ exit
               </div>
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Proyecto *</span>
               <input
                 type="text"
                 name="proyecto"
                 value={formData.proyecto}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                className={inputClasses}
                 placeholder="Proyecto asignado"
                 required
                 disabled={submitting}
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Responsable *</span>
               <input
                 type="text"
                 name="responsable"
                 value={formData.responsable}
                 onChange={handleChange}
-                className="rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100"
+                className={inputClasses}
                 placeholder="Nombre del responsable"
                 required
                 disabled={submitting}
@@ -242,23 +248,23 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({ exit
           </div>
 
           {errorMessage && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
               {errorMessage}
             </div>
           )}
 
-          <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end">
+          <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 dark:border-slate-800 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50"
+              className={footerButtonClasses}
               disabled={submitting}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="rounded-full bg-red-500 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-red-600 disabled:opacity-60"
+              className="rounded-full bg-red-500 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-red-600 disabled:opacity-60 dark:bg-rose-600 dark:hover:bg-rose-500"
               disabled={submitting}
             >
               {submitting ? 'Guardando...' : 'Guardar Cambios'}

@@ -13,6 +13,13 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = ({
   data,
   loading = false
 }) => {
+  const containerClasses = 'rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950';
+  const headingClasses = 'px-2 text-lg font-semibold text-gray-800 dark:text-slate-100';
+  const tableHeaderClasses = 'bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:bg-slate-900 dark:text-slate-300';
+  const cellTextClasses = 'px-6 py-4 text-sm text-gray-900 dark:text-slate-200';
+  const badgeCurrencyClasses = 'px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-600 dark:text-emerald-300';
+  const quantityCellClasses = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-slate-200';
+
   const {
     paginatedData: paginatedData,
     currentPage,
@@ -30,17 +37,12 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = ({
     }).format(value);
   };
 
-  const formatDate = (dateString: string) => {
-    const [day, month, year] = dateString.split('/');
-    return `${day}/${month}/${year}`;
-  };
-
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Detalle de Gastos</h3>
-        <div className="flex items-center justify-center h-32">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+      <div className={containerClasses}>
+        <h3 className={headingClasses}>Detalle de Gastos</h3>
+        <div className="flex h-32 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-green-500"></div>
         </div>
       </div>
     );
@@ -48,95 +50,78 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = ({
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Detalle de Gastos</h3>
-        <div className="text-center text-gray-500 py-8">
+      <div className={containerClasses}>
+        <h3 className={headingClasses}>Detalle de Gastos</h3>
+        <div className="py-8 text-center text-gray-500 dark:text-slate-400">
           No hay datos disponibles para mostrar
         </div>
       </div>
     );
   }
 
+  const getAreaProjectLabel = (area: string, project?: string) => {
+    if (!project) {
+      return area;
+    }
+    return `${area} / ${project}`;
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">Detalle de Gastos</h3>
-        <div className="text-sm text-gray-600">
+    <div className={containerClasses}>
+      <div className="mb-3 flex items-center justify-between px-2">
+        <h3 className={headingClasses}>Detalle de Gastos</h3>
+        <span className="text-sm text-gray-500 dark:text-slate-400">
           Total registros: {data.length}
-        </div>
+        </span>
       </div>
       
       <TableWithFixedHeader maxHeight="600px">
-        <thead className="bg-gray-50 sticky top-0 z-10">
+        <thead className="sticky top-0 z-10">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
-              Fecha
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
-              Área
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
-              Proyecto
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+            <th className={tableHeaderClasses}>
               Código
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
-              Descripción
+            <th className={tableHeaderClasses}>
+              Nombre
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
-              Cantidad
+            <th className={tableHeaderClasses}>
+              Área/ Proyecto
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
-              Precio Unit.
+            <th className={tableHeaderClasses}>
+              Stock Requerido
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
-              Total
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
-              Responsable
+            <th className={tableHeaderClasses}>
+              Costo Total
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
           {paginatedData.map((item, index) => (
-            <tr key={index} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {formatDate(item.fecha)}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {item.area}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {item.proyecto || '-'}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            <tr key={index} className="transition-colors hover:bg-gray-50 dark:hover:bg-slate-900/40">
+              <td className={`${cellTextClasses} whitespace-nowrap font-medium`}>
                 {item.codigoProducto}
               </td>
-              <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+              <td className={`${cellTextClasses} max-w-xs truncate`}>
                 {item.descripcion}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <td className={`${cellTextClasses} whitespace-nowrap`}>
+                {getAreaProjectLabel(item.area, item.proyecto)}
+              </td>
+              <td className={quantityCellClasses}>
                 {item.cantidad}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {formatCurrency(item.precioUnitario)}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+              <td className={badgeCurrencyClasses}>
                 {formatCurrency(item.costoTotal)}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {item.responsable || '-'}
               </td>
             </tr>
           ))}
         </tbody>
-        <tfoot className="bg-gray-50">
+        <tfoot className="bg-gray-50 dark:bg-slate-900">
           <tr>
-            <td colSpan={7} className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
+            <td colSpan={4} className="px-6 py-4 text-right text-sm font-semibold text-gray-900 dark:text-slate-100">
               Total General:
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 dark:text-emerald-300">
               {formatCurrency(data.reduce((sum, item) => sum + item.costoTotal, 0))}
             </td>
             <td></td>

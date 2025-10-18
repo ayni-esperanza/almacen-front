@@ -97,9 +97,14 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({ entry, onSub
     }
   };
 
+  const labelClasses = 'flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200';
+  const inputClasses = 'w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30';
+  const disabledInputClasses = 'w-full cursor-not-allowed rounded-2xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-gray-500 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-400';
+  const footerButtonClasses = 'rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-3xl overflow-hidden rounded-[32px] bg-white shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm dark:bg-slate-950/70">
+      <div className="w-full max-w-3xl overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950">
         <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 text-white">
           <h2 className="text-xl font-semibold">Editar Entrada de Producto</h2>
           <button
@@ -112,27 +117,27 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({ entry, onSub
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8 px-8 pb-8 pt-6">
+        <form onSubmit={handleSubmit} className="space-y-8 bg-white px-8 pb-8 pt-6 transition-colors dark:bg-slate-950">
           <div className="grid gap-5 md:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Código del Producto</span>
               <input
                 type="text"
                 name="codigoProducto"
                 value={formData.codigoProducto}
                 disabled
-                className="w-full cursor-not-allowed rounded-2xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-gray-500"
+                className={disabledInputClasses}
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Nombre *</span>
               <input
                 type="text"
                 name="descripcion"
                 value={formData.descripcion}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                className={inputClasses}
                 placeholder="Nombre del producto"
                 required
                 disabled={submitting}
@@ -141,27 +146,27 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({ entry, onSub
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Fecha *</span>
               <input
                 type="date"
                 name="fecha"
                 value={formData.fecha}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                className={inputClasses}
                 required
                 disabled={submitting}
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Cantidad *</span>
               <input
                 type="number"
                 name="cantidad"
                 value={formData.cantidad}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                className={inputClasses}
                 min={1}
                 required
                 disabled={submitting}
@@ -170,7 +175,7 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({ entry, onSub
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Precio Unitario (S/)</span>
               <input
                 type="number"
@@ -178,21 +183,21 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({ entry, onSub
                 name="precioUnitario"
                 value={formData.precioUnitario}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                className={inputClasses}
                 min="0.01"
                 required
                 disabled={submitting}
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700">
+            <label className={labelClasses}>
               <span>Área</span>
               <input
                 type="text"
                 name="area"
                 value={formData.area}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                className={inputClasses}
                 placeholder="Área o proyecto"
                 disabled={submitting}
               />
@@ -200,23 +205,23 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({ entry, onSub
           </div>
 
           {errorMessage && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
               {errorMessage}
             </div>
           )}
 
-          <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end">
+          <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 dark:border-slate-800 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50"
+              className={footerButtonClasses}
               disabled={submitting}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="rounded-full bg-green-600 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-green-700 disabled:opacity-60"
+              className="rounded-full bg-green-600 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-green-700 disabled:opacity-60 dark:bg-emerald-600 dark:hover:bg-emerald-500"
               disabled={submitting}
             >
               {submitting ? 'Guardando...' : 'Guardar Cambios'}

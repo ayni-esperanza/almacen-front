@@ -1,22 +1,31 @@
 import { useState, useEffect } from 'react';
 import { reportsService } from '../services/reports.service';
-import { pdfExportService } from '../services/pdf-export.service';
-import { 
-  ExpenseReport, 
-  MonthlyExpenseData, 
-  AreaExpenseData, 
+import {
+  ExpenseReport,
+  MonthlyExpenseData,
+  AreaExpenseData,
   ReportFilters,
-  ChartData 
+  ChartData
 } from '../types';
-// Removidas las importaciones de date-fns para evitar problemas
-import { 
-  mockExpenseReports, 
-  mockMonthlyExpenseData, 
-  mockAreaExpenseData,
-  filterExpenseReports,
-  generateMonthlyData,
-  generateAreaData
-} from '../utils/mockData';
+
+const formatMonthValue = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+};
+
+const formatMonthLabel = (value: string) => {
+  if (!value) return '';
+  const [yearStr, monthStr] = value.split('-');
+  const year = Number(yearStr);
+  const month = Number(monthStr);
+  if (!year || !month) {
+    return value;
+  }
+  return new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(
+    new Date(year, month - 1, 1)
+  );
+};
 
 export const useReports = () => {
   const [expenseReports, setExpenseReports] = useState<ExpenseReport[]>([]);
@@ -24,10 +33,13 @@ export const useReports = () => {
   const [areaData, setAreaData] = useState<AreaExpenseData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<ReportFilters>({
-    fechaInicio: new Date().toISOString().split('T')[0].substring(0, 7) + '-01',
-    fechaFin: new Date().toISOString().split('T')[0],
-    tipoReporte: 'area'
+  const [filters, setFilters] = useState<ReportFilters>(() => {
+    const currentMonth = formatMonthValue(new Date());
+    return {
+      fechaInicio: currentMonth,
+      fechaFin: currentMonth,
+      tipoReporte: 'area'
+    };
   });
 
   const fetchExpenseReports = async () => {
@@ -104,7 +116,7 @@ export const useReports = () => {
 
   const getMonthlyChartData = (): ChartData[] => {
     return monthlyData.map(item => ({
-      name: `Enero 2025`, // Simplificado para el ejemplo
+      name: item.mes ? formatMonthLabel(item.mes) : 'Sin Mes',
       gasto: item.totalGasto,
       movimientos: item.cantidadMovimientos
     }));
