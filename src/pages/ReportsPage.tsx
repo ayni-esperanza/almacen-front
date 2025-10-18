@@ -1,46 +1,73 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BarChart3, AlertTriangle } from 'lucide-react';
 import { ExpenseReportPage } from '../features/reports/components/ExpenseReportPage';
 import { StockAlertPage } from '../features/reports/components/StockAlertPage';
+import { useSearchParams } from 'react-router-dom';
 
 type ReportType = 'expenses' | 'stock-alerts' | 'inventory' | 'movements';
 
+interface ReportDefinition {
+  id: ReportType;
+  title: string;
+  description: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  component: React.ComponentType;
+}
+
+const REPORTS: ReportDefinition[] = [
+  {
+    id: 'expenses',
+    title: 'Reporte de Gastos',
+    description: 'Análisis de gastos por área y proyecto',
+    icon: BarChart3,
+    component: ExpenseReportPage,
+  },
+  {
+    id: 'stock-alerts',
+    title: 'Alertas de Stock',
+    description: 'Productos con stock por debajo del mínimo',
+    icon: AlertTriangle,
+    component: StockAlertPage,
+  },
+  // Future report definitions can be added here
+];
+
+const isValidReportType = (value: string | null): value is ReportType =>
+  value != null && REPORTS.some(report => report.id === value);
+
 export const ReportsPage: React.FC = () => {
-  const [activeReport, setActiveReport] = useState<ReportType>('expenses');
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const reports = [
-    {
-      id: 'expenses' as ReportType,
-      title: 'Reporte de Gastos',
-      description: 'Análisis de gastos por área y proyecto',
-      icon: BarChart3,
-      component: ExpenseReportPage
-    },
-    {
-      id: 'stock-alerts' as ReportType,
-      title: 'Alertas de Stock',
-      description: 'Productos con stock por debajo del mínimo',
-      icon: AlertTriangle,
-      component: StockAlertPage
-    },
-    // Aquí se pueden agregar más tipos de reportes en el futuro
-    // {
-    //   id: 'inventory' as ReportType,
-    //   title: 'Reporte de Inventario',
-    //   description: 'Estado actual del inventario',
-    //   icon: FileText,
-  //   component: InventoryReportPage
-    // },
-    // {
-    //   id: 'movements' as ReportType,
-    //   title: 'Reporte de Movimientos',
-    //   description: 'Análisis de entradas y salidas',
-    //   icon: TrendingUp,
-    //   component: MovementsReportPage
-    // }
-  ];
+  const [activeReport, setActiveReport] = useState<ReportType>(() => {
+    const tabParam = searchParams.get('tab');
+    return isValidReportType(tabParam) ? tabParam : 'expenses';
+  });
 
-  const ActiveComponent = reports.find(r => r.id === activeReport)?.component;
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (isValidReportType(tabParam)) {
+      if (tabParam !== activeReport) {
+        setActiveReport(tabParam);
+      }
+    } else {
+      setSearchParams(prev => {
+        const params = new URLSearchParams(prev);
+        params.set('tab', activeReport);
+        return params;
+      }, { replace: true });
+    }
+  }, [searchParams, activeReport, setSearchParams]);
+
+  const handleReportChange = (reportId: ReportType) => {
+    setActiveReport(reportId);
+    setSearchParams(prev => {
+      const params = new URLSearchParams(prev);
+      params.set('tab', reportId);
+      return params;
+    });
+  };
+
+  const ActiveComponent = REPORTS.find(r => r.id === activeReport)?.component;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
@@ -62,12 +89,12 @@ export const ReportsPage: React.FC = () => {
       <div className="border-b border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-900">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <nav className="-mb-px flex space-x-8">
-            {reports.map((report) => {
+            {REPORTS.map((report) => {
               const Icon = report.icon;
               return (
                 <button
                   key={report.id}
-                  onClick={() => setActiveReport(report.id)}
+                  onClick={() => handleReportChange(report.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                     activeReport === report.id
                       ? 'border-green-500 text-green-600 dark:text-emerald-300'

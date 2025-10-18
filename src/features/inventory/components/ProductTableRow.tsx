@@ -13,8 +13,8 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({ product, onEdi
   return (
     <>
       <tr
-        className={`border-b border-gray-100 transition-colors hover:bg-green-50 dark:border-slate-800 dark:hover:bg-slate-800 ${
-          product.stockActual === 0 || product.stockActual <= 3 ? 'bg-red-50 dark:bg-rose-500/10' : 'bg-white dark:bg-slate-900'
+        className={`border-b border-gray-100 transition-colors hover:bg-green-50 dark:border-slate-800/70 dark:hover:bg-slate-900/60 ${
+          product.stockActual === 0 || product.stockActual <= 3 ? 'bg-red-50 dark:bg-rose-500/15' : 'bg-white dark:bg-slate-950/40'
         }`}
         onClick={() => setShowEditModal(true)}
         style={{ cursor: 'pointer' }}

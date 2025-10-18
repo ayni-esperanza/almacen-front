@@ -22,7 +22,7 @@ export const InventoryPage = () => {
     <>
       <div className="mb-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Inventario</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Inventario</h1>
           
           <button
             onClick={() => setShowAddForm(true)}

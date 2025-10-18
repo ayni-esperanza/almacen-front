@@ -75,7 +75,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   }
 
   return (
-  <div className="overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
+  <div className="overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-950">
       <div className="bg-gradient-to-r from-green-500 to-green-600 text-white py-4 px-6">
         <div className="flex items-center space-x-3">
           <Package className="w-6 h-6" />
@@ -84,7 +84,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       </div>
       <InventoryDashboard />
       {/* Search Filter */}
-      <div className="border-b border-gray-200 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+  <div className="border-b border-gray-200/70 bg-gray-50 p-4 dark:border-slate-800/70 dark:bg-slate-950/80">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400 dark:text-slate-500" />
           <input
@@ -105,8 +105,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       ) : (
         <>
           <TableWithFixedHeader maxHeight="600px">
-            <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-900">
-              <tr className="border-b border-gray-200">
+            <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
+              <tr className="border-b border-gray-200 dark:border-slate-800">
                 <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">Código</th>
                 <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">Nombre</th>
                 <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">Ubicación</th>

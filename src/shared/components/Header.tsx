@@ -2,6 +2,7 @@ import React from 'react';
 import { LogOut, Moon, Package, Sun, User } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { useTheme } from '../hooks/useTheme.tsx';
+import { NotificationBell } from './NotificationBell';
 
 interface HeaderProps {
   onLogout: () => void;
@@ -36,6 +37,8 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 </span>
               </div>
             )}
+
+            <NotificationBell />
 
             <button
               type="button"

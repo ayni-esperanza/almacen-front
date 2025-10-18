@@ -45,7 +45,7 @@ const InventoryDashboard: React.FC = () => {
     <div className="mt-6 mb-6">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
         {stats.map((stat, idx) => (
-          <div key={idx} className="rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-900">
+          <div key={idx} className="rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-[#172038] dark:bg-[#0F172A]">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${stat.iconBg}`}>
