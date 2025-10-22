@@ -1,82 +1,100 @@
-import React, { useState } from 'react';
-import { AddOptionModal } from '../../../shared/components/AddOptionModal';
-import { X } from 'lucide-react';
+import React, { useState } from "react";
+import { AddOptionModal } from "../../../shared/components/AddOptionModal";
+import { X } from "lucide-react";
+import { CreateProductData } from "../../../shared/services/inventory.service";
 
 interface AddProductFormProps {
-  onSubmit: (data: any) => void;
+  onSubmit: (data: CreateProductData) => void;
   onCancel: () => void;
   areas: string[];
 }
 
-export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCancel, areas }) => {
+export const AddProductForm: React.FC<AddProductFormProps> = ({
+  onSubmit,
+  onCancel,
+  areas,
+}) => {
   const [formData, setFormData] = useState({
-    codigo: '',
-    nombre: '',
-    costoUnitario: '',
-    ubicacion: '',
-    entradas: '0',
-    salidas: '0',
-    stockTotal: '0',
-    stockMinimo: '0',
-    unidadMedida: '',
-    marca: '',
-    proveedor: '',
-    categoria: ''
+    codigo: "",
+    nombre: "",
+    costoUnitario: "",
+    ubicacion: "",
+    entradas: "0",
+    salidas: "0",
+    stockActual: "0",
+    stockMinimo: "0",
+    unidadMedida: "",
+    marca: "",
+    proveedor: "",
+    categoria: "",
   });
 
   const [showUbicacionModal, setShowUbicacionModal] = useState(false);
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [ubicaciones, setUbicaciones] = useState<string[]>(areas);
-  const [categorias, setCategorias] = useState<string[]>(['Herramientas', 'Lubricantes']);
+  const [categorias, setCategorias] = useState<string[]>([
+    "Herramientas",
+    "Lubricantes",
+  ]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Preparar datos según lo que espera el backend
     const productData = {
       codigo: formData.codigo,
       nombre: formData.nombre,
       costoUnitario: parseFloat(formData.costoUnitario) || 0,
       unidadMedida: formData.unidadMedida,
-      stockTotal: parseInt(formData.stockTotal) || 0,
+      stockActual: parseInt(formData.stockActual) || 0,
       stockMinimo: parseInt(formData.stockMinimo) || 0,
       proveedor: formData.proveedor,
       marca: formData.marca,
       ubicacion: formData.ubicacion,
-      categoria: formData.categoria
+      categoria: formData.categoria,
     };
     onSubmit(productData);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  const labelClasses = 'block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2';
-  const inputClasses = 'w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30';
-  const selectClasses = 'w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30';
-  const chipClasses = 'inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-slate-800 dark:text-slate-200';
-  const iconButtonClasses = 'flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800';
-  const dividerClasses = 'border-t border-gray-200 pt-8 dark:border-slate-800';
+  const labelClasses =
+    "block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2";
+  const inputClasses =
+    "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
+  const selectClasses =
+    "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
+  const chipClasses =
+    "inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-slate-800 dark:text-slate-200";
+  const iconButtonClasses =
+    "flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800";
+  const dividerClasses = "border-t border-gray-200 pt-8 dark:border-slate-800";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm dark:bg-slate-950/70">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 text-white">
+        <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">Nuevo Producto</h2>
             <button
               onClick={onCancel}
-              className="rounded-full p-1 text-white transition-colors hover:bg-white/20 dark:hover:bg-white/10"
+              className="p-1 text-white transition-colors rounded-full hover:bg-white/20 dark:hover:bg-white/10"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
         </div>
-  <form onSubmit={handleSubmit} className="space-y-8 bg-white px-8 pb-8 pt-6 dark:bg-slate-950">
+        <form
+          onSubmit={handleSubmit}
+          className="px-8 pt-6 pb-8 space-y-8 bg-white dark:bg-slate-950"
+        >
           <div className="grid gap-8 md:grid-cols-2">
             <div className="space-y-6">
               <div>
@@ -106,8 +124,8 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
                 <label className={labelClasses}>Stock Total *</label>
                 <input
                   type="number"
-                  name="stockTotal"
-                  value={formData.stockTotal || ''}
+                  name="stockActual"
+                  value={formData.stockActual || ""}
                   onChange={handleChange}
                   className={inputClasses}
                   min="0"
@@ -140,7 +158,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
                       required
                     >
                       <option value="">Estante dentro del almacén</option>
-                      {ubicaciones.map(area => (
+                      {ubicaciones.map((area) => (
                         <option key={area} value={area}>
                           {area}
                         </option>
@@ -148,16 +166,20 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
                     </select>
                     <div className="flex flex-wrap gap-2">
                       {ubicaciones
-                        .filter(u => !areas.includes(u))
-                        .map(area => (
+                        .filter((u) => !areas.includes(u))
+                        .map((area) => (
                           <span key={area} className={chipClasses}>
                             {area}
                             <button
                               type="button"
                               className="text-red-500 transition-colors hover:text-red-600"
-                              onClick={() => setUbicaciones(ubicaciones.filter(u => u !== area))}
+                              onClick={() =>
+                                setUbicaciones(
+                                  ubicaciones.filter((u) => u !== area)
+                                )
+                              }
                             >
-                              <X className="h-3 w-3" />
+                              <X className="w-3 h-3" />
                             </button>
                           </span>
                         ))}
@@ -180,7 +202,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
                 <input
                   type="text"
                   name="nombre"
-                  value={formData.nombre || ''}
+                  value={formData.nombre || ""}
                   onChange={handleChange}
                   className={inputClasses}
                   required
@@ -213,7 +235,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
                 <input
                   type="number"
                   name="stockMinimo"
-                  value={formData.stockMinimo || ''}
+                  value={formData.stockMinimo || ""}
                   onChange={handleChange}
                   className={inputClasses}
                   min="0"
@@ -225,7 +247,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
                 <input
                   type="text"
                   name="marca"
-                  value={formData.marca || ''}
+                  value={formData.marca || ""}
                   onChange={handleChange}
                   className={inputClasses}
                   required
@@ -243,7 +265,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
                       required
                     >
                       <option value="">Selecciona una categoría</option>
-                      {categorias.map(cat => (
+                      {categorias.map((cat) => (
                         <option key={cat} value={cat}>
                           {cat}
                         </option>
@@ -251,16 +273,22 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
                     </select>
                     <div className="flex flex-wrap gap-2">
                       {categorias
-                        .filter(c => c !== 'Herramientas' && c !== 'Lubricantes')
-                        .map(cat => (
+                        .filter(
+                          (c) => c !== "Herramientas" && c !== "Lubricantes"
+                        )
+                        .map((cat) => (
                           <span key={cat} className={chipClasses}>
                             {cat}
                             <button
                               type="button"
                               className="text-red-500 transition-colors hover:text-red-600"
-                              onClick={() => setCategorias(categorias.filter(ca => ca !== cat))}
+                              onClick={() =>
+                                setCategorias(
+                                  categorias.filter((ca) => ca !== cat)
+                                )
+                              }
                             >
-                              <X className="h-3 w-3" />
+                              <X className="w-3 h-3" />
                             </button>
                           </span>
                         ))}
@@ -278,17 +306,19 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
             </div>
           </div>
 
-          <div className={`flex flex-col gap-4 ${dividerClasses} sm:flex-row sm:justify-end`}>
+          <div
+            className={`flex flex-col gap-4 ${dividerClasses} sm:flex-row sm:justify-end`}
+          >
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
+              className="px-6 py-3 text-sm font-semibold text-gray-700 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="rounded-full bg-green-500 px-6 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-green-600 dark:bg-green-500 dark:hover:bg-green-400"
+              className="px-6 py-3 text-sm font-semibold text-white transition-colors bg-green-500 rounded-full shadow-md hover:bg-green-600 dark:bg-green-500 dark:hover:bg-green-400"
             >
               Agregar Producto
             </button>
@@ -299,7 +329,8 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
           isOpen={showUbicacionModal}
           onClose={() => setShowUbicacionModal(false)}
           onSubmit={(option: string) => {
-            if (option && !ubicaciones.includes(option)) setUbicaciones([...ubicaciones, option]);
+            if (option && !ubicaciones.includes(option))
+              setUbicaciones([...ubicaciones, option]);
             setShowUbicacionModal(false);
           }}
           title="Nueva Ubicación"
@@ -309,7 +340,8 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onSubmit, onCanc
           isOpen={showCategoriaModal}
           onClose={() => setShowCategoriaModal(false)}
           onSubmit={(option: string) => {
-            if (option && !categorias.includes(option)) setCategorias([...categorias, option]);
+            if (option && !categorias.includes(option))
+              setCategorias([...categorias, option]);
             setShowCategoriaModal(false);
           }}
           title="Nueva Categoría"

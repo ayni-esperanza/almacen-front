@@ -37,7 +37,7 @@ export interface ReportFilters {
   fechaFin: string;
   area?: string;
   proyecto?: string;
-  tipoReporte: 'area' | 'proyecto';
+  tipoReporte: "area" | "proyecto";
 }
 
 export interface ChartData {
@@ -50,19 +50,19 @@ export interface ChartData {
 export interface StockAlert {
   id: string;
   codigo: string;
-  descripcion: string;
+  nombre: string;
   stockActual: number;
   stockMinimo: number;
   ubicacion: string;
   categoria: string;
   proveedor: string;
   ultimaActualizacion: string;
-  estado: 'critico' | 'bajo' | 'normal';
+  estado: "critico" | "bajo" | "normal";
 }
 
 export interface StockAlertFilters {
   categoria?: string;
   ubicacion?: string;
-  estado?: 'critico' | 'bajo' | 'normal';
+  estado?: "critico" | "bajo" | "normal";
   mostrarSoloCriticos?: boolean;
 }
