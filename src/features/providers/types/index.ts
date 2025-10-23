@@ -5,4 +5,6 @@ export interface Provider {
   address: string;
   phones: string[];
   photoUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

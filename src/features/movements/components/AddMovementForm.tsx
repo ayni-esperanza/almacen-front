@@ -61,7 +61,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
   const primaryButtonLabel = isEntry ? 'Guardar' : 'Agregar Producto';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
       <div className="w-full max-w-3xl overflow-hidden rounded-[32px] bg-white shadow-2xl dark:bg-slate-950 dark:border dark:border-slate-800">
         <div className={`flex items-center justify-between rounded-t-[32px] bg-gradient-to-r ${gradientColor} px-6 py-4 text-white`}>
           <h2 className="text-xl font-semibold">
@@ -70,13 +70,13 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full p-1 transition-colors hover:bg-white/20"
+            className="p-1 transition-colors rounded-full hover:bg-white/20"
           >
-            <X className="h-6 w-6" />
+            <X className="w-6 h-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8 px-8 pb-8 pt-6">
+        <form onSubmit={handleSubmit} className="px-8 pt-6 pb-8 space-y-8">
           {isEntry ? (
             <>
               <div className="grid gap-5 md:grid-cols-2">
@@ -228,7 +228,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
                 <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
                   <span>Área *</span>
                   <div className="relative">
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
+                    <ChevronDown className="absolute w-5 h-5 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
                     <select
                       name="area"
                       value={formData.area}
@@ -278,16 +278,16 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
           )}
 
           {errorMessage && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="px-4 py-3 text-sm text-red-700 border border-red-200 rounded-2xl bg-red-50">
               {errorMessage}
             </div>
           )}
 
-          <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end">
+          <div className="flex flex-col gap-4 pt-6 border-t border-gray-200 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50"
+              className="px-6 py-2 text-sm font-semibold text-gray-600 transition-colors border border-gray-300 rounded-full hover:bg-gray-50"
             >
               Cancelar
             </button>

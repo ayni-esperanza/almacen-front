@@ -60,22 +60,22 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
   const dividerClasses = 'space-y-6 border-t border-gray-200 pt-6 dark:border-slate-800';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm dark:bg-slate-950/70">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div className="w-full max-w-4xl overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950">
         <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white">
           <div className="flex items-center gap-3">
-            <Wrench className="h-6 w-6" />
+            <Wrench className="w-6 h-6" />
             <h2 className="text-xl font-semibold">Nueva Salida de Herramientas/Equipos</h2>
           </div>
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full p-1 transition-colors hover:bg-white/20"
+            className="p-1 transition-colors rounded-full hover:bg-white/20"
           >
-            <X className="h-6 w-6" />
+            <X className="w-6 h-6" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white px-8 pb-8 pt-6 dark:bg-slate-950">
+        <form onSubmit={handleSubmit} className="px-8 pt-6 pb-8 space-y-8 bg-white dark:bg-slate-950">
           <div className="grid gap-5 md:grid-cols-3">
             <label className={labelClasses}>
               <span>Código *</span>
@@ -135,7 +135,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                   <option value="En_Reparacion">En reparación</option>
                   <option value="Danado">Dañado</option>
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
+                <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
               </div>
             </label>
 
@@ -195,7 +195,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
+                <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
               </div>
             </label>
           </div>
@@ -256,7 +256,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
                     <option value="Malo">Malo</option>
                     <option value="Danado">Dañado</option>
                   </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
+                  <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
                 </div>
               </label>
 
@@ -274,17 +274,17 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 dark:border-slate-800 sm:flex-row sm:justify-end">
+          <div className="flex flex-col gap-4 pt-6 border-t border-gray-200 dark:border-slate-800 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
+              className="px-6 py-2 text-sm font-semibold text-gray-600 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
+              className="px-6 py-2 text-sm font-semibold text-white transition-colors bg-blue-600 rounded-full shadow-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
             >
               Agregar Reporte
             </button>

@@ -100,7 +100,9 @@ const ProvidersPage = () => {
 
   const handleEditProvider = async (updatedProvider: Provider) => {
     try {
-      await updateProvider(updatedProvider.id, updatedProvider);
+      // Extraer solo los campos editables (sin id, createdAt, updatedAt)
+      const { id, createdAt, updatedAt, ...providerData } = updatedProvider;
+      await updateProvider(id, providerData);
       setEditModalOpen(false);
       setSelectedProvider(null);
     } catch (error) {

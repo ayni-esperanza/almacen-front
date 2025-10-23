@@ -11,7 +11,7 @@ export interface CreateProductData {
   stockActual?: number;
   stockMinimo?: number;
   unidadMedida: string;
-  proveedor: string;
+  providerId: number;
   marca?: string;
   costoTotal?: number;
   categoria?: string;

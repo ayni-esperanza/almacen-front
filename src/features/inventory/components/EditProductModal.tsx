@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Product } from "../types";
+import { Provider } from "../../providers/types";
+import { providersService } from "../../providers/services/providers.service";
 
 interface EditProductModalProps {
   isOpen: boolean;
@@ -21,6 +23,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     "Herramientas",
     "Lubricantes",
   ]);
+  const [providers, setProviders] = useState<Provider[]>([]);
   const [nombre, setNombre] = useState(product?.nombre || "");
   const [codigo, setCodigo] = useState(product?.codigo || "");
   const [costoUnitario, setCostoUnitario] = useState(
@@ -30,7 +33,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const [stockActual, setStockActual] = useState(product?.stockActual || 0);
   const [stockMinimo, setStockMinimo] = useState(product?.stockMinimo || 0);
   const [unidadMedida, setUnidadMedida] = useState(product?.unidadMedida || "");
-  const [proveedor, setProveedor] = useState(product?.proveedor || "");
+  const [providerId, setProviderId] = useState(product?.providerId || 0);
   const [marca, setMarca] = useState(product?.marca || "");
   const [categoria, setCategoria] = useState(product?.categoria || "");
   const inputClasses =
@@ -41,6 +44,14 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     "inline-flex items-center rounded px-2 py-1 text-xs text-gray-700 bg-gray-100 dark:bg-slate-800 dark:text-slate-200";
 
   useEffect(() => {
+    const loadProviders = async () => {
+      const data = await providersService.getAllProviders();
+      setProviders(data);
+    };
+    loadProviders();
+  }, []);
+
+  useEffect(() => {
     if (product) {
       setNombre(product.nombre);
       setCodigo(product.codigo);
@@ -49,7 +60,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setStockActual(product.stockActual);
       setStockMinimo(product.stockMinimo || 0);
       setUnidadMedida(product.unidadMedida);
-      setProveedor(product.proveedor);
+      setProviderId(product.providerId);
       setMarca(product.marca || "");
       setCategoria(product.categoria || "");
     }
@@ -67,7 +78,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       stockActual,
       stockMinimo,
       unidadMedida,
-      proveedor,
+      providerId,
       marca,
       categoria,
     });
@@ -129,14 +140,17 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
               <div>
                 <label className={labelClasses}>Proveedor *</label>
                 <select
-                  value={proveedor}
-                  onChange={(e) => setProveedor(e.target.value)}
+                  value={providerId}
+                  onChange={(e) => setProviderId(parseInt(e.target.value))}
                   className={`${inputClasses} appearance-none`}
                   required
                 >
                   <option value="">Selecciona un Proveedor</option>
-                  <option value="Proveedor 1">Proveedor 1</option>
-                  <option value="Proveedor 2">Proveedor 2</option>
+                  {providers.map((provider) => (
+                    <option key={provider.id} value={provider.id}>
+                      {provider.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="flex items-end gap-2">

@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AddOptionModal } from "../../../shared/components/AddOptionModal";
 import { X } from "lucide-react";
 import { CreateProductData } from "../../../shared/services/inventory.service";
+import { Provider } from "../../providers/types";
+import { providersService } from "../../providers/services/providers.service";
 
 interface AddProductFormProps {
   onSubmit: (data: CreateProductData) => void;
@@ -25,9 +27,11 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     stockMinimo: "0",
     unidadMedida: "",
     marca: "",
-    proveedor: "",
+    providerId: "",
     categoria: "",
   });
+
+  const [providers, setProviders] = useState<Provider[]>([]);
 
   const [showUbicacionModal, setShowUbicacionModal] = useState(false);
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
@@ -36,6 +40,15 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     "Herramientas",
     "Lubricantes",
   ]);
+
+  // Cargar proveedores al montar el componente
+  useEffect(() => {
+    const loadProviders = async () => {
+      const data = await providersService.getAllProviders();
+      setProviders(data);
+    };
+    loadProviders();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +61,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
       unidadMedida: formData.unidadMedida,
       stockActual: parseInt(formData.stockActual) || 0,
       stockMinimo: parseInt(formData.stockMinimo) || 0,
-      proveedor: formData.proveedor,
+      providerId: parseInt(formData.providerId),
       marca: formData.marca,
       ubicacion: formData.ubicacion,
       categoria: formData.categoria,
@@ -135,15 +148,18 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
               <div>
                 <label className={labelClasses}>Proveedor *</label>
                 <select
-                  name="proveedor"
-                  value={formData.proveedor}
+                  name="providerId"
+                  value={formData.providerId}
                   onChange={handleChange}
                   className={selectClasses}
                   required
                 >
                   <option value="">Selecciona un proveedor</option>
-                  <option value="Proveedor 1">Proveedor 1</option>
-                  <option value="Proveedor 2">Proveedor 2</option>
+                  {providers.map((provider) => (
+                    <option key={provider.id} value={provider.id}>
+                      {provider.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="flex items-end gap-3">
