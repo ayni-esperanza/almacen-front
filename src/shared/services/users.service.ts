@@ -56,6 +56,17 @@ class UsersService {
     
     return true;
   }
+
+  async toggleUserStatus(id: number, isActive: boolean): Promise<User | null> {
+    const response = await apiClient.patch<User>(`/auth/users/${id}`, { isActive });
+    
+    if (response.error) {
+      console.error('Error toggling user status:', response.error);
+      throw new Error(response.error);
+    }
+    
+    return response.data || null;
+  }
 }
 
 export const usersService = new UsersService();

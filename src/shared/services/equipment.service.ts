@@ -10,7 +10,6 @@ export interface CreateEquipmentData {
   fechaSalida: string;
   horaSalida: string;
   areaProyecto: string;
-  firma: string;
 }
 
 export interface UpdateEquipmentData extends Partial<CreateEquipmentData> {}
@@ -19,7 +18,7 @@ export interface ReturnEquipmentData {
   fechaRetorno: string;
   horaRetorno: string;
   estadoRetorno: 'Bueno' | 'Regular' | 'Malo' | 'Danado';
-  firmaRetorno: string;
+  responsableRetorno: string;
 }
 
 class EquipmentService {

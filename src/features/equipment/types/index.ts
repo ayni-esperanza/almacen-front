@@ -8,11 +8,10 @@ export interface EquipmentReport {
   fechaSalida: string;
   horaSalida: string;
   areaProyecto: string;
-  firma: string;
   fechaRetorno?: string;
   horaRetorno?: string;
   estadoRetorno?: 'Bueno' | 'Regular' | 'Malo' | 'Danado';
-  firmaRetorno?: string;
+  responsableRetorno?: string;
   createdAt: Date;
   updatedAt: Date;
 }

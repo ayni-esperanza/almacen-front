@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { MovementEntry } from '../types';
 import { UpdateEntryData } from '../../../shared/services/movements.service.ts';
+import { useModalScrollLock } from '../../../shared/hooks/useModalScrollLock';
 
 interface EditMovementFormProps {
   entry: MovementEntry;
@@ -21,6 +22,9 @@ function toISODate(date: string | undefined): string {
 }
 
 export const EditMovementForm: React.FC<EditMovementFormProps> = ({ entry, onSubmit, onCancel }) => {
+  // Bloquear scroll de la ventana
+  useModalScrollLock(true);
+  
   const initialState = useMemo(() => ({
     codigoProducto: entry.codigoProducto ?? '',
     descripcion: entry.descripcion ?? '',
@@ -103,9 +107,9 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({ entry, onSub
   const footerButtonClasses = 'rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm dark:bg-slate-950/70">
-      <div className="w-full max-w-3xl overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm dark:bg-slate-950/70">
+      <div className="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col">
+        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 text-white flex-shrink-0">
           <h2 className="text-xl font-semibold">Editar Entrada de Producto</h2>
           <button
             type="button"
@@ -117,7 +121,8 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({ entry, onSub
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white px-8 pb-8 pt-6 transition-colors dark:bg-slate-950">
+        <div className="overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="space-y-8 bg-white px-8 pb-8 pt-6 transition-colors dark:bg-slate-950">
           <div className="grid gap-5 md:grid-cols-2">
             <label className={labelClasses}>
               <span>Código del Producto</span>
@@ -228,6 +233,7 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({ entry, onSub
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

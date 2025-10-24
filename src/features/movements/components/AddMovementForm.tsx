@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 import { areas } from '../../inventory/data/mockData.ts';
+import { useModalScrollLock } from '../../../shared/hooks/useModalScrollLock';
 
 interface AddMovementFormProps {
   type: 'entrada' | 'salida';
@@ -9,6 +10,9 @@ interface AddMovementFormProps {
 }
 
 export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit, onCancel }) => {
+  // Bloquear scroll de la ventana
+  useModalScrollLock(true);
+  
   const isEntry = type === 'entrada';
   const [formData, setFormData] = useState(() => ({
     fecha: new Date().toISOString().split('T')[0],
@@ -61,9 +65,9 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
   const primaryButtonLabel = isEntry ? 'Guardar' : 'Agregar Producto';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="w-full max-w-3xl overflow-hidden rounded-[32px] bg-white shadow-2xl dark:bg-slate-950 dark:border dark:border-slate-800">
-        <div className={`flex items-center justify-between rounded-t-[32px] bg-gradient-to-r ${gradientColor} px-6 py-4 text-white`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
+      <div className="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-[32px] bg-white shadow-2xl dark:bg-slate-950 dark:border dark:border-slate-800 flex flex-col">
+        <div className={`flex items-center justify-between rounded-t-[32px] bg-gradient-to-r ${gradientColor} px-6 py-4 text-white flex-shrink-0`}>
           <h2 className="text-xl font-semibold">
             {isEntry ? 'Nueva Entrada de Producto' : 'Nueva Salida de Producto'}
           </h2>
@@ -76,7 +80,8 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-8 pt-6 pb-8 space-y-8">
+        <div className="overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="px-8 pt-6 pb-8 space-y-8">
           {isEntry ? (
             <>
               <div className="grid gap-5 md:grid-cols-2">
@@ -299,6 +304,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({ type, onSubmit
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

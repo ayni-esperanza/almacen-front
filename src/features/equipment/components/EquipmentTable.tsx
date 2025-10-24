@@ -173,7 +173,7 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({ equipments, onEd
                 </td>
                 <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{equipment.fechaRetorno ?? '-'}</td>
                 <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{equipment.horaRetorno ?? '-'}</td>
-                <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{equipment.firmaRetorno ?? '-'}</td>
+                <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{equipment.responsableRetorno ?? '-'}</td>
               </tr>
             );
           })}

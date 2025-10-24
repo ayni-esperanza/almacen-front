@@ -38,33 +38,18 @@ const isValidReportType = (value: string | null): value is ReportType =>
 export const ReportsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [activeReport, setActiveReport] = useState<ReportType>(() => {
-    const tabParam = searchParams.get('tab');
-    return isValidReportType(tabParam) ? tabParam : 'expenses';
-  });
+  const tabParam = searchParams.get('tab');
+  const activeReport: ReportType = isValidReportType(tabParam) ? tabParam : 'expenses';
 
   useEffect(() => {
-    const tabParam = searchParams.get('tab');
-    if (isValidReportType(tabParam)) {
-      if (tabParam !== activeReport) {
-        setActiveReport(tabParam);
-      }
-    } else {
-      setSearchParams(prev => {
-        const params = new URLSearchParams(prev);
-        params.set('tab', activeReport);
-        return params;
-      }, { replace: true });
+    // Solo actualizar si no hay parámetro o si es inválido
+    if (!tabParam || !isValidReportType(tabParam)) {
+      setSearchParams({ tab: 'expenses' }, { replace: true });
     }
-  }, [searchParams, activeReport, setSearchParams]);
+  }, [tabParam, setSearchParams]);
 
   const handleReportChange = (reportId: ReportType) => {
-    setActiveReport(reportId);
-    setSearchParams(prev => {
-      const params = new URLSearchParams(prev);
-      params.set('tab', reportId);
-      return params;
-    });
+    setSearchParams({ tab: reportId });
   };
 
   const ActiveComponent = REPORTS.find(r => r.id === activeReport)?.component;

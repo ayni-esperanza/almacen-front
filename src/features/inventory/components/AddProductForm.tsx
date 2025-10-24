@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { CreateProductData } from "../../../shared/services/inventory.service";
 import { Provider } from "../../providers/types";
 import { providersService } from "../../providers/services/providers.service";
+import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 
 interface AddProductFormProps {
   onSubmit: (data: CreateProductData) => void;
@@ -16,6 +17,9 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   onCancel,
   areas,
 }) => {
+  // Bloquear scroll de la ventana cuando está abierta la modal
+  useModalScrollLock(true);
+  
   const [formData, setFormData] = useState({
     codigo: "",
     nombre: "",

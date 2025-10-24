@@ -21,11 +21,10 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
     fechaSalida: new Date().toISOString().split('T')[0],
     horaSalida: new Date().toTimeString().slice(0, 5),
     areaProyecto: '',
-    firma: '',
     fechaRetorno: '',
     horaRetorno: '',
     estadoRetorno: '' as EstadoRetorno,
-    firmaRetorno: '',
+    responsableRetorno: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -43,7 +42,6 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
       fechaSalida: formData.fechaSalida,
       horaSalida: formData.horaSalida,
       areaProyecto: formData.areaProyecto,
-      firma: formData.firma,
     });
   };
 
@@ -61,8 +59,8 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
-      <div className="w-full max-w-4xl overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white">
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col">
+        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white flex-shrink-0">
           <div className="flex items-center gap-3">
             <Wrench className="w-6 h-6" />
             <h2 className="text-xl font-semibold">Nueva Salida de Herramientas/Equipos</h2>
@@ -75,7 +73,8 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
             <X className="w-6 h-6" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="px-8 pt-6 pb-8 space-y-8 bg-white dark:bg-slate-950">
+        <div className="overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="px-8 pt-6 pb-8 space-y-8 bg-white dark:bg-slate-950">
           <div className="grid gap-5 md:grid-cols-3">
             <label className={labelClasses}>
               <span>Código *</span>
@@ -200,19 +199,6 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
             </label>
           </div>
 
-          <label className={labelClasses}>
-            <span>Firma *</span>
-            <input
-              type="text"
-              name="firma"
-              value={formData.firma}
-              onChange={handleChange}
-              className={inputClasses}
-              placeholder="Firma autorizada"
-              required
-            />
-          </label>
-
           <div className={dividerClasses}>
             <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">Información de Retorno (Opcional)</h3>
 
@@ -261,14 +247,14 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
               </label>
 
               <label className={labelClasses}>
-                <span>Firma de Retorno</span>
+                <span>Responsable de Retorno</span>
                 <input
                   type="text"
-                  name="firmaRetorno"
-                  value={formData.firmaRetorno}
+                  name="responsableRetorno"
+                  value={formData.responsableRetorno}
                   onChange={handleChange}
                   className={inputClasses}
-                  placeholder="Nombre o firma de recepción"
+                  placeholder="Nombre del responsable de recepción"
                 />
               </label>
             </div>
@@ -289,7 +275,8 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({ onSubmit, on
               Agregar Reporte
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

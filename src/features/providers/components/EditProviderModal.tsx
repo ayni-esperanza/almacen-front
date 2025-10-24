@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Image as ImageIcon, Minus, Plus } from 'lucide-react';
 import { Provider } from '../types';
+import { useModalScrollLock } from '../../../shared/hooks/useModalScrollLock';
 
 interface EditProviderModalProps {
   isOpen: boolean;
@@ -10,6 +11,9 @@ interface EditProviderModalProps {
 }
 
 export const EditProviderModal: React.FC<EditProviderModalProps> = ({ isOpen, onClose, provider, onEdit }) => {
+  // Bloquear scroll
+  useModalScrollLock(isOpen);
+  
   const [name, setName] = useState(provider?.name || '');
   const [email, setEmail] = useState(provider?.email || '');
   const [address, setAddress] = useState(provider?.address || '');
@@ -65,14 +69,15 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({ isOpen, on
   if (!isOpen || !provider) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-4xl rounded-[32px] bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70 p-4">
+      <div className="w-full max-w-4xl max-h-[90vh] rounded-[32px] bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4 text-white flex-shrink-0">
           <h3 className="text-lg font-semibold">Editar Proveedor</h3>
           <button type="button" onClick={onClose} className="text-2xl font-bold leading-none">×</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-8 pb-8 pt-6">
+        <div className="overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="px-8 pb-8 pt-6">
           <div className="grid gap-8 md:grid-cols-[240px_minmax(0,1fr)]">
             <div className="flex flex-col items-center">
               <span className="mb-3 text-sm font-semibold text-gray-600 dark:text-slate-300">Foto de Perfil</span>
@@ -208,7 +213,8 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({ isOpen, on
               Guardar Cambios
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -24,6 +24,7 @@ export const UsersPage = () => {
   const { checkPermission } = usePermissions();
   const canUpdateUsers = checkPermission(Permission.USERS_UPDATE);
   const canDeleteUsers = checkPermission(Permission.USERS_DELETE);
+  const [togglingStatusId, setTogglingStatusId] = useState<number | null>(null);
   const searchInputClasses = 'w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400 dark:focus:ring-blue-500/40';
 
   const filteredUsers = useMemo(() => {
@@ -167,6 +168,23 @@ export const UsersPage = () => {
       setModalError(err instanceof Error ? err.message : 'No se pudo eliminar el usuario');
     } finally {
       setModalSubmitting(false);
+    }
+  };
+
+  const handleToggleUserStatus = async (user: User, event: React.MouseEvent) => {
+    event.stopPropagation();
+    
+    if (!canUpdateUsers) return;
+    
+    try {
+      setTogglingStatusId(user.id);
+      await usersService.toggleUserStatus(user.id, !user.isActive);
+      await fetchUsers();
+    } catch (err) {
+      console.error('Error al cambiar el estado del usuario:', err);
+      alert(err instanceof Error ? err.message : 'No se pudo cambiar el estado del usuario');
+    } finally {
+      setTogglingStatusId(null);
     }
   };
 
@@ -329,15 +347,21 @@ export const UsersPage = () => {
                     </span>
                   </td>
                   <td className="px-4 py-4">
-                    <span
-                      className={`px-2 py-1 text-xs font-medium ${
+                    <button
+                      type="button"
+                      onClick={(event) => handleToggleUserStatus(user, event)}
+                      disabled={!canUpdateUsers || togglingStatusId === user.id}
+                      className={`px-2 py-1 text-xs font-medium transition-all ${
                         user.isActive
                           ? 'rounded-full bg-green-100 text-green-800 dark:bg-emerald-500/15 dark:text-emerald-200'
                           : 'rounded-full bg-red-100 text-red-800 dark:bg-rose-500/15 dark:text-rose-200'
+                      } ${canUpdateUsers ? 'cursor-pointer hover:opacity-75' : 'cursor-default'} ${
+                        togglingStatusId === user.id ? 'opacity-50 cursor-wait' : ''
                       }`}
+                      title={canUpdateUsers ? 'Click para cambiar estado' : 'No tienes permisos para cambiar el estado'}
                     >
-                      {user.isActive ? 'Activo' : 'Inactivo'}
-                    </span>
+                      {togglingStatusId === user.id ? 'Cambiando...' : (user.isActive ? 'Activo' : 'Inactivo')}
+                    </button>
                   </td>
                 </tr>
               ))}

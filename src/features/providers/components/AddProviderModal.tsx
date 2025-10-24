@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Image as ImageIcon, Minus, Plus } from 'lucide-react';
 import { Provider } from '../types';
+import { useModalScrollLock } from '../../../shared/hooks/useModalScrollLock';
 
 interface AddProviderModalProps {
   isOpen: boolean;
@@ -9,12 +10,16 @@ interface AddProviderModalProps {
 }
 
 export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onClose, onAdd }) => {
+  // Bloquear scroll
+  useModalScrollLock(isOpen);
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [phones, setPhones] = useState<string[]>(['']);
   const [photoUrl, setPhotoUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const inputClasses = 'w-full rounded-2xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-purple-300 dark:focus:ring-purple-500/30';
   const labelClasses = 'mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200';
 
@@ -44,6 +49,19 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
     reader.readAsDataURL(file);
   };
 
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setEmail(value);
+    
+    // Validar formato de email con dominio
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (value && !emailRegex.test(value)) {
+      event.target.setCustomValidity('El correo debe tener un formato válido con dominio (ej: usuario@dominio.com)');
+    } else {
+      event.target.setCustomValidity('');
+    }
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     onAdd({ name, email, address, phones, photoUrl });
@@ -58,14 +76,15 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-4xl rounded-[32px] bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70 p-4">
+      <div className="w-full max-w-4xl max-h-[90vh] rounded-[32px] bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4 text-white flex-shrink-0">
           <h3 className="text-lg font-semibold">Nuevo Proveedor</h3>
           <button type="button" onClick={onClose} className="text-2xl font-bold leading-none">×</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-8 pb-8 pt-6">
+        <div className="overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="px-8 pb-8 pt-6">
           <div className="grid gap-8 md:grid-cols-[240px_minmax(0,1fr)]">
             <div className="flex flex-col items-center">
               <span className="mb-3 text-sm font-semibold text-gray-600 dark:text-slate-300">Foto de Perfil</span>
@@ -134,13 +153,16 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
               <label>
                 <span className={labelClasses}>Email *</span>
                 <input
+                  ref={emailInputRef}
                   type="email"
                   value={email}
-                  onChange={event => setEmail(event.target.value)}
+                  onChange={handleEmailChange}
                   required
                   maxLength={255}
                   className={inputClasses}
                   placeholder="correo@ejemplo.com"
+                  pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+                  title="El correo debe tener un formato válido con dominio (ej: usuario@dominio.com)"
                 />
               </label>
 
@@ -201,7 +223,8 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
               Agregar Proveedor
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

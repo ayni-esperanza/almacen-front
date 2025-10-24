@@ -3,6 +3,7 @@ import { ChevronDown, X } from 'lucide-react';
 import { MovementExit } from '../types/index.ts';
 import { UpdateExitData } from '../../../shared/services/movements.service.ts';
 import { areas } from '../../inventory/data/mockData.ts';
+import { useModalScrollLock } from '../../../shared/hooks/useModalScrollLock';
 
 interface EditExitMovementFormProps {
   exit: MovementExit;
@@ -22,6 +23,9 @@ function toISODate(date: string | undefined): string {
 }
 
 export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({ exit, onSubmit, onCancel }) => {
+  // Bloquear scroll
+  useModalScrollLock(true);
+  
   const initialState = useMemo(
     () => ({
       fecha: toISODate(exit.fecha),
@@ -119,9 +123,9 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({ exit
   const footerButtonClasses = 'rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm dark:bg-slate-950/70">
-      <div className="w-full max-w-3xl overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm dark:bg-slate-950/70">
+      <div className="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col">
+        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 text-white flex-shrink-0">
           <h2 className="text-xl font-semibold">Editar Salida de Producto</h2>
           <button
             type="button"
@@ -133,7 +137,8 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({ exit
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white px-8 pb-8 pt-6 transition-colors dark:bg-slate-950">
+        <div className="overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="space-y-8 bg-white px-8 pb-8 pt-6 transition-colors dark:bg-slate-950">
           <div className="grid gap-5 md:grid-cols-2">
             <label className={labelClasses}>
               <span className="flex items-center gap-2">
@@ -271,6 +276,7 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({ exit
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

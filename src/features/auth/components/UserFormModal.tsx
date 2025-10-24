@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { X, Image as ImageIcon, Eye, EyeOff } from 'lucide-react';
 import { User, UserRole } from '../types';
+import { useModalScrollLock } from '../../../shared/hooks/useModalScrollLock';
 
 export interface UserFormSubmitInput {
   username: string;
@@ -41,6 +42,9 @@ export const UserFormModal = ({
   onSubmit,
   onDelete,
 }: UserFormModalProps) => {
+  // Bloquear scroll
+  useModalScrollLock(isOpen);
+  
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<UserRole>(DEFAULT_ROLE);
@@ -51,6 +55,7 @@ export const UserFormModal = ({
   const [showPassword, setShowPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarData, setAvatarData] = useState<string | null>(null);
+  const emailInputRef = useRef<HTMLInputElement | null>(null);
   const inputClasses = 'w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-300 dark:focus:ring-blue-500/30';
   const labelClasses = 'mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200';
 
@@ -98,6 +103,19 @@ export const UserFormModal = ({
 
   const togglePasswordVisibility = () => setShowPassword(prev => !prev);
 
+  const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setEmail(value);
+    
+    // Validar formato de email con dominio
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (value && !emailRegex.test(value)) {
+      event.target.setCustomValidity('El correo debe tener un formato válido con dominio (ej: usuario@dominio.com)');
+    } else {
+      event.target.setCustomValidity('');
+    }
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -127,10 +145,12 @@ export const UserFormModal = ({
 
   const showDeleteAction = mode === 'edit' && canDelete && onDelete;
 
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="w-full max-w-4xl rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70 p-4">
+      <div className="w-full max-w-4xl max-h-[90vh] rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white flex-shrink-0">
           <h2 className="text-xl font-semibold">{title}</h2>
           <button
             type="button"
@@ -141,7 +161,8 @@ export const UserFormModal = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-8 pb-8 pt-6">
+        <div className="overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="px-8 pb-8 pt-6">
           <div className="grid gap-8 md:grid-cols-[220px_minmax(0,1fr)]">
             <div className="flex flex-col items-center justify-start">
               <span className="mb-3 text-sm font-semibold text-gray-600 dark:text-slate-300">Foto de Perfil</span>
@@ -238,12 +259,15 @@ export const UserFormModal = ({
                   Email *
                 </label>
                 <input
+                  ref={emailInputRef}
                   type="email"
                   value={email}
-                  onChange={event => setEmail(event.target.value)}
+                  onChange={handleEmailChange}
                   className={inputClasses}
                   placeholder="correo@ejemplo.com"
                   required
+                  pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+                  title="El correo debe tener un formato válido con dominio (ej: usuario@dominio.com)"
                 />
               </div>
 
@@ -319,6 +343,7 @@ export const UserFormModal = ({
             </div>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Product } from "../types";
 import { Provider } from "../../providers/types";
 import { providersService } from "../../providers/services/providers.service";
+import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 
 interface EditProductModalProps {
   isOpen: boolean;
@@ -17,6 +18,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   product,
   onEdit,
 }) => {
+  // Bloquear scroll cuando la modal está abierta
+  useModalScrollLock(isOpen);
+  
   // Opciones para los combos (puedes reemplazar por props si lo deseas)
   const [ubicaciones, setUbicaciones] = useState<string[]>(["A1", "A2", "B1"]);
   const [categorias, setCategorias] = useState<string[]>([
@@ -88,9 +92,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   if (!isOpen || !product) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950">
-        <div className="px-6 py-4 text-white rounded-t-2xl bg-gradient-to-r from-green-500 to-green-600">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col">
+        <div className="px-6 py-4 text-white rounded-t-2xl bg-gradient-to-r from-green-500 to-green-600 flex-shrink-0">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">Editar Producto</h2>
             <button
@@ -101,7 +105,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
             </button>
           </div>
         </div>
-        <form onSubmit={handleSubmit} className="p-8">
+        <div className="overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="p-8">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Columna izquierda */}
             <div className="space-y-6">
@@ -310,6 +315,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
             </button>
           </div>
         </form>
+        </div>
         {/* Modales para agregar opción */}
         {/* Puedes reutilizar AddOptionModal si lo tienes disponible */}
       </div>

@@ -35,11 +35,10 @@ type FormState = {
   fechaSalida: string;
   horaSalida: string;
   areaProyecto: string;
-  firma: string;
   fechaRetorno: string;
   horaRetorno: string;
   estadoRetorno: '' | ReturnEquipmentData['estadoRetorno'];
-  firmaRetorno: string;
+  responsableRetorno: string;
 };
 
 const normalizeEquipmentState = (
@@ -77,11 +76,10 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({ equipment,
     fechaSalida: equipment.fechaSalida ?? '',
     horaSalida: equipment.horaSalida ?? '',
     areaProyecto: equipment.areaProyecto ?? '',
-    firma: equipment.firma ?? '',
     fechaRetorno: equipment.fechaRetorno ?? '',
     horaRetorno: equipment.horaRetorno ?? '',
     estadoRetorno: normalizeReturnState(equipment.estadoRetorno),
-    firmaRetorno: equipment.firmaRetorno ?? '',
+    responsableRetorno: equipment.responsableRetorno ?? '',
   }));
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -96,11 +94,10 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({ equipment,
       fechaSalida: equipment.fechaSalida ?? '',
       horaSalida: equipment.horaSalida ?? '',
       areaProyecto: equipment.areaProyecto ?? '',
-      firma: equipment.firma ?? '',
       fechaRetorno: equipment.fechaRetorno ?? '',
       horaRetorno: equipment.horaRetorno ?? '',
       estadoRetorno: normalizeReturnState(equipment.estadoRetorno),
-      firmaRetorno: equipment.firmaRetorno ?? '',
+      responsableRetorno: equipment.responsableRetorno ?? '',
     });
   }, [equipment]);
 
@@ -137,16 +134,15 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({ equipment,
         fechaSalida: formData.fechaSalida,
         horaSalida: formData.horaSalida,
         areaProyecto: formData.areaProyecto,
-        firma: formData.firma.trim(),
       });
 
-      const hasReturnData = formData.fechaRetorno && formData.horaRetorno && formData.estadoRetorno && formData.firmaRetorno;
+      const hasReturnData = formData.fechaRetorno && formData.horaRetorno && formData.estadoRetorno && formData.responsableRetorno;
       if (hasReturnData && onSubmitReturn && formData.estadoRetorno) {
         await onSubmitReturn({
           fechaRetorno: formData.fechaRetorno,
           horaRetorno: formData.horaRetorno,
           estadoRetorno: formData.estadoRetorno as ReturnEquipmentData['estadoRetorno'],
-          firmaRetorno: formData.firmaRetorno.trim(),
+          responsableRetorno: formData.responsableRetorno.trim(),
         });
       }
 
@@ -160,8 +156,8 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({ equipment,
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm dark:bg-slate-950/70">
-      <div className="w-full max-w-4xl overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white">
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col">
+        <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white flex-shrink-0">
           <div className="flex items-center gap-3">
             <Wrench className="h-6 w-6" />
             <h2 className="text-xl font-semibold">Editar Salida de Herramientas/Equipos</h2>
@@ -175,7 +171,8 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({ equipment,
             <X className="h-6 w-6" />
           </button>
         </div>
-  <form onSubmit={handleSubmit} className="space-y-8 bg-white px-8 pb-8 pt-6 dark:bg-slate-950">
+        <div className="overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="space-y-8 bg-white px-8 pb-8 pt-6 dark:bg-slate-950">
           <div className="grid gap-5 md:grid-cols-3">
             <label className={labelClasses}>
               <span>Código *</span>
@@ -308,20 +305,6 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({ equipment,
             </label>
           </div>
 
-          <label className={labelClasses}>
-            <span>Firma *</span>
-            <input
-              type="text"
-              name="firma"
-              value={formData.firma}
-              onChange={handleChange}
-              className={inputClasses}
-              placeholder="Firma del responsable"
-              required
-              disabled={submitting}
-            />
-          </label>
-
           <div className={dividerClasses}>
             <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">Información de Retorno (Opcional)</h3>
 
@@ -374,14 +357,14 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({ equipment,
               </label>
 
               <label className={labelClasses}>
-                <span>Firma de Retorno</span>
+                <span>Responsable de Retorno</span>
                 <input
                   type="text"
-                  name="firmaRetorno"
-                  value={formData.firmaRetorno}
+                  name="responsableRetorno"
+                  value={formData.responsableRetorno}
                   onChange={handleChange}
                   className={inputClasses}
-                  placeholder="Nombre o firma de recepción"
+                  placeholder="Nombre del responsable de recepción"
                   disabled={submitting}
                 />
               </label>
@@ -411,7 +394,8 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({ equipment,
               {submitting ? 'Guardando...' : 'Guardar Cambios'}
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
