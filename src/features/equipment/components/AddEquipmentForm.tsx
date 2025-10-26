@@ -128,7 +128,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
             <X className="w-6 h-6" />
           </button>
         </div>
-        <div className="overflow-y-auto flex-1">
+        <div className="flex-1 overflow-y-auto">
           <form
             onSubmit={handleSubmit}
             className="px-8 pt-6 pb-8 space-y-8 bg-white dark:bg-slate-950"
@@ -293,6 +293,15 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
                     name="fechaRetorno"
                     value={formData.fechaRetorno}
                     onChange={handleChange}
+                    onFocus={(e) => {
+                      if (!e.target.value) {
+                        const today = new Date().toISOString().split("T")[0];
+                        setFormData((prev) => ({
+                          ...prev,
+                          fechaRetorno: today,
+                        }));
+                      }
+                    }}
                     className={inputClasses}
                   />
                 </label>
@@ -304,6 +313,21 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
                     name="horaRetorno"
                     value={formData.horaRetorno}
                     onChange={handleChange}
+                    onFocus={(e) => {
+                      if (!e.target.value) {
+                        const now = new Date();
+                        const hours = String(now.getHours()).padStart(2, "0");
+                        const minutes = String(now.getMinutes()).padStart(
+                          2,
+                          "0"
+                        );
+                        const currentTime = `${hours}:${minutes}`;
+                        setFormData((prev) => ({
+                          ...prev,
+                          horaRetorno: currentTime,
+                        }));
+                      }
+                    }}
                     className={inputClasses}
                   />
                 </label>
