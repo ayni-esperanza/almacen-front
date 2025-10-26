@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { Product } from "../types";
 import { EditProductModal } from "./EditProductModal";
+import { UpdateProductData } from "../../../shared/services/inventory.service";
 
 interface ProductTableRowProps {
   product: Product;
-  onEdit: (product: Product) => void;
+  onEdit: (
+    id: number,
+    productData: UpdateProductData
+  ) => Promise<Product | null>;
 }
 
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({
@@ -12,6 +16,29 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   onEdit,
 }) => {
   const [showEditModal, setShowEditModal] = useState(false);
+
+  const handleEdit = async (editedProduct: Product) => {
+    // Preparar los datos para actualizar
+    const updateData: UpdateProductData = {
+      codigo: editedProduct.codigo,
+      nombre: editedProduct.nombre,
+      costoUnitario: editedProduct.costoUnitario,
+      ubicacion: editedProduct.ubicacion,
+      stockActual: editedProduct.stockActual,
+      stockMinimo: editedProduct.stockMinimo,
+      unidadMedida: editedProduct.unidadMedida,
+      providerId: editedProduct.providerId,
+      marca: editedProduct.marca,
+      categoria: editedProduct.categoria,
+    };
+
+    try {
+      await onEdit(product.id, updateData);
+      setShowEditModal(false);
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+  };
 
   return (
     <>
@@ -62,7 +89,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
           product={product}
-          onEdit={onEdit}
+          onEdit={handleEdit}
         />
       )}
     </>
