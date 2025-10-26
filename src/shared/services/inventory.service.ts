@@ -115,6 +115,47 @@ class InventoryService {
 
     return response.data?.map((area) => area.nombre) || [];
   }
+
+  async createArea(nombre: string): Promise<string | null> {
+    const response = await apiClient.post<{ nombre: string }>(
+      "/inventory/areas",
+      { nombre }
+    );
+
+    if (response.error) {
+      console.error("Error creating area:", response.error);
+      return null;
+    }
+
+    return response.data?.nombre || null;
+  }
+
+  async getCategorias(): Promise<string[]> {
+    const response = await apiClient.get<{ nombre: string }[]>(
+      "/inventory/categorias"
+    );
+
+    if (response.error) {
+      console.error("Error fetching categorias:", response.error);
+      return [];
+    }
+
+    return response.data?.map((categoria) => categoria.nombre) || [];
+  }
+
+  async createCategoria(nombre: string): Promise<string | null> {
+    const response = await apiClient.post<{ nombre: string }>(
+      "/inventory/categorias",
+      { nombre }
+    );
+
+    if (response.error) {
+      console.error("Error creating categoria:", response.error);
+      return null;
+    }
+
+    return response.data?.nombre || null;
+  }
 }
 
 export const inventoryService = new InventoryService();

@@ -10,16 +10,22 @@ interface AddProductFormProps {
   onSubmit: (data: CreateProductData) => void;
   onCancel: () => void;
   areas: string[];
+  categorias: string[];
+  onCreateArea: (nombre: string) => Promise<string | null>;
+  onCreateCategoria: (nombre: string) => Promise<string | null>;
 }
 
 export const AddProductForm: React.FC<AddProductFormProps> = ({
   onSubmit,
   onCancel,
   areas,
+  categorias: categoriasFromProps,
+  onCreateArea,
+  onCreateCategoria,
 }) => {
   // Bloquear scroll de la ventana cuando está abierta la modal
   useModalScrollLock(true);
-  
+
   const [formData, setFormData] = useState({
     codigo: "",
     nombre: "",
@@ -40,10 +46,17 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   const [showUbicacionModal, setShowUbicacionModal] = useState(false);
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [ubicaciones, setUbicaciones] = useState<string[]>(areas);
-  const [categorias, setCategorias] = useState<string[]>([
-    "Herramientas",
-    "Lubricantes",
-  ]);
+  const [categorias, setCategorias] = useState<string[]>(categoriasFromProps);
+
+  // Sincronizar ubicaciones cuando cambien las props
+  useEffect(() => {
+    setUbicaciones(areas);
+  }, [areas]);
+
+  // Sincronizar categorías cuando cambien las props
+  useEffect(() => {
+    setCategorias(categoriasFromProps);
+  }, [categoriasFromProps]);
 
   // Cargar proveedores al montar el componente
   useEffect(() => {
@@ -110,6 +123,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
         </div>
         <form
           onSubmit={handleSubmit}
+          autoComplete="off"
           className="px-8 pt-6 pb-8 space-y-8 bg-white dark:bg-slate-950"
         >
           <div className="grid gap-8 md:grid-cols-2">
@@ -293,9 +307,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                     </select>
                     <div className="flex flex-wrap gap-2">
                       {categorias
-                        .filter(
-                          (c) => c !== "Herramientas" && c !== "Lubricantes"
-                        )
+                        .filter((c) => !categoriasFromProps.includes(c))
                         .map((cat) => (
                           <span key={cat} className={chipClasses}>
                             {cat}
@@ -348,9 +360,13 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
         <AddOptionModal
           isOpen={showUbicacionModal}
           onClose={() => setShowUbicacionModal(false)}
-          onSubmit={(option: string) => {
-            if (option && !ubicaciones.includes(option))
-              setUbicaciones([...ubicaciones, option]);
+          onSubmit={async (option: string) => {
+            if (option && !ubicaciones.includes(option)) {
+              const newArea = await onCreateArea(option);
+              if (newArea) {
+                setUbicaciones([...ubicaciones, newArea]);
+              }
+            }
             setShowUbicacionModal(false);
           }}
           title="Nueva Ubicación"
@@ -359,9 +375,13 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
         <AddOptionModal
           isOpen={showCategoriaModal}
           onClose={() => setShowCategoriaModal(false)}
-          onSubmit={(option: string) => {
-            if (option && !categorias.includes(option))
-              setCategorias([...categorias, option]);
+          onSubmit={async (option: string) => {
+            if (option && !categorias.includes(option)) {
+              const newCategoria = await onCreateCategoria(option);
+              if (newCategoria) {
+                setCategorias([...categorias, newCategoria]);
+              }
+            }
             setShowCategoriaModal(false);
           }}
           title="Nueva Categoría"
