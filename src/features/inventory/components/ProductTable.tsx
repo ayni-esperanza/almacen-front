@@ -19,6 +19,10 @@ interface ProductTableProps {
     id: number,
     productData: UpdateProductData
   ) => Promise<Product | null>;
+  areas: string[];
+  categorias: string[];
+  createArea: (name: string) => Promise<void>;
+  createCategoria: (name: string) => Promise<void>;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
@@ -29,6 +33,10 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   setSearchTerm,
   refetch,
   updateProduct,
+  areas,
+  categorias,
+  createArea,
+  createCategoria,
 }) => {
   const {
     paginatedData: paginatedProducts,
@@ -43,15 +51,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
   if (loading) {
     return (
-      <div className="overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white py-4 px-6">
+      <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-900">
+        <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center space-x-3">
             <Package className="w-6 h-6" />
             <h2 className="text-xl font-bold">Inventario de Productos</h2>
           </div>
         </div>
         <div className="p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <div className="w-12 h-12 mx-auto border-b-2 border-green-600 rounded-full animate-spin"></div>
           <p className="mt-4 text-gray-600 dark:text-slate-300">
             Cargando productos...
           </p>
@@ -62,19 +70,19 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
   if (error) {
     return (
-      <div className="overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white py-4 px-6">
+      <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-900">
+        <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center space-x-3">
             <Package className="w-6 h-6" />
             <h2 className="text-xl font-bold">Inventario de Productos</h2>
           </div>
         </div>
         <div className="p-8 text-center">
-          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
+          <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
           <p className="mb-4 text-red-600 dark:text-rose-300">{error}</p>
           <button
             onClick={refetch}
-            className="rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
+            className="px-4 py-2 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
           >
             Reintentar
           </button>
@@ -84,8 +92,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-950">
-      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white py-4 px-6">
+    <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">
+      <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
         <div className="flex items-center space-x-3">
           <Package className="w-6 h-6" />
           <h2 className="text-xl font-bold">Inventario de Productos</h2>
@@ -93,9 +101,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       </div>
       <InventoryDashboard />
       {/* Search Filter */}
-      <div className="border-b border-gray-200/70 bg-gray-50 p-4 dark:border-slate-800/70 dark:bg-slate-950/80">
+      <div className="p-4 border-b border-gray-200/70 bg-gray-50 dark:border-slate-800/70 dark:bg-slate-950/80">
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400 dark:text-slate-500" />
+          <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Buscar por código, descripción o proveedor..."
@@ -108,7 +116,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
       {products.length === 0 ? (
         <div className="p-8 text-center text-gray-500 dark:text-slate-400">
-          <Package className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-slate-600" />
+          <Package className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
           <p>No se encontraron productos</p>
         </div>
       ) : (
@@ -116,34 +124,34 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           <TableWithFixedHeader maxHeight="600px">
             <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
               <tr className="border-b border-gray-200 dark:border-slate-800">
-                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                   Código
                 </th>
-                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                   Nombre
                 </th>
-                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                   Ubicación
                 </th>
-                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                   Salidas
                 </th>
-                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                   Stock Actual
                 </th>
-                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                   Unidad
                 </th>
-                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                   Proveedor
                 </th>
-                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                   Marca
                 </th>
-                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                   Categoría
                 </th>
-                <th className="bg-gray-50 px-4 py-4 text-left font-semibold text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                   Costo Unitario
                 </th>
               </tr>
@@ -154,6 +162,10 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                   key={product.id}
                   product={product}
                   onEdit={updateProduct}
+                  areas={areas}
+                  categorias={categorias}
+                  onCreateArea={createArea}
+                  onCreateCategoria={createCategoria}
                 />
               ))}
             </tbody>

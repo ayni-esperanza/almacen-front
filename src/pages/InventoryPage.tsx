@@ -18,6 +18,14 @@ export const InventoryPage = () => {
     }
   };
 
+  const handleCreateArea = async (name: string) => {
+    await inventoryData.createArea(name);
+  };
+
+  const handleCreateCategoria = async (name: string) => {
+    await inventoryData.createCategoria(name);
+  };
+
   return (
     <>
       <div className="mb-6">
@@ -37,7 +45,11 @@ export const InventoryPage = () => {
       </div>
 
       <div className="container mx-auto">
-        <ProductTable {...inventoryData} />
+        <ProductTable
+          {...inventoryData}
+          createArea={handleCreateArea}
+          createCategoria={handleCreateCategoria}
+        />
       </div>
 
       {showAddForm && (
@@ -47,8 +59,8 @@ export const InventoryPage = () => {
           onCancel={() => setShowAddForm(false)}
           areas={inventoryData.areas}
           categorias={inventoryData.categorias}
-          onCreateArea={inventoryData.createArea}
-          onCreateCategoria={inventoryData.createCategoria}
+          onCreateArea={handleCreateArea}
+          onCreateCategoria={handleCreateCategoria}
         />
       )}
     </>

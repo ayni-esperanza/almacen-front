@@ -9,11 +9,19 @@ interface ProductTableRowProps {
     id: number,
     productData: UpdateProductData
   ) => Promise<Product | null>;
+  areas: string[];
+  categorias: string[];
+  onCreateArea: (name: string) => void;
+  onCreateCategoria: (name: string) => void;
 }
 
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   product,
   onEdit,
+  areas,
+  categorias,
+  onCreateArea,
+  onCreateCategoria,
 }) => {
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -90,6 +98,10 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           onClose={() => setShowEditModal(false)}
           product={product}
           onEdit={handleEdit}
+          areas={areas}
+          categorias={categorias}
+          onCreateArea={onCreateArea}
+          onCreateCategoria={onCreateCategoria}
         />
       )}
     </>

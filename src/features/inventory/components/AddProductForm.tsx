@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { AddOptionModal } from "../../../shared/components/AddOptionModal";
 import { X } from "lucide-react";
 import { CreateProductData } from "../../../shared/services/inventory.service";
 import { Provider } from "../../providers/types";
 import { providersService } from "../../providers/services/providers.service";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
+import { AddOptionModal } from "../../../shared/components/AddOptionModal";
 
 interface AddProductFormProps {
   onSubmit: (data: CreateProductData) => void;
   onCancel: () => void;
   areas: string[];
   categorias: string[];
-  onCreateArea: (nombre: string) => Promise<string | null>;
-  onCreateCategoria: (nombre: string) => Promise<string | null>;
+  onCreateArea: (name: string) => void;
+  onCreateCategoria: (name: string) => void;
 }
 
 export const AddProductForm: React.FC<AddProductFormProps> = ({
@@ -42,11 +42,10 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   });
 
   const [providers, setProviders] = useState<Provider[]>([]);
-
-  const [showUbicacionModal, setShowUbicacionModal] = useState(false);
-  const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [ubicaciones, setUbicaciones] = useState<string[]>(areas);
   const [categorias, setCategorias] = useState<string[]>(categoriasFromProps);
+  const [showUbicacionModal, setShowUbicacionModal] = useState(false);
+  const [showCategoriaModal, setShowCategoriaModal] = useState(false);
 
   // Sincronizar ubicaciones cuando cambien las props
   useEffect(() => {
@@ -101,10 +100,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
   const selectClasses =
     "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
-  const chipClasses =
-    "inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-slate-800 dark:text-slate-200";
-  const iconButtonClasses =
-    "flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800";
   const dividerClasses = "border-t border-gray-200 pt-8 dark:border-slate-800";
 
   return (
@@ -180,53 +175,32 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   ))}
                 </select>
               </div>
-              <div className="flex items-end gap-3">
-                <div className="w-full">
-                  <label className={labelClasses}>Ubicación *</label>
-                  <div className="flex flex-col gap-2">
-                    <select
-                      name="ubicacion"
-                      value={formData.ubicacion}
-                      onChange={handleChange}
-                      className={selectClasses}
-                      required
-                    >
-                      <option value="">Estante dentro del almacén</option>
-                      {ubicaciones.map((area) => (
-                        <option key={area} value={area}>
-                          {area}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="flex flex-wrap gap-2">
-                      {ubicaciones
-                        .filter((u) => !areas.includes(u))
-                        .map((area) => (
-                          <span key={area} className={chipClasses}>
-                            {area}
-                            <button
-                              type="button"
-                              className="text-red-500 transition-colors hover:text-red-600"
-                              onClick={() =>
-                                setUbicaciones(
-                                  ubicaciones.filter((u) => u !== area)
-                                )
-                              }
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </span>
-                        ))}
-                    </div>
-                  </div>
+              <div>
+                <label className={labelClasses}>Ubicación *</label>
+                <div className="flex gap-2">
+                  <select
+                    name="ubicacion"
+                    value={formData.ubicacion}
+                    onChange={handleChange}
+                    className={selectClasses}
+                    required
+                  >
+                    <option value="">Estante dentro del almacén</option>
+                    {ubicaciones.map((area) => (
+                      <option key={area} value={area}>
+                        {area}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setShowUbicacionModal(true)}
+                    className="px-4 py-2 text-white transition-colors bg-green-500 rounded-lg hover:bg-green-600"
+                    title="Agregar nueva ubicación"
+                  >
+                    +
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className={iconButtonClasses}
-                  onClick={() => setShowUbicacionModal(true)}
-                >
-                  <span className="text-xl font-bold">+</span>
-                </button>
               </div>
             </div>
 
@@ -287,53 +261,32 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   required
                 />
               </div>
-              <div className="flex items-end gap-3">
-                <div className="w-full">
-                  <label className={labelClasses}>Categoría *</label>
-                  <div className="flex flex-col gap-2">
-                    <select
-                      name="categoria"
-                      value={formData.categoria}
-                      onChange={handleChange}
-                      className={selectClasses}
-                      required
-                    >
-                      <option value="">Selecciona una categoría</option>
-                      {categorias.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="flex flex-wrap gap-2">
-                      {categorias
-                        .filter((c) => !categoriasFromProps.includes(c))
-                        .map((cat) => (
-                          <span key={cat} className={chipClasses}>
-                            {cat}
-                            <button
-                              type="button"
-                              className="text-red-500 transition-colors hover:text-red-600"
-                              onClick={() =>
-                                setCategorias(
-                                  categorias.filter((ca) => ca !== cat)
-                                )
-                              }
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </span>
-                        ))}
-                    </div>
-                  </div>
+              <div>
+                <label className={labelClasses}>Categoría *</label>
+                <div className="flex gap-2">
+                  <select
+                    name="categoria"
+                    value={formData.categoria}
+                    onChange={handleChange}
+                    className={selectClasses}
+                    required
+                  >
+                    <option value="">Selecciona una categoría</option>
+                    {categorias.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setShowCategoriaModal(true)}
+                    className="px-4 py-2 text-white transition-colors bg-green-500 rounded-lg hover:bg-green-600"
+                    title="Agregar nueva categoría"
+                  >
+                    +
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className={iconButtonClasses}
-                  onClick={() => setShowCategoriaModal(true)}
-                >
-                  <span className="text-xl font-bold">+</span>
-                </button>
               </div>
             </div>
           </div>
@@ -356,32 +309,24 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
             </button>
           </div>
         </form>
-        {/* Modales para agregar opción */}
+
+        {/* Modales para agregar opciones */}
         <AddOptionModal
           isOpen={showUbicacionModal}
           onClose={() => setShowUbicacionModal(false)}
-          onSubmit={async (option: string) => {
-            if (option && !ubicaciones.includes(option)) {
-              const newArea = await onCreateArea(option);
-              if (newArea) {
-                setUbicaciones([...ubicaciones, newArea]);
-              }
-            }
+          onSubmit={(name) => {
+            onCreateArea(name);
             setShowUbicacionModal(false);
           }}
           title="Nueva Ubicación"
           label="Ubicación *"
         />
+
         <AddOptionModal
           isOpen={showCategoriaModal}
           onClose={() => setShowCategoriaModal(false)}
-          onSubmit={async (option: string) => {
-            if (option && !categorias.includes(option)) {
-              const newCategoria = await onCreateCategoria(option);
-              if (newCategoria) {
-                setCategorias([...categorias, newCategoria]);
-              }
-            }
+          onSubmit={(name) => {
+            onCreateCategoria(name);
             setShowCategoriaModal(false);
           }}
           title="Nueva Categoría"
