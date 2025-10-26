@@ -45,6 +45,22 @@ class InventoryService {
     return response.data || null;
   }
 
+  async getProductByCode(codigo: string): Promise<Product | null> {
+    const response = await apiClient.get<Product>(
+      `/inventory/products/code/${encodeURIComponent(codigo)}`
+    );
+
+    if (response.error) {
+      // No mostrar error en consola si no se encuentra
+      if (!response.error.includes("404")) {
+        console.error("Error fetching product by code:", response.error);
+      }
+      return null;
+    }
+
+    return response.data || null;
+  }
+
   async createProduct(productData: CreateProductData): Promise<Product | null> {
     const response = await apiClient.post<Product>(
       "/inventory/products",
