@@ -25,7 +25,7 @@ export const useProductAutocomplete = (
   const [error, setError] = useState<string | null>(null);
 
   // Ref para el timeout del debounce
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimeout = useRef<number | null>(null);
   // Ref para evitar búsquedas duplicadas
   const lastSearchedCode = useRef<string>("");
 
