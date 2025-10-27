@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Product } from "../types";
 import { Provider } from "../../providers/types";
 import { providersService } from "../../providers/services/providers.service";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { AddOptionModal } from "../../../shared/components/AddOptionModal";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect";
+import { inventoryService } from "../../../shared/services/inventory.service";
 
 interface EditProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   product: Product | null;
   onEdit: (product: Product) => void;
-  areas: string[];
-  categorias: string[];
-  onCreateArea: (name: string) => void;
-  onCreateCategoria: (name: string) => void;
+  onCreateArea: (name: string) => Promise<void>;
+  onCreateCategoria: (name: string) => Promise<void>;
 }
 
 export const EditProductModal: React.FC<EditProductModalProps> = ({
@@ -22,8 +22,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   onClose,
   product,
   onEdit,
-  areas,
-  categorias: categoriasFromProps,
   onCreateArea,
   onCreateCategoria,
 }) => {
@@ -31,8 +29,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   useModalScrollLock(isOpen);
 
   // Opciones para los combos
-  const [ubicaciones, setUbicaciones] = useState<string[]>(areas);
-  const [categorias, setCategorias] = useState<string[]>(categoriasFromProps);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [showUbicacionModal, setShowUbicacionModal] = useState(false);
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
@@ -61,15 +57,17 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     loadProviders();
   }, []);
 
-  // Sincronizar ubicaciones cuando cambien las props
-  useEffect(() => {
-    setUbicaciones(areas);
-  }, [areas]);
+  // Función para buscar ubicaciones desde la API
+  const fetchUbicaciones = useCallback(async (searchTerm: string) => {
+    const data = await inventoryService.getAreas(searchTerm);
+    return data;
+  }, []);
 
-  // Sincronizar categorías cuando cambien las props
-  useEffect(() => {
-    setCategorias(categoriasFromProps);
-  }, [categoriasFromProps]);
+  // Función para buscar categorías desde la API
+  const fetchCategorias = useCallback(async (searchTerm: string) => {
+    const data = await inventoryService.getCategorias(searchTerm);
+    return data;
+  }, []);
 
   useEffect(() => {
     if (product) {
@@ -174,31 +172,26 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className={labelClasses}>Ubicación *</label>
-                  <div className="flex gap-2">
-                    <select
+                <div className="flex items-end gap-3">
+                  <div className="w-full">
+                    <SearchableSelect
+                      name="ubicacion"
+                      label="Ubicación"
                       value={ubicacion}
-                      onChange={(e) => setUbicacion(e.target.value)}
-                      className={`${inputClasses} appearance-none`}
+                      onChange={(value) => setUbicacion(value)}
+                      fetchOptions={fetchUbicaciones}
+                      placeholder="Estante dentro del Almacén"
                       required
-                    >
-                      <option value="">Estante dentro del Almacén</option>
-                      {ubicaciones.map((area) => (
-                        <option key={area} value={area}>
-                          {area}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => setShowUbicacionModal(true)}
-                      className="px-4 py-2 text-white transition-colors bg-green-500 rounded-lg hover:bg-green-600"
-                      title="Agregar nueva ubicación"
-                    >
-                      +
-                    </button>
+                    />
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowUbicacionModal(true)}
+                    className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
+                    title="Agregar nueva ubicación"
+                  >
+                    <span className="text-xl font-bold">+</span>
+                  </button>
                 </div>
               </div>
               {/* Columna derecha */}
@@ -255,31 +248,26 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                     required
                   />
                 </div>
-                <div>
-                  <label className={labelClasses}>Categoría *</label>
-                  <div className="flex gap-2">
-                    <select
+                <div className="flex items-end gap-3">
+                  <div className="w-full">
+                    <SearchableSelect
+                      name="categoria"
+                      label="Categoría"
                       value={categoria}
-                      onChange={(e) => setCategoria(e.target.value)}
-                      className={`${inputClasses} appearance-none`}
+                      onChange={(value) => setCategoria(value)}
+                      fetchOptions={fetchCategorias}
+                      placeholder="Selecciona una Categoría"
                       required
-                    >
-                      <option value="">Selecciona una Categoría</option>
-                      {categorias.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => setShowCategoriaModal(true)}
-                      className="px-4 py-2 text-white transition-colors bg-green-500 rounded-lg hover:bg-green-600"
-                      title="Agregar nueva categoría"
-                    >
-                      +
-                    </button>
+                    />
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowCategoriaModal(true)}
+                    className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
+                    title="Agregar nueva categoría"
+                  >
+                    <span className="text-xl font-bold">+</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -304,8 +292,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
           <AddOptionModal
             isOpen={showUbicacionModal}
             onClose={() => setShowUbicacionModal(false)}
-            onSubmit={(name) => {
-              onCreateArea(name);
+            onSubmit={async (name) => {
+              await onCreateArea(name);
               setShowUbicacionModal(false);
             }}
             title="Nueva Ubicación"
@@ -315,8 +303,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
           <AddOptionModal
             isOpen={showCategoriaModal}
             onClose={() => setShowCategoriaModal(false)}
-            onSubmit={(name) => {
-              onCreateCategoria(name);
+            onSubmit={async (name) => {
+              await onCreateCategoria(name);
               setShowCategoriaModal(false);
             }}
             title="Nueva Categoría"

@@ -103,10 +103,11 @@ class InventoryService {
     return true;
   }
 
-  async getAreas(): Promise<string[]> {
-    const response = await apiClient.get<{ nombre: string }[]>(
-      "/inventory/areas"
-    );
+  async getAreas(search?: string): Promise<string[]> {
+    const endpoint = search
+      ? `/inventory/areas?search=${encodeURIComponent(search)}`
+      : "/inventory/areas";
+    const response = await apiClient.get<{ nombre: string }[]>(endpoint);
 
     if (response.error) {
       console.error("Error fetching areas:", response.error);
@@ -130,10 +131,11 @@ class InventoryService {
     return response.data?.nombre || null;
   }
 
-  async getCategorias(): Promise<string[]> {
-    const response = await apiClient.get<{ nombre: string }[]>(
-      "/inventory/categorias"
-    );
+  async getCategorias(search?: string): Promise<string[]> {
+    const endpoint = search
+      ? `/inventory/categorias?search=${encodeURIComponent(search)}`
+      : "/inventory/categorias";
+    const response = await apiClient.get<{ nombre: string }[]>(endpoint);
 
     if (response.error) {
       console.error("Error fetching categorias:", response.error);

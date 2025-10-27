@@ -1,89 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
-import { CreateProductData } from "../../../shared/services/inventory.service";
+import {
+  CreateProductData,
+  inventoryService,
+} from "../../../shared/services/inventory.service";
 import { Provider } from "../../providers/types";
 import { providersService } from "../../providers/services/providers.service";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
-import { AsyncSelect } from "../../../shared";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect";
+import { AddOptionModal } from "../../../shared/components/AddOptionModal";
 
 interface AddProductFormProps {
   onSubmit: (data: CreateProductData) => void;
   onCancel: () => void;
-  areas?: string[];
+  areas: string[];
+  onCreateArea: (name: string) => Promise<void>;
+  onCreateCategoria: (name: string) => Promise<void>;
 }
-
-interface AddOptionModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (option: string) => void;
-  title: string;
-  label: string;
-}
-
-const AddOptionModal: React.FC<AddOptionModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  title,
-  label,
-}) => {
-  const [value, setValue] = useState("");
-
-  if (!isOpen) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (value.trim()) {
-      onSubmit(value.trim());
-      setValue("");
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-white shadow-2xl rounded-2xl dark:bg-slate-950 dark:border dark:border-slate-800">
-        <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600 rounded-t-2xl">
-          <h3 className="text-lg font-bold">{title}</h3>
-        </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block mb-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
-              {label}
-            </label>
-            <input
-              type="text"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              className="w-full px-4 py-3 text-sm text-gray-700 transition border border-gray-300 rounded-2xl focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30"
-              placeholder={`Ingresa ${label.toLowerCase()}`}
-              autoFocus
-            />
-          </div>
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 text-sm font-semibold text-white bg-green-500 rounded-full hover:bg-green-600 dark:bg-green-500 dark:hover:bg-green-400"
-            >
-              Agregar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
 
 export const AddProductForm: React.FC<AddProductFormProps> = ({
   onSubmit,
   onCancel,
-  areas = [], // Valor por defecto
+  areas,
+  onCreateArea,
+  onCreateCategoria,
 }) => {
   // Bloquear scroll de la ventana cuando está abierta la modal
   useModalScrollLock(true);
@@ -99,18 +39,12 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     unidadMedida: "",
     marca: "",
     providerId: "",
+    ubicacion: "",
+    categoria: "",
   });
-
-  const [selectedCategoria, setSelectedCategoria] = useState<
-    string | number | null
-  >(null);
-  const [selectedUbicacion, setSelectedUbicacion] = useState<
-    string | number | null
-  >(null);
 
   const [providers, setProviders] = useState<Provider[]>([]);
 
-  // Estados para el modo legacy (con modales personalizados)
   const [showUbicacionModal, setShowUbicacionModal] = useState(false);
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [ubicaciones, setUbicaciones] = useState<string[]>(areas);
@@ -119,9 +53,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     "Lubricantes",
   ]);
 
-  // Determinar si usar modo legacy o AsyncSelect
-  const useLegacyMode = areas.length > 0;
-
   // Cargar proveedores al montar el componente
   useEffect(() => {
     const loadProviders = async () => {
@@ -129,6 +60,20 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
       setProviders(data);
     };
     loadProviders();
+  }, []);
+
+  // Función para buscar ubicaciones desde la API
+  const fetchUbicaciones = useCallback(async (searchTerm: string) => {
+    const data = await inventoryService.getAreas(searchTerm);
+    setUbicaciones(data);
+    return data;
+  }, []);
+
+  // Función para buscar categorías desde la API
+  const fetchCategorias = useCallback(async (searchTerm: string) => {
+    const data = await inventoryService.getCategorias(searchTerm);
+    setCategorias(data);
+    return data;
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -144,8 +89,8 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
       stockMinimo: parseInt(formData.stockMinimo) || 0,
       providerId: parseInt(formData.providerId),
       marca: formData.marca,
-      ubicacion: String(selectedUbicacion || ""),
-      categoria: String(selectedCategoria || ""),
+      ubicacion: formData.ubicacion,
+      categoria: formData.categoria,
     };
     onSubmit(productData);
   };
@@ -166,10 +111,8 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   const selectClasses =
     "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
   const dividerClasses = "border-t border-gray-200 pt-8 dark:border-slate-800";
-  const chipClasses =
-    "inline-flex items-center gap-2 px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full dark:bg-slate-800 dark:text-slate-200";
   const iconButtonClasses =
-    "flex items-center justify-center w-10 h-10 text-white transition-colors bg-green-500 rounded-full shadow-md hover:bg-green-600 dark:bg-green-500 dark:hover:bg-green-400 shrink-0";
+    "flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
@@ -244,68 +187,29 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   ))}
                 </select>
               </div>
-
-              {/* Ubicación: modo legacy o AsyncSelect */}
-              {useLegacyMode ? (
-                <div className="flex items-end gap-3">
-                  <div className="w-full">
-                    <label className={labelClasses}>Ubicación *</label>
-                    <div className="flex flex-col gap-2">
-                      <select
-                        name="ubicacion"
-                        value={selectedUbicacion || ""}
-                        onChange={(e) => setSelectedUbicacion(e.target.value)}
-                        className={selectClasses}
-                        required
-                      >
-                        <option value="">Estante dentro del almacén</option>
-                        {ubicaciones.map((area) => (
-                          <option key={area} value={area}>
-                            {area}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="flex flex-wrap gap-2">
-                        {ubicaciones
-                          .filter((u) => !areas.includes(u))
-                          .map((area) => (
-                            <span key={area} className={chipClasses}>
-                              {area}
-                              <button
-                                type="button"
-                                className="text-red-500 transition-colors hover:text-red-600"
-                                onClick={() =>
-                                  setUbicaciones(
-                                    ubicaciones.filter((u) => u !== area)
-                                  )
-                                }
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            </span>
-                          ))}
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    className={iconButtonClasses}
-                    onClick={() => setShowUbicacionModal(true)}
-                  >
-                    <span className="text-xl font-bold">+</span>
-                  </button>
+              <div className="flex items-end gap-3">
+                <div className="w-full">
+                  <SearchableSelect
+                    name="ubicacion"
+                    label="Ubicación"
+                    value={formData.ubicacion}
+                    onChange={(value) =>
+                      setFormData({ ...formData, ubicacion: value })
+                    }
+                    fetchOptions={fetchUbicaciones}
+                    placeholder="Estante dentro del almacén"
+                    required
+                  />
                 </div>
-              ) : (
-                <AsyncSelect
-                  endpoint="/inventory/locations"
-                  label="Ubicación"
-                  placeholder="Estante dentro del almacén"
-                  value={selectedUbicacion}
-                  onChange={(value) => setSelectedUbicacion(value)}
-                  name="ubicacion"
-                  required
-                />
-              )}
+                <button
+                  type="button"
+                  className={iconButtonClasses}
+                  onClick={() => setShowUbicacionModal(true)}
+                  title="Agregar nueva ubicación"
+                >
+                  <span className="text-xl font-bold">+</span>
+                </button>
+              </div>
             </div>
 
             <div className="space-y-6">
@@ -365,70 +269,29 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   required
                 />
               </div>
-
-              {/* Categoría: modo legacy o AsyncSelect */}
-              {useLegacyMode ? (
-                <div className="flex items-end gap-3">
-                  <div className="w-full">
-                    <label className={labelClasses}>Categoría *</label>
-                    <div className="flex flex-col gap-2">
-                      <select
-                        name="categoria"
-                        value={selectedCategoria || ""}
-                        onChange={(e) => setSelectedCategoria(e.target.value)}
-                        className={selectClasses}
-                        required
-                      >
-                        <option value="">Selecciona una categoría</option>
-                        {categorias.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="flex flex-wrap gap-2">
-                        {categorias
-                          .filter(
-                            (c) => c !== "Herramientas" && c !== "Lubricantes"
-                          )
-                          .map((cat) => (
-                            <span key={cat} className={chipClasses}>
-                              {cat}
-                              <button
-                                type="button"
-                                className="text-red-500 transition-colors hover:text-red-600"
-                                onClick={() =>
-                                  setCategorias(
-                                    categorias.filter((ca) => ca !== cat)
-                                  )
-                                }
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            </span>
-                          ))}
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    className={iconButtonClasses}
-                    onClick={() => setShowCategoriaModal(true)}
-                  >
-                    <span className="text-xl font-bold">+</span>
-                  </button>
+              <div className="flex items-end gap-3">
+                <div className="w-full">
+                  <SearchableSelect
+                    name="categoria"
+                    label="Categoría"
+                    value={formData.categoria}
+                    onChange={(value) =>
+                      setFormData({ ...formData, categoria: value })
+                    }
+                    fetchOptions={fetchCategorias}
+                    placeholder="Selecciona una categoría"
+                    required
+                  />
                 </div>
-              ) : (
-                <AsyncSelect
-                  endpoint="/inventory/categories"
-                  label="Categoría"
-                  placeholder="Selecciona una categoría"
-                  value={selectedCategoria}
-                  onChange={(value) => setSelectedCategoria(value)}
-                  name="categoria"
-                  required
-                />
-              )}
+                <button
+                  type="button"
+                  className={iconButtonClasses}
+                  onClick={() => setShowCategoriaModal(true)}
+                  title="Agregar nueva categoría"
+                >
+                  <span className="text-xl font-bold">+</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -450,34 +313,35 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
             </button>
           </div>
         </form>
-
-        {/* Modales para agregar opción (solo en modo legacy) */}
-        {useLegacyMode && (
-          <>
-            <AddOptionModal
-              isOpen={showUbicacionModal}
-              onClose={() => setShowUbicacionModal(false)}
-              onSubmit={(option: string) => {
-                if (option && !ubicaciones.includes(option))
-                  setUbicaciones([...ubicaciones, option]);
-                setShowUbicacionModal(false);
-              }}
-              title="Nueva Ubicación"
-              label="Ubicación *"
-            />
-            <AddOptionModal
-              isOpen={showCategoriaModal}
-              onClose={() => setShowCategoriaModal(false)}
-              onSubmit={(option: string) => {
-                if (option && !categorias.includes(option))
-                  setCategorias([...categorias, option]);
-                setShowCategoriaModal(false);
-              }}
-              title="Nueva Categoría"
-              label="Categoría *"
-            />
-          </>
-        )}
+        {/* Modales para agregar opción */}
+        <AddOptionModal
+          isOpen={showUbicacionModal}
+          onClose={() => setShowUbicacionModal(false)}
+          onSubmit={async (option: string) => {
+            if (option) {
+              await onCreateArea(option); // Guardar en BD
+              if (!ubicaciones.includes(option))
+                setUbicaciones([...ubicaciones, option]);
+            }
+            setShowUbicacionModal(false);
+          }}
+          title="Nueva Ubicación"
+          label="Ubicación *"
+        />
+        <AddOptionModal
+          isOpen={showCategoriaModal}
+          onClose={() => setShowCategoriaModal(false)}
+          onSubmit={async (option: string) => {
+            if (option) {
+              await onCreateCategoria(option); // Guardar en BD
+              if (!categorias.includes(option))
+                setCategorias([...categorias, option]);
+            }
+            setShowCategoriaModal(false);
+          }}
+          title="Nueva Categoría"
+          label="Categoría *"
+        />
       </div>
     </div>
   );

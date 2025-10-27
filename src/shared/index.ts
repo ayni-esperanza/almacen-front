@@ -4,8 +4,6 @@ export { DashboardTabs } from './components/DashboardTabs';
 export { ProtectedComponent } from './components/ProtectedComponent';
 export { Pagination } from './components/Pagination';
 export { TableWithFixedHeader } from './components/TableWithFixedHeader';
-export { AsyncSelect } from './components/AsyncSelect';
-export type { SelectOption, AsyncSelectProps } from './components/AsyncSelect';
 
 // Hooks
 export { useAuth } from './hooks/useAuth';

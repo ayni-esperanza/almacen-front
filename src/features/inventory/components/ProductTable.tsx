@@ -19,8 +19,6 @@ interface ProductTableProps {
     id: number,
     productData: UpdateProductData
   ) => Promise<Product | null>;
-  areas: string[];
-  categorias: string[];
   createArea: (name: string) => Promise<void>;
   createCategoria: (name: string) => Promise<void>;
 }
@@ -33,8 +31,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   setSearchTerm,
   refetch,
   updateProduct,
-  areas,
-  categorias,
   createArea,
   createCategoria,
 }) => {
@@ -162,8 +158,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                   key={product.id}
                   product={product}
                   onEdit={updateProduct}
-                  areas={areas}
-                  categorias={categorias}
                   onCreateArea={createArea}
                   onCreateCategoria={createCategoria}
                 />
