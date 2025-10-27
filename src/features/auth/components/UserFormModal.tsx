@@ -53,7 +53,8 @@ export const UserFormModal = ({
   useModalScrollLock(isOpen);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [role, setRole] = useState<UserRole>(DEFAULT_ROLE);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -77,11 +78,8 @@ export const UserFormModal = ({
     if (!isOpen) return;
 
     if (initialUser) {
-      const combinedName = [initialUser.firstName, initialUser.lastName]
-        .filter(Boolean)
-        .join(" ")
-        .trim();
-      setFullName(combinedName);
+      setFirstName(initialUser.firstName ?? "");
+      setLastName(initialUser.lastName ?? "");
       setRole(initialUser.role ?? DEFAULT_ROLE);
       setUsername(initialUser.username ?? "");
       setEmail(initialUser.email ?? "");
@@ -90,7 +88,8 @@ export const UserFormModal = ({
       setAvatarPreview(initialUser.avatarUrl ?? null);
       setAvatarData(null);
     } else {
-      setFullName("");
+      setFirstName("");
+      setLastName("");
       setRole(DEFAULT_ROLE);
       setUsername("");
       setEmail("");
@@ -136,18 +135,14 @@ export const UserFormModal = ({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const trimmedName = fullName.trim();
-    const [firstName, ...rest] = trimmedName.split(" ");
-    const lastName = rest.join(" ") || undefined;
-
     onSubmit({
       username: username.trim(),
       email: email.trim() || undefined,
       phoneNumber: phoneNumber.trim() || undefined,
       role,
       password: password.trim() ? password : undefined,
-      firstName: firstName || undefined,
-      lastName,
+      firstName: firstName.trim() || undefined,
+      lastName: lastName.trim() || undefined,
       avatarData,
       avatarUrl: avatarData ?? avatarPreview ?? null,
     });
@@ -156,7 +151,7 @@ export const UserFormModal = ({
   const handleDelete = async () => {
     if (!onDelete) return;
     const confirmed = window.confirm(
-      "¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer."
+      "¿Estás seguro de desactivar este usuario? El usuario quedará inactivo pero podrás reactivarlo más tarde."
     );
     if (!confirmed) return;
     await onDelete();
@@ -191,7 +186,11 @@ export const UserFormModal = ({
                   {avatarPreview ? (
                     <img
                       src={avatarPreview}
-                      alt={fullName || username || "Usuario"}
+                      alt={
+                        [firstName, lastName].filter(Boolean).join(" ") ||
+                        username ||
+                        "Usuario"
+                      }
                       className="h-full w-full rounded-[24px] object-cover"
                     />
                   ) : (
@@ -214,116 +213,133 @@ export const UserFormModal = ({
                 </button>
               </div>
 
-              <div className="grid gap-6 md:grid-cols-2">
-                <div>
-                  <label className={labelClasses}>Nombres *</label>
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(event) => setFullName(event.target.value)}
-                    className={inputClasses}
-                    placeholder="Ingresa nombres"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className={labelClasses}>Rol *</label>
-                  <select
-                    value={role}
-                    onChange={(event) =>
-                      setRole(event.target.value as UserRole)
-                    }
-                    className={`${inputClasses} appearance-none`}
-                    required
-                  >
-                    {Object.values(UserRole).map((roleOption) => (
-                      <option key={roleOption} value={roleOption}>
-                        {roleOption}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className={labelClasses}>Usuario *</label>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value)}
-                    className={inputClasses}
-                    placeholder="Nombre de usuario"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className={labelClasses}>Teléfono *</label>
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(event) => setPhoneNumber(event.target.value)}
-                    className={inputClasses}
-                    placeholder="e.g. 123456789"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className={labelClasses}>Email *</label>
-                  <input
-                    ref={emailInputRef}
-                    type="email"
-                    value={email}
-                    onChange={handleEmailChange}
-                    className={inputClasses}
-                    placeholder="correo@ejemplo.com"
-                    required
-                    pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
-                    title="El correo debe tener un formato válido con dominio (ej: usuario@dominio.com)"
-                  />
-                </div>
-
-                <div>
-                  <label className={labelClasses}>
-                    Contraseña {mode === "create" ? "*" : ""}
-                  </label>
-                  <div className="relative">
+              <div className="space-y-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <label className={labelClasses}>Nombre(s) *</label>
                     <input
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                      className={`${inputClasses} pr-10`}
-                      placeholder={
-                        mode === "create"
-                          ? "Ingresa contraseña"
-                          : "Dejar en blanco para mantener"
-                      }
-                      required={mode === "create"}
-                      minLength={mode === "create" ? 6 : undefined}
+                      type="text"
+                      value={firstName}
+                      onChange={(event) => setFirstName(event.target.value)}
+                      className={inputClasses}
+                      placeholder="Ingresa el nombre"
+                      required
                     />
-                    <button
-                      type="button"
-                      onClick={togglePasswordVisibility}
-                      className="absolute inset-y-0 flex items-center text-gray-500 right-3 dark:text-slate-400"
-                      aria-label={
-                        showPassword
-                          ? "Ocultar contraseña"
-                          : "Mostrar contraseña"
-                      }
-                    >
-                      {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
-                    </button>
                   </div>
-                  {mode === "edit" && (
-                    <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
-                      Deja el campo vacío si no deseas cambiar la contraseña.
-                    </p>
-                  )}
+
+                  <div>
+                    <label className={labelClasses}>Apellido(s)</label>
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(event) => setLastName(event.target.value)}
+                      className={inputClasses}
+                      placeholder="Ingresa el apellido"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <label className={labelClasses}>Rol *</label>
+                    <select
+                      value={role}
+                      onChange={(event) =>
+                        setRole(event.target.value as UserRole)
+                      }
+                      className={`${inputClasses} appearance-none`}
+                      required
+                    >
+                      {Object.values(UserRole).map((roleOption) => (
+                        <option key={roleOption} value={roleOption}>
+                          {roleOption}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className={labelClasses}>Usuario *</label>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(event) => setUsername(event.target.value)}
+                      className={inputClasses}
+                      placeholder="Nombre de usuario"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <label className={labelClasses}>Teléfono *</label>
+                    <input
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(event) => setPhoneNumber(event.target.value)}
+                      className={inputClasses}
+                      placeholder="e.g. 123456789"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelClasses}>Email *</label>
+                    <input
+                      ref={emailInputRef}
+                      type="email"
+                      value={email}
+                      onChange={handleEmailChange}
+                      className={inputClasses}
+                      placeholder="correo@ejemplo.com"
+                      required
+                      pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+                      title="El correo debe tener un formato válido con dominio (ej: usuario@dominio.com)"
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelClasses}>
+                      Contraseña {mode === "create" ? "*" : ""}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        className={`${inputClasses} pr-10`}
+                        placeholder={
+                          mode === "create"
+                            ? "Ingresa contraseña"
+                            : "Dejar en blanco para mantener"
+                        }
+                        required={mode === "create"}
+                        minLength={mode === "create" ? 6 : undefined}
+                      />
+                      <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute inset-y-0 flex items-center text-gray-500 right-3 dark:text-slate-400"
+                        aria-label={
+                          showPassword
+                            ? "Ocultar contraseña"
+                            : "Mostrar contraseña"
+                        }
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                    {mode === "edit" && (
+                      <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
+                        Deja el campo vacío si no deseas cambiar la contraseña.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -348,7 +364,7 @@ export const UserFormModal = ({
                   className="px-6 py-2 text-sm font-semibold text-red-600 transition-colors border border-red-200 rounded-full hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/10"
                   disabled={isSubmitting}
                 >
-                  Eliminar Usuario
+                  Desactivar Usuario
                 </button>
               )}
               <div className="flex flex-col self-end gap-4 sm:flex-row sm:justify-end">
