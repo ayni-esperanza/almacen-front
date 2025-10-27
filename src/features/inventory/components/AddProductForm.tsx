@@ -4,24 +4,86 @@ import { CreateProductData } from "../../../shared/services/inventory.service";
 import { Provider } from "../../providers/types";
 import { providersService } from "../../providers/services/providers.service";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
-import { AddOptionModal } from "../../../shared/components/AddOptionModal";
+import { AsyncSelect } from "../../../shared";
 
 interface AddProductFormProps {
   onSubmit: (data: CreateProductData) => void;
   onCancel: () => void;
-  areas: string[];
-  categorias: string[];
-  onCreateArea: (name: string) => void;
-  onCreateCategoria: (name: string) => void;
+  areas?: string[];
 }
+
+interface AddOptionModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (option: string) => void;
+  title: string;
+  label: string;
+}
+
+const AddOptionModal: React.FC<AddOptionModalProps> = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  title,
+  label,
+}) => {
+  const [value, setValue] = useState("");
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (value.trim()) {
+      onSubmit(value.trim());
+      setValue("");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-white shadow-2xl rounded-2xl dark:bg-slate-950 dark:border dark:border-slate-800">
+        <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600 rounded-t-2xl">
+          <h3 className="text-lg font-bold">{title}</h3>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
+              {label}
+            </label>
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              className="w-full px-4 py-3 text-sm text-gray-700 transition border border-gray-300 rounded-2xl focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30"
+              placeholder={`Ingresa ${label.toLowerCase()}`}
+              autoFocus
+            />
+          </div>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 text-sm font-semibold text-white bg-green-500 rounded-full hover:bg-green-600 dark:bg-green-500 dark:hover:bg-green-400"
+            >
+              Agregar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 export const AddProductForm: React.FC<AddProductFormProps> = ({
   onSubmit,
   onCancel,
-  areas,
-  categorias: categoriasFromProps,
-  onCreateArea,
-  onCreateCategoria,
+  areas = [], // Valor por defecto
 }) => {
   // Bloquear scroll de la ventana cuando está abierta la modal
   useModalScrollLock(true);
@@ -30,7 +92,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     codigo: "",
     nombre: "",
     costoUnitario: "",
-    ubicacion: "",
     entradas: "0",
     salidas: "0",
     stockActual: "0",
@@ -38,24 +99,28 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     unidadMedida: "",
     marca: "",
     providerId: "",
-    categoria: "",
   });
 
+  const [selectedCategoria, setSelectedCategoria] = useState<
+    string | number | null
+  >(null);
+  const [selectedUbicacion, setSelectedUbicacion] = useState<
+    string | number | null
+  >(null);
+
   const [providers, setProviders] = useState<Provider[]>([]);
-  const [ubicaciones, setUbicaciones] = useState<string[]>(areas);
-  const [categorias, setCategorias] = useState<string[]>(categoriasFromProps);
+
+  // Estados para el modo legacy (con modales personalizados)
   const [showUbicacionModal, setShowUbicacionModal] = useState(false);
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
+  const [ubicaciones, setUbicaciones] = useState<string[]>(areas);
+  const [categorias, setCategorias] = useState<string[]>([
+    "Herramientas",
+    "Lubricantes",
+  ]);
 
-  // Sincronizar ubicaciones cuando cambien las props
-  useEffect(() => {
-    setUbicaciones(areas);
-  }, [areas]);
-
-  // Sincronizar categorías cuando cambien las props
-  useEffect(() => {
-    setCategorias(categoriasFromProps);
-  }, [categoriasFromProps]);
+  // Determinar si usar modo legacy o AsyncSelect
+  const useLegacyMode = areas.length > 0;
 
   // Cargar proveedores al montar el componente
   useEffect(() => {
@@ -79,8 +144,8 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
       stockMinimo: parseInt(formData.stockMinimo) || 0,
       providerId: parseInt(formData.providerId),
       marca: formData.marca,
-      ubicacion: formData.ubicacion,
-      categoria: formData.categoria,
+      ubicacion: String(selectedUbicacion || ""),
+      categoria: String(selectedCategoria || ""),
     };
     onSubmit(productData);
   };
@@ -101,6 +166,10 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   const selectClasses =
     "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
   const dividerClasses = "border-t border-gray-200 pt-8 dark:border-slate-800";
+  const chipClasses =
+    "inline-flex items-center gap-2 px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full dark:bg-slate-800 dark:text-slate-200";
+  const iconButtonClasses =
+    "flex items-center justify-center w-10 h-10 text-white transition-colors bg-green-500 rounded-full shadow-md hover:bg-green-600 dark:bg-green-500 dark:hover:bg-green-400 shrink-0";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
@@ -175,33 +244,68 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   ))}
                 </select>
               </div>
-              <div>
-                <label className={labelClasses}>Ubicación *</label>
-                <div className="flex gap-2">
-                  <select
-                    name="ubicacion"
-                    value={formData.ubicacion}
-                    onChange={handleChange}
-                    className={selectClasses}
-                    required
-                  >
-                    <option value="">Estante dentro del almacén</option>
-                    {ubicaciones.map((area) => (
-                      <option key={area} value={area}>
-                        {area}
-                      </option>
-                    ))}
-                  </select>
+
+              {/* Ubicación: modo legacy o AsyncSelect */}
+              {useLegacyMode ? (
+                <div className="flex items-end gap-3">
+                  <div className="w-full">
+                    <label className={labelClasses}>Ubicación *</label>
+                    <div className="flex flex-col gap-2">
+                      <select
+                        name="ubicacion"
+                        value={selectedUbicacion || ""}
+                        onChange={(e) => setSelectedUbicacion(e.target.value)}
+                        className={selectClasses}
+                        required
+                      >
+                        <option value="">Estante dentro del almacén</option>
+                        {ubicaciones.map((area) => (
+                          <option key={area} value={area}>
+                            {area}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="flex flex-wrap gap-2">
+                        {ubicaciones
+                          .filter((u) => !areas.includes(u))
+                          .map((area) => (
+                            <span key={area} className={chipClasses}>
+                              {area}
+                              <button
+                                type="button"
+                                className="text-red-500 transition-colors hover:text-red-600"
+                                onClick={() =>
+                                  setUbicaciones(
+                                    ubicaciones.filter((u) => u !== area)
+                                  )
+                                }
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
                   <button
                     type="button"
+                    className={iconButtonClasses}
                     onClick={() => setShowUbicacionModal(true)}
-                    className="px-4 py-2 text-white transition-colors bg-green-500 rounded-lg hover:bg-green-600"
-                    title="Agregar nueva ubicación"
                   >
-                    +
+                    <span className="text-xl font-bold">+</span>
                   </button>
                 </div>
-              </div>
+              ) : (
+                <AsyncSelect
+                  endpoint="/inventory/locations"
+                  label="Ubicación"
+                  placeholder="Estante dentro del almacén"
+                  value={selectedUbicacion}
+                  onChange={(value) => setSelectedUbicacion(value)}
+                  name="ubicacion"
+                  required
+                />
+              )}
             </div>
 
             <div className="space-y-6">
@@ -261,33 +365,70 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   required
                 />
               </div>
-              <div>
-                <label className={labelClasses}>Categoría *</label>
-                <div className="flex gap-2">
-                  <select
-                    name="categoria"
-                    value={formData.categoria}
-                    onChange={handleChange}
-                    className={selectClasses}
-                    required
-                  >
-                    <option value="">Selecciona una categoría</option>
-                    {categorias.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
+
+              {/* Categoría: modo legacy o AsyncSelect */}
+              {useLegacyMode ? (
+                <div className="flex items-end gap-3">
+                  <div className="w-full">
+                    <label className={labelClasses}>Categoría *</label>
+                    <div className="flex flex-col gap-2">
+                      <select
+                        name="categoria"
+                        value={selectedCategoria || ""}
+                        onChange={(e) => setSelectedCategoria(e.target.value)}
+                        className={selectClasses}
+                        required
+                      >
+                        <option value="">Selecciona una categoría</option>
+                        {categorias.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="flex flex-wrap gap-2">
+                        {categorias
+                          .filter(
+                            (c) => c !== "Herramientas" && c !== "Lubricantes"
+                          )
+                          .map((cat) => (
+                            <span key={cat} className={chipClasses}>
+                              {cat}
+                              <button
+                                type="button"
+                                className="text-red-500 transition-colors hover:text-red-600"
+                                onClick={() =>
+                                  setCategorias(
+                                    categorias.filter((ca) => ca !== cat)
+                                  )
+                                }
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
                   <button
                     type="button"
+                    className={iconButtonClasses}
                     onClick={() => setShowCategoriaModal(true)}
-                    className="px-4 py-2 text-white transition-colors bg-green-500 rounded-lg hover:bg-green-600"
-                    title="Agregar nueva categoría"
                   >
-                    +
+                    <span className="text-xl font-bold">+</span>
                   </button>
                 </div>
-              </div>
+              ) : (
+                <AsyncSelect
+                  endpoint="/inventory/categories"
+                  label="Categoría"
+                  placeholder="Selecciona una categoría"
+                  value={selectedCategoria}
+                  onChange={(value) => setSelectedCategoria(value)}
+                  name="categoria"
+                  required
+                />
+              )}
             </div>
           </div>
 
@@ -310,28 +451,33 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
           </div>
         </form>
 
-        {/* Modales para agregar opciones */}
-        <AddOptionModal
-          isOpen={showUbicacionModal}
-          onClose={() => setShowUbicacionModal(false)}
-          onSubmit={(name) => {
-            onCreateArea(name);
-            setShowUbicacionModal(false);
-          }}
-          title="Nueva Ubicación"
-          label="Ubicación *"
-        />
-
-        <AddOptionModal
-          isOpen={showCategoriaModal}
-          onClose={() => setShowCategoriaModal(false)}
-          onSubmit={(name) => {
-            onCreateCategoria(name);
-            setShowCategoriaModal(false);
-          }}
-          title="Nueva Categoría"
-          label="Categoría *"
-        />
+        {/* Modales para agregar opción (solo en modo legacy) */}
+        {useLegacyMode && (
+          <>
+            <AddOptionModal
+              isOpen={showUbicacionModal}
+              onClose={() => setShowUbicacionModal(false)}
+              onSubmit={(option: string) => {
+                if (option && !ubicaciones.includes(option))
+                  setUbicaciones([...ubicaciones, option]);
+                setShowUbicacionModal(false);
+              }}
+              title="Nueva Ubicación"
+              label="Ubicación *"
+            />
+            <AddOptionModal
+              isOpen={showCategoriaModal}
+              onClose={() => setShowCategoriaModal(false)}
+              onSubmit={(option: string) => {
+                if (option && !categorias.includes(option))
+                  setCategorias([...categorias, option]);
+                setShowCategoriaModal(false);
+              }}
+              title="Nueva Categoría"
+              label="Categoría *"
+            />
+          </>
+        )}
       </div>
     </div>
   );
