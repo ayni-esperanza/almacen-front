@@ -209,11 +209,9 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
                     required
                   >
                     <option value="">Todos los estados</option>
-                    <option value="Bueno">Bueno</option>
-                    <option value="Regular">Regular</option>
-                    <option value="Malo">Malo</option>
-                    <option value="En_Reparacion">En reparación</option>
-                    <option value="Danado">Dañado</option>
+                    <option value="Bueno">Normal</option>
+                    <option value="Regular">Bajo</option>
+                    <option value="Malo">Crítico</option>
                   </select>
                   <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
                 </div>
@@ -344,10 +342,9 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
                       className={selectClasses}
                     >
                       <option value="">Selecciona un estado</option>
-                      <option value="Bueno">Bueno</option>
-                      <option value="Regular">Regular</option>
-                      <option value="Malo">Malo</option>
-                      <option value="Danado">Dañado</option>
+                      <option value="Bueno">Normal</option>
+                      <option value="Regular">Bajo</option>
+                      <option value="Malo">Crítico</option>
                     </select>
                     <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
                   </div>
