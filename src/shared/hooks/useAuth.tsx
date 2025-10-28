@@ -1,11 +1,19 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, LoginCredentials } from '../../features/auth/types';
-import { authService } from '../services/auth.service';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { User, LoginCredentials } from "../../features/auth/types";
+import { authService } from "../services/auth.service";
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    credentials: LoginCredentials
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
@@ -26,7 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error("Auth check failed:", error);
       } finally {
         setLoading(false);
       }
@@ -35,18 +43,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, []);
 
-  const login = async (credentials: LoginCredentials): Promise<{ success: boolean; error?: string }> => {
+  const login = async (
+    credentials: LoginCredentials
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await authService.login(credentials);
-      
-      if (response.success && response.user) {
-        setUser(response.user);
-        return { success: true };
+
+      if (response.success && response.token) {
+        // Obtener el usuario completo del servidor después del login
+        const currentUser = await authService.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+          return { success: true };
+        } else {
+          return {
+            success: false,
+            error: "Error al obtener información del usuario",
+          };
+        }
       } else {
-        return { success: false, error: response.error || 'Usuario o contraseña incorrectos' };
+        return {
+          success: false,
+          error: response.error || "Usuario o contraseña incorrectos",
+        };
       }
     } catch (error) {
-      return { success: false, error: 'Error de conexión con el servidor' };
+      return { success: false, error: "Error de conexión con el servidor" };
     }
   };
 
@@ -54,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await authService.logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       setUser(null);
     }
@@ -70,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

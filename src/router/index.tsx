@@ -1,25 +1,26 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { LoginPage } from '../pages/LoginPage';
-import { DashboardPage } from '../pages/DashboardPage';
-import { InventoryPage } from '../pages/InventoryPage';
-import { MovementsPage } from '../pages/MovementsPage';
-import { EquipmentPage } from '../pages/EquipmentPage';
-import { UsersPage } from '../pages/UsersPage';
-import { ReportsPage } from '../pages/ReportsPage';
-import ProvidersPage from '../pages/ProvidersPage';
-import { ProtectedRoute } from './ProtectedRoute';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { LoginPage } from "../pages/LoginPage";
+import { DashboardPage } from "../pages/DashboardPage";
+import { InventoryPage } from "../pages/InventoryPage";
+import { MovementsPage } from "../pages/MovementsPage";
+import { EquipmentPage } from "../pages/EquipmentPage";
+import { UsersPage } from "../pages/UsersPage";
+import { ReportsPage } from "../pages/ReportsPage";
+import ProvidersPage from "../pages/ProvidersPage";
+import { ProtectedRoute } from "./ProtectedRoute";
+import { useAuth } from "../shared/hooks/useAuth";
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <LoginPage />,
   },
   {
-    path: '/login',
+    path: "/login",
     element: <LoginPage />,
   },
   {
-    path: '/dashboard',
+    path: "/dashboard",
     element: (
       <ProtectedRoute>
         <DashboardPage />
@@ -31,27 +32,27 @@ const router = createBrowserRouter([
         element: <InventoryPage />,
       },
       {
-        path: 'inventory',
+        path: "inventory",
         element: <InventoryPage />,
       },
       {
-        path: 'movements',
+        path: "movements",
         element: <MovementsPage />,
       },
       {
-        path: 'equipment',
+        path: "equipment",
         element: <EquipmentPage />,
       },
       {
-        path: 'users',
+        path: "users",
         element: <UsersPage />,
       },
       {
-        path: 'reports',
+        path: "reports",
         element: <ReportsPage />,
       },
       {
-        path: 'providers',
+        path: "providers",
         element: <ProvidersPage />,
       },
     ],
@@ -59,5 +60,9 @@ const router = createBrowserRouter([
 ]);
 
 export const AppRouter = () => {
-  return <RouterProvider router={router} />;
+  const { user } = useAuth();
+
+  // Usar el ID del usuario como key para forzar remontaje cuando cambie de usuario
+  // Esto limpia todo el estado de los componentes sin recargar la página
+  return <RouterProvider router={router} key={user?.id || "no-user"} />;
 };
