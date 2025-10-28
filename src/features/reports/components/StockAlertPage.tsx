@@ -4,6 +4,7 @@ import { StockAlert, StockAlertFilters } from "../types";
 import { stockAlertsService } from "../services/stock-alerts.service";
 import { Pagination } from "../../../shared/components/Pagination";
 import { TableWithFixedHeader } from "../../../shared/components/TableWithFixedHeader";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { usePagination } from "../../../shared/hooks/usePagination";
 
 export const StockAlertPage: React.FC = () => {
@@ -14,6 +15,8 @@ export const StockAlertPage: React.FC = () => {
   const [filters, setFilters] = useState<StockAlertFilters>({
     mostrarSoloCriticos: false,
   });
+  const [categories, setCategories] = useState<string[]>([]);
+  const [locations, setLocations] = useState<string[]>([]);
 
   const {
     paginatedData: paginatedAlerts,
@@ -27,8 +30,24 @@ export const StockAlertPage: React.FC = () => {
 
   const cardClasses =
     "rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-900";
-  const selectClasses =
-    "w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:focus:border-orange-400 dark:focus:ring-orange-500/30";
+
+  // Cargar categorías y ubicaciones al montar el componente
+  useEffect(() => {
+    const loadFiltersData = async () => {
+      try {
+        const [categoriesData, locationsData] = await Promise.all([
+          stockAlertsService.getCategories(),
+          stockAlertsService.getLocations(),
+        ]);
+        setCategories(categoriesData);
+        setLocations(locationsData);
+      } catch (err) {
+        console.error("Error loading filters data:", err);
+      }
+    };
+
+    loadFiltersData();
+  }, []);
 
   useEffect(() => {
     const loadStockAlerts = async () => {
@@ -77,16 +96,6 @@ export const StockAlertPage: React.FC = () => {
       default:
         return "🟢";
     }
-  };
-
-  const getCategorias = () => {
-    const categorias = new Set(stockAlerts.map((alert) => alert.categoria));
-    return Array.from(categorias).sort();
-  };
-
-  const getUbicaciones = () => {
-    const ubicaciones = new Set(stockAlerts.map((alert) => alert.ubicacion));
-    return Array.from(ubicaciones).sort();
   };
 
   const getEstadisticas = () => {
@@ -288,65 +297,58 @@ export const StockAlertPage: React.FC = () => {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div>
-            <label className="block mb-2 text-sm font-semibold text-gray-700 dark:text-slate-300">
-              Categoría
-            </label>
-            <select
-              value={filters.categoria || ""}
-              onChange={(e) =>
-                updateFilters({ categoria: e.target.value || undefined })
-              }
-              className={selectClasses}
-            >
-              <option value="">Todas las categorías</option>
-              {getCategorias().map((categoria) => (
-                <option key={categoria} value={categoria}>
-                  {categoria}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block mb-2 text-sm font-semibold text-gray-700 dark:text-slate-300">
-              Ubicación
-            </label>
-            <select
-              value={filters.ubicacion || ""}
-              onChange={(e) =>
-                updateFilters({ ubicacion: e.target.value || undefined })
-              }
-              className={selectClasses}
-            >
-              <option value="">Todas las ubicaciones</option>
-              {getUbicaciones().map((ubicacion) => (
-                <option key={ubicacion} value={ubicacion}>
-                  {ubicacion}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block mb-2 text-sm font-semibold text-gray-700 dark:text-slate-300">
-              Estado
-            </label>
-            <select
-              value={filters.estado || ""}
-              onChange={(e) =>
+            <SearchableSelect
+              label="Categoría"
+              value={filters.categoria || "Todas las categorías"}
+              onChange={(value) =>
                 updateFilters({
-                  estado:
-                    (e.target.value as "critico" | "bajo" | "normal") ||
-                    undefined,
+                  categoria:
+                    value === "Todas las categorías" ? undefined : value,
                 })
               }
-              className={selectClasses}
-            >
-              <option value="">Todos los estados</option>
-              <option value="critico">Crítico</option>
-              <option value="bajo">Bajo</option>
-              <option value="normal">Normal</option>
-            </select>
+              options={["Todas las categorías", ...categories]}
+              placeholder="Todas las categorías"
+            />
+          </div>
+
+          <div>
+            <SearchableSelect
+              label="Ubicación"
+              value={filters.ubicacion || "Todas las ubicaciones"}
+              onChange={(value) =>
+                updateFilters({
+                  ubicacion:
+                    value === "Todas las ubicaciones" ? undefined : value,
+                })
+              }
+              options={["Todas las ubicaciones", ...locations]}
+              placeholder="Todas las ubicaciones"
+            />
+          </div>
+
+          <div>
+            <SearchableSelect
+              label="Estado"
+              value={
+                filters.estado
+                  ? filters.estado === "critico"
+                    ? "Crítico"
+                    : filters.estado === "bajo"
+                    ? "Bajo"
+                    : "Normal"
+                  : "Todos los estados"
+              }
+              onChange={(value) => {
+                let estado: "critico" | "bajo" | "normal" | undefined;
+                if (value === "Crítico") estado = "critico";
+                else if (value === "Bajo") estado = "bajo";
+                else if (value === "Normal") estado = "normal";
+                else estado = undefined;
+                updateFilters({ estado });
+              }}
+              options={["Todos los estados", "Crítico", "Bajo", "Normal"]}
+              placeholder="Todos los estados"
+            />
           </div>
 
           <div className="flex items-center">
