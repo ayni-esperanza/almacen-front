@@ -173,12 +173,24 @@ export const UsersPage = () => {
     try {
       setModalError(null);
       setModalSubmitting(true);
-      await usersService.deleteUser(selectedUser.id);
-      await fetchUsers();
+      // Cambiar el estado del usuario (activar/desactivar) en lugar de eliminarlo
+      const updatedUser = await usersService.toggleUserStatus(
+        selectedUser.id,
+        !selectedUser.isActive
+      );
+
+      if (updatedUser) {
+        // Actualizar el usuario en el estado local
+        setUsers((prevUsers) =>
+          prevUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+        );
+      }
       closeModal();
     } catch (err) {
       setModalError(
-        err instanceof Error ? err.message : "No se pudo desactivar el usuario"
+        err instanceof Error
+          ? err.message
+          : "No se pudo cambiar el estado del usuario"
       );
     } finally {
       setModalSubmitting(false);
@@ -195,8 +207,17 @@ export const UsersPage = () => {
 
     try {
       setTogglingStatusId(user.id);
-      await usersService.toggleUserStatus(user.id, !user.isActive);
-      await fetchUsers();
+      const updatedUser = await usersService.toggleUserStatus(
+        user.id,
+        !user.isActive
+      );
+
+      if (updatedUser) {
+        // Actualizar el usuario en el estado local en lugar de recargar toda la lista
+        setUsers((prevUsers) =>
+          prevUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+        );
+      }
     } catch (err) {
       console.error("Error al cambiar el estado del usuario:", err);
       alert(

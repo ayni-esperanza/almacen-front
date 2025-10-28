@@ -150,14 +150,21 @@ export const UserFormModal = ({
 
   const handleDelete = async () => {
     if (!onDelete) return;
-    const confirmed = window.confirm(
-      "¿Estás seguro de desactivar este usuario? El usuario quedará inactivo pero podrás reactivarlo más tarde."
-    );
+
+    const isActive = initialUser?.isActive ?? true;
+    const confirmMessage = isActive
+      ? "¿Estás seguro de desactivar este usuario? El usuario quedará inactivo pero podrás reactivarlo más tarde."
+      : "¿Estás seguro de activar este usuario? El usuario volverá a tener acceso al sistema.";
+
+    const confirmed = window.confirm(confirmMessage);
     if (!confirmed) return;
     await onDelete();
   };
 
   const showDeleteAction = mode === "edit" && canDelete && onDelete;
+  const deleteButtonText = initialUser?.isActive
+    ? "Desactivar Usuario"
+    : "Activar Usuario";
 
   if (!isOpen) return null;
 
@@ -361,10 +368,14 @@ export const UserFormModal = ({
                 <button
                   type="button"
                   onClick={handleDelete}
-                  className="px-6 py-2 text-sm font-semibold text-red-600 transition-colors border border-red-200 rounded-full hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/10"
+                  className={`px-6 py-2 text-sm font-semibold transition-colors border rounded-full ${
+                    initialUser?.isActive
+                      ? "text-red-600 border-red-200 hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/10"
+                      : "text-green-600 border-green-200 hover:bg-green-50 dark:border-emerald-500/30 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+                  }`}
                   disabled={isSubmitting}
                 >
-                  Desactivar Usuario
+                  {deleteButtonText}
                 </button>
               )}
               <div className="flex flex-col self-end gap-4 sm:flex-row sm:justify-end">
