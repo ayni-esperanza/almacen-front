@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, X } from "lucide-react";
+import { X } from "lucide-react";
 import { MovementExit } from "../types/index.ts";
 import { UpdateExitData } from "../../../shared/services/movements.service.ts";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
 // Áreas predefinidas para movimientos
 const AREAS_MOVIMIENTOS = [
@@ -149,29 +150,28 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
     "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-rose-400 dark:focus:ring-rose-500/30";
   const disabledInputClasses =
     "w-full cursor-not-allowed rounded-2xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-gray-500 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-400";
-  const selectClasses = `${inputClasses} appearance-none`;
   const footerButtonClasses =
     "rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm dark:bg-slate-950/70">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div className="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col">
         <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 text-white flex-shrink-0">
           <h2 className="text-xl font-semibold">Editar Salida de Producto</h2>
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full p-1 transition-colors hover:bg-white/20"
+            className="p-1 transition-colors rounded-full hover:bg-white/20"
             disabled={submitting}
           >
-            <X className="h-6 w-6" />
+            <X className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1">
+        <div className="flex-1 overflow-y-auto">
           <form
             onSubmit={handleSubmit}
-            className="space-y-8 bg-white px-8 pb-8 pt-6 transition-colors dark:bg-slate-950"
+            className="px-8 pt-6 pb-8 space-y-8 transition-colors bg-white dark:bg-slate-950"
           >
             <div className="grid gap-5 md:grid-cols-2">
               <label className={labelClasses}>
@@ -231,29 +231,15 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
             </div>
 
             <div className="grid gap-5 md:grid-cols-3">
-              <label className={labelClasses}>
-                <span>Área *</span>
-                <div className="relative">
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
-                  <select
-                    name="area"
-                    value={formData.area}
-                    onChange={handleChange}
-                    className={selectClasses}
-                    required
-                    disabled={submitting}
-                  >
-                    <option value="" disabled>
-                      Selecciona un área
-                    </option>
-                    {AREAS_MOVIMIENTOS.map((area) => (
-                      <option key={area} value={area}>
-                        {area}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </label>
+              <SearchableSelect
+                name="area"
+                label="Área *"
+                value={formData.area}
+                onChange={(value) => setFormData({ ...formData, area: value })}
+                options={AREAS_MOVIMIENTOS}
+                placeholder="Selecciona un área"
+                required
+              />
 
               <label className={labelClasses}>
                 <span>Proyecto *</span>
@@ -285,12 +271,12 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
             </div>
 
             {errorMessage && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
+              <div className="px-4 py-3 text-sm text-red-700 border border-red-200 rounded-2xl bg-red-50 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
                 {errorMessage}
               </div>
             )}
 
-            <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 dark:border-slate-800 sm:flex-row sm:justify-end">
+            <div className="flex flex-col gap-4 pt-6 border-t border-gray-200 dark:border-slate-800 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={onCancel}
@@ -301,7 +287,7 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
               </button>
               <button
                 type="submit"
-                className="rounded-full bg-red-500 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-red-600 disabled:opacity-60 dark:bg-rose-600 dark:hover:bg-rose-500"
+                className="px-6 py-2 text-sm font-semibold text-white transition-colors bg-red-500 rounded-full shadow-md hover:bg-red-600 disabled:opacity-60 dark:bg-rose-600 dark:hover:bg-rose-500"
                 disabled={submitting}
               >
                 {submitting ? "Guardando..." : "Guardar Cambios"}

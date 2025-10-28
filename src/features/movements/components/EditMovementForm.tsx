@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { X, ChevronDown } from "lucide-react";
+import { X } from "lucide-react";
 import { MovementEntry } from "../types";
 import { UpdateEntryData } from "../../../shared/services/movements.service.ts";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
 // Áreas predefinidas para movimientos
 const AREAS_MOVIMIENTOS = [
@@ -235,26 +236,14 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({
                 />
               </label>
 
-              <label className={labelClasses}>
-                <span>Área</span>
-                <div className="relative">
-                  <ChevronDown className="absolute w-5 h-5 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
-                  <select
-                    name="area"
-                    value={formData.area}
-                    onChange={handleChange}
-                    className={`${inputClasses} appearance-none`}
-                    disabled={submitting}
-                  >
-                    <option value="">Selecciona un área</option>
-                    {AREAS_MOVIMIENTOS.map((area) => (
-                      <option key={area} value={area}>
-                        {area}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </label>
+              <SearchableSelect
+                name="area"
+                label="Área"
+                value={formData.area}
+                onChange={(value) => setFormData({ ...formData, area: value })}
+                options={AREAS_MOVIMIENTOS}
+                placeholder="Selecciona un área"
+              />
             </div>
 
             {errorMessage && (
