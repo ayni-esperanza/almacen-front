@@ -354,7 +354,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                   />
 
                   <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
-                    <span>Proyecto *</span>
+                    <span>Proyecto</span>
                     <input
                       type="text"
                       name="proyecto"
@@ -362,7 +362,6 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                       onChange={handleChange}
                       className={exitInputClasses}
                       placeholder="Proyecto asignado"
-                      required
                     />
                   </label>
 

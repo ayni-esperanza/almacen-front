@@ -110,11 +110,6 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
       return;
     }
 
-    if (!formData.proyecto.trim()) {
-      setErrorMessage("El proyecto es obligatorio.");
-      return;
-    }
-
     setSubmitting(true);
     setErrorMessage(null);
 
@@ -242,7 +237,7 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
               />
 
               <label className={labelClasses}>
-                <span>Proyecto *</span>
+                <span>Proyecto</span>
                 <input
                   type="text"
                   name="proyecto"
@@ -250,7 +245,6 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
                   onChange={handleChange}
                   className={inputClasses}
                   placeholder="Proyecto asignado"
-                  required
                   disabled={submitting}
                 />
               </label>
