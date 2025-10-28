@@ -10,6 +10,11 @@ export interface CreateEquipmentData {
   fechaSalida: string;
   horaSalida: string;
   areaProyecto: string;
+  // Campos opcionales de retorno
+  fechaRetorno?: string;
+  horaRetorno?: string;
+  estadoRetorno?: "Bueno" | "Regular" | "Malo" | "Danado";
+  responsableRetorno?: string;
 }
 
 export interface UpdateEquipmentData extends Partial<CreateEquipmentData> {}

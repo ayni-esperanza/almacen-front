@@ -157,10 +157,7 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
       });
 
       const hasReturnData =
-        formData.fechaRetorno &&
-        formData.horaRetorno &&
-        formData.estadoRetorno &&
-        formData.responsableRetorno;
+        formData.fechaRetorno && formData.horaRetorno && formData.estadoRetorno;
       if (hasReturnData && onSubmitReturn && formData.estadoRetorno) {
         await onSubmitReturn({
           fechaRetorno: formData.fechaRetorno,
@@ -184,11 +181,11 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm dark:bg-slate-950/70">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col">
         <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white flex-shrink-0">
           <div className="flex items-center gap-3">
-            <Wrench className="h-6 w-6" />
+            <Wrench className="w-6 h-6" />
             <h2 className="text-xl font-semibold">
               Editar Salida de Herramientas/Equipos
             </h2>
@@ -196,16 +193,16 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full p-1 transition-colors hover:bg-white/20"
+            className="p-1 transition-colors rounded-full hover:bg-white/20"
             disabled={submitting}
           >
-            <X className="h-6 w-6" />
+            <X className="w-6 h-6" />
           </button>
         </div>
-        <div className="overflow-y-auto flex-1">
+        <div className="flex-1 overflow-y-auto">
           <form
             onSubmit={handleSubmit}
-            className="space-y-8 bg-white px-8 pb-8 pt-6 dark:bg-slate-950"
+            className="px-8 pt-6 pb-8 space-y-8 bg-white dark:bg-slate-950"
           >
             <div className="grid gap-5 md:grid-cols-3">
               <label className={labelClasses}>
@@ -270,7 +267,7 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
+                  <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
                 </div>
               </label>
 
@@ -334,7 +331,7 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
+                  <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
                 </div>
               </label>
             </div>
@@ -412,7 +409,7 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
+                    <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
                   </div>
                 </label>
 
@@ -432,23 +429,23 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
             </div>
 
             {errorMessage && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
+              <div className="px-4 py-3 text-sm text-red-700 border border-red-200 rounded-2xl bg-red-50 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
                 {errorMessage}
               </div>
             )}
 
-            <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 dark:border-slate-800 sm:flex-row sm:justify-end">
+            <div className="flex flex-col gap-4 pt-6 border-t border-gray-200 dark:border-slate-800 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={onCancel}
-                className="rounded-full border border-gray-300 px-6 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
+                className="px-6 py-2 text-sm font-semibold text-gray-600 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
                 disabled={submitting}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-blue-500 dark:hover:bg-blue-400"
+                className="px-6 py-2 text-sm font-semibold text-white transition-colors bg-blue-600 rounded-full shadow-md hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-blue-500 dark:hover:bg-blue-400"
                 disabled={submitting}
               >
                 {submitting ? "Guardando..." : "Guardar Cambios"}
