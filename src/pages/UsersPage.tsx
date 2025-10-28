@@ -78,14 +78,12 @@ export const UsersPage = () => {
 
   const getRoleBadgeColor = (role: UserRole): string => {
     switch (role) {
-      case UserRole.JEFE:
-        return "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-200";
       case UserRole.GERENTE:
+        return "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-200";
+      case UserRole.AYUDANTE:
         return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-200";
       case UserRole.ASISTENTE:
         return "bg-green-100 text-green-800 dark:bg-emerald-500/20 dark:text-emerald-200";
-      case UserRole.AYUDANTE:
-        return "bg-yellow-100 text-yellow-800 dark:bg-amber-400/20 dark:text-amber-200";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-slate-700/30 dark:text-slate-200";
     }
