@@ -54,7 +54,6 @@ export const InventoryPage = () => {
 
       {showAddForm && (
         <AddProductForm
-          key={Date.now()}
           onSubmit={handleAddProduct}
           onCancel={() => setShowAddForm(false)}
           areas={inventoryData.areas}

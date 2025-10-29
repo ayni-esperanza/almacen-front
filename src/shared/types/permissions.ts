@@ -79,9 +79,39 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.PROVIDERS_DELETE,
   ],
 
-  // AYUDANTE: Stock, Movimientos, Equipo y Reportes (NO Usuarios, NO Proveedores)
+  // AYUDANTE: Stock, Movimientos, Equipo, Reportes y Proveedores (NO Usuarios)
   [UserRole.AYUDANTE]: [
-    // View permissions - solo Stock, Movimientos, Equipo, Reportes
+    // View permissions - Stock, Movimientos, Equipo, Reportes, Proveedores
+    Permission.VIEW_INVENTORY,
+    Permission.VIEW_MOVEMENTS,
+    Permission.VIEW_EQUIPMENT,
+    Permission.VIEW_REPORTS,
+    Permission.VIEW_PROVIDERS,
+
+    // Full access to allowed sections
+    Permission.INVENTORY_READ,
+    Permission.INVENTORY_CREATE,
+    Permission.INVENTORY_UPDATE,
+    Permission.INVENTORY_DELETE,
+    Permission.MOVEMENTS_READ,
+    Permission.MOVEMENTS_CREATE,
+    Permission.MOVEMENTS_UPDATE,
+    Permission.MOVEMENTS_DELETE,
+    Permission.EQUIPMENT_READ,
+    Permission.EQUIPMENT_CREATE,
+    Permission.EQUIPMENT_UPDATE,
+    Permission.EQUIPMENT_DELETE,
+    Permission.REPORTS_READ,
+    Permission.PROVIDERS_READ,
+    Permission.PROVIDERS_CREATE,
+    Permission.PROVIDERS_UPDATE,
+    Permission.PROVIDERS_DELETE,
+    // No USERS permissions
+  ],
+
+  // ASISTENTE: Stock, Movimientos, Equipo y Reportes (NO Usuarios, NO Proveedores)
+  [UserRole.ASISTENTE]: [
+    // View permissions - Stock, Movimientos, Equipo, Reportes
     Permission.VIEW_INVENTORY,
     Permission.VIEW_MOVEMENTS,
     Permission.VIEW_EQUIPMENT,
@@ -101,31 +131,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.EQUIPMENT_UPDATE,
     Permission.EQUIPMENT_DELETE,
     Permission.REPORTS_READ,
-    // No USERS permissions
-    // No PROVIDERS permissions
-  ],
-
-  // ASISTENTE: Stock, Movimientos, Equipo (NO Reportes, NO Usuarios, NO Proveedores)
-  [UserRole.ASISTENTE]: [
-    // View permissions - solo Stock, Movimientos, Equipo
-    Permission.VIEW_INVENTORY,
-    Permission.VIEW_MOVEMENTS,
-    Permission.VIEW_EQUIPMENT,
-
-    // Full access to allowed sections
-    Permission.INVENTORY_READ,
-    Permission.INVENTORY_CREATE,
-    Permission.INVENTORY_UPDATE,
-    Permission.INVENTORY_DELETE,
-    Permission.MOVEMENTS_READ,
-    Permission.MOVEMENTS_CREATE,
-    Permission.MOVEMENTS_UPDATE,
-    Permission.MOVEMENTS_DELETE,
-    Permission.EQUIPMENT_READ,
-    Permission.EQUIPMENT_CREATE,
-    Permission.EQUIPMENT_UPDATE,
-    Permission.EQUIPMENT_DELETE,
-    // No REPORTS permissions
     // No USERS permissions
     // No PROVIDERS permissions
   ],

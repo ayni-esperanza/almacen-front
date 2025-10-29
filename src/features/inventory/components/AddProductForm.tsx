@@ -14,6 +14,7 @@ interface AddProductFormProps {
   onSubmit: (data: CreateProductData) => void;
   onCancel: () => void;
   areas: string[];
+  categorias?: string[];
   onCreateArea: (name: string) => Promise<void>;
   onCreateCategoria: (name: string) => Promise<void>;
 }
@@ -22,6 +23,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   onSubmit,
   onCancel,
   areas,
+  categorias: categoriasFromProps,
   onCreateArea,
   onCreateCategoria,
 }) => {
@@ -48,10 +50,21 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   const [showUbicacionModal, setShowUbicacionModal] = useState(false);
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [ubicaciones, setUbicaciones] = useState<string[]>(areas);
-  const [categorias, setCategorias] = useState<string[]>([
-    "Herramientas",
-    "Lubricantes",
-  ]);
+  const [categorias, setCategorias] = useState<string[]>(
+    categoriasFromProps || []
+  );
+
+  // Sincronizar ubicaciones cuando cambian las areas
+  useEffect(() => {
+    setUbicaciones(areas);
+  }, [areas]);
+
+  // Sincronizar categorías cuando cambian las props
+  useEffect(() => {
+    if (categoriasFromProps) {
+      setCategorias(categoriasFromProps);
+    }
+  }, [categoriasFromProps]);
 
   // Cargar proveedores al montar el componente
   useEffect(() => {
