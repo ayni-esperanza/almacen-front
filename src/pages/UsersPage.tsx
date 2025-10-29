@@ -78,14 +78,12 @@ export const UsersPage = () => {
 
   const getRoleBadgeColor = (role: UserRole): string => {
     switch (role) {
-      case UserRole.JEFE:
-        return "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-200";
       case UserRole.GERENTE:
+        return "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-200";
+      case UserRole.AYUDANTE:
         return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-200";
       case UserRole.ASISTENTE:
         return "bg-green-100 text-green-800 dark:bg-emerald-500/20 dark:text-emerald-200";
-      case UserRole.AYUDANTE:
-        return "bg-yellow-100 text-yellow-800 dark:bg-amber-400/20 dark:text-amber-200";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-slate-700/30 dark:text-slate-200";
     }
@@ -173,12 +171,24 @@ export const UsersPage = () => {
     try {
       setModalError(null);
       setModalSubmitting(true);
-      await usersService.deleteUser(selectedUser.id);
-      await fetchUsers();
+      // Cambiar el estado del usuario (activar/desactivar) en lugar de eliminarlo
+      const updatedUser = await usersService.toggleUserStatus(
+        selectedUser.id,
+        !selectedUser.isActive
+      );
+
+      if (updatedUser) {
+        // Actualizar el usuario en el estado local
+        setUsers((prevUsers) =>
+          prevUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+        );
+      }
       closeModal();
     } catch (err) {
       setModalError(
-        err instanceof Error ? err.message : "No se pudo desactivar el usuario"
+        err instanceof Error
+          ? err.message
+          : "No se pudo cambiar el estado del usuario"
       );
     } finally {
       setModalSubmitting(false);
@@ -195,8 +205,17 @@ export const UsersPage = () => {
 
     try {
       setTogglingStatusId(user.id);
-      await usersService.toggleUserStatus(user.id, !user.isActive);
-      await fetchUsers();
+      const updatedUser = await usersService.toggleUserStatus(
+        user.id,
+        !user.isActive
+      );
+
+      if (updatedUser) {
+        // Actualizar el usuario en el estado local en lugar de recargar toda la lista
+        setUsers((prevUsers) =>
+          prevUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+        );
+      }
     } catch (err) {
       console.error("Error al cambiar el estado del usuario:", err);
       alert(

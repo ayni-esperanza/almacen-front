@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { ChevronDown, X, Check, Loader2, AlertCircle } from "lucide-react";
+import { X, Check, Loader2, AlertCircle } from "lucide-react";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useProductAutocomplete } from "../../../shared/hooks/useProductAutocomplete";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
 // Áreas predefinidas para movimientos
 const AREAS_MOVIMIENTOS = [
@@ -147,7 +148,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1">
+        <div className="flex-1 overflow-y-auto">
           <form onSubmit={handleSubmit} className="px-8 pt-6 pb-8 space-y-8">
             {isEntry ? (
               <>
@@ -246,25 +247,16 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     />
                   </label>
 
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
-                    <span>Área</span>
-                    <div className="relative">
-                      <ChevronDown className="absolute w-5 h-5 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
-                      <select
-                        name="area"
-                        value={formData.area}
-                        onChange={handleChange}
-                        className={`${entryInputClasses} appearance-none`}
-                      >
-                        <option value="">Selecciona un área</option>
-                        {AREAS_MOVIMIENTOS.map((area) => (
-                          <option key={area} value={area}>
-                            {area}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </label>
+                  <SearchableSelect
+                    name="area"
+                    label="Área"
+                    value={formData.area}
+                    onChange={(value) =>
+                      setFormData({ ...formData, area: value })
+                    }
+                    options={AREAS_MOVIMIENTOS}
+                    placeholder="Selecciona un área"
+                  />
                 </div>
               </>
             ) : (
@@ -349,31 +341,20 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                 </div>
 
                 <div className="grid gap-5 md:grid-cols-3">
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
-                    <span>Área *</span>
-                    <div className="relative">
-                      <ChevronDown className="absolute w-5 h-5 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
-                      <select
-                        name="area"
-                        value={formData.area}
-                        onChange={handleChange}
-                        className={`${exitInputClasses} appearance-none`}
-                        required
-                      >
-                        <option value="" disabled>
-                          Selecciona un área
-                        </option>
-                        {AREAS_MOVIMIENTOS.map((area) => (
-                          <option key={area} value={area}>
-                            {area}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </label>
+                  <SearchableSelect
+                    name="area"
+                    label="Área *"
+                    value={formData.area}
+                    onChange={(value) =>
+                      setFormData({ ...formData, area: value })
+                    }
+                    options={AREAS_MOVIMIENTOS}
+                    placeholder="Selecciona un área"
+                    required
+                  />
 
                   <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
-                    <span>Proyecto *</span>
+                    <span>Proyecto</span>
                     <input
                       type="text"
                       name="proyecto"
@@ -381,7 +362,6 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                       onChange={handleChange}
                       className={exitInputClasses}
                       placeholder="Proyecto asignado"
-                      required
                     />
                   </label>
 

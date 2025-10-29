@@ -15,6 +15,8 @@ import {
 } from "../features/movements/types/index.ts";
 import { EditMovementForm } from "../features/movements/components/EditMovementForm.tsx";
 import { EditExitMovementForm } from "../features/movements/components/EditExitMovementForm.tsx";
+import { movementsPDFService } from "../features/movements/services/movements-pdf.service.ts";
+import { useAuth } from "../shared/hooks/useAuth.tsx";
 
 export const MovementsPage = () => {
   const [activeSubTab, setActiveSubTab] = useState<"entradas" | "salidas">(
@@ -26,6 +28,7 @@ export const MovementsPage = () => {
   );
   const [selectedExit, setSelectedExit] = useState<MovementExit | null>(null);
   const movementsData = useMovements();
+  const { user } = useAuth();
 
   useEffect(() => {
     setSelectedEntry(null);
@@ -67,8 +70,25 @@ export const MovementsPage = () => {
     }
   };
 
-  const handleExportPdf = () => {
-    console.info("Exportar PDF aún no está implementado.");
+  const handleExportPdf = async () => {
+    try {
+      const userName =
+        user?.firstName && user?.lastName
+          ? `${user.firstName} ${user.lastName}`
+          : user?.username || "Usuario";
+      const data =
+        activeSubTab === "entradas"
+          ? movementsData.entries
+          : movementsData.exits;
+
+      await movementsPDFService.exportMovements({
+        type: activeSubTab,
+        data,
+        userName,
+      });
+    } catch (error) {
+      console.error("Error al exportar PDF:", error);
+    }
   };
 
   return (

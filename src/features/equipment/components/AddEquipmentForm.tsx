@@ -68,7 +68,14 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
       return;
     }
 
-    onSubmit({
+    // Verificar si hay datos de retorno completos (todos los campos deben estar llenos)
+    const hasReturnData =
+      formData.fechaRetorno &&
+      formData.horaRetorno &&
+      formData.estadoRetorno &&
+      formData.responsableRetorno.trim();
+
+    const equipmentData: CreateEquipmentData = {
       equipo: formData.equipo,
       serieCodigo: formData.serieCodigo,
       cantidad: parseInt(formData.cantidad, 10) || 1,
@@ -77,9 +84,22 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
       fechaSalida: formData.fechaSalida,
       horaSalida: formData.horaSalida,
       areaProyecto: formData.areaProyecto,
-    });
-  };
+    };
 
+    // Agregar datos de retorno solo si están completos
+    if (hasReturnData) {
+      equipmentData.fechaRetorno = formData.fechaRetorno;
+      equipmentData.horaRetorno = formData.horaRetorno;
+      equipmentData.estadoRetorno = formData.estadoRetorno as
+        | "Bueno"
+        | "Regular"
+        | "Malo"
+        | "Danado";
+      equipmentData.responsableRetorno = formData.responsableRetorno.trim();
+    }
+
+    onSubmit(equipmentData);
+  };
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {

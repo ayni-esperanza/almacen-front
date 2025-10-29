@@ -1,9 +1,8 @@
 // Import from a shared enum or define locally to match backend
 export enum UserRole {
-  JEFE = 'JEFE',
-  ASISTENTE = 'ASISTENTE',
-  GERENTE = 'GERENTE',
-  AYUDANTE = 'AYUDANTE',
+  GERENTE = "GERENTE",
+  AYUDANTE = "AYUDANTE",
+  ASISTENTE = "ASISTENTE",
 }
 
 export interface User {
