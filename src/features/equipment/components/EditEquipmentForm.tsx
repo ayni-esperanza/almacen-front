@@ -21,8 +21,7 @@ const EQUIPMENT_STATES: {
   { value: "Bueno", label: "Bueno" },
   { value: "Regular", label: "Regular" },
   { value: "Malo", label: "Malo" },
-  { value: "En_Reparacion", label: "En reparación" },
-  { value: "Danado", label: "Dañado" },
+  { value: "En_Reparacion", label: "En reparación" }
 ];
 
 const RETURN_STATES: {
@@ -32,7 +31,6 @@ const RETURN_STATES: {
   { value: "Bueno", label: "Bueno" },
   { value: "Regular", label: "Regular" },
   { value: "Malo", label: "Malo" },
-  { value: "Danado", label: "Dañado" },
 ];
 
 type FormState = {
@@ -68,7 +66,6 @@ const normalizeReturnState = (
 ): ReturnEquipmentData["estadoRetorno"] | "" => {
   if (!value) return "";
   const normalized = value.toLowerCase().replace(/[^a-z]/g, "");
-  if (normalized.includes("dan")) return "Danado";
   if (normalized.includes("malo")) return "Malo";
   if (normalized.includes("regular")) return "Regular";
   if (normalized.includes("bueno")) return "Bueno";
