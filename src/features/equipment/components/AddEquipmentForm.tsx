@@ -7,9 +7,23 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { areas } from "../../inventory/data/mockData";
 import { CreateEquipmentData } from "../../../shared/services/equipment.service";
 import { useProductAutocomplete } from "../../../shared/hooks/useProductAutocomplete";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect";
+
+const AREAS_MOVIMIENTOS = [
+  "Almacén",
+  "Contabilidad",
+  "Electricidad",
+  "Extrusora",
+  "Fibra",
+  "Líneas de vida",
+  "Mecánica",
+  "Metalmecánica",
+  "Oficina",
+  "Pozos",
+  "Torres de Enfriamiento",
+];
 
 interface AddEquipmentFormProps {
   onSubmit: (data: CreateEquipmentData) => void;
@@ -278,23 +292,17 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
 
               <label className={labelClasses}>
                 <span>Área/Proyecto *</span>
-                <div className="relative">
-                  <select
-                    name="areaProyecto"
-                    value={formData.areaProyecto}
-                    onChange={handleChange}
-                    className={selectClasses}
-                    required
-                  >
-                    <option value="">Selecciona un área</option>
-                    {areas.map((area) => (
-                      <option key={area} value={area}>
-                        {area}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
-                </div>
+                <SearchableSelect
+                  name="areaProyecto"
+                  label=""
+                  value={formData.areaProyecto}
+                  onChange={(value) =>
+                    setFormData({ ...formData, areaProyecto: value })
+                  }
+                  options={AREAS_MOVIMIENTOS}
+                  placeholder="Selecciona un área"
+                  required
+                />
               </label>
             </div>
 

@@ -1,11 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { ChevronDown, Wrench, X } from "lucide-react";
 import { EquipmentReport } from "../types";
-import { areas } from "../../inventory/data/mockData";
 import {
   ReturnEquipmentData,
   UpdateEquipmentData,
 } from "../../../shared/services/equipment.service";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect";
+
+const AREAS_MOVIMIENTOS = [
+  "Almacén",
+  "Contabilidad",
+  "Electricidad",
+  "Extrusora",
+  "Fibra",
+  "Líneas de vida",
+  "Mecánica",
+  "Metalmecánica",
+  "Oficina",
+  "Pozos",
+  "Torres de Enfriamiento",
+];
 
 interface EditEquipmentFormProps {
   equipment: EquipmentReport;
@@ -315,24 +329,17 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
 
               <label className={labelClasses}>
                 <span>Área/Proyecto *</span>
-                <div className="relative">
-                  <select
-                    name="areaProyecto"
-                    value={formData.areaProyecto}
-                    onChange={handleChange}
-                    className={selectClasses}
-                    required
-                    disabled={submitting}
-                  >
-                    <option value="">Selecciona un área</option>
-                    {areas.map((area) => (
-                      <option key={area} value={area}>
-                        {area}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
-                </div>
+                <SearchableSelect
+                  name="areaProyecto"
+                  label=""
+                  value={formData.areaProyecto}
+                  onChange={(value) =>
+                    setFormData({ ...formData, areaProyecto: value })
+                  }
+                  options={AREAS_MOVIMIENTOS}
+                  placeholder="Selecciona un área"
+                  required
+                />
               </label>
             </div>
 
