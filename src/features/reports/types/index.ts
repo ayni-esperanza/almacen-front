@@ -66,3 +66,40 @@ export interface StockAlertFilters {
   estado?: "critico" | "bajo" | "normal";
   mostrarSoloCriticos?: boolean;
 }
+
+// Tipos para Dashboard de Stock
+export interface CriticalProduct {
+  codigo: string;
+  nombre: string;
+  stockActual: number;
+  stockMinimo: number;
+  porcentajeStockMinimo: number;
+  ubicacion: string;
+  categoria?: string;
+}
+
+export interface LeastMovedProduct {
+  codigo: string;
+  nombre: string;
+  cantidadMovimientos: number;
+  stockActual: number;
+  ubicacion: string;
+}
+
+export interface MostMovedProduct {
+  codigo: string;
+  nombre: string;
+  cantidadMovimientos: number;
+  unidadesTotalesSalidas: number;
+  stockActual: number;
+  periodo: string;
+}
+
+export interface StockDashboard {
+  totalProductos: number;
+  valorTotalInventario: number;
+  productoCritico?: CriticalProduct;
+  productoMenosMovido?: LeastMovedProduct;
+  productoMasMovido?: MostMovedProduct;
+  periodoAnalisisDias: number;
+}
