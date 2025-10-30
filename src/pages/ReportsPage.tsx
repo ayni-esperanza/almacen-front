@@ -1,10 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { BarChart3, AlertTriangle } from 'lucide-react';
-import { ExpenseReportPage } from '../features/reports/components/ExpenseReportPage';
-import { StockAlertPage } from '../features/reports/components/StockAlertPage';
-import { useSearchParams } from 'react-router-dom';
+import React, { useEffect } from "react";
+import { BarChart3, AlertTriangle, LayoutDashboard } from "lucide-react";
+import { ExpenseReportPage } from "../features/reports/components/ExpenseReportPage";
+import { StockAlertPage } from "../features/reports/components/StockAlertPage";
+import { StockDashboardPage } from "../features/reports/components/StockDashboardPage";
+import { useSearchParams } from "react-router-dom";
 
-type ReportType = 'expenses' | 'stock-alerts' | 'inventory' | 'movements';
+type ReportType =
+  | "stock-dashboard"
+  | "expenses"
+  | "stock-alerts"
+  | "inventory"
+  | "movements";
 
 interface ReportDefinition {
   id: ReportType;
@@ -16,35 +22,43 @@ interface ReportDefinition {
 
 const REPORTS: ReportDefinition[] = [
   {
-    id: 'expenses',
-    title: 'Reporte de Gastos',
-    description: 'Análisis de gastos por área y proyecto',
+    id: "stock-dashboard",
+    title: "Dashboard de Stock",
+    description: "Métricas y análisis del inventario",
+    icon: LayoutDashboard,
+    component: StockDashboardPage,
+  },
+  {
+    id: "expenses",
+    title: "Reporte de Gastos",
+    description: "Análisis de gastos por área y proyecto",
     icon: BarChart3,
     component: ExpenseReportPage,
   },
   {
-    id: 'stock-alerts',
-    title: 'Alertas de Stock',
-    description: 'Productos con stock por debajo del mínimo',
+    id: "stock-alerts",
+    title: "Alertas de Stock",
+    description: "Productos con stock por debajo del mínimo",
     icon: AlertTriangle,
     component: StockAlertPage,
   },
-  // Future report definitions can be added here
 ];
 
 const isValidReportType = (value: string | null): value is ReportType =>
-  value != null && REPORTS.some(report => report.id === value);
+  value != null && REPORTS.some((report) => report.id === value);
 
 export const ReportsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const tabParam = searchParams.get('tab');
-  const activeReport: ReportType = isValidReportType(tabParam) ? tabParam : 'expenses';
+  const tabParam = searchParams.get("tab");
+  const activeReport: ReportType = isValidReportType(tabParam)
+    ? tabParam
+    : "stock-dashboard";
 
   useEffect(() => {
     // Solo actualizar si no hay parámetro o si es inválido
     if (!tabParam || !isValidReportType(tabParam)) {
-      setSearchParams({ tab: 'expenses' }, { replace: true });
+      setSearchParams({ tab: "stock-dashboard" }, { replace: true });
     }
   }, [tabParam, setSearchParams]);
 
@@ -52,7 +66,7 @@ export const ReportsPage: React.FC = () => {
     setSearchParams({ tab: reportId });
   };
 
-  const ActiveComponent = REPORTS.find(r => r.id === activeReport)?.component;
+  const ActiveComponent = REPORTS.find((r) => r.id === activeReport)?.component;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
@@ -61,7 +75,9 @@ export const ReportsPage: React.FC = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Reportes</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+                Reportes
+              </h1>
               <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
                 Análisis y estadísticas del sistema de almacén
               </p>
@@ -82,8 +98,8 @@ export const ReportsPage: React.FC = () => {
                   onClick={() => handleReportChange(report.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                     activeReport === report.id
-                      ? 'border-green-500 text-green-600 dark:text-emerald-300'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-200'
+                      ? "border-green-500 text-green-600 dark:text-emerald-300"
+                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-200"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
