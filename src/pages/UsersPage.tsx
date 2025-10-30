@@ -8,6 +8,7 @@ import { TableWithFixedHeader } from "../shared/components/TableWithFixedHeader"
 import { Permission } from "../shared/types/permissions";
 import { usePagination } from "../shared/hooks/usePagination";
 import { usePermissions } from "../shared/hooks/usePermissions";
+import { useAuth } from "../shared/hooks/useAuth";
 import {
   UserFormModal,
   UserFormSubmitInput,
@@ -25,6 +26,7 @@ export const UsersPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const { checkPermission } = usePermissions();
+  const { user: currentUser } = useAuth();
   const canUpdateUsers = checkPermission(Permission.USERS_UPDATE);
   const canDeleteUsers = checkPermission(Permission.USERS_DELETE);
   const [togglingStatusId, setTogglingStatusId] = useState<number | null>(null);
@@ -168,6 +170,12 @@ export const UsersPage = () => {
   const handleDeleteSelectedUser = async () => {
     if (!selectedUser) return;
 
+    // Prevenir que un usuario se desactive a sí mismo
+    if (currentUser && currentUser.id === selectedUser.id) {
+      setModalError("No puedes desactivar tu propia cuenta");
+      return;
+    }
+
     try {
       setModalError(null);
       setModalSubmitting(true);
@@ -202,6 +210,12 @@ export const UsersPage = () => {
     event.stopPropagation();
 
     if (!canUpdateUsers) return;
+
+    // Prevenir que un usuario se desactive a sí mismo
+    if (currentUser && currentUser.id === user.id && user.isActive) {
+      alert("No puedes desactivar tu propia cuenta");
+      return;
+    }
 
     try {
       setTogglingStatusId(user.id);
