@@ -1,5 +1,7 @@
 // Base API configuration and HTTP client
-const API_BASE_URL = 'http://localhost:3001';
+import { config } from "../config";
+
+const API_BASE_URL = config.apiUrl;
 
 export interface ApiResponse<T> {
   data?: T;
@@ -19,11 +21,11 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     try {
-      const token = localStorage.getItem('auth_token');
-      
+      const token = localStorage.getItem("auth_token");
+
       const config: RequestInit = {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           ...(token && { Authorization: `Bearer ${token}` }),
           ...options.headers,
         },
@@ -31,42 +33,45 @@ class ApiClient {
       };
 
       const response = await fetch(`${this.baseURL}${endpoint}`, config);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
       }
 
       const data = await response.json();
       return { data };
     } catch (error) {
-      console.error('API Request failed:', error);
-      return { 
-        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+      console.error("API Request failed:", error);
+      return {
+        error:
+          error instanceof Error ? error.message : "Unknown error occurred",
       };
     }
   }
 
   async get<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'GET' });
+    return this.request<T>(endpoint, { method: "GET" });
   }
 
   async post<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(body),
     });
   }
 
   async patch<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(body),
     });
   }
 
   async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+    return this.request<T>(endpoint, { method: "DELETE" });
   }
 }
 

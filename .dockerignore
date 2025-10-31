@@ -1,0 +1,79 @@
+# ====================================
+# DEPENDENCIAS (se instalan con npm ci)
+# ====================================
+node_modules
+
+# ====================================
+# BUILD OUTPUTS (se generan con npm run build)
+# ====================================
+dist
+build
+.vite
+
+# ====================================
+# ARCHIVOS SENSIBLES (seguridad)
+# ====================================
+.env
+.env.*
+!.env.example
+
+# ====================================
+# GIT 
+# ====================================
+.git
+.gitignore
+.gitattributes
+
+# ====================================
+# DOCKER
+# ====================================
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# ====================================
+# LOGS (pueden ser muy grandes)
+# ====================================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ====================================
+# TEMPORALES
+# ====================================
+tmp
+temp
+*.tmp
+*.swp
+*.swo
+*~
+
+# ====================================
+# IDE 
+# ====================================
+.vscode
+.idea
+*.sublime-*
+.DS_Store
+
+# ====================================
+# OS (archivos del sistema operativo)
+# ====================================
+Thumbs.db
+desktop.ini
+
+# ====================================
+# DOCUMENTACIÓN (reduce tamaño)
+# ====================================
+README.md
+docs
+*.md
+!package.json
+
+# ====================================
+# TESTING (no necesario en producción)
+# ====================================
+coverage
+.nyc_output

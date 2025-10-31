@@ -1,4 +1,5 @@
 import { apiClient } from "../../../shared/services/api";
+import { config } from "../../../shared/config";
 import { StockAlert, StockAlertFilters } from "../types";
 
 class StockAlertsService {
@@ -61,7 +62,7 @@ class StockAlertsService {
 
       const token = localStorage.getItem("auth_token");
       const response = await fetch(
-        `http://localhost:3000/reports/stock-alerts/export?${params.toString()}`,
+        `${config.apiUrl}/reports/stock-alerts/export?${params.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
