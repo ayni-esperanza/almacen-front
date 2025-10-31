@@ -10,54 +10,59 @@ import ProvidersPage from "../pages/ProvidersPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { useAuth } from "../shared/hooks/useAuth";
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <LoginPage />,
+    },
+    {
+      path: "/login",
+      element: <LoginPage />,
+    },
+    {
+      path: "/dashboard",
+      element: (
+        <ProtectedRoute>
+          <DashboardPage />
+        </ProtectedRoute>
+      ),
+      children: [
+        {
+          index: true,
+          element: <InventoryPage />,
+        },
+        {
+          path: "inventory",
+          element: <InventoryPage />,
+        },
+        {
+          path: "movements",
+          element: <MovementsPage />,
+        },
+        {
+          path: "equipment",
+          element: <EquipmentPage />,
+        },
+        {
+          path: "users",
+          element: <UsersPage />,
+        },
+        {
+          path: "reports",
+          element: <ReportsPage />,
+        },
+        {
+          path: "providers",
+          element: <ProvidersPage />,
+        },
+      ],
+    },
+  ],
   {
-    path: "/",
-    element: <LoginPage />,
-  },
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/dashboard",
-    element: (
-      <ProtectedRoute>
-        <DashboardPage />
-      </ProtectedRoute>
-    ),
-    children: [
-      {
-        index: true,
-        element: <InventoryPage />,
-      },
-      {
-        path: "inventory",
-        element: <InventoryPage />,
-      },
-      {
-        path: "movements",
-        element: <MovementsPage />,
-      },
-      {
-        path: "equipment",
-        element: <EquipmentPage />,
-      },
-      {
-        path: "users",
-        element: <UsersPage />,
-      },
-      {
-        path: "reports",
-        element: <ReportsPage />,
-      },
-      {
-        path: "providers",
-        element: <ProvidersPage />,
-      },
-    ],
-  },
-]);
+    basename: "/almacen", // Base path para subdirectorio
+  }
+);
 
 export const AppRouter = () => {
   const { user } = useAuth();
