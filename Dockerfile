@@ -18,6 +18,16 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Declarar build arguments (se pasan desde Dokploy)
+ARG VITE_API_URL
+ARG VITE_APP_NAME
+ARG VITE_APP_ENV
+
+# Convertir a variables de entorno para el build
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_APP_NAME=$VITE_APP_NAME
+ENV VITE_APP_ENV=$VITE_APP_ENV
+
 # Copiar dependencias del stage anterior
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
