@@ -46,6 +46,10 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
   }));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAutofilled, setIsAutofilled] = useState(false);
+  const [stockWarning, setStockWarning] = useState<{
+    type: "sin-stock" | "stock-bajo" | null;
+    message: string | null;
+  }>({ type: null, message: null });
 
   // Hook de autocompletado
   const {
@@ -69,8 +73,42 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
       }));
       setIsAutofilled(true);
       setErrorMessage(null);
+      
+      // Verificar stock solo para salidas
+      if (!isEntry) {
+        checkStock(product.stockActual, parseInt(formData.cantidad) || 0);
+      }
     }
   }, [product, formData.codigoProducto]);
+
+  // Verificar stock cuando cambia la cantidad en salidas
+  useEffect(() => {
+    if (!isEntry && product && isAutofilled) {
+      const cantidad = parseInt(formData.cantidad) || 0;
+      checkStock(product.stockActual, cantidad);
+    }
+  }, [formData.cantidad, product, isEntry, isAutofilled]);
+
+  const checkStock = (stockActual: number, cantidadSolicitada: number) => {
+    if (stockActual === 0) {
+      setStockWarning({
+        type: "sin-stock",
+        message: `Este producto NO tiene stock disponible. Stock actual: 0 unidades.`,
+      });
+    } else if (cantidadSolicitada > stockActual) {
+      setStockWarning({
+        type: "stock-bajo",
+        message: `Stock insuficiente. Disponible: ${stockActual} unidades. Solicitado: ${cantidadSolicitada} unidades.`,
+      });
+    } else if (stockActual <= 10) {
+      setStockWarning({
+        type: null,
+        message: `Stock bajo. Disponible: ${stockActual} unidades.`,
+      });
+    } else {
+      setStockWarning({ type: null, message: null });
+    }
+  };
 
   const entryInputClasses =
     "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/40";
@@ -89,6 +127,23 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
     if (isEntry && (!Number.isFinite(parsedPrice) || parsedPrice <= 0)) {
       setErrorMessage("El precio unitario debe ser mayor a 0.");
       return;
+    }
+
+    // Verificar stock para salidas
+    if (!isEntry && product) {
+      if (product.stockActual === 0) {
+        setErrorMessage(
+          "No se puede registrar la salida. El producto no tiene stock disponible."
+        );
+        return;
+      }
+      
+      if (parsedQuantity > product.stockActual) {
+        setErrorMessage(
+          `No se puede registrar la salida. Stock insuficiente (disponible: ${product.stockActual}, solicitado: ${parsedQuantity}).`
+        );
+        return;
+      }
     }
 
     setErrorMessage(null);
@@ -114,6 +169,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
     // Si cambia el código del producto, buscar autocompletado
     if (name === "codigoProducto") {
       setIsAutofilled(false);
+      setStockWarning({ type: null, message: null });
       if (value.length >= 2) {
         searchProduct(value);
       } else {
@@ -339,6 +395,31 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     />
                   </label>
                 </div>
+
+                {/* Notificación de stock */}
+                {stockWarning.message && (
+                  <div
+                    className={`flex items-start gap-3 px-4 py-3 rounded-2xl border ${
+                      stockWarning.type === "sin-stock"
+                        ? "bg-red-50 border-red-300 text-red-800 dark:bg-red-900/20 dark:border-red-700 dark:text-red-200"
+                        : stockWarning.type === "stock-bajo"
+                        ? "bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-900/20 dark:border-amber-700 dark:text-amber-200"
+                        : "bg-blue-50 border-blue-300 text-blue-800 dark:bg-blue-900/20 dark:border-blue-700 dark:text-blue-200"
+                    }`}
+                  >
+                    <AlertCircle className="flex-shrink-0 w-5 h-5 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm">
+                        {stockWarning.type === "sin-stock"
+                          ? "Sin Stock Disponible"
+                          : stockWarning.type === "stock-bajo"
+                          ? "Stock Insuficiente"
+                          : "Advertencia de Stock"}
+                      </p>
+                      <p className="text-sm mt-1">{stockWarning.message}</p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid gap-5 md:grid-cols-3">
                   <SearchableSelect
