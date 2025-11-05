@@ -1,26 +1,36 @@
 import { useState } from "react";
+import { Download } from "lucide-react";
 import { useStockDashboard } from "../hooks/useStockDashboard";
 
 export const StockDashboardPage = () => {
   const [period, setPeriod] = useState(30);
-  const { dashboard, loading, error, refetch } = useStockDashboard(period);
+  const { dashboard, loading, error, refetch, exportToPDF } =
+    useStockDashboard(period);
 
   const handlePeriodChange = (newPeriod: number) => {
     setPeriod(newPeriod);
     refetch(newPeriod);
   };
 
+  const handleExportPDF = async () => {
+    try {
+      await exportToPDF();
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-emerald-400"></div>
+        <div className="w-12 h-12 border-b-2 border-blue-600 rounded-full animate-spin dark:border-emerald-400"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative dark:bg-rose-500/10 dark:border-rose-500/40 dark:text-rose-200">
+      <div className="relative px-4 py-3 text-red-700 border border-red-200 rounded bg-red-50 dark:bg-rose-500/10 dark:border-rose-500/40 dark:text-rose-200">
         <strong className="font-bold">Error: </strong>
         <span className="block sm:inline">{error}</span>
       </div>
@@ -29,7 +39,7 @@ export const StockDashboardPage = () => {
 
   if (!dashboard) {
     return (
-      <div className="text-center text-gray-500 dark:text-slate-400 py-8">
+      <div className="py-8 text-center text-gray-500 dark:text-slate-400">
         No hay datos disponibles
       </div>
     );
@@ -38,11 +48,19 @@ export const StockDashboardPage = () => {
   return (
     <div className="p-6 space-y-6">
       {/* Header con selector de período */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
           Dashboard de Stock
         </h1>
         <div className="flex gap-2">
+          <button
+            onClick={handleExportPDF}
+            disabled={loading || !dashboard}
+            className="flex items-center gap-2 px-4 py-2 text-white transition-colors bg-green-600 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-emerald-600 dark:hover:bg-emerald-700"
+          >
+            <Download className="w-4 h-4" />
+            <span>Exportar PDF</span>
+          </button>
           <button
             onClick={() => handlePeriodChange(7)}
             className={`px-4 py-2 rounded transition-colors ${
@@ -77,19 +95,19 @@ export const StockDashboardPage = () => {
       </div>
 
       {/* Grid de métricas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Métrica 1: Total Productos */}
-        <div className="bg-white dark:bg-slate-900 dark:border dark:border-slate-800 rounded-lg shadow p-6">
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-slate-900 dark:border dark:border-slate-800">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
                 Total de Productos
               </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-slate-100 mt-2">
+              <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-slate-100">
                 {dashboard.totalProductos.toLocaleString()}
               </p>
             </div>
-            <div className="bg-blue-100 dark:bg-blue-500/10 rounded-full p-3">
+            <div className="p-3 bg-blue-100 rounded-full dark:bg-blue-500/10">
               <svg
                 className="w-8 h-8 text-blue-600 dark:text-blue-400"
                 fill="none"
@@ -108,13 +126,13 @@ export const StockDashboardPage = () => {
         </div>
 
         {/* Métrica 2: Valor Total */}
-        <div className="bg-white dark:bg-slate-900 dark:border dark:border-slate-800 rounded-lg shadow p-6">
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-slate-900 dark:border dark:border-slate-800">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
                 Valor Total Inventario
               </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-slate-100 mt-2">
+              <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-slate-100">
                 S/.{" "}
                 {dashboard.valorTotalInventario.toLocaleString("es-PE", {
                   minimumFractionDigits: 2,
@@ -122,7 +140,7 @@ export const StockDashboardPage = () => {
                 })}
               </p>
             </div>
-            <div className="bg-green-100 dark:bg-green-500/10 rounded-full p-3">
+            <div className="p-3 bg-green-100 rounded-full dark:bg-green-500/10">
               <svg
                 className="w-8 h-8 text-green-600 dark:text-green-400"
                 fill="none"
@@ -141,12 +159,12 @@ export const StockDashboardPage = () => {
         </div>
 
         {/* Métrica 3: Producto Crítico */}
-        <div className="bg-white dark:bg-slate-900 dark:border dark:border-slate-800 rounded-lg shadow p-6">
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-slate-900 dark:border dark:border-slate-800">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
               Producto Crítico
             </p>
-            <div className="bg-red-100 dark:bg-red-500/10 rounded-full p-3">
+            <div className="p-3 bg-red-100 rounded-full dark:bg-red-500/10">
               <svg
                 className="w-8 h-8 text-red-600 dark:text-red-400"
                 fill="none"
@@ -179,9 +197,9 @@ export const StockDashboardPage = () => {
                   </span>{" "}
                   (mínimo)
                 </p>
-                <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 mt-2">
+                <div className="w-full h-2 mt-2 bg-gray-200 rounded-full dark:bg-slate-700">
                   <div
-                    className="bg-red-600 dark:bg-red-500 h-2 rounded-full"
+                    className="h-2 bg-red-600 rounded-full dark:bg-red-500"
                     style={{
                       width: `${Math.min(
                         (dashboard.productoCritico.stockActual /
@@ -195,19 +213,19 @@ export const StockDashboardPage = () => {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-500 dark:text-slate-400 italic">
+            <p className="text-sm italic text-gray-500 dark:text-slate-400">
               Sin productos críticos
             </p>
           )}
         </div>
 
         {/* Métrica 4: Producto Menos Movido */}
-        <div className="bg-white dark:bg-slate-900 dark:border dark:border-slate-800 rounded-lg shadow p-6">
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-slate-900 dark:border dark:border-slate-800">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
               Menos Movido (últimos {period} días)
             </p>
-            <div className="bg-orange-100 dark:bg-orange-500/10 rounded-full p-3">
+            <div className="p-3 bg-orange-100 rounded-full dark:bg-orange-500/10">
               <svg
                 className="w-8 h-8 text-orange-600 dark:text-orange-400"
                 fill="none"
@@ -238,19 +256,19 @@ export const StockDashboardPage = () => {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-500 dark:text-slate-400 italic">
+            <p className="text-sm italic text-gray-500 dark:text-slate-400">
               Sin datos de movimientos
             </p>
           )}
         </div>
 
         {/* Métrica 5: Producto Más Movido */}
-        <div className="bg-white dark:bg-slate-900 dark:border dark:border-slate-800 rounded-lg shadow p-6">
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-slate-900 dark:border dark:border-slate-800">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
               Más Movido (últimos {period} días)
             </p>
-            <div className="bg-purple-100 dark:bg-purple-500/10 rounded-full p-3">
+            <div className="p-3 bg-purple-100 rounded-full dark:bg-purple-500/10">
               <svg
                 className="w-8 h-8 text-purple-600 dark:text-purple-400"
                 fill="none"
@@ -281,7 +299,7 @@ export const StockDashboardPage = () => {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-500 dark:text-slate-400 italic">
+            <p className="text-sm italic text-gray-500 dark:text-slate-400">
               Sin datos de movimientos
             </p>
           )}
