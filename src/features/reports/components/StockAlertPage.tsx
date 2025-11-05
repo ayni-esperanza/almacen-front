@@ -350,22 +350,6 @@ export const StockAlertPage: React.FC = () => {
               placeholder="Todos los estados"
             />
           </div>
-
-          <div className="flex items-center">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={filters.mostrarSoloCriticos || false}
-                onChange={(e) =>
-                  updateFilters({ mostrarSoloCriticos: e.target.checked })
-                }
-                className="text-orange-600 border-gray-300 rounded focus:ring-orange-500 dark:border-slate-700 dark:bg-slate-950 dark:text-orange-300 dark:focus:ring-orange-500/40"
-              />
-              <span className="ml-2 text-sm font-medium text-gray-700 dark:text-slate-300">
-                Solo críticos
-              </span>
-            </label>
-          </div>
         </div>
       </div>
 

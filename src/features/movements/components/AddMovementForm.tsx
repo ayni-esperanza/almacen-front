@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Check, Loader2, AlertCircle } from "lucide-react";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
+import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useProductAutocomplete } from "../../../shared/hooks/useProductAutocomplete";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
@@ -32,6 +33,8 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
 }) => {
   // Bloquear scroll de la ventana
   useModalScrollLock(true);
+  // Cerrar modal con tecla ESC
+  useEscapeKey(onCancel);
 
   const isEntry = type === "entrada";
   const [formData, setFormData] = useState(() => ({

@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { MovementExit } from "../types/index.ts";
 import { UpdateExitData } from "../../../shared/services/movements.service.ts";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
+import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
 // Áreas predefinidas para movimientos
@@ -47,6 +48,8 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
 }) => {
   // Bloquear scroll
   useModalScrollLock(true);
+  // Cerrar modal con tecla ESC
+  useEscapeKey(onCancel);
 
   const initialState = useMemo(
     () => ({

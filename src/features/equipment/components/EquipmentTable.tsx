@@ -3,6 +3,7 @@ import { EquipmentReport } from '../types';
 import { Pagination } from '../../../shared/components/Pagination';
 import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
 import { usePagination } from '../../../shared/hooks/usePagination';
+import { useSelectableRowClick } from '../../../shared/hooks/useSelectableRowClick';
 import { Wrench, Search } from 'lucide-react';
 import { ReturnEquipmentData } from '../../../shared/services/equipment.service';
 
@@ -68,6 +69,56 @@ const getStatusBadge = (status?: string | null) => {
     badgeClass: 'border-gray-200 bg-gray-50 text-gray-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200',
     dotClass: 'bg-gray-400 dark:bg-slate-400',
   };
+};
+
+interface EquipmentRowProps {
+  equipment: EquipmentReport;
+  salidaStatus: { label: string; badgeClass: string; dotClass: string };
+  retornoStatus: { label: string; badgeClass: string; dotClass: string };
+  onEdit?: (equipment: EquipmentReport) => void;
+}
+
+const EquipmentRow: React.FC<EquipmentRowProps> = ({ equipment, salidaStatus, retornoStatus, onEdit }) => {
+  const handleRowClick = useSelectableRowClick(() => {
+    if (onEdit) {
+      onEdit(equipment);
+    }
+  });
+
+  return (
+    <tr
+      onClick={handleRowClick}
+      style={{ cursor: onEdit ? 'pointer' : 'default', userSelect: 'text' }}
+      className="border-b border-gray-100 bg-white text-sm text-gray-600 transition hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+    >
+      <td className="px-4 py-4 font-medium text-gray-700 dark:text-slate-100 select-text">{equipment.serieCodigo}</td>
+      <td className="px-4 py-4 font-medium text-gray-700 dark:text-slate-100 select-text">{equipment.equipo}</td>
+      <td className="px-4 py-4 text-center font-semibold text-gray-700 dark:text-slate-100 select-text">{equipment.cantidad}</td>
+      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.areaProyecto}</td>
+      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.responsable}</td>
+      <td className="px-4 py-4">
+        <span
+          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold ${salidaStatus.badgeClass}`}
+        >
+          <span className={`h-2 w-2 rounded-full ${salidaStatus.dotClass}`} />
+          {salidaStatus.label}
+        </span>
+      </td>
+      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.fechaSalida}</td>
+      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.horaSalida}</td>
+      <td className="border-l border-blue-100 px-4 py-4 dark:border-blue-500/20">
+        <span
+          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold ${retornoStatus.badgeClass}`}
+        >
+          <span className={`h-2 w-2 rounded-full ${retornoStatus.dotClass}`} />
+          {retornoStatus.label}
+        </span>
+      </td>
+      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.fechaRetorno ?? '-'}</td>
+      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.horaRetorno ?? '-'}</td>
+      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.responsableRetorno ?? '-'}</td>
+    </tr>
+  );
 };
 
 export const EquipmentTable: React.FC<EquipmentTableProps> = ({ equipments, onEdit }) => {
@@ -141,40 +192,13 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({ equipments, onEd
             const retornoStatus = getStatusBadge(equipment.estadoRetorno ?? null);
 
             return (
-              <tr
+              <EquipmentRow
                 key={equipment.id}
-                onClick={() => onEdit?.(equipment)}
-                className={`border-b border-gray-100 bg-white text-sm text-gray-600 transition hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 ${
-                  onEdit ? 'cursor-pointer' : ''
-                }`}
-              >
-                <td className="px-4 py-4 font-medium text-gray-700 dark:text-slate-100">{equipment.serieCodigo}</td>
-                <td className="px-4 py-4 font-medium text-gray-700 dark:text-slate-100">{equipment.equipo}</td>
-                <td className="px-4 py-4 text-center font-semibold text-gray-700 dark:text-slate-100">{equipment.cantidad}</td>
-                <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{equipment.areaProyecto}</td>
-                <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{equipment.responsable}</td>
-                <td className="px-4 py-4">
-                  <span
-                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold ${salidaStatus.badgeClass}`}
-                  >
-                    <span className={`h-2 w-2 rounded-full ${salidaStatus.dotClass}`} />
-                    {salidaStatus.label}
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{equipment.fechaSalida}</td>
-                <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{equipment.horaSalida}</td>
-                <td className="border-l border-blue-100 px-4 py-4 dark:border-blue-500/20">
-                  <span
-                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold ${retornoStatus.badgeClass}`}
-                  >
-                    <span className={`h-2 w-2 rounded-full ${retornoStatus.dotClass}`} />
-                    {retornoStatus.label}
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{equipment.fechaRetorno ?? '-'}</td>
-                <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{equipment.horaRetorno ?? '-'}</td>
-                <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{equipment.responsableRetorno ?? '-'}</td>
-              </tr>
+                equipment={equipment}
+                salidaStatus={salidaStatus}
+                retornoStatus={retornoStatus}
+                onEdit={onEdit}
+              />
             );
           })}
         </tbody>

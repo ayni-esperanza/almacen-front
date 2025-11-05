@@ -5,7 +5,6 @@ import { Pagination } from "../../../shared/components/Pagination";
 import { TableWithFixedHeader } from "../../../shared/components/TableWithFixedHeader";
 import { usePagination } from "../../../shared/hooks/usePagination";
 import { Package, Search, AlertCircle } from "lucide-react";
-import InventoryDashboard from "./InventoryDashboard";
 import { UpdateProductData } from "../../../shared/services/inventory.service";
 
 interface ProductTableProps {
@@ -95,9 +94,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           <h2 className="text-xl font-bold">Inventario de Productos</h2>
         </div>
       </div>
-      <InventoryDashboard />
       {/* Search Filter */}
-      <div className="p-4 border-b border-gray-200/70 bg-gray-50 dark:border-slate-800/70 dark:bg-slate-950/80">
+      <div className="p-4 border-b border-gray-200/70 bg-white dark:border-slate-800/70 dark:bg-slate-900">
         <div className="relative max-w-md">
           <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
           <input

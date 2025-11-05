@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { CreateEquipmentData } from "../../../shared/services/equipment.service";
 import { useProductAutocomplete } from "../../../shared/hooks/useProductAutocomplete";
+import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
 const AREAS_MOVIMIENTOS = [
@@ -37,6 +38,9 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  // Cerrar modal con tecla ESC
+  useEscapeKey(onCancel);
+
   const [formData, setFormData] = useState({
     equipo: "",
     serieCodigo: "",

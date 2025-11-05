@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 
 interface AddOptionModalProps {
   isOpen: boolean;
@@ -11,6 +12,9 @@ interface AddOptionModalProps {
 
 export const AddOptionModal: React.FC<AddOptionModalProps> = ({ isOpen, onClose, onSubmit, title = 'Nueva Opción', label = 'Opción *' }) => {
   const [option, setOption] = useState('');
+  
+  // Cerrar modal con tecla ESC
+  useEscapeKey(onClose, isOpen);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -4,6 +4,7 @@ import { Product } from "../types";
 import { Provider } from "../../providers/types";
 import { providersService } from "../../providers/services/providers.service";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
+import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { AddOptionModal } from "../../../shared/components/AddOptionModal";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { inventoryService } from "../../../shared/services/inventory.service";
@@ -27,6 +28,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
 }) => {
   // Bloquear scroll cuando la modal está abierta
   useModalScrollLock(isOpen);
+  // Cerrar modal con tecla ESC
+  useEscapeKey(onClose, isOpen);
 
   // Opciones para los combos
   const [providers, setProviders] = useState<Provider[]>([]);

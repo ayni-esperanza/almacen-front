@@ -7,6 +7,7 @@ import {
 import { Provider } from "../../providers/types";
 import { providersService } from "../../providers/services/providers.service";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
+import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { AddOptionModal } from "../../../shared/components/AddOptionModal";
 
@@ -29,6 +30,8 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
 }) => {
   // Bloquear scroll de la ventana cuando está abierta la modal
   useModalScrollLock(true);
+  // Cerrar modal con tecla ESC
+  useEscapeKey(onCancel);
 
   const [formData, setFormData] = useState({
     codigo: "",

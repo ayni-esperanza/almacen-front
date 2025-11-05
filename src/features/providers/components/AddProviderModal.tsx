@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Image as ImageIcon, Minus, Plus } from 'lucide-react';
 import { Provider } from '../types';
 import { useModalScrollLock } from '../../../shared/hooks/useModalScrollLock';
+import { useEscapeKey } from '../../../shared/hooks/useEscapeKey';
 
 interface AddProviderModalProps {
   isOpen: boolean;
@@ -12,7 +13,9 @@ interface AddProviderModalProps {
 export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onClose, onAdd }) => {
   // Bloquear scroll
   useModalScrollLock(isOpen);
-  
+  // Cerrar modal con tecla ESC
+  useEscapeKey(onClose, isOpen);
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');

@@ -3,6 +3,7 @@ import { MovementEntry, MovementExit } from '../types/index.ts';
 import { Pagination } from '../../../shared/components/Pagination';
 import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
 import { usePagination } from '../../../shared/hooks/usePagination';
+import { useSelectableRowClick } from '../../../shared/hooks/useSelectableRowClick';
 import { TrendingUp, TrendingDown, Search } from 'lucide-react';
 
 interface MovementTableProps {
@@ -11,6 +12,52 @@ interface MovementTableProps {
   onEditEntry?: (movement: MovementEntry) => void;
   onEditExit?: (movement: MovementExit) => void;
 }
+
+interface MovementRowProps {
+  movement: MovementEntry | MovementExit;
+  isEntry: boolean;
+  onEditEntry?: (movement: MovementEntry) => void;
+  onEditExit?: (movement: MovementExit) => void;
+}
+
+const MovementRow: React.FC<MovementRowProps> = ({ movement, isEntry, onEditEntry, onEditExit }) => {
+  const handleRowClick = useSelectableRowClick(() => {
+    if (isEntry && onEditEntry) {
+      onEditEntry(movement as MovementEntry);
+    } else if (!isEntry && onEditExit) {
+      onEditExit(movement as MovementExit);
+    }
+  });
+
+  return (
+    <tr
+      onClick={handleRowClick}
+      style={{ cursor: (isEntry && onEditEntry) || (!isEntry && onEditExit) ? 'pointer' : 'default', userSelect: 'text' }}
+      className="border-b border-gray-100 transition-colors dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800"
+    >
+      <td className="px-4 py-4 text-gray-700 dark:text-slate-300 select-text">{movement.fecha}</td>
+      <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100 select-text">{movement.codigoProducto}</td>
+      {isEntry ? (
+        <>
+          <td className="px-4 py-4 text-gray-700 dark:text-slate-300 select-text">{movement.descripcion}</td>
+          <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100 select-text">{movement.cantidad}</td>
+          <td className="px-4 py-4 text-gray-600 dark:text-slate-400 select-text">{movement.area || '-'}</td>
+          <td className="px-4 py-4 font-medium text-green-600 dark:text-emerald-400 select-text">S/ {movement.precioUnitario.toFixed(2)}</td>
+        </>
+      ) : (
+        <>
+          <td className="px-4 py-4 text-gray-700 dark:text-slate-300 select-text">{movement.descripcion}</td>
+          <td className="px-4 py-4 text-gray-600 dark:text-slate-400 select-text">{movement.area || '-'}</td>
+          <td className="px-4 py-4 text-gray-600 dark:text-slate-400 select-text">
+            {'proyecto' in movement ? movement.proyecto || '-' : '-'}
+          </td>
+          <td className="px-4 py-4 text-gray-600 dark:text-slate-400 select-text">{movement.responsable || '-'}</td>
+          <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100 select-text">{movement.cantidad}</td>
+        </>
+      )}
+    </tr>
+  );
+};
 
 export const MovementTable: React.FC<MovementTableProps> = ({ movements, type, onEditEntry, onEditExit }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -94,42 +141,13 @@ export const MovementTable: React.FC<MovementTableProps> = ({ movements, type, o
             </tr>
           ) : (
             paginatedMovements.map((movement) => (
-              <tr
+              <MovementRow
                 key={movement.id}
-                onClick={() => {
-                  if (isEntry && onEditEntry) {
-                    onEditEntry(movement as MovementEntry);
-                  } else if (!isEntry && onEditExit) {
-                    onEditExit(movement as MovementExit);
-                  }
-                }}
-                className={`border-b border-gray-100 transition-colors dark:border-slate-800 ${
-                  (isEntry && onEditEntry) || (!isEntry && onEditExit)
-                    ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800'
-                    : 'hover:bg-gray-50 dark:hover:bg-slate-800'
-                }`}
-              >
-                <td className="px-4 py-4 text-gray-700 dark:text-slate-300">{movement.fecha}</td>
-                <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100">{movement.codigoProducto}</td>
-                {isEntry ? (
-                  <>
-                    <td className="px-4 py-4 text-gray-700 dark:text-slate-300">{movement.descripcion}</td>
-                    <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100">{movement.cantidad}</td>
-                    <td className="px-4 py-4 text-gray-600 dark:text-slate-400">{movement.area || '-'}</td>
-                    <td className="px-4 py-4 font-medium text-green-600 dark:text-emerald-400">S/ {movement.precioUnitario.toFixed(2)}</td>
-                  </>
-                ) : (
-                  <>
-                    <td className="px-4 py-4 text-gray-700 dark:text-slate-300">{movement.descripcion}</td>
-                    <td className="px-4 py-4 text-gray-600 dark:text-slate-400">{movement.area || '-'}</td>
-                    <td className="px-4 py-4 text-gray-600 dark:text-slate-400">
-                      {'proyecto' in movement ? movement.proyecto || '-' : '-'}
-                    </td>
-                    <td className="px-4 py-4 text-gray-600 dark:text-slate-400">{movement.responsable || '-'}</td>
-                    <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100">{movement.cantidad}</td>
-                  </>
-                )}
-              </tr>
+                movement={movement}
+                isEntry={isEntry}
+                onEditEntry={onEditEntry}
+                onEditExit={onEditExit}
+              />
             ))
           )}
         </tbody>

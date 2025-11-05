@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Product } from "../types";
 import { EditProductModal } from "./EditProductModal";
 import { UpdateProductData } from "../../../shared/services/inventory.service";
+import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowClick";
 
 interface ProductTableRowProps {
   product: Product;
@@ -9,8 +10,8 @@ interface ProductTableRowProps {
     id: number,
     productData: UpdateProductData
   ) => Promise<Product | null>;
-  onCreateArea: (name: string) => void;
-  onCreateCategoria: (name: string) => void;
+  onCreateArea: (name: string) => Promise<void>;
+  onCreateCategoria: (name: string) => Promise<void>;
 }
 
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({
@@ -20,6 +21,9 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   onCreateCategoria,
 }) => {
   const [showEditModal, setShowEditModal] = useState(false);
+  
+  // Hook para manejar click permitiendo selección de texto
+  const handleRowClick = useSelectableRowClick(() => setShowEditModal(true));
 
   const handleEdit = async (editedProduct: Product) => {
     // Preparar los datos para actualizar
@@ -52,39 +56,39 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
             ? "bg-red-50 dark:bg-rose-500/15"
             : "bg-white dark:bg-slate-950/40"
         }`}
-        onClick={() => setShowEditModal(true)}
-        style={{ cursor: "pointer" }}
+        onClick={handleRowClick}
+        style={{ cursor: "pointer", userSelect: "text" }}
       >
-        <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100">
+        <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100 select-text">
           {product.codigo}
         </td>
-        <td className="px-4 py-4 text-gray-700 dark:text-slate-300">
+        <td className="px-4 py-4 text-gray-700 dark:text-slate-300 select-text">
           {product.nombre}
         </td>
         <td className="px-4 py-4">
-          <span className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full dark:bg-slate-800 dark:text-slate-200">
+          <span className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full dark:bg-slate-800 dark:text-slate-200 select-text">
             {product.ubicacion}
           </span>
         </td>
-        <td className="px-4 py-4 text-center text-gray-700 dark:text-slate-200">
+        <td className="px-4 py-4 text-center text-gray-700 dark:text-slate-200 select-text">
           {product.salidas}
         </td>
-        <td className="px-4 py-4 text-gray-700 dark:text-slate-200">
+        <td className="px-4 py-4 text-gray-700 dark:text-slate-200 select-text">
           {product.stockActual}
         </td>
-        <td className="px-4 py-4 text-gray-600 dark:text-slate-300">
+        <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">
           {product.unidadMedida}
         </td>
-        <td className="px-4 py-4 text-gray-600 dark:text-slate-300">
+        <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">
           {product.provider?.name || "Sin proveedor"}
         </td>
-        <td className="px-4 py-4 text-gray-600 dark:text-slate-300">
+        <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">
           {product.marca}
         </td>
-        <td className="px-4 py-4 text-gray-600 dark:text-slate-300">
+        <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">
           {product.categoria}
         </td>
-        <td className="px-4 py-4 font-medium text-green-600 dark:text-emerald-300">
+        <td className="px-4 py-4 font-medium text-green-600 dark:text-emerald-300 select-text">
           S/ {product.costoUnitario?.toFixed(2) ?? "0.00"}
         </td>
       </tr>

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Image as ImageIcon, Minus, Plus } from 'lucide-react';
 import { Provider } from '../types';
 import { useModalScrollLock } from '../../../shared/hooks/useModalScrollLock';
+import { useEscapeKey } from '../../../shared/hooks/useEscapeKey';
 
 interface EditProviderModalProps {
   isOpen: boolean;
@@ -13,7 +14,9 @@ interface EditProviderModalProps {
 export const EditProviderModal: React.FC<EditProviderModalProps> = ({ isOpen, onClose, provider, onEdit }) => {
   // Bloquear scroll
   useModalScrollLock(isOpen);
-  
+  // Cerrar modal con tecla ESC
+  useEscapeKey(onClose, isOpen);
+
   const [name, setName] = useState(provider?.name || '');
   const [email, setEmail] = useState(provider?.email || '');
   const [address, setAddress] = useState(provider?.address || '');

@@ -121,19 +121,6 @@ export const SearchableSelect = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Prevenir scroll del body cuando el dropdown está abierto
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
       searchInputRef.current.focus();

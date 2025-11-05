@@ -9,6 +9,7 @@ import {
 import { X, Image as ImageIcon, Eye, EyeOff } from "lucide-react";
 import { User, UserRole } from "../types";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
+import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 
 export interface UserFormSubmitInput {
   username: string;
@@ -51,6 +52,8 @@ export const UserFormModal = ({
 }: UserFormModalProps) => {
   // Bloquear scroll
   useModalScrollLock(isOpen);
+  // Cerrar modal con tecla ESC
+  useEscapeKey(onClose, isOpen);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [firstName, setFirstName] = useState("");
