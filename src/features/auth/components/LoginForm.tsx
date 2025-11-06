@@ -27,29 +27,29 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-950 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-transparent dark:border-slate-800">
-        <div className="text-center mb-8">
-          <div className="bg-green-500 dark:bg-green-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+    <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="w-full max-w-md p-8 bg-white border border-transparent shadow-2xl dark:bg-slate-950 rounded-2xl dark:border-slate-800">
+        <div className="mb-8 text-center">
+          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-green-500 rounded-full dark:bg-green-600">
             <Lock className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100">Sistema de Inventario</h1>
-          <p className="text-gray-600 dark:text-slate-300 mt-2">Ingresa tus credenciales para continuar</p>
+          <p className="mt-2 text-gray-600 dark:text-slate-300">Ingresa tus credenciales para continuar</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-200">
               Usuario
             </label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 w-5 h-5" />
+              <User className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
               <input
                 type="text"
                 name="username"
                 value={credentials.username}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent transition-all"
+                className="w-full py-3 pl-10 pr-4 transition-all border border-gray-300 rounded-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
                 placeholder="Ingresa tu usuario"
                 required
               />
@@ -57,24 +57,24 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-200">
               Contraseña
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 w-5 h-5" />
+              <Lock className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={credentials.password}
                 onChange={handleChange}
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent transition-all"
+                className="w-full py-3 pl-10 pr-12 transition-all border border-gray-300 rounded-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
                 placeholder="Ingresa tu contraseña"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300"
+                className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -82,23 +82,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
           </div>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/40 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg text-sm">
+            <div className="px-4 py-3 text-sm text-red-700 border border-red-200 rounded-lg bg-red-50 dark:bg-red-500/10 dark:border-red-500/40 dark:text-red-200">
               {error}
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full bg-green-500 dark:bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-600 dark:hover:bg-green-500 transition-colors focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+            className="w-full py-3 font-medium text-white transition-colors bg-green-500 rounded-lg dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
           >
             Iniciar Sesión
           </button>
         </form>
-
-        <div className="mt-6 text-center text-sm text-gray-500 dark:text-slate-400">
-          <p>Credenciales de prueba:</p>
-          <p className="font-mono">admin / admin123</p>
-        </div>
       </div>
     </div>
   );
