@@ -1,41 +1,14 @@
 import { useState } from "react";
-import { Download } from "lucide-react";
 import { useStockDashboard } from "../hooks/useStockDashboard";
 
 export const StockDashboardPage = () => {
   const [period, setPeriod] = useState(30);
-  const { dashboard, loading, error, refetch, exportToPDF } =
-    useStockDashboard(period);
+  const { dashboard, refetch } = useStockDashboard(period);
 
   const handlePeriodChange = (newPeriod: number) => {
     setPeriod(newPeriod);
     refetch(newPeriod);
   };
-
-  const handleExportPDF = async () => {
-    try {
-      await exportToPDF();
-    } catch (error) {
-      console.error("Error exporting PDF:", error);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-b-2 border-blue-600 rounded-full animate-spin dark:border-emerald-400"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="relative px-4 py-3 text-red-700 border border-red-200 rounded bg-red-50 dark:bg-rose-500/10 dark:border-rose-500/40 dark:text-rose-200">
-        <strong className="font-bold">Error: </strong>
-        <span className="block sm:inline">{error}</span>
-      </div>
-    );
-  }
 
   if (!dashboard) {
     return (
@@ -53,14 +26,6 @@ export const StockDashboardPage = () => {
           Dashboard de Stock
         </h1>
         <div className="flex gap-2">
-          <button
-            onClick={handleExportPDF}
-            disabled={loading || !dashboard}
-            className="flex items-center gap-2 px-4 py-2 text-white transition-colors bg-green-600 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-emerald-600 dark:hover:bg-emerald-700"
-          >
-            <Download className="w-4 h-4" />
-            <span>Exportar PDF</span>
-          </button>
           <button
             onClick={() => handlePeriodChange(7)}
             className={`px-4 py-2 rounded transition-colors ${
