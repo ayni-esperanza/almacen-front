@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, Bell, Check, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { stockAlertsService } from '../../features/reports/services/stock-alerts.service';
 
 type AlertSeverity = 'critical' | 'warning';
 
@@ -114,18 +115,27 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
     [],
   );
 
-  const acknowledgeAlert = (id: string) => {
-    setLocalAlerts(prev =>
-      prev.map(alert =>
-        alert.id === id
-          ? {
-              ...alert,
-              status: 'acknowledged',
-            }
-          : alert,
-      ),
-    );
-    onAcknowledge?.(id);
+  const acknowledgeAlert = async (id: string) => {
+    try {
+      // Llamar al servicio para marcar como visto en el backend
+      await stockAlertsService.markAlertAsViewed(id);
+      
+      // Actualizar el estado local
+      setLocalAlerts(prev =>
+        prev.map(alert =>
+          alert.id === id
+            ? {
+                ...alert,
+                status: 'acknowledged',
+              }
+            : alert,
+        ),
+      );
+      onAcknowledge?.(id);
+    } catch (error) {
+      console.error('Error marking alert as viewed:', error);
+      // Mostrar un mensaje de error al usuario si es necesario
+    }
   };
 
   const alertsToDisplay = [...localAlerts].sort((a, b) => {

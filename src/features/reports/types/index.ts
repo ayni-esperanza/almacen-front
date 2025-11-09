@@ -65,6 +65,7 @@ export interface StockAlertFilters {
   ubicacion?: string;
   estado?: "critico" | "bajo" | "normal";
   mostrarSoloCriticos?: boolean;
+  ocultarVistas?: boolean;
 }
 
 // Tipos para Dashboard de Stock

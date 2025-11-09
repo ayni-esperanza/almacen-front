@@ -12,8 +12,10 @@ export const useStockAlerts = (refreshInterval = 60000) => {
     try {
       setError(null);
       // Obtener solo alertas críticas y de advertencia (stock bajo o crítico)
+      // ocultarVistas: true para que no aparezcan las ya vistas en la campana
       const stockAlerts = await stockAlertsService.getStockAlerts({
         mostrarSoloCriticos: false,
+        ocultarVistas: true, // Ocultar alertas vistas solo en la campana
       });
 
       // Filtrar solo productos con stock bajo o crítico

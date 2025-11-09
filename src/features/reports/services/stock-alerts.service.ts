@@ -9,6 +9,7 @@ class StockAlertsService {
     if (filters.ubicacion) params.append("ubicacion", filters.ubicacion);
     if (filters.estado) params.append("estado", filters.estado);
     if (filters.mostrarSoloCriticos) params.append("soloCriticos", "true");
+    if (filters.ocultarVistas) params.append("ocultarVistas", "true");
 
     const response = await apiClient.get<StockAlert[]>(
       `/reports/stock-alerts?${params.toString()}`
@@ -46,6 +47,20 @@ class StockAlertsService {
 
     if (response.error) {
       console.error("Error updating stock alert:", response.error);
+      throw new Error(response.error);
+    }
+
+    return response.data || null;
+  }
+
+  async markAlertAsViewed(id: string): Promise<StockAlert | null> {
+    const response = await apiClient.post<StockAlert>(
+      `/reports/stock-alerts/${id}/mark-viewed`,
+      {}
+    );
+
+    if (response.error) {
+      console.error("Error marking alert as viewed:", response.error);
       throw new Error(response.error);
     }
 
