@@ -158,7 +158,7 @@ export const useInventory = (): UseInventoryReturn => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchProducts(searchTerm || undefined);
-    }, 800); // Debounce search
+    }, 900); // Debounce search
 
     return () => clearTimeout(timeoutId);
   }, [searchTerm]);

@@ -2,7 +2,6 @@ import React from "react";
 import { Product } from "../types";
 import { ProductTableRow } from "./ProductTableRow";
 import { Pagination } from "../../../shared/components/Pagination";
-import { TableWithFixedHeader } from "../../../shared/components/TableWithFixedHeader";
 import { usePagination } from "../../../shared/hooks/usePagination";
 import { Package, Search, AlertCircle } from "lucide-react";
 import { UpdateProductData } from "../../../shared/services/inventory.service";
@@ -87,15 +86,16 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   }
 
   return (
-    <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">
-      <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
+    <div className="flex flex-col bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">
+      {/* Header de la tabla */}
+      <div className="flex-shrink-0 px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600 rounded-t-xl">
         <div className="flex items-center space-x-3">
           <Package className="w-6 h-6" />
           <h2 className="text-xl font-bold">Inventario de Productos</h2>
         </div>
       </div>
       {/* Search Filter */}
-      <div className="p-4 border-b border-gray-200/70 bg-white dark:border-slate-800/70 dark:bg-slate-900">
+      <div className="flex-shrink-0 p-4 bg-white border-b border-gray-200/70 dark:border-slate-800/70 dark:bg-slate-900">
         <div className="relative max-w-md">
           <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
           <input
@@ -115,62 +115,66 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         </div>
       ) : (
         <>
-          <TableWithFixedHeader maxHeight="600px">
-            <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
-              <tr className="border-b border-gray-200 dark:border-slate-800">
-                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                  Código
-                </th>
-                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                  Nombre
-                </th>
-                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                  Ubicación
-                </th>
-                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                  Salidas
-                </th>
-                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                  Stock Actual
-                </th>
-                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                  Unidad
-                </th>
-                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                  Proveedor
-                </th>
-                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                  Marca
-                </th>
-                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                  Categoría
-                </th>
-                <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                  Costo Unitario
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedProducts.map((product) => (
-                <ProductTableRow
-                  key={product.id}
-                  product={product}
-                  onEdit={updateProduct}
-                  onCreateArea={createArea}
-                  onCreateCategoria={createCategoria}
-                />
-              ))}
-            </tbody>
-          </TableWithFixedHeader>
+          <div className="flex-1 overflow-auto">
+            <table className="w-full text-sm text-gray-700 dark:text-slate-200">
+              <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
+                <tr className="border-b border-gray-200 dark:border-slate-800">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    Código
+                  </th>
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    Nombre
+                  </th>
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    Ubicación
+                  </th>
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    Salidas
+                  </th>
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    Stock Actual
+                  </th>
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    Unidad
+                  </th>
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    Proveedor
+                  </th>
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    Marca
+                  </th>
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    Categoría
+                  </th>
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    Costo Unitario
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedProducts.map((product) => (
+                  <ProductTableRow
+                    key={product.id}
+                    product={product}
+                    onEdit={updateProduct}
+                    onCreateArea={createArea}
+                    onCreateCategoria={createCategoria}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={handlePageChange}
-            onItemsPerPageChange={handleItemsPerPageChange}
-          />
+          <div className="flex-shrink-0">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          </div>
         </>
       )}
     </div>
