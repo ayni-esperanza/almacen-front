@@ -22,7 +22,7 @@ export type UpdateProductData = Partial<CreateProductData>;
 class InventoryService {
   async getAllProducts(search?: string): Promise<Product[]> {
     const endpoint = search
-      ? `/inventory/products?search=${encodeURIComponent(search)}`
+      ? `/inventory/products?q=${encodeURIComponent(search)}`
       : "/inventory/products";
     const response = await apiClient.get<Product[]>(endpoint);
 
