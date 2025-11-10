@@ -1,182 +1,122 @@
-import React from "react";
+import React, { useState } from "react";
 import { Product } from "../types";
-import { ProductTableRow } from "./ProductTableRow";
-import { Pagination } from "../../../shared/components/Pagination";
-import { usePagination } from "../../../shared/hooks/usePagination";
-import { Package, Search, AlertCircle } from "lucide-react";
+import { EditProductModal } from "./EditProductModal";
 import { UpdateProductData } from "../../../shared/services/inventory.service";
+import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowClick";
 
-interface ProductTableProps {
-  products: Product[];
-  loading: boolean;
-  error: string | null;
-  searchTerm: string;
-  setSearchTerm: (term: string) => void;
-  refetch: () => Promise<void>;
-  updateProduct: (
+interface ProductTableRowProps {
+  product: Product;
+  onEdit: (
     id: number,
     productData: UpdateProductData
   ) => Promise<Product | null>;
-  createArea: (name: string) => Promise<void>;
-  createCategoria: (name: string) => Promise<void>;
+  onCreateArea: (name: string) => Promise<void>;
+  onCreateCategoria: (name: string) => Promise<void>;
 }
 
-export const ProductTable: React.FC<ProductTableProps> = ({
-  products,
-  loading,
-  error,
-  searchTerm,
-  setSearchTerm,
-  refetch,
-  updateProduct,
-  createArea,
-  createCategoria,
+export const ProductTableRow: React.FC<ProductTableRowProps> = ({
+  product,
+  onEdit,
+  onCreateArea,
+  onCreateCategoria,
 }) => {
-  const {
-    paginatedData: paginatedProducts,
-    currentPage,
-    totalPages,
-    totalItems,
-    itemsPerPage,
-    handlePageChange,
-    handleItemsPerPageChange,
-  } = usePagination({ data: products, initialItemsPerPage: 15 });
-  const searchInputClasses =
-    "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
-  if (loading) {
-    return (
-      <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-900">
-        <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
-          <div className="flex items-center space-x-3">
-            <Package className="w-6 h-6" />
-            <h2 className="text-xl font-bold">Inventario de Productos</h2>
-          </div>
-        </div>
-        <div className="p-8 text-center">
-          <div className="w-12 h-12 mx-auto border-b-2 border-green-600 rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600 dark:text-slate-300">
-            Cargando productos...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const [showEditModal, setShowEditModal] = useState(false);
 
-  if (error) {
-    return (
-      <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-900">
-        <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
-          <div className="flex items-center space-x-3">
-            <Package className="w-6 h-6" />
-            <h2 className="text-xl font-bold">Inventario de Productos</h2>
-          </div>
-        </div>
-        <div className="p-8 text-center">
-          <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
-          <p className="mb-4 text-red-600 dark:text-rose-300">{error}</p>
-          <button
-            onClick={refetch}
-            className="px-4 py-2 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
-          >
-            Reintentar
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Hook para manejar click permitiendo selección de texto
+  const handleRowClick = useSelectableRowClick(() => setShowEditModal(true));
+
+  const handleEdit = async (editedProduct: Product) => {
+    // Preparar los datos para actualizar
+    const updateData: UpdateProductData = {
+      codigo: editedProduct.codigo,
+      nombre: editedProduct.nombre,
+      costoUnitario: editedProduct.costoUnitario,
+      ubicacion: editedProduct.ubicacion,
+      stockActual: editedProduct.stockActual,
+      stockMinimo: editedProduct.stockMinimo,
+      unidadMedida: editedProduct.unidadMedida,
+      providerId: editedProduct.providerId,
+      marca: editedProduct.marca,
+      categoria: editedProduct.categoria,
+    };
+
+    try {
+      await onEdit(product.id, updateData);
+      setShowEditModal(false);
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+  };
 
   return (
-    <div className="flex flex-col bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">
-      {/* Header de la tabla */}
-      <div className="flex-shrink-0 px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600 rounded-t-xl">
-        <div className="flex items-center space-x-3">
-          <Package className="w-6 h-6" />
-          <h2 className="text-xl font-bold">Inventario de Productos</h2>
-        </div>
-      </div>
-      {/* Search Filter */}
-      <div className="flex-shrink-0 p-4 bg-white border-b border-gray-200/70 dark:border-slate-800/70 dark:bg-slate-900">
-        <div className="relative max-w-md">
-          <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
-          <input
-            type="text"
-            placeholder="Buscar por código, descripción o proveedor..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={searchInputClasses}
-          />
-        </div>
-      </div>
-
-      {products.length === 0 ? (
-        <div className="p-8 text-center text-gray-500 dark:text-slate-400">
-          <Package className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-          <p>No se encontraron productos</p>
-        </div>
-      ) : (
-        <>
-          <div className="flex-1 overflow-auto">
-            <table className="w-full text-sm text-gray-700 dark:text-slate-200">
-              <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
-                <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Código
-                  </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Nombre
-                  </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Ubicación
-                  </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Salidas
-                  </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Stock Actual
-                  </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Unidad
-                  </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Proveedor
-                  </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Marca
-                  </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Categoría
-                  </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Costo Unitario
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedProducts.map((product) => (
-                  <ProductTableRow
-                    key={product.id}
-                    product={product}
-                    onEdit={updateProduct}
-                    onCreateArea={createArea}
-                    onCreateCategoria={createCategoria}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="flex-shrink-0">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
-            />
-          </div>
-        </>
+    <>
+      <tr
+        className={`border-b border-gray-100 transition-colors hover:bg-green-50 dark:border-slate-800/70 dark:hover:bg-slate-900/60 ${
+          product.stockActual === 0 || product.stockActual <= 3
+            ? "bg-red-50 dark:bg-rose-500/15"
+            : "bg-white dark:bg-slate-950/40"
+        }`}
+        onClick={handleRowClick}
+        style={{ cursor: "pointer", userSelect: "text" }}
+      >
+        <td className="px-3 py-1 font-medium text-gray-900 select-text dark:text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
+          {product.codigo}
+        </td>
+        <td
+          className="px-3 py-1 text-gray-700 select-text dark:text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
+          title={product.nombre}
+        >
+          {product.nombre}
+        </td>
+        <td className="px-3 py-1 whitespace-nowrap">
+          <span
+            className="px-2 py-0.5 text-xs font-medium text-gray-700 bg-gray-100 rounded-full select-text dark:bg-slate-800 dark:text-slate-200 inline-block max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap"
+            title={product.ubicacion}
+          >
+            {product.ubicacion}
+          </span>
+        </td>
+        <td className="px-3 py-1 text-center text-gray-700 select-text dark:text-slate-200 whitespace-nowrap">
+          {product.salidas}
+        </td>
+        <td className="px-3 py-1 text-gray-700 select-text dark:text-slate-200 whitespace-nowrap">
+          {product.stockActual}
+        </td>
+        <td className="px-3 py-1 text-gray-600 select-text dark:text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px]">
+          {product.unidadMedida}
+        </td>
+        <td
+          className="px-3 py-1 text-gray-600 select-text dark:text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]"
+          title={product.provider?.name || "Sin proveedor"}
+        >
+          {product.provider?.name || "Sin proveedor"}
+        </td>
+        <td
+          className="px-3 py-1 text-gray-600 select-text dark:text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]"
+          title={product.marca}
+        >
+          {product.marca}
+        </td>
+        <td
+          className="px-3 py-1 text-gray-600 select-text dark:text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]"
+          title={product.categoria}
+        >
+          {product.categoria}
+        </td>
+        <td className="px-3 py-1 font-medium text-green-600 select-text dark:text-emerald-300 whitespace-nowrap">
+          S/ {product.costoUnitario?.toFixed(2) ?? "0.00"}
+        </td>
+      </tr>
+      {showEditModal && (
+        <EditProductModal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          product={product}
+          onEdit={handleEdit}
+          onCreateArea={onCreateArea}
+          onCreateCategoria={onCreateCategoria}
+        />
       )}
-    </div>
+    </>
   );
 };

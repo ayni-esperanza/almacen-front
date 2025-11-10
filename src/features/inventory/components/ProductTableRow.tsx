@@ -21,7 +21,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   onCreateCategoria,
 }) => {
   const [showEditModal, setShowEditModal] = useState(false);
-  
+
   // Hook para manejar click permitiendo selección de texto
   const handleRowClick = useSelectableRowClick(() => setShowEditModal(true));
 
@@ -59,36 +59,36 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         onClick={handleRowClick}
         style={{ cursor: "pointer", userSelect: "text" }}
       >
-        <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100 select-text">
+        <td className="px-4 py-1.5 font-medium text-gray-900 dark:text-slate-100 select-text whitespace-nowrap">
           {product.codigo}
         </td>
-        <td className="px-4 py-4 text-gray-700 dark:text-slate-300 select-text">
+        <td className="px-4 py-1.5 text-gray-700 dark:text-slate-300 select-text whitespace-nowrap">
           {product.nombre}
         </td>
-        <td className="px-4 py-4">
-          <span className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full dark:bg-slate-800 dark:text-slate-200 select-text">
+        <td className="px-4 py-1.5 whitespace-nowrap">
+          <span className="px-2 py-0.5 text-xs font-medium text-gray-700 bg-gray-100 rounded-full dark:bg-slate-800 dark:text-slate-200 select-text">
             {product.ubicacion}
           </span>
         </td>
-        <td className="px-4 py-4 text-center text-gray-700 dark:text-slate-200 select-text">
+        <td className="px-4 py-1.5 text-center text-gray-700 dark:text-slate-200 select-text whitespace-nowrap">
           {product.salidas}
         </td>
-        <td className="px-4 py-4 text-gray-700 dark:text-slate-200 select-text">
+        <td className="px-4 py-1.5 text-gray-700 dark:text-slate-200 select-text whitespace-nowrap">
           {product.stockActual}
         </td>
-        <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">
+        <td className="px-4 py-1.5 text-gray-600 dark:text-slate-300 select-text whitespace-nowrap">
           {product.unidadMedida}
         </td>
-        <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">
+        <td className="px-4 py-1.5 text-gray-600 dark:text-slate-300 select-text whitespace-nowrap">
           {product.provider?.name || "Sin proveedor"}
         </td>
-        <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">
+        <td className="px-4 py-1.5 text-gray-600 dark:text-slate-300 select-text whitespace-nowrap">
           {product.marca}
         </td>
-        <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">
+        <td className="px-4 py-1.5 text-gray-600 dark:text-slate-300 select-text whitespace-nowrap">
           {product.categoria}
         </td>
-        <td className="px-4 py-4 font-medium text-green-600 dark:text-emerald-300 select-text">
+        <td className="px-3 py-1.5 font-medium text-green-600 dark:text-emerald-300 select-text whitespace-nowrap">
           S/ {product.costoUnitario?.toFixed(2) ?? "0.00"}
         </td>
       </tr>
