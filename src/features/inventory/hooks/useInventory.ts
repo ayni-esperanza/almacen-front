@@ -32,6 +32,7 @@ export const useInventory = (): UseInventoryReturn => {
   const [searchTerm, setSearchTerm] = useState("");
   const [areas, setAreas] = useState<string[]>([]);
   const [categorias, setCategorias] = useState<string[]>([]);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   const fetchProducts = async (search?: string) => {
     try {
@@ -76,7 +77,7 @@ export const useInventory = (): UseInventoryReturn => {
     try {
       const newProduct = await inventoryService.createProduct(productData);
       if (newProduct) {
-        await refetch(); // Refresh the list
+        await refetch();
       }
       return newProduct;
     } catch (err) {
@@ -95,7 +96,7 @@ export const useInventory = (): UseInventoryReturn => {
         productData
       );
       if (updatedProduct) {
-        await refetch(); // Refresh the list
+        await refetch();
       }
       return updatedProduct;
     } catch (err) {
@@ -110,7 +111,7 @@ export const useInventory = (): UseInventoryReturn => {
     try {
       const success = await inventoryService.deleteProduct(id.toString());
       if (success) {
-        await refetch(); // Refresh the list
+        await refetch();
       }
       return success;
     } catch (err) {
@@ -125,7 +126,7 @@ export const useInventory = (): UseInventoryReturn => {
     try {
       const newArea = await inventoryService.createArea(nombre);
       if (newArea) {
-        await fetchAreas(); // Refresh the areas list
+        await fetchAreas();
       }
       return newArea;
     } catch (err) {
@@ -138,7 +139,7 @@ export const useInventory = (): UseInventoryReturn => {
     try {
       const newCategoria = await inventoryService.createCategoria(nombre);
       if (newCategoria) {
-        await fetchCategorias(); // Refresh the categorias list
+        await fetchCategorias();
       }
       return newCategoria;
     } catch (err) {
@@ -147,21 +148,58 @@ export const useInventory = (): UseInventoryReturn => {
     }
   };
 
-  // Initial load
+  // Carga inicial única y optimizada
   useEffect(() => {
-    fetchProducts();
-    fetchAreas();
-    fetchCategorias();
-  }, []);
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
 
-  // Search effect
+        // Cargar todo en paralelo para mejor performance
+        const [productsData, areasData, categoriasData] = await Promise.all([
+          inventoryService.getAllProducts(),
+          inventoryService.getAreas(),
+          inventoryService.getCategorias(),
+        ]);
+
+        setProducts(productsData);
+        setAreas(areasData);
+        setCategorias(categoriasData);
+        setInitialLoadDone(true);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Error al cargar datos iniciales"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Solo ejecutar si no se ha hecho la carga inicial
+    if (!initialLoadDone) {
+      loadInitialData();
+    }
+  }, [initialLoadDone]);
+
+  // Efecto de búsqueda optimizado
   useEffect(() => {
+    // No ejecutar búsquedas hasta que la carga inicial termine
+    if (!initialLoadDone) {
+      return;
+    }
+
+    // No ejecutar si el searchTerm está vacío 
+    if (searchTerm === "") {
+      return;
+    }
+
     const timeoutId = setTimeout(() => {
-      fetchProducts(searchTerm || undefined);
-    }, 900); // Debounce search
+      fetchProducts(searchTerm);
+    }, 900);
 
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm]);
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [searchTerm, initialLoadDone]);
 
   return {
     products,
