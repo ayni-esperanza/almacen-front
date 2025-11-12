@@ -1,7 +1,6 @@
 import React from 'react';
 import { EquipmentReport } from '../types';
 import { Pagination } from '../../../shared/components/Pagination';
-import { TableWithFixedHeader } from '../../../shared/components/TableWithFixedHeader';
 import { usePagination } from '../../../shared/hooks/usePagination';
 import { useSelectableRowClick } from '../../../shared/hooks/useSelectableRowClick';
 import { Wrench, Search } from 'lucide-react';
@@ -89,14 +88,14 @@ const EquipmentRow: React.FC<EquipmentRowProps> = ({ equipment, salidaStatus, re
     <tr
       onClick={handleRowClick}
       style={{ cursor: onEdit ? 'pointer' : 'default', userSelect: 'text' }}
-      className="border-b border-gray-100 bg-white text-sm text-gray-600 transition hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+      className="border-b border-gray-100 bg-white text-xs text-gray-600 transition hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
     >
-      <td className="px-4 py-4 font-medium text-gray-700 dark:text-slate-100 select-text">{equipment.serieCodigo}</td>
-      <td className="px-4 py-4 font-medium text-gray-700 dark:text-slate-100 select-text">{equipment.equipo}</td>
-      <td className="px-4 py-4 text-center font-semibold text-gray-700 dark:text-slate-100 select-text">{equipment.cantidad}</td>
-      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.areaProyecto}</td>
-      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.responsable}</td>
-      <td className="px-4 py-4">
+      <td className="px-3 py-2 font-medium text-gray-700 dark:text-slate-100 select-text">{equipment.serieCodigo}</td>
+      <td className="px-3 py-2 font-medium text-gray-700 dark:text-slate-100 select-text">{equipment.equipo}</td>
+      <td className="px-3 py-2 text-center font-semibold text-gray-700 dark:text-slate-100 select-text">{equipment.cantidad}</td>
+      <td className="px-3 py-2 text-gray-600 dark:text-slate-300 select-text">{equipment.areaProyecto}</td>
+      <td className="px-3 py-2 text-gray-600 dark:text-slate-300 select-text">{equipment.responsable}</td>
+      <td className="px-3 py-2">
         <span
           className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold ${salidaStatus.badgeClass}`}
         >
@@ -104,9 +103,9 @@ const EquipmentRow: React.FC<EquipmentRowProps> = ({ equipment, salidaStatus, re
           {salidaStatus.label}
         </span>
       </td>
-      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.fechaSalida}</td>
-      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.horaSalida}</td>
-      <td className="border-l border-blue-100 px-4 py-4 dark:border-blue-500/20">
+      <td className="px-3 py-2 text-gray-600 dark:text-slate-300 select-text">{equipment.fechaSalida}</td>
+      <td className="px-3 py-2 text-gray-600 dark:text-slate-300 select-text">{equipment.horaSalida}</td>
+      <td className="border-l border-blue-100 px-3 py-2 dark:border-blue-500/20">
         <span
           className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold ${retornoStatus.badgeClass}`}
         >
@@ -114,16 +113,15 @@ const EquipmentRow: React.FC<EquipmentRowProps> = ({ equipment, salidaStatus, re
           {retornoStatus.label}
         </span>
       </td>
-      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.fechaRetorno ?? '-'}</td>
-      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.horaRetorno ?? '-'}</td>
-      <td className="px-4 py-4 text-gray-600 dark:text-slate-300 select-text">{equipment.responsableRetorno ?? '-'}</td>
+      <td className="px-3 py-2 text-gray-600 dark:text-slate-300 select-text">{equipment.fechaRetorno ?? '-'}</td>
+      <td className="px-3 py-2 text-gray-600 dark:text-slate-300 select-text">{equipment.horaRetorno ?? '-'}</td>
+      <td className="px-3 py-2 text-gray-600 dark:text-slate-300 select-text">{equipment.responsableRetorno ?? '-'}</td>
     </tr>
   );
 };
 
 export const EquipmentTable: React.FC<EquipmentTableProps> = ({ equipments, onEdit }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
-  const searchInputClasses = 'w-full rounded-full border border-gray-300 bg-white py-2 pl-12 pr-4 text-sm text-gray-700 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400 dark:focus:ring-blue-500/40';
   
   const filteredEquipments = equipments.filter(equipment => {
     const term = searchTerm.trim().toLowerCase();
@@ -148,70 +146,89 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({ equipments, onEd
   } = usePagination({ data: filteredEquipments, initialItemsPerPage: 15 });
 
   return (
-    <div className="overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white">
+    <div className="flex flex-col bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">
+      {/* Header de la tabla */}
+      <div className="flex-shrink-0 bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white rounded-t-xl">
         <div className="flex items-center gap-3">
           <Wrench className="h-6 w-6" />
-          <h2 className="text-xl font-semibold">Reporte de Salidas de Herramientas/Equipos</h2>
+          <h2 className="text-xl font-bold">Reporte de Salidas de Herramientas/Equipos</h2>
         </div>
       </div>
 
-      <div className="border-b border-gray-200 bg-gray-50 px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
-        <div className="relative max-w-xl">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+      {/* Search Filter */}
+      <div className="flex-shrink-0 p-4 bg-white border-b border-gray-200/70 dark:border-slate-800/70 dark:bg-slate-900">
+        <div className="relative max-w-md">
+          <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Buscar por equipo, código, responsable o área..."
             value={searchTerm}
             onChange={event => setSearchTerm(event.target.value)}
-            className={searchInputClasses}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400 dark:focus:ring-blue-500/30"
           />
         </div>
       </div>
 
-      <TableWithFixedHeader maxHeight="600px">
-        <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-900">
-          <tr className="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:bg-slate-900 dark:text-slate-400">
-            <th className="px-4 py-3 text-left">Código</th>
-            <th className="px-4 py-3 text-left">Nombre</th>
-            <th className="px-4 py-3 text-center">Cantidad</th>
-            <th className="px-4 py-3 text-left">Área/Proyecto</th>
-            <th className="px-4 py-3 text-left">Responsable</th>
-            <th className="px-4 py-3 text-left">Estado</th>
-            <th className="px-4 py-3 text-left">Fecha de S.</th>
-            <th className="px-4 py-3 text-left">Hora de S.</th>
-            <th className="border-l border-blue-100 px-4 py-3 text-left dark:border-blue-500/20">Estado R.</th>
-            <th className="px-4 py-3 text-left">Fecha de R.</th>
-            <th className="px-4 py-3 text-left">Hora de R.</th>
-            <th className="px-4 py-3 text-left">Responsable</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedEquipments.map(equipment => {
-            const salidaStatus = getStatusBadge(equipment.estadoEquipo);
-            const retornoStatus = getStatusBadge(equipment.estadoRetorno ?? null);
+      {paginatedEquipments.length === 0 ? (
+        <div className="p-8 text-center text-gray-500 dark:text-slate-400">
+          <Wrench className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
+          <p>
+            {filteredEquipments.length === 0 && equipments.length > 0
+              ? "No se encontraron equipos con los filtros aplicados"
+              : "No hay equipos registrados"}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="flex-1 overflow-auto" style={{ maxHeight: '600px' }}>
+            <table className="w-full text-xs text-gray-700 dark:text-slate-200">
+              <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
+                <tr className="border-b border-gray-200 dark:border-slate-800">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Código</th>
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Nombre</th>
+                  <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Cantidad</th>
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Área/Proyecto</th>
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Responsable</th>
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Estado</th>
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Fecha de S.</th>
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Hora de S.</th>
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300 border-l border-blue-100 dark:border-blue-500/20">Estado R.</th>
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Fecha de R.</th>
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Hora de R.</th>
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Responsable</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedEquipments.map(equipment => {
+                  const salidaStatus = getStatusBadge(equipment.estadoEquipo);
+                  const retornoStatus = getStatusBadge(equipment.estadoRetorno ?? null);
 
-            return (
-              <EquipmentRow
-                key={equipment.id}
-                equipment={equipment}
-                salidaStatus={salidaStatus}
-                retornoStatus={retornoStatus}
-                onEdit={onEdit}
-              />
-            );
-          })}
-        </tbody>
-      </TableWithFixedHeader>
+                  return (
+                    <EquipmentRow
+                      key={equipment.id}
+                      equipment={equipment}
+                      salidaStatus={salidaStatus}
+                      retornoStatus={retornoStatus}
+                      onEdit={onEdit}
+                    />
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalItems={totalItems}
-        itemsPerPage={itemsPerPage}
-        onPageChange={handlePageChange}
-        onItemsPerPageChange={handleItemsPerPageChange}
-      />
+          <div className="flex-shrink-0">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };

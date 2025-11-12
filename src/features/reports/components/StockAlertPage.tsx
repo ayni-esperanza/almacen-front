@@ -3,7 +3,6 @@ import { AlertTriangle, Package, Filter, Download } from "lucide-react";
 import { StockAlert, StockAlertFilters } from "../types";
 import { stockAlertsService } from "../services/stock-alerts.service";
 import { Pagination } from "../../../shared/components/Pagination";
-import { TableWithFixedHeader } from "../../../shared/components/TableWithFixedHeader";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { usePagination } from "../../../shared/hooks/usePagination";
 
@@ -116,6 +115,30 @@ export const StockAlertPage: React.FC = () => {
     );
 
     return { total, criticos, bajos, totalStock, stockMinimo };
+  };
+
+  // Función para generar el título dinámico basado en los filtros
+  const getTableTitle = () => {
+    const parts: string[] = [];
+    
+    if (filters.estado) {
+      const estadoTexto = filters.estado === "critico" ? "Crítico" : filters.estado === "bajo" ? "Bajo" : "Normal";
+      parts.push(`${estadoTexto}`);
+    }
+    
+    if (filters.categoria) {
+      parts.push(`- Categoría: ${filters.categoria}`);
+    }
+    
+    if (filters.ubicacion) {
+      parts.push(`- Ubicación: ${filters.ubicacion}`);
+    }
+    
+    if (parts.length === 0) {
+      return "Productos con Stock";
+    }
+    
+    return `Productos con Stock ${parts.join(" • ")}`;
   };
 
   const handleExport = async () => {
@@ -354,13 +377,13 @@ export const StockAlertPage: React.FC = () => {
       </div>
 
       {/* Tabla de Alertas */}
-      <div className={cardClasses}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-200">
-            Productos con Stock Bajo
-          </h3>
-          <div className="text-sm text-gray-600 dark:text-slate-400">
-            Mostrando {filteredAlerts.length} de {stockAlerts.length} alertas
+      <div className="flex flex-col bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">
+        <div className="flex-shrink-0 px-6 py-4 text-white bg-gradient-to-r from-orange-500 to-red-600 rounded-t-xl">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold">{getTableTitle()}</h3>
+            <div className="text-sm text-orange-100">
+              Mostrando {filteredAlerts.length} de {stockAlerts.length} alertas
+            </div>
           </div>
         </div>
 
@@ -369,108 +392,113 @@ export const StockAlertPage: React.FC = () => {
             <div className="w-8 h-8 border-b-2 border-orange-500 rounded-full animate-spin"></div>
           </div>
         ) : filteredAlerts.length === 0 ? (
-          <div className="py-8 text-center text-gray-500 dark:text-slate-400">
-            No hay alertas de stock que coincidan con los filtros
+          <div className="p-8 text-center text-gray-500 dark:text-slate-400">
+            <Package className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
+            <p>No hay alertas de stock que coincidan con los filtros</p>
           </div>
         ) : (
           <>
-            <TableWithFixedHeader maxHeight="600px">
-              <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-900">
-                <tr>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Estado
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Código
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Descripción
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Stock Actual
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Stock Mínimo
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Ubicación
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Categoría
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Proveedor
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Última Actualización
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200 dark:divide-slate-800 dark:bg-slate-950">
-                {paginatedAlerts.map((alert) => (
-                  <tr
-                    key={alert.id}
-                    className="transition-colors hover:bg-gray-50 dark:hover:bg-slate-900/40"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getEstadoColor(
-                          alert.estado
-                        )}`}
-                      >
-                        {getEstadoIcon(alert.estado)}{" "}
-                        {alert.estado.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-slate-100">
-                      {alert.codigo}
-                    </td>
-                    <td className="max-w-xs px-6 py-4 text-sm text-gray-900 truncate dark:text-slate-200">
-                      {alert.nombre}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-slate-200">
-                      <span
-                        className={`font-semibold ${
-                          alert.stockActual === 0
-                            ? "text-red-600 dark:text-rose-300"
-                            : alert.stockActual < 5
-                            ? "text-orange-600 dark:text-orange-300"
-                            : "text-gray-900 dark:text-slate-100"
-                        }`}
-                      >
-                        {alert.stockActual}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-slate-200">
-                      {alert.stockMinimo}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-slate-200">
-                      {alert.ubicacion}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-slate-200">
-                      {alert.categoria}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-slate-200">
-                      {alert.proveedor}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap dark:text-slate-200">
-                      {new Date(alert.ultimaActualizacion).toLocaleDateString(
-                        "es-ES"
-                      )}
-                    </td>
+            <div className="flex-1 overflow-auto" style={{ maxHeight: '600px' }}>
+              <table className="w-full text-xs text-gray-700 dark:text-slate-200">
+                <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
+                  <tr className="border-b border-gray-200 dark:border-slate-800">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Estado
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Código
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Descripción
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Stock Actual
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Stock Mínimo
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Ubicación
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Categoría
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Proveedor
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Última Actualización
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </TableWithFixedHeader>
+                </thead>
+                <tbody>
+                  {paginatedAlerts.map((alert) => (
+                    <tr
+                      key={alert.id}
+                      className="border-b border-gray-100 transition-colors hover:bg-orange-50 dark:border-slate-800 dark:hover:bg-slate-900/40"
+                    >
+                      <td className="px-3 py-2">
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getEstadoColor(
+                            alert.estado
+                          )}`}
+                        >
+                          {getEstadoIcon(alert.estado)}{" "}
+                          {alert.estado.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-xs font-medium text-gray-900 dark:text-slate-100">
+                        {alert.codigo}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-gray-900 dark:text-slate-200 max-w-xs truncate">
+                        {alert.nombre}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-gray-900 dark:text-slate-200">
+                        <span
+                          className={`font-semibold ${
+                            alert.stockActual === 0
+                              ? "text-red-600 dark:text-rose-300"
+                              : alert.stockActual < 5
+                              ? "text-orange-600 dark:text-orange-300"
+                              : "text-gray-900 dark:text-slate-100"
+                          }`}
+                        >
+                          {alert.stockActual}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-xs text-gray-900 dark:text-slate-200">
+                        {alert.stockMinimo}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-gray-900 dark:text-slate-200">
+                        {alert.ubicacion}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-gray-900 dark:text-slate-200">
+                        {alert.categoria}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-gray-900 dark:text-slate-200">
+                        {alert.proveedor}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-gray-900 dark:text-slate-200">
+                        {new Date(alert.ultimaActualizacion).toLocaleDateString(
+                          "es-ES"
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
-            />
+            <div className="flex-shrink-0">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
+              />
+            </div>
           </>
         )}
       </div>
