@@ -3,6 +3,7 @@ import { Image as ImageIcon, Minus, Plus } from 'lucide-react';
 import { Provider } from '../types';
 import { useModalScrollLock } from '../../../shared/hooks/useModalScrollLock';
 import { useEscapeKey } from '../../../shared/hooks/useEscapeKey';
+import { useClickOutside } from '../../../shared/hooks/useClickOutside';
 
 interface AddProviderModalProps {
   isOpen: boolean;
@@ -15,6 +16,10 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
   useModalScrollLock(isOpen);
   // Cerrar modal con tecla ESC
   useEscapeKey(onClose, isOpen);
+  // Referencia para detectar clicks fuera de la modal
+  const modalRef = useRef<HTMLDivElement>(null);
+  // Cerrar modal al hacer click fuera
+  useClickOutside(modalRef, onClose, isOpen);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -80,7 +85,10 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70 p-4">
-      <div className="w-full max-w-4xl max-h-[90vh] rounded-[32px] bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col overflow-hidden">
+      <div
+        ref={modalRef}
+        className="w-full max-w-4xl max-h-[90vh] rounded-[32px] bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col overflow-hidden"
+      >
         <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4 text-white flex-shrink-0">
           <h3 className="text-lg font-semibold">Nuevo Proveedor</h3>
           <button type="button" onClick={onClose} className="text-2xl font-bold leading-none">×</button>

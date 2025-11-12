@@ -4,6 +4,7 @@ import { MovementExit } from "../types/index.ts";
 import { UpdateExitData } from "../../../shared/services/movements.service.ts";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
+import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
 // Áreas predefinidas para movimientos
@@ -50,6 +51,10 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
   useModalScrollLock(true);
   // Cerrar modal con tecla ESC
   useEscapeKey(onCancel);
+  // Referencia para detectar clicks fuera de la modal
+  const modalRef = useRef<HTMLDivElement>(null);
+  // Cerrar modal al hacer click fuera
+  useClickOutside(modalRef, onCancel, true);
 
   const initialState = useMemo(
     () => ({
@@ -153,7 +158,10 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
-      <div className="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col">
+      <div
+        ref={modalRef}
+        className="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col"
+      >
         <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 text-white flex-shrink-0">
           <h2 className="text-xl font-semibold">Editar Salida de Producto</h2>
           <button

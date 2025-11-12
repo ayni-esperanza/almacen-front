@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Product } from "../types";
 import { Provider } from "../../providers/types";
 import { providersService } from "../../providers/services/providers.service";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
+import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { AddOptionModal } from "../../../shared/components/AddOptionModal";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { inventoryService } from "../../../shared/services/inventory.service";
@@ -30,6 +31,10 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   useModalScrollLock(isOpen);
   // Cerrar modal con tecla ESC
   useEscapeKey(onClose, isOpen);
+  // Referencia para detectar clicks fuera de la modal
+  const modalRef = useRef<HTMLDivElement>(null);
+  // Cerrar modal al hacer click fuera
+  useClickOutside(modalRef, onClose, isOpen);
 
   // Opciones para los combos
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -110,7 +115,10 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
 
   const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col">
+      <div
+        ref={modalRef}
+        className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col"
+      >
         <div className="flex-shrink-0 px-6 py-4 text-white rounded-t-2xl bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">Editar Producto</h2>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { X } from "lucide-react";
 import {
   CreateProductData,
@@ -8,6 +8,7 @@ import { Provider } from "../../providers/types";
 import { providersService } from "../../providers/services/providers.service";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
+import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { AddOptionModal } from "../../../shared/components/AddOptionModal";
 
@@ -32,6 +33,10 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   useModalScrollLock(true);
   // Cerrar modal con tecla ESC
   useEscapeKey(onCancel);
+  // Referencia para detectar clicks fuera de la modal
+  const modalRef = useRef<HTMLDivElement>(null);
+  // Cerrar modal al hacer click fuera
+  useClickOutside(modalRef, onCancel, true);
 
   const [formData, setFormData] = useState({
     codigo: "",
@@ -132,7 +137,10 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950">
+      <div
+        ref={modalRef}
+        className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950"
+      >
         <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">Nuevo Producto</h2>

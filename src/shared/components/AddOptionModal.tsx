@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
+import { useClickOutside } from '../hooks/useClickOutside';
 
 interface AddOptionModalProps {
   isOpen: boolean;
@@ -12,9 +13,13 @@ interface AddOptionModalProps {
 
 export const AddOptionModal: React.FC<AddOptionModalProps> = ({ isOpen, onClose, onSubmit, title = 'Nueva Opción', label = 'Opción *' }) => {
   const [option, setOption] = useState('');
+  const modalRef = useRef<HTMLDivElement>(null);
   
   // Cerrar modal con tecla ESC
   useEscapeKey(onClose, isOpen);
+  
+  // Cerrar modal al hacer clic fuera
+  useClickOutside(modalRef, onClose, isOpen);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +33,10 @@ export const AddOptionModal: React.FC<AddOptionModalProps> = ({ isOpen, onClose,
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl transition dark:border dark:border-slate-800 dark:bg-slate-950">
+      <div 
+        ref={modalRef}
+        className="w-full max-w-md rounded-2xl bg-white shadow-2xl transition dark:border dark:border-slate-800 dark:bg-slate-950"
+      >
         <div className="flex items-center justify-between rounded-t-2xl bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 text-white">
           <h2 className="text-xl font-bold">{title}</h2>
           <button onClick={onClose} className="rounded-full p-1 transition-colors hover:bg-white/20">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { ChevronDown, Wrench, X } from "lucide-react";
 import { EquipmentReport } from "../types";
 import {
@@ -6,6 +6,7 @@ import {
   UpdateEquipmentData,
 } from "../../../shared/services/equipment.service";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
+import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
 const AREAS_MOVIMIENTOS = [
@@ -95,6 +96,10 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
 }) => {
   // Cerrar modal con tecla ESC
   useEscapeKey(onCancel);
+  // Referencia para detectar clicks fuera de la modal
+  const modalRef = useRef<HTMLDivElement>(null);
+  // Cerrar modal al hacer click fuera
+  useClickOutside(modalRef, onCancel, true);
 
   const [formData, setFormData] = useState<FormState>(() => ({
     equipo: equipment.equipo ?? "",
@@ -197,7 +202,10 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col">
+      <div
+        ref={modalRef}
+        className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-[32px] border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col"
+      >
         <div className="flex items-center justify-between rounded-t-[32px] bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white flex-shrink-0">
           <div className="flex items-center gap-3">
             <Wrench className="w-6 h-6" />

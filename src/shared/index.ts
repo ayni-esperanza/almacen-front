@@ -10,6 +10,7 @@ export { useAuth } from "./hooks/useAuth";
 export { usePermissions } from "./hooks/usePermissions";
 export { usePagination } from "./hooks/usePagination";
 export { useStockAlerts } from "./hooks/useStockAlerts";
+export { useClickOutside } from "./hooks/useClickOutside";
 
 // Types
 export * from "./types/permissions";
