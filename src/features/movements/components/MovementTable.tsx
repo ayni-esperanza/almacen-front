@@ -3,13 +3,15 @@ import { MovementEntry, MovementExit } from "../types/index.ts";
 import { Pagination } from "../../../shared/components/Pagination";
 import { usePagination } from "../../../shared/hooks/usePagination";
 import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowClick";
-import { TrendingUp, TrendingDown, Search } from "lucide-react";
+import { TrendingUp, TrendingDown, Search, Download, Plus } from "lucide-react";
 
 interface MovementTableProps {
   movements: (MovementEntry | MovementExit)[];
   type: "entrada" | "salida";
   onEditEntry?: (movement: MovementEntry) => void;
   onEditExit?: (movement: MovementExit) => void;
+  onExportPdf?: () => void;
+  onAddMovement?: () => void;
 }
 
 interface MovementRowProps {
@@ -94,6 +96,8 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   type,
   onEditEntry,
   onEditExit,
+  onExportPdf,
+  onAddMovement,
 }) => {
   const [searchTerm, setSearchTerm] = React.useState("");
 
@@ -158,15 +162,37 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
       {/* Search Filter */}
       <div className="flex-shrink-0 p-4 bg-white border-b border-gray-200/70 dark:border-slate-800/70 dark:bg-slate-900">
-        <div className="relative max-w-md">
-          <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
-          <input
-            type="text"
-            placeholder="Buscar por código, descripción o responsable..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
-          />
+        <div className="flex items-center justify-between gap-3">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
+            <input
+              type="text"
+              placeholder="Buscar por código, descripción o responsable..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            {onAddMovement && (
+              <button
+                onClick={onAddMovement}
+                className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap flex-shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Agregar</span>
+              </button>
+            )}
+            {onExportPdf && (
+              <button
+                onClick={onExportPdf}
+                className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap flex-shrink-0"
+              >
+                <Download className="w-4 h-4" />
+                <span>Exportar PDF</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { Plus } from 'lucide-react';
 import { EquipmentTable } from '../features/equipment/components/EquipmentTable';
 import { AddEquipmentForm } from '../features/equipment/components/AddEquipmentForm';
 import { EditEquipmentForm } from '../features/equipment/components/EditEquipmentForm';
@@ -54,43 +53,6 @@ export const EquipmentPage = () => {
 
   return (
     <>
-      <div className="mb-6 flex justify-between items-center">
-        {/* Toggle para mostrar todos o solo sin retorno */}
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showAll}
-              onChange={(e) => setShowAll(e.target.checked)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            />
-            <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
-              Mostrar historial completo
-            </span>
-          </label>
-          
-          {!showAll && (
-            <span className="text-xs text-gray-500 dark:text-slate-400">
-              (Solo equipos sin retorno: {filteredEquipment.length})
-            </span>
-          )}
-          
-          {showAll && (
-            <span className="text-xs text-gray-500 dark:text-slate-400">
-              (Total de registros: {filteredEquipment.length})
-            </span>
-          )}
-        </div>
-
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center space-x-2 font-medium shadow-md"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Agregar Reporte</span>
-        </button>
-      </div>
-
       <EquipmentTable
         equipments={filteredEquipment}
         loading={equipmentData.loading}
@@ -98,6 +60,34 @@ export const EquipmentPage = () => {
         refetch={equipmentData.refetch}
         onReturn={equipmentData.returnEquipment}
         onEdit={handleOpenEdit}
+        onAddEquipment={() => setShowAddForm(true)}
+        showAllToggle={
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showAll}
+                onChange={(e) => setShowAll(e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
+                Mostrar historial completo
+              </span>
+            </label>
+            
+            {!showAll && (
+              <span className="text-xs text-gray-500 dark:text-slate-400">
+                ({filteredEquipment.length} sin retorno)
+              </span>
+            )}
+            
+            {showAll && (
+              <span className="text-xs text-gray-500 dark:text-slate-400">
+                ({filteredEquipment.length} total)
+              </span>
+            )}
+          </div>
+        }
       />
 
       {showAddForm && (

@@ -3,7 +3,7 @@ import { Product } from "../types";
 import { ProductTableRow } from "./ProductTableRow";
 import { Pagination } from "../../../shared/components/Pagination";
 import { usePagination } from "../../../shared/hooks/usePagination";
-import { Package, Search, AlertCircle } from "lucide-react";
+import { Package, Search, AlertCircle, Plus } from "lucide-react";
 import { UpdateProductData } from "../../../shared/services/inventory.service";
 
 interface ProductTableProps {
@@ -19,6 +19,7 @@ interface ProductTableProps {
   ) => Promise<Product | null>;
   createArea: (name: string) => Promise<void>;
   createCategoria: (name: string) => Promise<void>;
+  onAddProduct?: () => void;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
@@ -31,6 +32,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   updateProduct,
   createArea,
   createCategoria,
+  onAddProduct,
 }) => {
   // Filtrar productos localmente usando useMemo para evitar recálculos innecesarios
   const filteredProducts = React.useMemo(
@@ -111,15 +113,26 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       </div>
       {/* Search Filter */}
       <div className="flex-shrink-0 p-4 bg-white border-b border-gray-200/70 dark:border-slate-800/70 dark:bg-slate-900">
-        <div className="relative max-w-md">
-          <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
-          <input
-            type="text"
-            placeholder="Buscar por código, descripción o proveedor..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={searchInputClasses}
-          />
+        <div className="flex items-center justify-between gap-3">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
+            <input
+              type="text"
+              placeholder="Buscar por código, descripción o proveedor..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={searchInputClasses}
+            />
+          </div>
+          {onAddProduct && (
+            <button
+              onClick={onAddProduct}
+              className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap flex-shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Agregar Producto</span>
+            </button>
+          )}
         </div>
       </div>
 

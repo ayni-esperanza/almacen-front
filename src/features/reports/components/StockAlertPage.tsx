@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AlertTriangle, Package, Filter, Download } from "lucide-react";
+import { AlertTriangle, Package, Download } from "lucide-react";
 import { StockAlert, StockAlertFilters } from "../types";
 import { stockAlertsService } from "../services/stock-alerts.service";
 import { Pagination } from "../../../shared/components/Pagination";
@@ -311,13 +311,6 @@ export const StockAlertPage: React.FC = () => {
 
       {/* Filtros */}
       <div className={cardClasses}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-200">
-            Filtros
-          </h3>
-          <Filter className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-        </div>
-
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div>
             <SearchableSelect

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, Plus } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { MovementTable } from "../features/movements/components/MovementTable.tsx";
 import { AddMovementForm } from "../features/movements/components/AddMovementForm.tsx";
 import { useMovements } from "../features/movements/hooks/useMovements.ts";
@@ -93,47 +93,32 @@ export const MovementsPage = () => {
 
   return (
     <>
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex space-x-1">
-            <button
-              onClick={() => setActiveSubTab("entradas")}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                activeSubTab === "entradas"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Entradas
-            </button>
-            <button
-              onClick={() => setActiveSubTab("salidas")}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                activeSubTab === "salidas"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Salidas
-            </button>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleExportPdf}
-              className="flex items-center px-5 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600"
-            >
-              <Download className="w-4 h-4" />
-              <span>Exportar PDF</span>
-            </button>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Agregar</span>
-            </button>
-          </div>
-        </div>
+      {/* Navegación secundaria estilo pestañas */}
+      <div className="mb-6 border-b border-gray-200 dark:border-slate-800">
+        <nav className="flex -mb-px space-x-8">
+          <button
+            onClick={() => setActiveSubTab("entradas")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+              activeSubTab === "entradas"
+                ? "border-green-500 text-green-600 dark:text-emerald-400"
+                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-700"
+            }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span>Entradas</span>
+          </button>
+          <button
+            onClick={() => setActiveSubTab("salidas")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+              activeSubTab === "salidas"
+                ? "border-red-500 text-red-600 dark:text-rose-400"
+                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-700"
+            }`}
+          >
+            <TrendingDown className="w-4 h-4" />
+            <span>Salidas</span>
+          </button>
+        </nav>
       </div>
 
       {activeSubTab === "entradas" ? (
@@ -141,12 +126,16 @@ export const MovementsPage = () => {
           movements={movementsData.entries}
           type="entrada"
           onEditEntry={setSelectedEntry}
+          onExportPdf={handleExportPdf}
+          onAddMovement={() => setShowAddForm(true)}
         />
       ) : (
         <MovementTable
           movements={movementsData.exits}
           type="salida"
           onEditExit={setSelectedExit}
+          onExportPdf={handleExportPdf}
+          onAddMovement={() => setShowAddForm(true)}
         />
       )}
 

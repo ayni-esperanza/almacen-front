@@ -112,20 +112,6 @@ const ProvidersPage = () => {
 
   return (
     <>
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
-            Proveedores
-          </h1>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-purple-600 rounded-lg shadow-md hover:bg-purple-700"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Agregar Proveedor</span>
-          </button>
-        </div>
-      </div>
       <div className={containerClasses}>
         <AddProviderModal
           isOpen={isModalOpen}
@@ -141,22 +127,31 @@ const ProvidersPage = () => {
           provider={selectedProvider}
           onEdit={handleEditProvider}
         />
-        <div className="px-6 py-4 text-white bg-gradient-to-r from-purple-500 to-purple-600">
+        <div className="px-6 py-4 text-white bg-gradient-to-r from-purple-500 to-purple-600 rounded-t-xl">
           <div className="flex items-center space-x-3">
             <User className="w-5 h-5" />
             <h2 className="text-xl font-bold">Gestión de Proveedores</h2>
           </div>
         </div>
         <div className="p-4 border-b border-gray-200 bg-gray-50 dark:border-slate-800 dark:bg-slate-900">
-          <div className="relative max-w-md">
-            <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
-            <input
-              type="text"
-              placeholder="Buscar por código, descripción o proveedor..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={searchInputClasses}
-            />
+          <div className="flex items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
+              <input
+                type="text"
+                placeholder="Buscar por nombre, email o dirección..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={searchInputClasses}
+              />
+            </div>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-purple-600 rounded-lg shadow-md hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Agregar Proveedor</span>
+            </button>
           </div>
         </div>
         {filteredProviders.length === 0 ? (

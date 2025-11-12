@@ -287,23 +287,6 @@ export const UsersPage = () => {
 
   return (
     <>
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
-            Usuarios
-          </h1>
-          <ProtectedComponent permission={Permission.USERS_CREATE}>
-            <button
-              type="button"
-              className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-blue-600 rounded-lg shadow-md hover:bg-blue-700"
-              onClick={openCreateModal}
-            >
-              <Plus className="w-4 h-4" />
-              <span>Nuevo Usuario</span>
-            </button>
-          </ProtectedComponent>
-        </div>
-      </div>
       <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-900">
         <div className="px-6 py-4 text-white rounded-t-xl bg-gradient-to-r from-blue-500 to-blue-600">
           <div className="flex items-center justify-between">
@@ -314,14 +297,26 @@ export const UsersPage = () => {
           </div>
         </div>
         <div className="p-4 border-b bg-gray-50 dark:border-slate-800 dark:bg-slate-900">
-          <div className="relative w-full max-w-md">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Buscar por usuario, nombre, email o rol..."
-              className={searchInputClasses}
-            />
+          <div className="flex items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Buscar por usuario, nombre, email o rol..."
+                className={searchInputClasses}
+              />
+            </div>
+            <ProtectedComponent permission={Permission.USERS_CREATE}>
+              <button
+                type="button"
+                className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 whitespace-nowrap flex-shrink-0"
+                onClick={openCreateModal}
+              >
+                <Plus className="w-4 h-4" />
+                <span>Nuevo Usuario</span>
+              </button>
+            </ProtectedComponent>
           </div>
         </div>
 
