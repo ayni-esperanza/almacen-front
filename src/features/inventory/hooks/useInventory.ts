@@ -32,7 +32,6 @@ export const useInventory = (): UseInventoryReturn => {
   const [searchTerm, setSearchTerm] = useState("");
   const [areas, setAreas] = useState<string[]>([]);
   const [categorias, setCategorias] = useState<string[]>([]);
-  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   const fetchProducts = async (search?: string) => {
     try {
@@ -164,7 +163,6 @@ export const useInventory = (): UseInventoryReturn => {
         setProducts(productsData);
         setAreas(areasData);
         setCategorias(categoriasData);
-        setInitialLoadDone(true);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Error al cargar datos iniciales"
@@ -174,32 +172,9 @@ export const useInventory = (): UseInventoryReturn => {
       }
     };
 
-    // Solo ejecutar si no se ha hecho la carga inicial
-    if (!initialLoadDone) {
-      loadInitialData();
-    }
-  }, [initialLoadDone]);
-
-  // Efecto de búsqueda optimizado
-  useEffect(() => {
-    // No ejecutar búsquedas hasta que la carga inicial termine
-    if (!initialLoadDone) {
-      return;
-    }
-
-    // No ejecutar si el searchTerm está vacío 
-    if (searchTerm === "") {
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      fetchProducts(searchTerm);
-    }, 900);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [searchTerm, initialLoadDone]);
+    // Solo ejecutar una vez al montar el componente
+    loadInitialData();
+  }, []); // Array vacío para ejecutar solo al montar
 
   return {
     products,

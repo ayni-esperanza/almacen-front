@@ -32,6 +32,21 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   createArea,
   createCategoria,
 }) => {
+  // Filtrar productos localmente usando useMemo para evitar recálculos innecesarios
+  const filteredProducts = React.useMemo(
+    () =>
+      products.filter((product) => {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          product.codigo.toLowerCase().includes(searchLower) ||
+          product.nombre.toLowerCase().includes(searchLower) ||
+          (product.provider?.name &&
+            product.provider.name.toLowerCase().includes(searchLower))
+        );
+      }),
+    [products, searchTerm]
+  );
+
   const {
     paginatedData: paginatedProducts,
     currentPage,
@@ -40,7 +55,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     itemsPerPage,
     handlePageChange,
     handleItemsPerPageChange,
-  } = usePagination({ data: products, initialItemsPerPage: 15 });
+  } = usePagination({ data: filteredProducts, initialItemsPerPage: 15 });
   const searchInputClasses =
     "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
   if (loading) {
@@ -108,10 +123,14 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         </div>
       </div>
 
-      {products.length === 0 ? (
+      {filteredProducts.length === 0 ? (
         <div className="p-8 text-center text-gray-500 dark:text-slate-400">
           <Package className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-          <p>No se encontraron productos</p>
+          <p>
+            {products.length === 0
+              ? "No se encontraron productos"
+              : "No se encontraron productos con los filtros aplicados"}
+          </p>
         </div>
       ) : (
         <>
