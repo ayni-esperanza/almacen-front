@@ -126,39 +126,39 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   };
 
   const labelClasses =
-    "block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2";
+    "block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1";
   const inputClasses =
-    "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
+    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
   const selectClasses =
-    "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
-  const dividerClasses = "border-t border-gray-200 pt-8 dark:border-slate-800";
+    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
+  const dividerClasses = "border-t border-gray-200 pt-2 dark:border-slate-800";
   const iconButtonClasses =
-    "flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500";
+    "flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950"
+        className="w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950"
       >
-        <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
+        <div className="px-4 py-2 text-white bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">Nuevo Producto</h2>
+            <h2 className="text-base font-bold">Nuevo Producto</h2>
             <button
               onClick={onCancel}
               className="p-1 text-white transition-colors rounded-full hover:bg-white/20 dark:hover:bg-white/10"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
         <form
           onSubmit={handleSubmit}
           autoComplete="off"
-          className="px-8 pt-6 pb-8 space-y-8 bg-white dark:bg-slate-950"
+          className="px-4 pt-4 pb-4 space-y-2 bg-white dark:bg-slate-950"
         >
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="space-y-6">
+          <div className="grid gap-2 md:grid-cols-2">
+            <div className="space-y-2">
               <div>
                 <label className={labelClasses}>Código del Producto *</label>
                 <input
@@ -231,12 +231,12 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   onClick={() => setShowUbicacionModal(true)}
                   title="Agregar nueva ubicación"
                 >
-                  <span className="text-xl font-bold">+</span>
+                  <span className="text-lg font-bold">+</span>
                 </button>
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-2">
               <div>
                 <label className={labelClasses}>Nombre del Producto *</label>
                 <input
@@ -313,25 +313,25 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   onClick={() => setShowCategoriaModal(true)}
                   title="Agregar nueva categoría"
                 >
-                  <span className="text-xl font-bold">+</span>
+                  <span className="text-lg font-bold">+</span>
                 </button>
               </div>
             </div>
           </div>
 
           <div
-            className={`flex flex-col gap-4 ${dividerClasses} sm:flex-row sm:justify-end`}
+            className={`flex flex-col gap-2 ${dividerClasses} sm:flex-row sm:justify-end`}
           >
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-3 text-sm font-semibold text-gray-700 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
+              className="px-4 py-1.5 text-sm font-semibold text-gray-700 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-6 py-3 text-sm font-semibold text-white transition-colors bg-green-500 rounded-full shadow-md hover:bg-green-600 dark:bg-green-500 dark:hover:bg-green-400"
+              className="px-4 py-1.5 text-sm font-semibold text-white transition-colors bg-green-500 rounded-full shadow-md hover:bg-green-600 dark:bg-green-500 dark:hover:bg-green-400"
             >
               Agregar Producto
             </button>

@@ -73,9 +73,9 @@ export const UserFormModal = ({
   const [avatarData, setAvatarData] = useState<string | null>(null);
   const emailInputRef = useRef<HTMLInputElement | null>(null);
   const inputClasses =
-    "w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-300 dark:focus:ring-blue-500/30";
+    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-300 dark:focus:ring-blue-500/30";
   const labelClasses =
-    "mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200";
+    "mb-1 block text-xs font-semibold text-gray-700 dark:text-slate-200";
 
   const submitButtonLabel = useMemo(
     () => (mode === "create" ? "Agregar Usuario" : "Guardar Cambios"),
@@ -180,27 +180,27 @@ export const UserFormModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="w-full max-w-4xl max-h-[90vh] rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col overflow-hidden"
+        className="w-full max-w-3xl max-h-95vh rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col overflow-hidden"
       >
-        <div className="flex items-center justify-between flex-shrink-0 px-6 py-4 text-white rounded-t-3xl bg-gradient-to-r from-blue-500 to-blue-600">
-          <h2 className="text-xl font-semibold">{title}</h2>
+        <div className="flex items-center justify-between flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-blue-500 to-blue-600">
+          <h2 className="text-base font-semibold">{title}</h2>
           <button
             type="button"
             className="p-1 transition-colors rounded-full hover:bg-white hover:bg-opacity-20"
             onClick={onClose}
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="px-8 pt-6 pb-8">
-            <div className="grid gap-8 md:grid-cols-[220px_minmax(0,1fr)]">
+          <form onSubmit={handleSubmit} className="px-4 pt-4 pb-4">
+            <div className="grid gap-4 md:grid-cols-[180px_minmax(0,1fr)]">
               <div className="flex flex-col items-center justify-start">
-                <span className="mb-3 text-sm font-semibold text-gray-600 dark:text-slate-300">
+                <span className="mb-2 text-xs font-semibold text-gray-600 dark:text-slate-300">
                   Foto de Perfil
                 </span>
-                <div className="flex h-40 w-40 items-center justify-center rounded-[32px] border-4 border-blue-200 bg-blue-50 dark:border-blue-400/60 dark:bg-blue-500/15">
+                <div className="flex h-32 w-32 items-center justify-center rounded-3xl border-[3px] border-blue-200 bg-blue-50 dark:border-blue-400/60 dark:bg-blue-500/15">
                   {avatarPreview ? (
                     <img
                       src={avatarPreview}
@@ -212,7 +212,7 @@ export const UserFormModal = ({
                       className="h-full w-full rounded-[24px] object-cover"
                     />
                   ) : (
-                    <ImageIcon className="w-20 h-20 text-blue-300" />
+                    <ImageIcon className="w-16 h-16 text-blue-300" />
                   )}
                 </div>
                 <input
@@ -225,14 +225,14 @@ export const UserFormModal = ({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-5 py-2 mt-4 text-sm font-medium text-white transition-colors bg-blue-600 rounded-full shadow-md hover:bg-blue-700"
+                  className="px-3 py-1.5 mt-2 text-xs font-medium text-white transition-colors bg-blue-600 rounded-full shadow-md hover:bg-blue-700"
                 >
                   Agregar Imagen
                 </button>
               </div>
 
-              <div className="space-y-6">
-                <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-3">
+                <div className="grid gap-3 md:grid-cols-2">
                   <div>
                     <label className={labelClasses}>Nombre(s) *</label>
                     <input
@@ -257,7 +257,7 @@ export const UserFormModal = ({
                   </div>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-3 md:grid-cols-2">
                   <div>
                     <label className={labelClasses}>Rol *</label>
                     <select
@@ -289,7 +289,7 @@ export const UserFormModal = ({
                   </div>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-3 md:grid-cols-2">
                   <div>
                     <label className={labelClasses}>Teléfono *</label>
                     <input
@@ -362,16 +362,16 @@ export const UserFormModal = ({
               </div>
             </div>
 
-            <hr className="my-8 border-gray-200 dark:border-slate-800" />
+            <hr className="my-4 border-gray-200 dark:border-slate-800" />
 
             {errorMessage && (
-              <div className="px-4 py-3 mb-6 text-sm text-red-700 border border-red-200 rounded-xl bg-red-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
+              <div className="px-3 py-2 mb-3 text-xs text-red-700 border border-red-200 rounded-xl bg-red-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
                 {errorMessage}
               </div>
             )}
 
             <div
-              className={`flex flex-col gap-4 sm:flex-row sm:items-center ${
+              className={`flex flex-col gap-2 sm:flex-row sm:items-center ${
                 showDeleteAction ? "sm:justify-between" : "sm:justify-end"
               }`}
             >
@@ -379,7 +379,7 @@ export const UserFormModal = ({
                 <button
                   type="button"
                   onClick={handleDelete}
-                  className={`px-6 py-2 text-sm font-semibold transition-colors border rounded-full ${
+                  className={`px-4 py-1.5 text-xs font-semibold transition-colors border rounded-full ${
                     initialUser?.isActive
                       ? "text-red-600 border-red-200 hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/10"
                       : "text-green-600 border-green-200 hover:bg-green-50 dark:border-emerald-500/30 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
@@ -389,18 +389,18 @@ export const UserFormModal = ({
                   {deleteButtonText}
                 </button>
               )}
-              <div className="flex flex-col self-end gap-4 sm:flex-row sm:justify-end">
+              <div className="flex flex-col self-end gap-2 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-6 py-2 text-sm font-semibold text-gray-700 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="px-4 py-1.5 text-xs font-semibold text-gray-700 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                   disabled={isSubmitting}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 text-sm font-semibold text-white transition-colors bg-blue-600 rounded-full shadow-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
+                  className="px-4 py-1.5 text-xs font-semibold text-white transition-colors bg-blue-600 rounded-full shadow-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Guardando..." : submitButtonLabel}

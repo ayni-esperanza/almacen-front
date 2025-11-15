@@ -117,9 +117,43 @@ export const SearchableSelect = ({
       }
     };
 
+    const handleScroll = (event: Event) => {
+      // Evitar que el scroll cierre el dropdown
+      if (
+        dropdownRef.current &&
+        dropdownRef.current.contains(event.target as Node)
+      ) {
+        return;
+      }
+      // No cerrar el dropdown en scroll
+      event.stopPropagation();
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    
+    // No agregar listener de scroll que cierre el dropdown
+    if (isOpen) {
+      document.addEventListener("scroll", handleScroll, true);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [isOpen]);
+
+  // Bloquear scroll del body cuando el dropdown está abierto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
@@ -186,7 +220,7 @@ export const SearchableSelect = ({
   return (
     <div className="w-full" ref={containerRef}>
       {label && (
-        <label className="block mb-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
+        <label className="block mb-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200">
           {label}
           {required && <span className="ml-1 text-red-500">*</span>}
         </label>
@@ -209,26 +243,28 @@ export const SearchableSelect = ({
           onClick={() => setIsOpen(!isOpen)}
           onKeyDown={handleKeyDown}
           className={`
-            w-full px-4 py-3 text-left text-sm font-medium
-            bg-white dark:bg-slate-800
-            border-2 rounded-xl
+            w-full h-[38px] px-3 py-2 text-left text-sm
+            bg-white dark:bg-slate-900
+            border rounded-xl
             transition-all duration-200
             ${
               isOpen
-                ? "border-blue-500 ring-2 ring-blue-500/20"
-                : "border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600"
+                ? "border-blue-500 ring-2 ring-blue-100 dark:ring-blue-500/30"
+                : "border-gray-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-slate-600"
             }
             ${
               value
-                ? "text-gray-900 dark:text-white"
+                ? "text-gray-700 dark:text-slate-100"
                 : "text-gray-500 dark:text-slate-400"
             }
             flex items-center justify-between gap-2
+            focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+            dark:focus:border-blue-400 dark:focus:ring-blue-500/30
           `}
         >
-          <span className="truncate">{displayValue || placeholder}</span>
+          <span className="truncate leading-tight">{displayValue || placeholder}</span>
           <ChevronDown
-            className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ${
+            className={`w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform duration-200 flex-shrink-0 ${
               isOpen ? "rotate-180" : ""
             }`}
           />
@@ -237,11 +273,11 @@ export const SearchableSelect = ({
         {/* Dropdown */}
         {isOpen && (
           <div
-            className="absolute z-50 w-full mt-2 overflow-hidden bg-white border-2 border-gray-200 shadow-xl dark:bg-slate-800 dark:border-slate-700 rounded-xl"
+            className="absolute z-50 w-full mt-2 overflow-hidden bg-white border border-gray-200 shadow-xl dark:bg-slate-800 dark:border-slate-700 rounded-xl"
             style={{ maxHeight: "320px" }}
           >
             {/* Search Input */}
-            <div className="p-3 border-b-2 border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
+            <div className="p-2 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
               <div className="relative">
                 <Search className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
                 <input
@@ -258,7 +294,7 @@ export const SearchableSelect = ({
                   placeholder={
                     isAsyncMode ? "Buscar en servidor..." : "Buscar..."
                   }
-                  className="w-full py-2 pl-10 pr-10 text-sm bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 dark:text-white dark:placeholder-slate-400"
+                  className="w-full py-1.5 pl-9 pr-9 text-sm bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 focus:border-blue-500 dark:text-white dark:placeholder-slate-400"
                   disabled={isLoading}
                 />
                 {isLoading && (
@@ -290,7 +326,7 @@ export const SearchableSelect = ({
                     onClick={() => handleSelect(option)}
                     onMouseEnter={() => setHighlightedIndex(index)}
                     className={`
-                      w-full px-4 py-2.5 text-left text-sm
+                      w-full px-3 py-2 text-left text-sm
                       transition-colors duration-150
                       ${
                         option === value

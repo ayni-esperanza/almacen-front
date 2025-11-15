@@ -165,11 +165,11 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
       </button>
 
       {open && (
-        <div className="absolute right-0 z-40 mt-3 w-96 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950">
-          <div className="flex items-center justify-between bg-gradient-to-r from-emerald-500 to-green-600 px-5 py-4 text-white">
+        <div className="absolute right-0 z-40 mt-3 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950">
+          <div className="flex items-center justify-between bg-gradient-to-r from-emerald-500 to-green-600 px-4 py-2 text-white">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide">Alertas Activas</p>
-              <p className="text-xs text-emerald-100">
+              <p className="text-xs font-semibold uppercase tracking-wide">Alertas Activas</p>
+              <p className="text-[10px] text-emerald-100">
                 {pendingCount === 0
                   ? 'No hay alertas pendientes'
                   : `${pendingCount} ${pendingCount === 1 ? 'alerta pendiente' : 'alertas pendientes'}`}
@@ -177,9 +177,9 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
             </div>
           </div>
 
-          <div className="max-h-80 space-y-4 overflow-y-auto bg-white px-5 py-4 dark:bg-slate-950">
+          <div className="max-h-64 space-y-2 overflow-y-auto bg-white px-3 py-2 dark:bg-slate-950">
             {alertsToDisplay.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+              <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-3 py-4 text-center text-xs text-gray-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
                 No hay alertas registradas.
               </div>
             ) : (
@@ -189,46 +189,46 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
                 return (
                   <div
                     key={alert.id}
-                    className={`rounded-2xl bg-white px-4 py-4 shadow-sm transition dark:bg-slate-900 ${severity.border}`}
+                    className={`rounded-xl bg-white px-3 py-2 shadow-sm transition dark:bg-slate-900 ${severity.border}`}
                   >
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start justify-between gap-2">
                       <div>
-                        <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${severity.badge}`}>
-                          <AlertTriangle className="h-3.5 w-3.5" />
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${severity.badge}`}>
+                          <AlertTriangle className="h-3 w-3" />
                           {alert.severity === 'critical' ? 'Crítico' : 'Advertencia'}
                         </span>
-                        <h4 className="mt-2 text-sm font-semibold text-gray-900 dark:text-slate-100">
+                        <h4 className="mt-1.5 text-xs font-semibold text-gray-900 dark:text-slate-100">
                           {alert.productName}
                           {alert.productCode && (
-                            <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-slate-800 dark:text-slate-300">
+                            <span className="ml-1.5 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600 dark:bg-slate-800 dark:text-slate-300">
                               {alert.productCode}
                             </span>
                           )}
                         </h4>
-                        <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
+                        <p className="mt-1 text-[10px] text-gray-500 dark:text-slate-400">
                           Stock actual: <span className="font-medium text-gray-700 dark:text-slate-200">{alert.currentStock}</span> ·
                           mínimo requerido: <span className="font-medium text-gray-700 dark:text-slate-200">{alert.minimumStock}</span>
                         </p>
-                        <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">
+                        <p className="mt-0.5 text-[10px] text-gray-400 dark:text-slate-500">
                           Última actualización: {formatter.format(new Date(alert.updatedAt))}
                         </p>
                       </div>
 
-                      <div className="flex flex-col items-end gap-2">
+                      <div className="flex flex-col items-end gap-1.5">
                         {isPending ? (
                           <button
                             type="button"
                             onClick={() => acknowledgeAlert(alert.id)}
-                            className={`rounded-full px-3 py-1 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-800 ${severity.chip}`}
+                            className={`rounded-full px-2 py-1 text-[10px] font-semibold text-gray-600 transition-colors hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-800 ${severity.chip}`}
                           >
                             <span className="flex items-center gap-1">
-                              <Check className="h-3.5 w-3.5" />
+                              <Check className="h-3 w-3" />
                               Marcar como visto
                             </span>
                           </button>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300">
-                            <Check className="h-3.5 w-3.5" /> Resuelta
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300">
+                            <Check className="h-3 w-3" /> Resuelta
                           </span>
                         )}
                       </div>
@@ -248,10 +248,10 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
               onOpenAlertsCenter?.();
               setOpen(false);
             }}
-            className="flex w-full items-center justify-between bg-gray-50 px-5 py-3 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="flex w-full items-center justify-between bg-gray-50 px-4 py-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-100 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Ver todas las alertas
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
       )}

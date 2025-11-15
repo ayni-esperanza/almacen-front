@@ -53,9 +53,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const [marca, setMarca] = useState(product?.marca || "");
   const [categoria, setCategoria] = useState(product?.categoria || "");
   const inputClasses =
-    "w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
+    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
   const labelClasses =
-    "block text-sm font-semibold text-gray-700 mb-2 dark:text-slate-200";
+    "block text-xs font-semibold text-gray-700 mb-1 dark:text-slate-200";
 
   useEffect(() => {
     const loadProviders = async () => {
@@ -117,11 +117,11 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col"
+        className="w-full max-w-3xl max-h-[95vh] overflow-hidden rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col"
       >
-        <div className="flex-shrink-0 px-6 py-4 text-white rounded-t-2xl bg-gradient-to-r from-green-500 to-green-600">
+        <div className="flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">Editar Producto</h2>
+            <h2 className="text-base font-bold">Editar Producto</h2>
             <button
               onClick={onClose}
               className="p-1 text-white transition-colors rounded-full hover:bg-white hover:bg-opacity-20"
@@ -131,10 +131,10 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
           </div>
         </div>
         <div className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="p-8">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <form onSubmit={handleSubmit} className="p-4">
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
               {/* Columna izquierda */}
-              <div className="space-y-6">
+              <div className="space-y-2">
                 <div>
                   <label className={labelClasses}>Código del Producto *</label>
                   <input
@@ -198,15 +198,15 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowUbicacionModal(true)}
-                    className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
+                    className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
                     title="Agregar nueva ubicación"
                   >
-                    <span className="text-xl font-bold">+</span>
+                    <span className="text-lg font-bold">+</span>
                   </button>
                 </div>
               </div>
               {/* Columna derecha */}
-              <div className="space-y-6">
+              <div className="space-y-2">
                 <div>
                   <label className={labelClasses}>Nombre del Producto *</label>
                   <input
@@ -274,25 +274,25 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowCategoriaModal(true)}
-                    className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
+                    className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
                     title="Agregar nueva categoría"
                   >
-                    <span className="text-xl font-bold">+</span>
+                    <span className="text-lg font-bold">+</span>
                   </button>
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-4 pt-8 mt-8 border-t border-gray-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-2 mt-2 border-t border-gray-200 dark:border-slate-800">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 font-medium text-gray-700 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="px-4 py-1.5 text-sm font-semibold text-gray-700 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-6 py-3 font-medium text-white transition-colors bg-green-500 rounded-lg hover:bg-green-600 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+                className="px-4 py-1.5 text-sm font-semibold text-white transition-colors bg-green-500 rounded-full hover:bg-green-600 dark:bg-emerald-500 dark:hover:bg-emerald-400"
               >
                 Guardar Cambios
               </button>

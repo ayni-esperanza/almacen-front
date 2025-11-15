@@ -119,9 +119,9 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
   };
 
   const entryInputClasses =
-    "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/40";
+    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/40";
   const exitInputClasses =
-    "w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-rose-400 dark:focus:ring-rose-500/40";
+    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-rose-400 dark:focus:ring-rose-500/40";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,12 +198,12 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-[32px] bg-white shadow-2xl dark:bg-slate-950 dark:border dark:border-slate-800 flex flex-col"
+        className="w-full max-w-3xl max-h-[95vh] overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-950 dark:border dark:border-slate-800 flex flex-col"
       >
         <div
-          className={`flex items-center justify-between rounded-t-[32px] bg-gradient-to-r ${gradientColor} px-6 py-4 text-white flex-shrink-0`}
+          className={`flex items-center justify-between rounded-t-3xl bg-gradient-to-r ${gradientColor} px-4 py-2 text-white flex-shrink-0`}
         >
-          <h2 className="text-xl font-semibold">
+          <h2 className="text-base font-semibold">
             {isEntry ? "Nueva Entrada de Producto" : "Nueva Salida de Producto"}
           </h2>
           <button
@@ -211,16 +211,16 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
             onClick={onCancel}
             className="p-1 transition-colors rounded-full hover:bg-white/20"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="px-8 pt-6 pb-8 space-y-8">
+          <form onSubmit={handleSubmit} className="px-4 pt-4 pb-4 space-y-2">
             {isEntry ? (
               <>
-                <div className="grid gap-5 md:grid-cols-2">
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Código del Producto *</span>
                     <div className="relative">
                       <input
@@ -256,7 +256,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                       )}
                   </label>
 
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Nombre *</span>
                     <input
                       type="text"
@@ -270,8 +270,8 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                   </label>
                 </div>
 
-                <div className="grid gap-5 md:grid-cols-2">
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Fecha *</span>
                     <input
                       type="date"
@@ -283,7 +283,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     />
                   </label>
 
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Cantidad *</span>
                     <input
                       type="number"
@@ -298,8 +298,8 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                   </label>
                 </div>
 
-                <div className="grid gap-5 md:grid-cols-2">
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Precio Unitario (S/)</span>
                     <input
                       type="number"
@@ -328,8 +328,8 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
               </>
             ) : (
               <>
-                <div className="grid gap-5 md:grid-cols-2">
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span className="flex items-center gap-2">Fecha *</span>
                     <input
                       type="date"
@@ -341,7 +341,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     />
                   </label>
 
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Código *</span>
                     <div className="relative">
                       <input
@@ -378,8 +378,8 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                   </label>
                 </div>
 
-                <div className="grid gap-5 md:grid-cols-2">
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Nombre *</span>
                     <input
                       type="text"
@@ -392,7 +392,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     />
                   </label>
 
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Cantidad *</span>
                     <input
                       type="number"
@@ -410,7 +410,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                 {/* Notificación de stock */}
                 {stockWarning.message && (
                   <div
-                    className={`flex items-start gap-3 px-4 py-3 rounded-2xl border ${
+                    className={`flex items-start gap-3 px-3 py-2 rounded-xl border ${
                       stockWarning.type === "sin-stock"
                         ? "bg-red-50 border-red-300 text-red-800 dark:bg-red-900/20 dark:border-red-700 dark:text-red-200"
                         : stockWarning.type === "stock-bajo"
@@ -420,19 +420,19 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                   >
                     <AlertCircle className="flex-shrink-0 w-5 h-5 mt-0.5" />
                     <div className="flex-1">
-                      <p className="font-semibold text-sm">
+                      <p className="font-semibold text-xs">
                         {stockWarning.type === "sin-stock"
                           ? "Sin Stock Disponible"
                           : stockWarning.type === "stock-bajo"
                           ? "Stock Insuficiente"
                           : "Advertencia de Stock"}
                       </p>
-                      <p className="text-sm mt-1">{stockWarning.message}</p>
+                      <p className="text-xs mt-1">{stockWarning.message}</p>
                     </div>
                   </div>
                 )}
 
-                <div className="grid gap-5 md:grid-cols-3">
+                <div className="grid gap-3 md:grid-cols-3">
                   <SearchableSelect
                     name="area"
                     label="Área *"
@@ -445,7 +445,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     required
                   />
 
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Proyecto</span>
                     <input
                       type="text"
@@ -457,8 +457,8 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     />
                   </label>
 
-                  <label className="flex flex-col gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200">
-                    <span>Responsable *</span>
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
+                    <span>Descripción *</span>
                     <input
                       type="text"
                       name="responsable"
@@ -474,22 +474,22 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
             )}
 
             {errorMessage && (
-              <div className="px-4 py-3 text-sm text-red-700 border border-red-200 rounded-2xl bg-red-50">
+              <div className="px-3 py-2 text-sm text-red-700 border border-red-200 rounded-xl bg-red-50">
                 {errorMessage}
               </div>
             )}
 
-            <div className="flex flex-col gap-4 pt-6 border-t border-gray-200 sm:flex-row sm:justify-end">
+            <div className="flex flex-col gap-2 pt-2 border-t border-gray-200 dark:border-slate-800 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-6 py-2 text-sm font-semibold text-gray-600 transition-colors border border-gray-300 rounded-full hover:bg-gray-50"
+                className="px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors border border-gray-300 rounded-full hover:bg-gray-50"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className={`rounded-full px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors ${buttonColor}`}
+                className={`rounded-full px-4 py-1.5 text-sm font-semibold text-white shadow-md transition-colors ${buttonColor}`}
               >
                 {primaryButtonLabel}
               </button>
