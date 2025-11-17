@@ -78,36 +78,6 @@ export const ExpenseReportPage: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="rounded-lg bg-gradient-to-r from-green-500 to-green-600 p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Reporte de Gastos Mensual</h1>
-            <p className="text-green-100 mt-1">
-              Análisis detallado de gastos por área y proyecto
-            </p>
-          </div>
-          <div className="flex space-x-3">
-            <button
-              onClick={handleExportPDF}
-              disabled={loading}
-              className="flex items-center space-x-2 rounded-lg bg-white bg-opacity-20 px-4 py-2 transition-colors hover:bg-opacity-30 disabled:opacity-50"
-            >
-              <Download className="w-4 h-4" />
-              <span>Exportar PDF</span>
-            </button>
-            <button
-              onClick={refetch}
-              disabled={loading}
-              className="flex items-center space-x-2 rounded-lg bg-white bg-opacity-20 px-4 py-2 transition-colors hover:bg-opacity-30 disabled:opacity-50"
-            >
-              <FileText className="w-4 h-4" />
-              <span>Actualizar</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Filtros */}
       <ReportFilters
         filters={filters}
@@ -119,33 +89,53 @@ export const ExpenseReportPage: React.FC = () => {
       {/* Tabs */}
       <div className={cardClasses}>
         <div className="border-b border-gray-200 dark:border-slate-800">
-          <nav className="-mb-px flex space-x-8 px-6">
-            <button
-              onClick={() => setActiveTab('chart')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'chart'
-                  ? 'border-green-500 text-green-600 dark:text-emerald-300'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-700'
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <BarChart3 className="w-4 h-4" />
-                <span>Gráficos</span>
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('table')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'table'
-                  ? 'border-green-500 text-green-600 dark:text-emerald-300'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-700'
-              }`}
-            >
-              <div className="flex items-center space-x-2">
+          <nav className="-mb-px flex items-center justify-between px-6">
+            <div className="flex space-x-8">
+              <button
+                onClick={() => setActiveTab('chart')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'chart'
+                    ? 'border-green-500 text-green-600 dark:text-emerald-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Gráficos</span>
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('table')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'table'
+                    ? 'border-green-500 text-green-600 dark:text-emerald-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-4 h-4" />
+                  <span>Tabla de Datos</span>
+                </div>
+              </button>
+            </div>
+            <div className="flex space-x-3">
+              <button
+                onClick={handleExportPDF}
+                disabled={loading}
+                className="flex items-center space-x-2 rounded-lg bg-green-500 bg-opacity-10 text-green-600 dark:text-emerald-300 px-4 py-2 transition-colors hover:bg-opacity-20 disabled:opacity-50"
+              >
+                <Download className="w-4 h-4" />
+                <span>Exportar PDF</span>
+              </button>
+              <button
+                onClick={refetch}
+                disabled={loading}
+                className="flex items-center space-x-2 rounded-lg bg-green-500 bg-opacity-10 text-green-600 dark:text-emerald-300 px-4 py-2 transition-colors hover:bg-opacity-20 disabled:opacity-50"
+              >
                 <FileText className="w-4 h-4" />
-                <span>Tabla de Datos</span>
-              </div>
-            </button>
+                <span>Actualizar</span>
+              </button>
+            </div>
           </nav>
         </div>
 

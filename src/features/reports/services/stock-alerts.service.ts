@@ -86,13 +86,14 @@ class StockAlertsService {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to export stock alerts");
+        const errorText = await response.text();
+        throw new Error(`Failed to export stock alerts: ${errorText}`);
       }
 
       return await response.blob();
     } catch (error) {
       console.error("Error exporting stock alerts:", error);
-      return null;
+      throw error;
     }
   }
 

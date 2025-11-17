@@ -119,26 +119,22 @@ export const StockAlertPage: React.FC = () => {
 
   // Función para generar el título dinámico basado en los filtros
   const getTableTitle = () => {
-    const parts: string[] = [];
+    const parts: string[] = ['Productos con Stock'];
     
     if (filters.estado) {
       const estadoTexto = filters.estado === "critico" ? "Crítico" : filters.estado === "bajo" ? "Bajo" : "Normal";
-      parts.push(`${estadoTexto}`);
+      parts.push(estadoTexto);
     }
     
     if (filters.categoria) {
-      parts.push(`- Categoría: ${filters.categoria}`);
+      parts.push(`Categoría: ${filters.categoria}`);
     }
     
     if (filters.ubicacion) {
-      parts.push(`- Ubicación: ${filters.ubicacion}`);
+      parts.push(`Ubicación: ${filters.ubicacion}`);
     }
     
-    if (parts.length === 0) {
-      return "Productos con Stock";
-    }
-    
-    return `Productos con Stock ${parts.join(" • ")}`;
+    return parts.join(" • ");
   };
 
   const handleExport = async () => {
@@ -198,25 +194,6 @@ export const StockAlertPage: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="p-6 text-white rounded-lg bg-gradient-to-r from-orange-500 to-red-600">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Alertas de Stock</h1>
-            <p className="mt-1 text-orange-100">
-              Productos con stock por debajo del mínimo (10 unidades)
-            </p>
-          </div>
-          <button
-            onClick={handleExport}
-            disabled={loading}
-            className="flex items-center px-4 py-2 space-x-2 transition-colors bg-white rounded-lg bg-opacity-20 hover:bg-opacity-30 disabled:opacity-50"
-          >
-            <Download className="w-4 h-4" />
-            <span>Exportar</span>
-          </button>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
         <div className={cardClasses}>
           <div className="flex items-center">
@@ -374,9 +351,14 @@ export const StockAlertPage: React.FC = () => {
         <div className="flex-shrink-0 px-6 py-4 text-white bg-gradient-to-r from-orange-500 to-red-600 rounded-t-xl">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold">{getTableTitle()}</h3>
-            <div className="text-sm text-orange-100">
-              Mostrando {filteredAlerts.length} de {stockAlerts.length} alertas
-            </div>
+            <button
+              onClick={handleExport}
+              disabled={loading}
+              className="flex items-center px-4 py-2 space-x-2 transition-colors bg-white rounded-lg bg-opacity-20 hover:bg-opacity-30 disabled:opacity-50"
+            >
+              <Download className="w-4 h-4" />
+              <span>Exportar</span>
+            </button>
           </div>
         </div>
 
@@ -432,7 +414,7 @@ export const StockAlertPage: React.FC = () => {
                     >
                       <td className="px-3 py-2">
                         <span
-                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getEstadoColor(
+                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${getEstadoColor(
                             alert.estado
                           )}`}
                         >
