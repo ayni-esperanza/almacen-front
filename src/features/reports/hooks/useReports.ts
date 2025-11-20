@@ -16,6 +16,21 @@ const formatMonthValue = (date: Date) => {
 
 const formatMonthLabel = (value: string) => {
   if (!value) return '';
+  
+  // Manejar formato MM/YYYY (desde la API)
+  if (value.includes('/')) {
+    const [monthStr, yearStr] = value.split('/');
+    const month = Number(monthStr);
+    const year = Number(yearStr);
+    if (!year || !month) {
+      return value;
+    }
+    return new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(
+      new Date(year, month - 1, 1)
+    );
+  }
+  
+  // Manejar formato YYYY-MM (desde filtros)
   const [yearStr, monthStr] = value.split('-');
   const year = Number(yearStr);
   const month = Number(monthStr);
@@ -34,10 +49,11 @@ export const useReports = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<ReportFilters>(() => {
-    const currentMonth = formatMonthValue(new Date());
+    const today = new Date();
+    const startOfYear = new Date(today.getFullYear(), 0, 1); // Enero del año actual
     return {
-      fechaInicio: currentMonth,
-      fechaFin: currentMonth,
+      fechaInicio: formatMonthValue(startOfYear),
+      fechaFin: formatMonthValue(today),
       tipoReporte: 'area'
     };
   });
@@ -115,21 +131,31 @@ export const useReports = () => {
   };
 
   const getMonthlyChartData = (): ChartData[] => {
-    return monthlyData.map(item => ({
+    // Ordenar los datos por mes de forma cronológica
+    const sortedData = [...monthlyData].sort((a, b) => {
+      const [monthA, yearA] = (a.mes || '').split('/');
+      const [monthB, yearB] = (b.mes || '').split('/');
+      const dateA = new Date(parseInt(yearA) || 0, parseInt(monthA) - 1 || 0);
+      const dateB = new Date(parseInt(yearB) || 0, parseInt(monthB) - 1 || 0);
+      return dateA.getTime() - dateB.getTime();
+    });
+
+    return sortedData.map(item => ({
       name: item.mes ? formatMonthLabel(item.mes) : 'Sin Mes',
       gasto: item.totalGasto,
       movimientos: item.cantidadMovimientos
     }));
   };
 
-  const exportToPDF = async (): Promise<void> => {
+  const exportToPDF = async (tipo: 'chart' | 'table' = 'table', mainChartType: 'bar' | 'pie' | 'line' = 'bar', monthlyChartType: 'bar' | 'pie' | 'line' = 'bar'): Promise<void> => {
     try {
-      const blob = await reportsService.exportExpenseReport(filters);
+      const blob = await reportsService.exportExpenseReport(filters, tipo, mainChartType, monthlyChartType);
       if (blob) {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `reporte-gastos-${filters.fechaInicio}-${filters.fechaFin}.pdf`;
+        const tipoTexto = tipo === 'chart' ? 'graficos' : 'tabla';
+        a.download = `reporte-gastos-${tipoTexto}-${filters.fechaInicio}-${filters.fechaFin}.pdf`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);

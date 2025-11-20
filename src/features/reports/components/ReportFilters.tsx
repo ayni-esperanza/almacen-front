@@ -18,28 +18,12 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
     onFiltersChange({ [field]: value });
   };
 
-  const containerClasses = 'rounded-2xl border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-950';
+  const containerClasses = 'rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-900';
   const labelClasses = 'block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2';
-  const inputClasses = 'w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30';
-  const quickFilterButtonClasses = 'rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:bg-blue-500 dark:hover:bg-blue-400';
-
-  const formatMonthValue = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}`;
-  };
-
-  const setMonthRange = (start: Date, end: Date) => {
-    onFiltersChange({
-      fechaInicio: formatMonthValue(start),
-      fechaFin: formatMonthValue(end)
-    });
-  };
+  const inputClasses = 'w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30';
 
   return (
     <div className={containerClasses}>
-      <h3 className="mb-4 text-lg font-semibold text-gray-800 dark:text-slate-100">Filtros del Reporte</h3>
-      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Tipo de Reporte */}
         <div>
@@ -119,41 +103,6 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
             </select>
           </div>
         )}
-      </div>
-
-      {/* Botones de acción rápida */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button
-          onClick={() => {
-            const today = new Date();
-            setMonthRange(new Date(today.getFullYear(), today.getMonth(), 1), new Date(today.getFullYear(), today.getMonth(), 1));
-          }}
-          className={quickFilterButtonClasses}
-        >
-          Mes Actual
-        </button>
-        
-        <button
-          onClick={() => {
-            const today = new Date();
-            const previousMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-            setMonthRange(previousMonth, previousMonth);
-          }}
-          className={quickFilterButtonClasses}
-        >
-          Mes Anterior
-        </button>
-        
-        <button
-          onClick={() => {
-            const today = new Date();
-            const startOfYear = new Date(today.getFullYear(), 0, 1);
-            setMonthRange(startOfYear, today);
-          }}
-          className={quickFilterButtonClasses}
-        >
-          Año Actual
-        </button>
       </div>
     </div>
   );

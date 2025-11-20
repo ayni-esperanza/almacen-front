@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Download, FileText, BarChart3 } from 'lucide-react';
+import { Download, FileText, BarChart3, RefreshCw } from 'lucide-react';
 import { useReports } from '../hooks/useReports';
 import { ReportFilters } from './ReportFilters';
-import { ExpenseReportChart } from './ExpenseReportChart';
+import { ExpenseReportChart, ChartType } from './ExpenseReportChart';
 import { ExpenseReportTable } from './ExpenseReportTable';
 
 export const ExpenseReportPage: React.FC = () => {
@@ -22,8 +22,10 @@ export const ExpenseReportPage: React.FC = () => {
   const [areas] = useState<string[]>(['ALMACEN', 'MECANICA', 'BROCHA', 'OTRO']);
   const [proyectos, setProyectos] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'chart' | 'table'>('chart');
-  const cardClasses = 'rounded-[24px] border border-transparent bg-white p-6 shadow-md transition-colors dark:border-slate-800 dark:bg-slate-950';
-  const statCardClasses = 'rounded-[24px] border border-transparent bg-white p-6 shadow-md transition-colors dark:border-slate-800 dark:bg-slate-950';
+  const [mainChartType, setMainChartType] = useState<ChartType>('bar');
+  const [monthlyChartType, setMonthlyChartType] = useState<ChartType>('bar');
+  const cardClasses = 'rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-900';
+  const statCardClasses = 'rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-900';
 
   // Extraer proyectos únicos de los datos
   useEffect(() => {
@@ -36,11 +38,12 @@ export const ExpenseReportPage: React.FC = () => {
       });
     });
   setProyectos(Array.from(uniqueProjects).sort());
-  }, [areaData]);
+  }, [areaData, expenseReports, filters]);
 
   const handleExportPDF = async () => {
     try {
-      await exportToPDF();
+      // Exportar según la pestaña activa
+      await exportToPDF(activeTab, mainChartType, monthlyChartType);
     } catch (error) {
       console.error('Error exporting PDF:', error);
     }
@@ -77,7 +80,86 @@ export const ExpenseReportPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-4 sm:p-6 sm:space-y-6">
+      {/* Resumen de estadísticas */}
+      {!loading && expenseReports.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className={statCardClasses}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center w-8 h-8 bg-emerald-100 rounded-lg dark:bg-emerald-500/15">
+                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                </div>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-slate-400">Total Gastos</p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+                  {new Intl.NumberFormat('es-PE', {
+                    style: 'currency',
+                    currency: 'PEN',
+                    minimumFractionDigits: 2
+                  }).format(expenseReports.reduce((sum, item) => sum + item.costoTotal, 0))}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className={statCardClasses}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg dark:bg-sky-500/15">
+                  <svg className="w-5 h-5 text-blue-600 dark:text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-slate-400">Total Movimientos</p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">{expenseReports.length}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className={statCardClasses}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg dark:bg-violet-500/15">
+                  <svg className="w-5 h-5 text-purple-600 dark:text-violet-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-slate-400">Áreas Involucradas</p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+                  {new Set(expenseReports.map(item => item.area)).size}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className={statCardClasses}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center w-8 h-8 bg-yellow-100 rounded-lg dark:bg-amber-500/15">
+                  <svg className="w-5 h-5 text-yellow-600 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-slate-400">Proyectos Involucrados</p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+                  {new Set(expenseReports.filter(item => item.proyecto).map(item => item.proyecto!)).size}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Filtros */}
       <ReportFilters
         filters={filters}
@@ -86,8 +168,9 @@ export const ExpenseReportPage: React.FC = () => {
         proyectos={proyectos}
       />
 
-      {/* Tabs */}
-      <div className={cardClasses}>
+      {/* Dashboard - Tabs y Gráficos */}
+      {!loading && expenseReports.length > 0 && (
+        <div className={cardClasses}>
         <div className="border-b border-gray-200 dark:border-slate-800">
           <nav className="-mb-px flex items-center justify-between px-6">
             <div className="flex space-x-8">
@@ -125,14 +208,14 @@ export const ExpenseReportPage: React.FC = () => {
                 className="flex items-center space-x-2 rounded-lg bg-green-500 bg-opacity-10 text-green-600 dark:text-emerald-300 px-4 py-2 transition-colors hover:bg-opacity-20 disabled:opacity-50"
               >
                 <Download className="w-4 h-4" />
-                <span>Exportar PDF</span>
+                <span>Exportar {activeTab === 'chart' ? 'Gráficos' : 'Tabla'}</span>
               </button>
               <button
                 onClick={refetch}
                 disabled={loading}
                 className="flex items-center space-x-2 rounded-lg bg-green-500 bg-opacity-10 text-green-600 dark:text-emerald-300 px-4 py-2 transition-colors hover:bg-opacity-20 disabled:opacity-50"
               >
-                <FileText className="w-4 h-4" />
+                <RefreshCw className="w-4 h-4" />
                 <span>Actualizar</span>
               </button>
             </div>
@@ -147,6 +230,8 @@ export const ExpenseReportPage: React.FC = () => {
                 data={generateChartData()}
                 title={getChartTitle()}
                 loading={loading}
+                chartType={mainChartType}
+                onChartTypeChange={setMainChartType}
               />
 
               {/* Gráfico mensual */}
@@ -154,6 +239,8 @@ export const ExpenseReportPage: React.FC = () => {
                 data={getMonthlyChartData()}
                 title={getMonthlyChartTitle()}
                 loading={loading}
+                chartType={monthlyChartType}
+                onChartTypeChange={setMonthlyChartType}
               />
             </div>
           ) : (
@@ -164,15 +251,16 @@ export const ExpenseReportPage: React.FC = () => {
           )}
         </div>
       </div>
+      )}
 
-      {/* Resumen de estadísticas */}
-      {!loading && expenseReports.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      {/* Mensaje informativo cuando no hay datos */}
+      {!loading && expenseReports.length === 0 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className={statCardClasses}>
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 dark:bg-emerald-500/15">
-                  <svg className="h-5 w-5 text-green-600 dark:text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center justify-center w-8 h-8 bg-emerald-100 rounded-lg dark:bg-emerald-500/15">
+                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
                 </div>
@@ -193,8 +281,8 @@ export const ExpenseReportPage: React.FC = () => {
           <div className={statCardClasses}>
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-sky-500/15">
-                  <svg className="h-5 w-5 text-blue-600 dark:text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg dark:bg-sky-500/15">
+                  <svg className="w-5 h-5 text-blue-600 dark:text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
@@ -209,8 +297,8 @@ export const ExpenseReportPage: React.FC = () => {
           <div className={statCardClasses}>
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 dark:bg-violet-500/15">
-                  <svg className="h-5 w-5 text-purple-600 dark:text-violet-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg dark:bg-violet-500/15">
+                  <svg className="w-5 h-5 text-purple-600 dark:text-violet-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
@@ -227,8 +315,8 @@ export const ExpenseReportPage: React.FC = () => {
           <div className={statCardClasses}>
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-500/15">
-                  <svg className="h-5 w-5 text-orange-600 dark:text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center justify-center w-8 h-8 bg-yellow-100 rounded-lg dark:bg-amber-500/15">
+                  <svg className="w-5 h-5 text-yellow-600 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>

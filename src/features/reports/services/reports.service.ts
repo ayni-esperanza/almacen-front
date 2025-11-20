@@ -47,7 +47,7 @@ class ReportsService {
   async getExpenseReports(filters: ReportFilters): Promise<ExpenseReport[]> {
     const params = buildParams(filters);
 
-    const response = await apiClient.get<ExpenseReport[]>(
+    const response = await apiClient.get<any[]>(
       `/reports/expenses?${params.toString()}`
     );
 
@@ -56,7 +56,20 @@ class ReportsService {
       return [];
     }
 
-    return response.data || [];
+    // Mapear la respuesta de la API al formato esperado
+    const data = response.data || [];
+    return data.map(item => ({
+      id: item.id?.toString() || '',
+      area: item.area || '',
+      proyecto: item.proyecto || '',
+      fecha: item.fecha || '',
+      codigoProducto: item.codigoProducto || '',
+      descripcion: item.descripcion || '',
+      precioUnitario: item.precioUnitario || 0,
+      cantidad: item.cantidad || 0,
+      costoTotal: item.total || (item.precioUnitario * item.cantidad) || 0,
+      responsable: item.responsable
+    }));
   }
 
   async getMonthlyExpenseData(
@@ -64,7 +77,7 @@ class ReportsService {
   ): Promise<MonthlyExpenseData[]> {
     const params = buildParams(filters);
 
-    const response = await apiClient.get<MonthlyExpenseData[]>(
+    const response = await apiClient.get<any[]>(
       `/reports/expenses/monthly?${params.toString()}`
     );
 
@@ -73,7 +86,16 @@ class ReportsService {
       return [];
     }
 
-    return response.data || [];
+    // Mapear la respuesta de la API que usa "gasto" y "movimientos"
+    // al formato esperado por el frontend
+    const data = response.data || [];
+    return data.map(item => ({
+      mes: item.mes || '',
+      area: item.area || '',
+      proyecto: item.proyecto || '',
+      totalGasto: item.gasto || 0,
+      cantidadMovimientos: item.movimientos || 0
+    }));
   }
 
   async getAreaExpenseData(filters: ReportFilters): Promise<AreaExpenseData[]> {
@@ -91,9 +113,12 @@ class ReportsService {
     return response.data || [];
   }
 
-  async exportExpenseReport(filters: ReportFilters): Promise<Blob | null> {
+  async exportExpenseReport(filters: ReportFilters, tipo: 'chart' | 'table' = 'table', mainChartType: 'bar' | 'pie' | 'line' = 'bar', monthlyChartType: 'bar' | 'pie' | 'line' = 'bar'): Promise<Blob | null> {
     try {
       const params = buildParams(filters);
+      params.append('tipo', tipo);
+      params.append('mainChartType', mainChartType);
+      params.append('monthlyChartType', monthlyChartType);
 
       const token = localStorage.getItem("auth_token");
       const response = await fetch(
