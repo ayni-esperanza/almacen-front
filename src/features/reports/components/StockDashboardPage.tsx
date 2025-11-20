@@ -19,16 +19,16 @@ export const StockDashboardPage = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header con selector de período */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+    <div className="p-3 space-y-4 sm:p-6 sm:space-y-6">
+      {/* Header con selector de período - Responsive */}
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl dark:text-slate-100">
           Dashboard de Stock
         </h1>
-        <div className="flex gap-2">
+        <div className="flex w-full gap-2 sm:w-auto">
           <button
             onClick={() => handlePeriodChange(7)}
-            className={`px-4 py-2 rounded transition-colors ${
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm rounded transition-colors ${
               period === 7
                 ? "bg-blue-600 text-white dark:bg-emerald-600 dark:text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
@@ -38,7 +38,7 @@ export const StockDashboardPage = () => {
           </button>
           <button
             onClick={() => handlePeriodChange(30)}
-            className={`px-4 py-2 rounded transition-colors ${
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm rounded transition-colors ${
               period === 30
                 ? "bg-blue-600 text-white dark:bg-emerald-600 dark:text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
@@ -48,7 +48,7 @@ export const StockDashboardPage = () => {
           </button>
           <button
             onClick={() => handlePeriodChange(90)}
-            className={`px-4 py-2 rounded transition-colors ${
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm rounded transition-colors ${
               period === 90
                 ? "bg-blue-600 text-white dark:bg-emerald-600 dark:text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
@@ -59,22 +59,22 @@ export const StockDashboardPage = () => {
         </div>
       </div>
 
-      {/* Grid de métricas */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Grid de métricas - Responsive */}
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Métrica 1: Total Productos */}
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-slate-900 dark:border dark:border-slate-800">
+        <div className="p-4 bg-white rounded-lg shadow sm:p-6 dark:bg-slate-900 dark:border dark:border-slate-800">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
+              <p className="text-xs font-medium text-gray-600 sm:text-sm dark:text-slate-400">
                 Total de Productos
               </p>
-              <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-slate-100">
+              <p className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl dark:text-slate-100">
                 {dashboard.totalProductos.toLocaleString()}
               </p>
             </div>
-            <div className="p-3 bg-blue-100 rounded-full dark:bg-blue-500/10">
+            <div className="p-2 bg-blue-100 rounded-full sm:p-3 dark:bg-blue-500/10">
               <svg
-                className="w-8 h-8 text-blue-600 dark:text-blue-400"
+                className="w-6 h-6 text-blue-600 sm:w-8 sm:h-8 dark:text-blue-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -91,13 +91,13 @@ export const StockDashboardPage = () => {
         </div>
 
         {/* Métrica 2: Valor Total */}
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-slate-900 dark:border dark:border-slate-800">
+        <div className="p-4 bg-white rounded-lg shadow sm:p-6 dark:bg-slate-900 dark:border dark:border-slate-800">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
+              <p className="text-xs font-medium text-gray-600 sm:text-sm dark:text-slate-400">
                 Valor Total Inventario
               </p>
-              <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-slate-100">
+              <p className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl dark:text-slate-100">
                 S/.{" "}
                 {dashboard.valorTotalInventario.toLocaleString("es-PE", {
                   minimumFractionDigits: 2,
@@ -105,9 +105,9 @@ export const StockDashboardPage = () => {
                 })}
               </p>
             </div>
-            <div className="p-3 bg-green-100 rounded-full dark:bg-green-500/10">
+            <div className="p-2 bg-green-100 rounded-full sm:p-3 dark:bg-green-500/10">
               <svg
-                className="w-8 h-8 text-green-600 dark:text-green-400"
+                className="w-6 h-6 text-green-600 sm:w-8 sm:h-8 dark:text-green-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -124,14 +124,14 @@ export const StockDashboardPage = () => {
         </div>
 
         {/* Métrica 3: Producto Crítico */}
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-slate-900 dark:border dark:border-slate-800">
+        <div className="p-4 bg-white rounded-lg shadow sm:p-6 dark:bg-slate-900 dark:border dark:border-slate-800">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
+            <p className="text-xs font-medium text-gray-600 sm:text-sm dark:text-slate-400">
               Producto Crítico
             </p>
-            <div className="p-3 bg-red-100 rounded-full dark:bg-red-500/10">
+            <div className="p-2 bg-red-100 rounded-full sm:p-3 dark:bg-red-500/10">
               <svg
-                className="w-8 h-8 text-red-600 dark:text-red-400"
+                className="w-6 h-6 text-red-600 sm:w-8 sm:h-8 dark:text-red-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -147,11 +147,11 @@ export const StockDashboardPage = () => {
           </div>
           {dashboard.productoCritico ? (
             <div>
-              <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+              <p className="text-base font-semibold text-gray-900 sm:text-lg dark:text-slate-100">
                 {dashboard.productoCritico.nombre}
               </p>
               <div className="mt-2 space-y-1">
-                <p className="text-sm text-gray-600 dark:text-slate-400">
+                <p className="text-xs text-gray-600 sm:text-sm dark:text-slate-400">
                   Stock:{" "}
                   <span className="font-medium text-red-600 dark:text-red-400">
                     {dashboard.productoCritico.stockActual}
@@ -178,21 +178,21 @@ export const StockDashboardPage = () => {
               </div>
             </div>
           ) : (
-            <p className="text-sm italic text-gray-500 dark:text-slate-400">
+            <p className="text-xs italic text-gray-500 sm:text-sm dark:text-slate-400">
               Sin productos críticos
             </p>
           )}
         </div>
 
         {/* Métrica 4: Producto Menos Movido */}
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-slate-900 dark:border dark:border-slate-800">
+        <div className="p-4 bg-white rounded-lg shadow sm:p-6 dark:bg-slate-900 dark:border dark:border-slate-800">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
+            <p className="text-xs font-medium text-gray-600 sm:text-sm dark:text-slate-400">
               Menos Movido (últimos {period} días)
             </p>
-            <div className="p-3 bg-orange-100 rounded-full dark:bg-orange-500/10">
+            <div className="p-2 bg-orange-100 rounded-full sm:p-3 dark:bg-orange-500/10">
               <svg
-                className="w-8 h-8 text-orange-600 dark:text-orange-400"
+                className="w-6 h-6 text-orange-600 sm:w-8 sm:h-8 dark:text-orange-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -208,11 +208,11 @@ export const StockDashboardPage = () => {
           </div>
           {dashboard.productoMenosMovido ? (
             <div>
-              <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+              <p className="text-base font-semibold text-gray-900 sm:text-lg dark:text-slate-100">
                 {dashboard.productoMenosMovido.nombre}
               </p>
               <div className="mt-2 space-y-1">
-                <p className="text-sm text-gray-600 dark:text-slate-400">
+                <p className="text-xs text-gray-600 sm:text-sm dark:text-slate-400">
                   Movimientos:{" "}
                   <span className="font-medium text-orange-600 dark:text-orange-400">
                     {dashboard.productoMenosMovido.cantidadMovimientos}
@@ -221,21 +221,21 @@ export const StockDashboardPage = () => {
               </div>
             </div>
           ) : (
-            <p className="text-sm italic text-gray-500 dark:text-slate-400">
+            <p className="text-xs italic text-gray-500 sm:text-sm dark:text-slate-400">
               Sin datos de movimientos
             </p>
           )}
         </div>
 
         {/* Métrica 5: Producto Más Movido */}
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-slate-900 dark:border dark:border-slate-800">
+        <div className="p-4 bg-white rounded-lg shadow sm:p-6 dark:bg-slate-900 dark:border dark:border-slate-800">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
+            <p className="text-xs font-medium text-gray-600 sm:text-sm dark:text-slate-400">
               Más Movido (últimos {period} días)
             </p>
-            <div className="p-3 bg-purple-100 rounded-full dark:bg-purple-500/10">
+            <div className="p-2 bg-purple-100 rounded-full sm:p-3 dark:bg-purple-500/10">
               <svg
-                className="w-8 h-8 text-purple-600 dark:text-purple-400"
+                className="w-6 h-6 text-purple-600 sm:w-8 sm:h-8 dark:text-purple-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -251,11 +251,11 @@ export const StockDashboardPage = () => {
           </div>
           {dashboard.productoMasMovido ? (
             <div>
-              <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+              <p className="text-base font-semibold text-gray-900 sm:text-lg dark:text-slate-100">
                 {dashboard.productoMasMovido.nombre}
               </p>
               <div className="mt-2 space-y-1">
-                <p className="text-sm text-gray-600 dark:text-slate-400">
+                <p className="text-xs text-gray-600 sm:text-sm dark:text-slate-400">
                   Movimientos:{" "}
                   <span className="font-medium text-purple-600 dark:text-purple-400">
                     {dashboard.productoMasMovido.cantidadMovimientos}
@@ -264,7 +264,7 @@ export const StockDashboardPage = () => {
               </div>
             </div>
           ) : (
-            <p className="text-sm italic text-gray-500 dark:text-slate-400">
+            <p className="text-xs italic text-gray-500 sm:text-sm dark:text-slate-400">
               Sin datos de movimientos
             </p>
           )}
@@ -273,3 +273,4 @@ export const StockDashboardPage = () => {
     </div>
   );
 };
+

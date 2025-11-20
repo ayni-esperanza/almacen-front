@@ -154,33 +154,33 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
 
   return (
     <div className="flex flex-col bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">
-      {/* Header de la tabla */}
-      <div className="flex-shrink-0 bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white rounded-t-xl">
-        <div className="flex items-center gap-3">
-          <Wrench className="h-6 w-6" />
-          <h2 className="text-xl font-bold">Reporte de Salidas de Herramientas/Equipos</h2>
+      {/* Header de la tabla - Responsive */}
+      <div className="flex-shrink-0 bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 sm:px-6 sm:py-4 text-white rounded-t-xl">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Wrench className="h-5 w-5 sm:h-6 sm:w-6" />
+          <h2 className="text-base font-bold sm:text-xl">Reporte de Salidas de Herramientas/Equipos</h2>
         </div>
       </div>
 
-      {/* Search Filter */}
-      <div className="flex-shrink-0 p-4 bg-white border-b border-gray-200/70 dark:border-slate-800/70 dark:bg-slate-900">
-        <div className="flex items-center justify-between gap-3">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
+      {/* Search Filter - Responsive */}
+      <div className="flex-shrink-0 p-3 bg-white border-b border-gray-200/70 sm:p-4 dark:border-slate-800/70 dark:bg-slate-900">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative flex-1 w-full sm:max-w-md">
+            <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
             <input
               type="text"
-              placeholder="Buscar por equipo, código, responsable o área..."
+              placeholder="Buscar..."
               value={searchTerm}
               onChange={event => setSearchTerm(event.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400 dark:focus:ring-blue-500/30"
+              className="w-full py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400 dark:focus:ring-blue-500/30"
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-start w-full gap-3 sm:flex-row sm:items-center sm:w-auto">
             {showAllToggle}
             {onAddEquipment && (
               <button
                 onClick={onAddEquipment}
-                className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 whitespace-nowrap flex-shrink-0"
+                className="flex items-center justify-center w-full px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-lg shadow-md sm:w-auto sm:px-6 hover:bg-blue-600 whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
                 <span>Agregar Reporte</span>

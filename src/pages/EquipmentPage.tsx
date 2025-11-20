@@ -62,7 +62,7 @@ export const EquipmentPage = () => {
         onEdit={handleOpenEdit}
         onAddEquipment={() => setShowAddForm(true)}
         showAllToggle={
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -70,7 +70,7 @@ export const EquipmentPage = () => {
                 onChange={(e) => setShowAll(e.target.checked)}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
               />
-              <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
+              <span className="text-xs font-medium text-gray-700 sm:text-sm dark:text-slate-300">
                 Mostrar historial completo
               </span>
             </label>

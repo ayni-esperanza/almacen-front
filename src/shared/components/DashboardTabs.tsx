@@ -64,19 +64,19 @@ export const DashboardTabs = ({ currentPath }: DashboardTabsProps) => {
   };
 
   return (
-    <div className="flex items-center px-6 border-b border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-900">
+    <div className="flex items-center px-2 overflow-x-auto border-b border-gray-200 sm:px-6 bg-gray-50 dark:border-slate-700 dark:bg-slate-900 scrollbar-hide">
       {tabs.map(({ path, label, icon: Icon, permission }) => (
         <ProtectedComponent key={path} permission={permission}>
           <Link
             to={path}
-            className={`flex items-center space-x-2 px-6 py-4 text-sm font-medium transition-colors border-b-2 ${
+            className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
               isActive(path)
                 ? "border-blue-600 text-blue-600 dark:text-blue-400"
                 : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600"
             }`}
           >
-            <Icon className="w-5 h-5" />
-            <span>{label}</span>
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">{label}</span>
           </Link>
         </ProtectedComponent>
       ))}

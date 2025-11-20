@@ -154,16 +154,17 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
     "space-y-2 border-t border-gray-200 pt-2 dark:border-slate-800";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="w-full max-w-3xl max-h-95vh overflow-hidden rounded-3xl border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col"
+        className="w-full max-w-3xl max-h-95vh overflow-hidden rounded-2xl sm:rounded-3xl border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col"
       >
-        <div className="flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 text-white flex-shrink-0">
+        <div className="flex items-center justify-between rounded-t-2xl sm:rounded-t-3xl bg-gradient-to-r from-blue-500 to-blue-600 px-3 py-2 sm:px-4 text-white flex-shrink-0">
           <div className="flex items-center gap-2">
-            <Wrench className="w-4 h-4" />
-            <h2 className="text-base font-semibold">
-              Nueva Salida de Herramientas/Equipos
+            <Wrench className="w-4 h-4 sm:w-5 sm:h-5" />
+            <h2 className="text-sm sm:text-base font-semibold">
+              <span className="hidden sm:inline">Nueva Salida de Herramientas/Equipos</span>
+              <span className="sm:hidden">Nuevo Reporte</span>
             </h2>
           </div>
           <button
@@ -171,15 +172,15 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
             onClick={onCancel}
             className="p-1 transition-colors rounded-full hover:bg-white/20"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto">
           <form
             onSubmit={handleSubmit}
-            className="px-4 pt-4 pb-4 space-y-2 bg-white dark:bg-slate-950"
+            className="px-3 pt-3 pb-3 sm:px-4 sm:pt-4 sm:pb-4 space-y-2 sm:space-y-2.5 bg-white dark:bg-slate-950"
           >
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-2 sm:gap-3 md:grid-cols-3">
               <label className={labelClasses}>
                 <span>Código *</span>
                 <div className="relative">
@@ -243,7 +244,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
               </label>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-2 sm:gap-3 md:grid-cols-2">
               <label className={labelClasses}>
                 <span>Estado del Equipo *</span>
                 <div className="relative">
@@ -277,7 +278,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
               </label>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-2 sm:gap-3 md:grid-cols-3">
               <label className={labelClasses}>
                 <span>Fecha de Salida *</span>
                 <input
@@ -319,11 +320,11 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
             </div>
 
             <div className={dividerClasses}>
-              <h3 className="text-xs font-semibold text-gray-900 dark:text-slate-100">
+              <h3 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-slate-100">
                 Información de Retorno (Opcional)
               </h3>
 
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-2 sm:gap-3 md:grid-cols-2">
                 <label className={labelClasses}>
                   <span>Fecha de Retorno</span>
                   <input
@@ -371,7 +372,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
                 </label>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-2 sm:gap-3 md:grid-cols-2">
                 <label className={labelClasses}>
                   <span>Estado de Retorno</span>
                   <div className="relative">
@@ -408,13 +409,13 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
+                className="w-full sm:w-auto px-4 py-2 sm:py-1.5 text-sm font-semibold text-gray-600 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-4 py-1.5 text-sm font-semibold text-white transition-colors bg-blue-600 rounded-full shadow-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
+                className="w-full sm:w-auto px-4 py-2 sm:py-1.5 text-sm font-semibold text-white transition-colors bg-blue-600 rounded-full shadow-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
               >
                 Agregar Reporte
               </button>

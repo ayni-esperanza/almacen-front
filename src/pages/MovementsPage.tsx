@@ -93,12 +93,12 @@ export const MovementsPage = () => {
 
   return (
     <>
-      {/* Navegación secundaria estilo pestañas */}
-      <div className="mb-6 border-b border-gray-200 dark:border-slate-800">
-        <nav className="flex -mb-px space-x-8">
+      {/* Navegación secundaria estilo pestañas - Responsive */}
+      <div className="mb-4 border-b border-gray-200 sm:mb-6 dark:border-slate-800">
+        <nav className="flex px-2 -mb-px space-x-4 sm:px-0 sm:space-x-8">
           <button
             onClick={() => setActiveSubTab("entradas")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+            className={`py-3 px-1 sm:py-4 border-b-2 font-medium text-xs sm:text-sm flex items-center space-x-1.5 sm:space-x-2 ${
               activeSubTab === "entradas"
                 ? "border-green-500 text-green-600 dark:text-emerald-400"
                 : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-700"
@@ -109,7 +109,7 @@ export const MovementsPage = () => {
           </button>
           <button
             onClick={() => setActiveSubTab("salidas")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+            className={`py-3 px-1 sm:py-4 border-b-2 font-medium text-xs sm:text-sm flex items-center space-x-1.5 sm:space-x-2 ${
               activeSubTab === "salidas"
                 ? "border-red-500 text-red-600 dark:text-rose-400"
                 : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-700"

@@ -152,32 +152,32 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
   return (
     <div className="flex flex-col bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">
-      {/* Header de la tabla */}
-      <div className={`flex-shrink-0 bg-gradient-to-r ${gradientColor} text-white py-4 px-6 rounded-t-xl`}>
-        <div className="flex items-center space-x-3">
+      {/* Header de la tabla - Responsive */}
+      <div className={`flex-shrink-0 bg-gradient-to-r ${gradientColor} text-white py-3 px-4 sm:py-4 sm:px-6 rounded-t-xl`}>
+        <div className="flex items-center space-x-2 sm:space-x-3">
           {icon}
-          <h2 className="text-xl font-bold">{titleText}</h2>
+          <h2 className="text-lg font-bold sm:text-xl">{titleText}</h2>
         </div>
       </div>
 
-      {/* Search Filter */}
-      <div className="flex-shrink-0 p-4 bg-white border-b border-gray-200/70 dark:border-slate-800/70 dark:bg-slate-900">
-        <div className="flex items-center justify-between gap-3">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
+      {/* Search Filter - Responsive */}
+      <div className="flex-shrink-0 p-3 bg-white border-b border-gray-200/70 sm:p-4 dark:border-slate-800/70 dark:bg-slate-900">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative flex-1 w-full sm:max-w-md">
+            <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
             <input
               type="text"
-              placeholder="Buscar por código, descripción o responsable..."
+              placeholder="Buscar..."
               value={searchTerm}
               onChange={handleSearchChange}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+              className="w-full py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {onAddMovement && (
               <button
                 onClick={onAddMovement}
-                className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap flex-shrink-0"
+                className="flex items-center justify-center flex-1 px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md sm:flex-none sm:px-6 hover:bg-green-600 whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
                 <span>Agregar</span>
@@ -186,10 +186,11 @@ export const MovementTable: React.FC<MovementTableProps> = ({
             {onExportPdf && (
               <button
                 onClick={onExportPdf}
-                className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap flex-shrink-0"
+                className="flex items-center justify-center flex-1 px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md sm:flex-none sm:px-6 hover:bg-green-600 whitespace-nowrap"
               >
                 <Download className="w-4 h-4" />
-                <span>Exportar PDF</span>
+                <span className="hidden sm:inline">Exportar PDF</span>
+                <span className="sm:hidden">PDF</span>
               </button>
             )}
           </div>

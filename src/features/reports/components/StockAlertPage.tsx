@@ -193,7 +193,8 @@ export const StockAlertPage: React.FC = () => {
   const estadisticas = getEstadisticas();
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-4 sm:p-6 sm:space-y-6">
+      {/* Tarjetas de estadísticas */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
         <div className={cardClasses}>
           <div className="flex items-center">
@@ -286,9 +287,9 @@ export const StockAlertPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Filtros */}
+      {/* Filtros - Responsive */}
       <div className={cardClasses}>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
           <div>
             <SearchableSelect
               label="Categoría"
@@ -346,18 +347,19 @@ export const StockAlertPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabla de Alertas */}
+      {/* Tabla de Alertas - Responsive */}
       <div className="flex flex-col bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex-shrink-0 px-6 py-4 text-white bg-gradient-to-r from-orange-500 to-red-600 rounded-t-xl">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold">{getTableTitle()}</h3>
+        <div className="flex-shrink-0 px-4 py-3 text-white bg-gradient-to-r from-orange-500 to-red-600 rounded-t-xl sm:px-6 sm:py-4">
+          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+            <h3 className="text-lg font-bold sm:text-xl">{getTableTitle()}</h3>
             <button
               onClick={handleExport}
               disabled={loading}
-              className="flex items-center px-4 py-2 space-x-2 transition-colors bg-white rounded-lg bg-opacity-20 hover:bg-opacity-30 disabled:opacity-50"
+              className="flex items-center self-end px-3 py-1.5 space-x-2 text-sm transition-colors bg-white rounded-lg bg-opacity-20 hover:bg-opacity-30 disabled:opacity-50 sm:px-4 sm:py-2 sm:self-auto"
             >
               <Download className="w-4 h-4" />
-              <span>Exportar</span>
+              <span className="hidden sm:inline">Exportar</span>
+              <span className="sm:hidden">PDF</span>
             </button>
           </div>
         </div>
@@ -373,7 +375,8 @@ export const StockAlertPage: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-auto" style={{ maxHeight: '600px' }}>
+            {/* Vista de tabla para desktop */}
+            <div className="flex-1 hidden overflow-auto md:block" style={{ maxHeight: '600px' }}>
               <table className="w-full text-xs text-gray-700 dark:text-slate-200">
                 <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
                   <tr className="border-b border-gray-200 dark:border-slate-800">
@@ -462,6 +465,88 @@ export const StockAlertPage: React.FC = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Vista de tarjetas para móvil */}
+            <div className="flex-1 overflow-auto md:hidden" style={{ maxHeight: '600px' }}>
+              <div className="p-3 space-y-3">
+                {paginatedAlerts.map((alert) => (
+                  <div
+                    key={alert.id}
+                    className="p-4 space-y-3 transition-colors border border-gray-200 rounded-lg hover:bg-orange-50 dark:border-slate-800 dark:hover:bg-slate-900/40"
+                  >
+                    {/* Encabezado de la tarjeta */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate dark:text-slate-100">
+                          {alert.codigo}
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-slate-400 line-clamp-2">
+                          {alert.nombre}
+                        </p>
+                      </div>
+                      <span
+                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap flex-shrink-0 ${getEstadoColor(
+                          alert.estado
+                        )}`}
+                      >
+                        {getEstadoIcon(alert.estado)}{" "}
+                        {alert.estado.charAt(0).toUpperCase() + alert.estado.slice(1)}
+                      </span>
+                    </div>
+
+                    {/* Información de stock */}
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-100 dark:border-slate-800">
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">Stock Actual</p>
+                        <p
+                          className={`text-sm font-semibold ${
+                            alert.stockActual === 0
+                              ? "text-red-600 dark:text-rose-300"
+                              : alert.stockActual < 5
+                              ? "text-orange-600 dark:text-orange-300"
+                              : "text-gray-900 dark:text-slate-100"
+                          }`}
+                        >
+                          {alert.stockActual}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">Stock Mínimo</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">
+                          {alert.stockMinimo}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Detalles adicionales */}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <span className="text-gray-500 dark:text-slate-400">Ubicación:</span>
+                        <p className="font-medium text-gray-900 dark:text-slate-200">{alert.ubicacion}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 dark:text-slate-400">Categoría:</span>
+                        <p className="font-medium text-gray-900 dark:text-slate-200">{alert.categoria}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 dark:text-slate-400">Proveedor:</span>
+                        <p className="font-medium text-gray-900 dark:text-slate-200">{alert.proveedor}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 dark:text-slate-400">Actualizado:</span>
+                        <p className="font-medium text-gray-900 dark:text-slate-200">
+                          {new Date(alert.ultimaActualizacion).toLocaleDateString("es-ES", {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="flex-shrink-0">
