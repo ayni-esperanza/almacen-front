@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Download, FileText, BarChart3, RefreshCw } from 'lucide-react';
+import { Download, FileText, BarChart3 } from 'lucide-react';
 import { useReports } from '../hooks/useReports';
 import { ReportFilters } from './ReportFilters';
+import { ReportFilters as ReportFiltersType } from '../types';
 import { ExpenseReportChart, ChartType } from './ExpenseReportChart';
 import { ExpenseReportTable } from './ExpenseReportTable';
+
+const DEFAULT_AREAS = ['ALMACEN', 'CONTABILIDAD', 'ELECTRICIDAD', 'EXTRUSORA', 'FIBRA', 'LINEAS DE VIDA', 'MECANICA', 'METALMECANICA', 'OFICINA', 'POZOS', 'TORRES DE ENFRIAMIENTO'];
+const SIN_AREA_LABEL = 'Sin área';
+
+const normalizeLabel = (value?: string | null) => value?.trim().toLowerCase() ?? '';
+const isProjectLabel = (value?: string | null) => {
+  const normalized = normalizeLabel(value);
+  if (!normalized) return false;
+  return normalized.startsWith('proyecto') || normalized.startsWith('proy ');
+};
 
 export const ExpenseReportPage: React.FC = () => {
   const {
@@ -15,11 +26,10 @@ export const ExpenseReportPage: React.FC = () => {
     updateFilters,
     generateChartData,
     getMonthlyChartData,
-    exportToPDF,
-    refetch
+    exportToPDF
   } = useReports();
 
-  const [areas] = useState<string[]>(['ALMACEN', 'MECANICA', 'BROCHA', 'OTRO']);
+  const [areas, setAreas] = useState<string[]>(DEFAULT_AREAS);
   const [proyectos, setProyectos] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'chart' | 'table'>('chart');
   const [mainChartType, setMainChartType] = useState<ChartType>('bar');
@@ -30,15 +40,68 @@ export const ExpenseReportPage: React.FC = () => {
   // Extraer proyectos únicos de los datos
   useEffect(() => {
     const uniqueProjects = new Set<string>();
+    const uniqueAreas = new Set<string>(DEFAULT_AREAS);
+
     areaData.forEach(area => {
+      if (area.area) {
+        if (isProjectLabel(area.area)) {
+          uniqueProjects.add(area.area);
+        } else {
+          uniqueAreas.add(area.area);
+        }
+      }
+
       area.proyectos.forEach(proyecto => {
         if (proyecto.proyecto) {
           uniqueProjects.add(proyecto.proyecto);
         }
       });
     });
-  setProyectos(Array.from(uniqueProjects).sort());
-  }, [areaData, expenseReports, filters]);
+
+    // Garantizar que también se consideren áreas de registros individuales
+    expenseReports.forEach(report => {
+      if (report.area) {
+        if (isProjectLabel(report.area)) {
+          uniqueProjects.add(report.area);
+        } else {
+          uniqueAreas.add(report.area);
+        }
+      }
+      if (report.proyecto) {
+        uniqueProjects.add(report.proyecto);
+      }
+    });
+
+    const derivedAreas = Array.from(uniqueAreas).filter(Boolean);
+    const derivedProjects = Array.from(uniqueProjects).filter(Boolean);
+    const projectLookup = new Set(
+      derivedProjects.map(project => normalizeLabel(project)).filter(Boolean)
+    );
+
+    setAreas(prevAreas => {
+      const merged = new Set<string>([...prevAreas, ...derivedAreas]);
+      const filtered = Array.from(merged).filter(area => {
+        const normalized = normalizeLabel(area);
+        if (!normalized || normalized === normalizeLabel(SIN_AREA_LABEL)) {
+          return true;
+        }
+        return !projectLookup.has(normalized);
+      });
+
+      const ordered = filtered.sort((a, b) => a.localeCompare(b));
+      const sinAreaIndex = ordered.findIndex(area => area.toLowerCase() === SIN_AREA_LABEL.toLowerCase());
+      if (sinAreaIndex !== -1) {
+        const [sinArea] = ordered.splice(sinAreaIndex, 1);
+        ordered.push(sinArea);
+      }
+      return ordered;
+    });
+
+    setProyectos(prevProjects => {
+      const merged = new Set<string>([...prevProjects, ...derivedProjects]);
+      return Array.from(merged).sort();
+    });
+  }, [areaData, expenseReports]);
 
   const handleExportPDF = async () => {
     try {
@@ -57,6 +120,28 @@ export const ExpenseReportPage: React.FC = () => {
 
   const getMonthlyChartTitle = () => {
     return `Gastos Mensuales (${filters.fechaInicio} - ${filters.fechaFin})`;
+  };
+
+  const handleFiltersChange = (newFilters: Partial<ReportFiltersType>) => {
+    const payload: Partial<ReportFiltersType> = { ...newFilters };
+
+    if ('tipoReporte' in newFilters) {
+      if (newFilters.tipoReporte === 'area') {
+        payload.proyecto = undefined;
+      } else if (newFilters.tipoReporte === 'proyecto') {
+        payload.area = undefined;
+      }
+    }
+
+    if ('area' in newFilters) {
+      payload.proyecto = undefined;
+    }
+
+    if ('proyecto' in newFilters) {
+      payload.area = undefined;
+    }
+
+    updateFilters(payload);
   };
 
   if (error) {
@@ -163,7 +248,7 @@ export const ExpenseReportPage: React.FC = () => {
       {/* Filtros */}
       <ReportFilters
         filters={filters}
-        onFiltersChange={updateFilters}
+        onFiltersChange={handleFiltersChange}
         areas={areas}
         proyectos={proyectos}
       />
@@ -209,14 +294,6 @@ export const ExpenseReportPage: React.FC = () => {
               >
                 <Download className="w-4 h-4" />
                 <span>Exportar {activeTab === 'chart' ? 'Gráficos' : 'Tabla'}</span>
-              </button>
-              <button
-                onClick={refetch}
-                disabled={loading}
-                className="flex items-center space-x-2 rounded-lg bg-green-500 bg-opacity-10 text-green-600 dark:text-emerald-300 px-4 py-2 transition-colors hover:bg-opacity-20 disabled:opacity-50"
-              >
-                <RefreshCw className="w-4 h-4" />
-                <span>Actualizar</span>
               </button>
             </div>
           </nav>
