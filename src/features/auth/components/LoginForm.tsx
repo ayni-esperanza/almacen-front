@@ -28,16 +28,16 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="w-full max-w-md p-8 bg-white border border-transparent shadow-2xl dark:bg-slate-950 rounded-2xl dark:border-slate-800">
-        <div className="mb-8 text-center">
-          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-green-500 rounded-full dark:bg-green-600">
-            <Lock className="w-8 h-8 text-white" />
+      <div className="w-full max-w-sm p-6 bg-white border border-transparent shadow-2xl dark:bg-slate-950 rounded-2xl dark:border-slate-800">
+        <div className="mb-6 text-center">
+          <div className="flex items-center justify-center w-14 h-14 mx-auto mb-3 bg-green-500 rounded-full dark:bg-green-600">
+            <Lock className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100">Sistema de Inventario</h1>
-          <p className="mt-2 text-gray-600 dark:text-slate-300">Ingresa tus credenciales para continuar</p>
+          <h1 className="text-xl font-bold text-gray-800 dark:text-slate-100">Sistema de Inventario</h1>
+          <p className="mt-1 text-sm text-gray-600 dark:text-slate-300">Ingresa tus credenciales para continuar</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-200">
               Usuario
@@ -49,7 +49,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
                 name="username"
                 value={credentials.username}
                 onChange={handleChange}
-                className="w-full py-3 pl-10 pr-4 transition-all border border-gray-300 rounded-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
+                className="w-full py-2.5 pl-10 pr-4 transition-all border border-gray-300 rounded-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
                 placeholder="Ingresa tu usuario"
                 required
               />
@@ -67,7 +67,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
                 name="password"
                 value={credentials.password}
                 onChange={handleChange}
-                className="w-full py-3 pl-10 pr-12 transition-all border border-gray-300 rounded-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
+                className="w-full py-2.5 pl-10 pr-12 transition-all border border-gray-300 rounded-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
                 placeholder="Ingresa tu contraseña"
                 required
               />
@@ -89,7 +89,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
 
           <button
             type="submit"
-            className="w-full py-3 font-medium text-white transition-colors bg-green-500 rounded-lg dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+            className="w-full py-2.5 font-medium text-white transition-colors bg-green-500 rounded-lg dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
           >
             Iniciar Sesión
           </button>

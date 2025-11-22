@@ -71,7 +71,7 @@ export const DashboardTabs = ({ currentPath }: DashboardTabsProps) => {
             to={path}
             className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
               isActive(path)
-                ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                ? "border-[#16A34A] text-[#16A34A] dark:text-emerald-400"
                 : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600"
             }`}
           >
