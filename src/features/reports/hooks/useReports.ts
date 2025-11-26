@@ -179,9 +179,13 @@ export const useReports = () => {
     [filters]
   );
 
-  // Optimización: Usar un solo useEffect con fetchAllData
+  // Optimización: Usar un solo useEffect con fetchAllData + debounce
   useEffect(() => {
-    fetchAllData();
+    const timeoutId = setTimeout(() => {
+      fetchAllData();
+    }, 300); // Debounce de 300ms
+
+    return () => clearTimeout(timeoutId);
   }, [fetchAllData]);
 
   const refetch = useCallback(() => {

@@ -60,8 +60,6 @@ export const ExpenseReportPage: React.FC = () => {
     exportToPDF,
   } = useReports();
 
-  const [areas, setAreas] = useState<string[]>(DEFAULT_AREAS);
-  const [proyectos, setProyectos] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<"chart" | "table">("chart");
   const [mainChartType, setMainChartType] = useState<ChartType>("bar");
   const [monthlyChartType, setMonthlyChartType] = useState<ChartType>("bar");
@@ -72,8 +70,8 @@ export const ExpenseReportPage: React.FC = () => {
   const statCardClasses =
     "rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-900";
 
-  // Optimización: Memoizar cálculo de áreas y proyectos
-  const { areas: computedAreas, proyectos: computedProyectos } = useMemo(() => {
+  // Optimización: Memoizar cálculo de áreas y proyectos - SIN useState para evitar re-renders
+  const { areas, proyectos } = useMemo(() => {
     const uniqueProjects = new Set<string>();
     const uniqueAreas = new Set<string>(DEFAULT_AREAS);
 
@@ -140,15 +138,7 @@ export const ExpenseReportPage: React.FC = () => {
     };
   }, [areaData, expenseReports]);
 
-  // Actualizar estados solo cuando cambian los valores computados
-  useEffect(() => {
-    setAreas(computedAreas);
-  }, [computedAreas]);
-
-  useEffect(() => {
-    setProyectos(computedProyectos);
-  }, [computedProyectos]);
-
+  // Optimización: IntersectionObserver con cleanup mejorado
   useEffect(() => {
     if (dashboardVisible) return;
 

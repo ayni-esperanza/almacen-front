@@ -66,12 +66,13 @@ export const ReportsPage: React.FC = () => {
     setSearchParams({ tab: reportId });
   };
 
+  // Optimización: Renderizar solo el componente activo
   const ActiveComponent = REPORTS.find((r) => r.id === activeReport)?.component;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
       {/* Navigation Tabs - Responsive */}
-      <div className="border-b border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <div className="bg-white border-b border-gray-200 dark:border-slate-800 dark:bg-slate-900">
         <nav className="flex px-2 -mb-px overflow-x-auto sm:px-0 sm:space-x-8 scrollbar-hide">
           {REPORTS.map((report) => {
             const Icon = report.icon;
@@ -93,9 +94,19 @@ export const ReportsPage: React.FC = () => {
         </nav>
       </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-0 sm:px-4 pb-8 lg:px-8">
-        {ActiveComponent && <ActiveComponent />}
+      {/* Content - Solo renderiza el componente activo */}
+      <div className="px-0 pb-8 mx-auto max-w-7xl sm:px-4 lg:px-8">
+        {ActiveComponent && (
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center h-64">
+                <div className="w-12 h-12 border-b-2 border-green-500 rounded-full animate-spin"></div>
+              </div>
+            }
+          >
+            <ActiveComponent />
+          </React.Suspense>
+        )}
       </div>
     </div>
   );
