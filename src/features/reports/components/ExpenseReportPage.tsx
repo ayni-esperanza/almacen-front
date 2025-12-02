@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { Download, FileText, BarChart3 } from "lucide-react";
+import { Download, FileText, BarChart3, LayoutGrid, Rows3 } from "lucide-react";
 import { useReports } from "../hooks/useReports";
 import { ReportFilters } from "./ReportFilters";
 import { ReportFilters as ReportFiltersType } from "../types";
@@ -63,8 +63,17 @@ export const ExpenseReportPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"chart" | "table">("chart");
   const [mainChartType, setMainChartType] = useState<ChartType>("bar");
   const [monthlyChartType, setMonthlyChartType] = useState<ChartType>("bar");
+  const [chartLayout, setChartLayout] = useState<"vertical" | "horizontal">(() => {
+    const saved = localStorage.getItem("expenseReportChartLayout");
+    return (saved === "horizontal" || saved === "vertical") ? saved : "vertical";
+  });
   const [dashboardVisible, setDashboardVisible] = useState(false);
   const dashboardRef = useRef<HTMLDivElement | null>(null);
+  
+  // Guardar preferencia de layout en localStorage
+  useEffect(() => {
+    localStorage.setItem("expenseReportChartLayout", chartLayout);
+  }, [chartLayout]);
   const cardClasses =
     "rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-900";
   const statCardClasses =
@@ -441,6 +450,25 @@ export const ExpenseReportPage: React.FC = () => {
                     </button>
                   </div>
                   <div className="flex space-x-3">
+                    {activeTab === "chart" && (
+                      <button
+                        onClick={() => setChartLayout(chartLayout === "vertical" ? "horizontal" : "vertical")}
+                        className="flex items-center px-4 py-2 space-x-2 text-gray-600 transition-colors bg-gray-100 rounded-lg dark:text-slate-300 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700"
+                        title={chartLayout === "vertical" ? "Vista horizontal" : "Vista vertical"}
+                      >
+                        {chartLayout === "vertical" ? (
+                          <>
+                            <LayoutGrid className="w-4 h-4" />
+                            <span className="hidden sm:inline">Lado a lado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Rows3 className="w-4 h-4" />
+                            <span className="hidden sm:inline">Vertical</span>
+                          </>
+                        )}
+                      </button>
+                    )}
                     <button
                       onClick={handleExportPDF}
                       disabled={loading}
@@ -464,7 +492,7 @@ export const ExpenseReportPage: React.FC = () => {
                   )}
                 >
                   {activeTab === "chart" ? (
-                    <div className="space-y-6">
+                    <div className={chartLayout === "horizontal" ? "grid grid-cols-1 lg:grid-cols-2 gap-6" : "space-y-6"}>
                       <ExpenseReportChart
                         data={generateChartData}
                         title={getChartTitle()}
