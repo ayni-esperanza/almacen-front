@@ -218,7 +218,7 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
                     x="50"
                     y="45"
                     textAnchor="middle"
-                    className="fill-white text-[8px] font-bold transform rotate-90"
+                    className="fill-white text-[8px] font-bold transform rotate-90 pointer-events-none"
                     style={{ transformOrigin: '50px 45px' }}
                   >
                     100%
@@ -227,7 +227,7 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
                     x="50"
                     y="55"
                     textAnchor="middle"
-                    className="fill-white/80 text-[4px] transform rotate-90"
+                    className="fill-white/80 text-[4px] transform rotate-90 pointer-events-none"
                     style={{ transformOrigin: '50px 55px' }}
                   >
                     {item.movimientos} mov.
@@ -330,7 +330,7 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
                         x="50"
                         y="45"
                         textAnchor="middle"
-                        className="fill-gray-900 dark:fill-slate-100 text-[8px] font-bold transform rotate-90"
+                        className="fill-gray-900 dark:fill-slate-100 text-[8px] font-bold transform rotate-90 pointer-events-none"
                         style={{ transformOrigin: '50px 45px' }}
                       >
                         {percentage.toFixed(1)}%
@@ -339,7 +339,7 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
                         x="50"
                         y="55"
                         textAnchor="middle"
-                        className="fill-gray-600 dark:fill-slate-400 text-[4px] transform rotate-90"
+                        className="fill-gray-600 dark:fill-slate-400 text-[4px] transform rotate-90 pointer-events-none"
                         style={{ transformOrigin: '50px 55px' }}
                       >
                         {item.movimientos} mov.
