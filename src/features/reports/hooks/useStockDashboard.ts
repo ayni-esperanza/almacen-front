@@ -73,7 +73,8 @@ export const useStockDashboard = (
 
   useEffect(() => {
     fetchDashboard(initialPeriod);
-  }, [fetchDashboard, initialPeriod]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialPeriod]);
 
   return {
     dashboard,

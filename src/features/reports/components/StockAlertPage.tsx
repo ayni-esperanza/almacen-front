@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { AlertTriangle, Package, Download } from "lucide-react";
 import { StockAlert, StockAlertFilters } from "../types";
 import { stockAlertsService } from "../services/stock-alerts.service";
@@ -71,11 +71,14 @@ export const StockAlertPage: React.FC = () => {
     setFilteredAlerts(stockAlerts);
   }, [stockAlerts, filters]);
 
-  const updateFilters = (newFilters: Partial<StockAlertFilters>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }));
-  };
+  const updateFilters = useCallback(
+    (newFilters: Partial<StockAlertFilters>) => {
+      setFilters((prev) => ({ ...prev, ...newFilters }));
+    },
+    []
+  );
 
-  const getEstadoColor = (estado: string) => {
+  const getEstadoColor = useCallback((estado: string) => {
     switch (estado) {
       case "critico":
         return "bg-red-100 text-red-800 border-red-200 dark:bg-rose-500/10 dark:text-rose-200 dark:border-rose-500/40";
@@ -84,9 +87,9 @@ export const StockAlertPage: React.FC = () => {
       default:
         return "bg-green-100 text-green-800 border-green-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/40";
     }
-  };
+  }, []);
 
-  const getEstadoIcon = (estado: string) => {
+  const getEstadoIcon = useCallback((estado: string) => {
     switch (estado) {
       case "critico":
         return "🔴";
@@ -95,9 +98,10 @@ export const StockAlertPage: React.FC = () => {
       default:
         return "🟢";
     }
-  };
+  }, []);
 
-  const getEstadisticas = () => {
+  // Optimización: Memoizar cálculo de estadísticas
+  const estadisticas = useMemo(() => {
     const total = filteredAlerts.length;
     const criticos = filteredAlerts.filter(
       (alert) => alert.estado === "critico"
@@ -115,29 +119,34 @@ export const StockAlertPage: React.FC = () => {
     );
 
     return { total, criticos, bajos, totalStock, stockMinimo };
-  };
+  }, [filteredAlerts]);
 
-  // Función para generar el título dinámico basado en los filtros
-  const getTableTitle = () => {
-    const parts: string[] = ['Productos con Stock'];
-    
+  // Optimización: Memoizar generación del título dinámico
+  const getTableTitle = useCallback(() => {
+    const parts: string[] = ["Productos con Stock"];
+
     if (filters.estado) {
-      const estadoTexto = filters.estado === "critico" ? "Crítico" : filters.estado === "bajo" ? "Bajo" : "Normal";
+      const estadoTexto =
+        filters.estado === "critico"
+          ? "Crítico"
+          : filters.estado === "bajo"
+          ? "Bajo"
+          : "Normal";
       parts.push(estadoTexto);
     }
-    
+
     if (filters.categoria) {
       parts.push(`Categoría: ${filters.categoria}`);
     }
-    
+
     if (filters.ubicacion) {
       parts.push(`Ubicación: ${filters.ubicacion}`);
     }
-    
-    return parts.join(" • ");
-  };
 
-  const handleExport = async () => {
+    return parts.join(" • ");
+  }, [filters.estado, filters.categoria, filters.ubicacion]);
+
+  const handleExport = useCallback(async () => {
     try {
       const blob = await stockAlertsService.exportStockAlerts(filters);
 
@@ -156,7 +165,7 @@ export const StockAlertPage: React.FC = () => {
     } catch (err) {
       console.error("Error al exportar alertas de stock:", err);
     }
-  };
+  }, [filters]);
 
   if (error) {
     return (
@@ -189,8 +198,6 @@ export const StockAlertPage: React.FC = () => {
       </div>
     );
   }
-
-  const estadisticas = getEstadisticas();
 
   return (
     <div className="p-3 space-y-4 sm:p-6 sm:space-y-6">
@@ -376,7 +383,10 @@ export const StockAlertPage: React.FC = () => {
         ) : (
           <>
             {/* Vista de tabla para desktop */}
-            <div className="flex-1 hidden overflow-auto md:block" style={{ maxHeight: '600px' }}>
+            <div
+              className="flex-1 hidden overflow-auto md:block"
+              style={{ maxHeight: "600px" }}
+            >
               <table className="w-full text-xs text-gray-700 dark:text-slate-200">
                 <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
                   <tr className="border-b border-gray-200 dark:border-slate-800">
@@ -468,7 +478,10 @@ export const StockAlertPage: React.FC = () => {
             </div>
 
             {/* Vista de tarjetas para móvil */}
-            <div className="flex-1 overflow-auto md:hidden" style={{ maxHeight: '600px' }}>
+            <div
+              className="flex-1 overflow-auto md:hidden"
+              style={{ maxHeight: "600px" }}
+            >
               <div className="p-3 space-y-3">
                 {paginatedAlerts.map((alert) => (
                   <div
@@ -491,14 +504,17 @@ export const StockAlertPage: React.FC = () => {
                         )}`}
                       >
                         {getEstadoIcon(alert.estado)}{" "}
-                        {alert.estado.charAt(0).toUpperCase() + alert.estado.slice(1)}
+                        {alert.estado.charAt(0).toUpperCase() +
+                          alert.estado.slice(1)}
                       </span>
                     </div>
 
                     {/* Información de stock */}
                     <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-100 dark:border-slate-800">
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-slate-400">Stock Actual</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">
+                          Stock Actual
+                        </p>
                         <p
                           className={`text-sm font-semibold ${
                             alert.stockActual === 0
@@ -512,7 +528,9 @@ export const StockAlertPage: React.FC = () => {
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-slate-400">Stock Mínimo</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">
+                          Stock Mínimo
+                        </p>
                         <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">
                           {alert.stockMinimo}
                         </p>
@@ -522,24 +540,40 @@ export const StockAlertPage: React.FC = () => {
                     {/* Detalles adicionales */}
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div>
-                        <span className="text-gray-500 dark:text-slate-400">Ubicación:</span>
-                        <p className="font-medium text-gray-900 dark:text-slate-200">{alert.ubicacion}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 dark:text-slate-400">Categoría:</span>
-                        <p className="font-medium text-gray-900 dark:text-slate-200">{alert.categoria}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 dark:text-slate-400">Proveedor:</span>
-                        <p className="font-medium text-gray-900 dark:text-slate-200">{alert.proveedor}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 dark:text-slate-400">Actualizado:</span>
+                        <span className="text-gray-500 dark:text-slate-400">
+                          Ubicación:
+                        </span>
                         <p className="font-medium text-gray-900 dark:text-slate-200">
-                          {new Date(alert.ultimaActualizacion).toLocaleDateString("es-ES", {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: '2-digit'
+                          {alert.ubicacion}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 dark:text-slate-400">
+                          Categoría:
+                        </span>
+                        <p className="font-medium text-gray-900 dark:text-slate-200">
+                          {alert.categoria}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 dark:text-slate-400">
+                          Proveedor:
+                        </span>
+                        <p className="font-medium text-gray-900 dark:text-slate-200">
+                          {alert.proveedor}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 dark:text-slate-400">
+                          Actualizado:
+                        </span>
+                        <p className="font-medium text-gray-900 dark:text-slate-200">
+                          {new Date(
+                            alert.ultimaActualizacion
+                          ).toLocaleDateString("es-ES", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "2-digit",
                           })}
                         </p>
                       </div>
