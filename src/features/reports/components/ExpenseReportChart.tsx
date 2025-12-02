@@ -88,7 +88,6 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
           const gastoPercentage = (item.gasto / maxGasto) * 100;
           const movimientosPercentage =
             (item.movimientos / maxMovimientos) * 100;
-          const color = CHART_COLORS[index % CHART_COLORS.length];
           const isHovered = hoveredIndex === index;
 
           return (
@@ -191,6 +190,108 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
     const total = data.reduce((sum, item) => sum + item.gasto, 0);
     let currentAngle = 0;
     
+    // Caso especial: si solo hay un elemento, mostrar un círculo completo
+    if (data.length === 1) {
+      const item = data[0];
+      const color = CHART_COLORS[0];
+      const isHovered = hoveredIndex === 0;
+      
+      return (
+        <div className="space-y-6">
+          {/* Gráfico circular visual - Un solo elemento */}
+          <div className="relative mx-auto h-64 w-64">
+            <svg viewBox="0 0 100 100" className="transform -rotate-90">
+              <circle
+                cx="50"
+                cy="50"
+                r="45"
+                fill={color.hex}
+                className="transition-all duration-300 cursor-pointer"
+                style={{ opacity: isHovered ? 0.8 : 1 }}
+                onMouseEnter={() => setHoveredIndex(0)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              />
+              {isHovered && (
+                <>
+                  {/* Texto central con información */}
+                  <text
+                    x="50"
+                    y="45"
+                    textAnchor="middle"
+                    className="fill-white text-[8px] font-bold transform rotate-90"
+                    style={{ transformOrigin: '50px 45px' }}
+                  >
+                    100%
+                  </text>
+                  <text
+                    x="50"
+                    y="55"
+                    textAnchor="middle"
+                    className="fill-white/80 text-[4px] transform rotate-90"
+                    style={{ transformOrigin: '50px 55px' }}
+                  >
+                    {item.movimientos} mov.
+                  </text>
+                </>
+              )}
+            </svg>
+            
+            {/* Tooltip flotante */}
+            {isHovered && (
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white dark:bg-slate-800 px-3 py-2 shadow-xl border border-gray-200 dark:border-slate-700 pointer-events-none z-10">
+                <div className="text-center space-y-1">
+                  <div className="text-xs font-semibold text-gray-900 dark:text-slate-100">
+                    {item.name}
+                  </div>
+                  <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                    {formatCurrency(item.gasto)}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-slate-400">
+                    100% del total
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Leyenda con información detallada */}
+          <div className="space-y-2">
+            <div 
+              className={`flex items-center justify-between p-2 rounded-lg transition-all cursor-pointer ${
+                isHovered ? 'bg-gray-50 dark:bg-slate-800/50' : ''
+              }`}
+              onMouseEnter={() => setHoveredIndex(0)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              <div className="flex items-center space-x-3 flex-1">
+                <div 
+                  className={`h-4 w-4 rounded-full flex-shrink-0 transition-transform ${isHovered ? 'scale-110' : ''}`}
+                  style={{ backgroundColor: color.hex }}
+                ></div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700 dark:text-slate-300">{item.name}</span>
+                    <span className="text-xs font-semibold text-gray-500 dark:text-slate-400">100%</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-1 text-xs">
+                    <span className={accentMovementClasses}>{item.movimientos} movimientos</span>
+                    <span className="text-gray-500 dark:text-slate-500">
+                      Prom: {formatCurrency(item.gasto / item.movimientos)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className={`text-right ml-3 ${accentCurrencyClasses}`}>
+                <div className="text-sm font-bold">
+                  {formatCurrency(item.gasto)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div className="space-y-6">
         {/* Gráfico circular visual */}
@@ -250,9 +351,9 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
             })}
           </svg>
           
-          {/* Tooltip flotante */}
+          {/* Tooltip flotante con pointer-events-none */}
           {hoveredIndex !== null && (
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white dark:bg-slate-800 px-3 py-2 shadow-xl border border-gray-200 dark:border-slate-700">
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white dark:bg-slate-800 px-3 py-2 shadow-xl border border-gray-200 dark:border-slate-700 pointer-events-none z-10">
               <div className="text-center space-y-1">
                 <div className="text-xs font-semibold text-gray-900 dark:text-slate-100">
                   {data[hoveredIndex].name}
@@ -316,111 +417,168 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
     );
   };
 
-  const renderLineChart = () => (
-    <div className="space-y-6">
-      {/* Gráfico de líneas simplificado */}
-      <div className="relative h-64">
-        <svg className="w-full h-full" viewBox="0 0 500 200" preserveAspectRatio="none">
-          {/* Líneas de referencia */}
-          <line x1="0" y1="0" x2="500" y2="0" stroke="currentColor" className="text-gray-200 dark:text-slate-700" strokeWidth="1" />
-          <line x1="0" y1="50" x2="500" y2="50" stroke="currentColor" className="text-gray-200 dark:text-slate-700" strokeWidth="1" />
-          <line x1="0" y1="100" x2="500" y2="100" stroke="currentColor" className="text-gray-200 dark:text-slate-700" strokeWidth="1" />
-          <line x1="0" y1="150" x2="500" y2="150" stroke="currentColor" className="text-gray-200 dark:text-slate-700" strokeWidth="1" />
-          <line x1="0" y1="200" x2="500" y2="200" stroke="currentColor" className="text-gray-200 dark:text-slate-700" strokeWidth="1" />
-          
-          {/* Área bajo la curva */}
-          <polygon
-            points={`0,200 ${data.map((item, index) => {
-              const x = (index / (data.length - 1)) * 500;
-              const y = 200 - (item.gasto / maxGasto) * 180;
-              return `${x},${y}`;
-            }).join(' ')} 500,200`}
-            fill="#10b981"
-            opacity="0.1"
-            className="dark:fill-emerald-500"
-          />
-          
-          {/* Línea de gastos */}
-          <polyline
-            points={data.map((item, index) => {
-              const x = (index / (data.length - 1)) * 500;
-              const y = 200 - (item.gasto / maxGasto) * 180;
-              return `${x},${y}`;
-            }).join(' ')}
-            fill="none"
-            stroke="#10b981"
-            strokeWidth="3"
-            className="dark:stroke-emerald-500"
-          />
-          
-          {/* Puntos interactivos */}
-          {data.map((item, index) => {
-            const x = (index / (data.length - 1)) * 500;
-            const y = 200 - (item.gasto / maxGasto) * 180;
-            const isHovered = hoveredIndex === index;
-            
-            return (
-              <g key={index}>
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={isHovered ? "8" : "5"}
-                  fill="#10b981"
-                  className="dark:fill-emerald-500 cursor-pointer transition-all"
-                  onMouseEnter={() => setHoveredIndex(index)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                />
-                {isHovered && (
-                  <g>
-                    {/* Línea vertical de referencia */}
-                    <line
-                      x1={x}
-                      y1={y}
-                      x2={x}
-                      y2="200"
-                      stroke="#10b981"
-                      strokeWidth="1"
-                      strokeDasharray="4"
-                      opacity="0.5"
-                    />
-                    {/* Tooltip en el punto */}
-                    <rect
-                      x={x - 40}
-                      y={y - 45}
-                      width="80"
-                      height="35"
-                      rx="4"
-                      fill="white"
-                      className="dark:fill-slate-800"
-                      stroke="#10b981"
-                      strokeWidth="2"
-                    />
-                    <text
-                      x={x}
-                      y={y - 28}
-                      textAnchor="middle"
-                      className="fill-gray-900 dark:fill-slate-100 text-[8px] font-bold"
-                    >
-                      {formatCurrency(item.gasto)}
-                    </text>
-                    <text
-                      x={x}
-                      y={y - 18}
-                      textAnchor="middle"
-                      className="fill-gray-600 dark:fill-slate-400 text-[6px]"
-                    >
-                      {item.movimientos} movimientos
-                    </text>
-                  </g>
-                )}
-              </g>
-            );
-          })}
-        </svg>
-      </div>
+  const renderLineChart = () => {
+    // Caso especial: si solo hay un punto
+    if (data.length === 1) {
+      const item = data[0];
+      const isHovered = hoveredIndex === 0;
       
-      {/* Detalles con información enriquecida */}
-      <div className="space-y-2">
+      return (
+        <div className="space-y-6">
+          {/* Gráfico con un solo punto */}
+          <div className="relative h-64 flex items-center justify-center">
+            <div className="relative">
+              <div 
+                className={`w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center cursor-pointer transition-all ${
+                  isHovered ? 'scale-110 shadow-lg' : ''
+                }`}
+                onMouseEnter={() => setHoveredIndex(0)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
+                <div className="text-center text-white">
+                  <div className="text-xs font-bold">100%</div>
+                </div>
+              </div>
+              
+              {isHovered && (
+                <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 rounded-lg px-3 py-2 shadow-xl border border-emerald-500 whitespace-nowrap pointer-events-none">
+                  <div className="text-xs font-bold text-gray-900 dark:text-slate-100">
+                    {formatCurrency(item.gasto)}
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-slate-400">
+                    {item.movimientos} movimientos
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Detalles */}
+          <div className="space-y-2">
+            <div 
+              className={`flex items-center justify-between border-b border-gray-100 pb-2 p-2 rounded-lg transition-all cursor-pointer dark:border-slate-800 ${
+                isHovered ? 'bg-gray-50 dark:bg-slate-800/50' : ''
+              }`}
+              onMouseEnter={() => setHoveredIndex(0)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              <div className="flex items-center space-x-3 flex-1">
+                <div 
+                  className={`h-3 w-3 rounded-full flex-shrink-0 transition-transform bg-emerald-500 ${
+                    isHovered ? 'scale-125' : ''
+                  }`}
+                ></div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700 dark:text-slate-300">{item.name}</span>
+                    <span className="text-xs font-semibold text-gray-500 dark:text-slate-400">100%</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-1 text-xs">
+                    <span className={accentMovementClasses}>{item.movimientos} movimientos</span>
+                    <span className="text-gray-500 dark:text-slate-500">
+                      Prom: {formatCurrency(item.gasto / item.movimientos)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className={`text-right ml-3 ${accentCurrencyClasses}`}>
+                <div className="text-sm font-bold">
+                  {formatCurrency(item.gasto)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="space-y-6">
+        {/* Gráfico de líneas mejorado */}
+        <div className="relative h-64">
+          <svg className="w-full h-full" viewBox="0 0 500 200">
+            {/* Líneas de referencia */}
+            <line x1="0" y1="0" x2="500" y2="0" stroke="currentColor" className="text-gray-200 dark:text-slate-700" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            <line x1="0" y1="50" x2="500" y2="50" stroke="currentColor" className="text-gray-200 dark:text-slate-700" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            <line x1="0" y1="100" x2="500" y2="100" stroke="currentColor" className="text-gray-200 dark:text-slate-700" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            <line x1="0" y1="150" x2="500" y2="150" stroke="currentColor" className="text-gray-200 dark:text-slate-700" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            <line x1="0" y1="200" x2="500" y2="200" stroke="currentColor" className="text-gray-200 dark:text-slate-700" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            
+            {/* Área bajo la curva */}
+            <polygon
+              points={`0,200 ${data.map((item, index) => {
+                const x = data.length > 1 ? (index / (data.length - 1)) * 500 : 250;
+                const y = 200 - (item.gasto / maxGasto) * 180;
+                return `${x},${y}`;
+              }).join(' ')} ${data.length > 1 ? '500' : '250'},200`}
+              fill="#10b981"
+              opacity="0.1"
+              className="dark:fill-emerald-500"
+            />
+            
+            {/* Línea de gastos */}
+            {data.length > 1 && (
+              <polyline
+                points={data.map((item, index) => {
+                  const x = (index / (data.length - 1)) * 500;
+                  const y = 200 - (item.gasto / maxGasto) * 180;
+                  return `${x},${y}`;
+                }).join(' ')}
+                fill="none"
+                stroke="#10b981"
+                strokeWidth="3"
+                className="dark:stroke-emerald-500"
+                vectorEffect="non-scaling-stroke"
+              />
+            )}
+            
+            {/* Puntos interactivos */}
+            {data.map((item, index) => {
+              const x = data.length > 1 ? (index / (data.length - 1)) * 500 : 250;
+              const y = 200 - (item.gasto / maxGasto) * 180;
+              const isHovered = hoveredIndex === index;
+              
+              return (
+                <g key={index}>
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r={isHovered ? 8 : 5}
+                    fill="#10b981"
+                    className="dark:fill-emerald-500 cursor-pointer transition-all"
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    vectorEffect="non-scaling-stroke"
+                  />
+                </g>
+              );
+            })}
+          </svg>
+          
+          {/* Tooltip flotante fuera del SVG */}
+          {hoveredIndex !== null && (
+            <div 
+              className="absolute bg-white dark:bg-slate-800 rounded-lg px-3 py-2 shadow-xl border-2 border-emerald-500 pointer-events-none z-10"
+              style={{
+                left: data.length > 1 
+                  ? `${(hoveredIndex / (data.length - 1)) * 100}%` 
+                  : '50%',
+                top: `${100 - ((data[hoveredIndex].gasto / maxGasto) * 70)}%`,
+                transform: 'translate(-50%, -120%)'
+              }}
+            >
+              <div className="text-xs font-bold text-gray-900 dark:text-slate-100 whitespace-nowrap">
+                {formatCurrency(data[hoveredIndex].gasto)}
+              </div>
+              <div className="text-xs text-gray-600 dark:text-slate-400 whitespace-nowrap">
+                {data[hoveredIndex].movimientos} movimientos
+              </div>
+            </div>
+          )}
+          </div>
+        
+        {/* Detalles con información enriquecida */}
+        <div className="space-y-2">
         {data.map((item, index) => {
           const color = CHART_COLORS[index % CHART_COLORS.length];
           const isHovered = hoveredIndex === index;
@@ -463,10 +621,11 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
           );
         })}
       </div>
-    </div>
-  );
+      </div>
+    );
+  };
 
-    return (
+  return (
       <div className={containerClasses}>
         <div className="flex items-center justify-between mb-4">
           <h3 className={headingClasses}>{title}</h3>
