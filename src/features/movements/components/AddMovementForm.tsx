@@ -458,7 +458,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                   </label>
 
                   <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
-                    <span>Descripción *</span>
+                    <span>Responsable *</span>
                     <input
                       type="text"
                       name="responsable"
