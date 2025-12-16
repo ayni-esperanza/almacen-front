@@ -24,6 +24,8 @@ ENV VITE_APP_ENV=$VITE_APP_ENV
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Al hacer build ahora, SI tomará las variables porque invalidamos el cache
 RUN npm run build
 
 # ====================================
