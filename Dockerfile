@@ -31,17 +31,12 @@ RUN npm run build
 # ====================================
 FROM nginx:alpine AS runner
 
-# Copiar build al directorio de Nginx
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copiar tu config personalizada 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Nginx escucha en el 80 (Interno)
 EXPOSE 80
 
-# Esto confirma que Nginx cargó la configuración y no la de defecto
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost/health || exit 1
+    CMD wget --quiet --tries=1 --spider http://127.0.0.1/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
