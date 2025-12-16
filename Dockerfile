@@ -12,20 +12,12 @@ RUN npm ci
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Recibir argumentos de Dokploy
-ARG VITE_API_URL
-ARG VITE_APP_NAME
-ARG VITE_APP_ENV
-
-# Inyectar variables para el build de Vite
-ENV VITE_API_URL=$VITE_API_URL
-ENV VITE_APP_NAME=$VITE_APP_NAME
-ENV VITE_APP_ENV=$VITE_APP_ENV
+ENV VITE_API_URL="https://linea.aynisac.com/api"
+ENV VITE_APP_NAME="AYNI Almacén"
+ENV VITE_APP_ENV="production"
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Al hacer build ahora, SI tomará las variables porque invalidamos el cache
 RUN npm run build
 
 # ====================================
