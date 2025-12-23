@@ -10,9 +10,10 @@ interface EditProviderModalProps {
   onClose: () => void;
   provider: Provider | null;
   onEdit: (provider: Provider) => void;
+  onDelete?: (provider: Provider) => void | Promise<void>;
 }
 
-export const EditProviderModal: React.FC<EditProviderModalProps> = ({ isOpen, onClose, provider, onEdit }) => {
+export const EditProviderModal: React.FC<EditProviderModalProps> = ({ isOpen, onClose, provider, onEdit, onDelete }) => {
   // Bloquear scroll
   useModalScrollLock(isOpen);
   // Cerrar modal con tecla ESC
@@ -72,6 +73,17 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({ isOpen, on
 
     onEdit({ ...provider, name, email, address, phones, photoUrl });
     onClose();
+  };
+
+  const handleDelete = () => {
+    if (!provider) return;
+    if (!onDelete) {
+      console.info('Eliminar proveedor pendiente de integración');
+      return;
+    }
+    const confirmed = window.confirm('¿Eliminar este proveedor? Esta acción no se puede deshacer.');
+    if (!confirmed) return;
+    onDelete(provider);
   };
 
   if (!isOpen || !provider) return null;
@@ -210,6 +222,13 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({ isOpen, on
           <hr className="my-4 border-gray-200 dark:border-slate-800" />
 
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="w-full rounded-full border border-red-200 px-4 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 dark:border-rose-500/40 dark:text-rose-200 dark:hover:bg-rose-500/10 sm:w-auto"
+            >
+              Eliminar
+            </button>
             <button
               type="button"
               onClick={onClose}

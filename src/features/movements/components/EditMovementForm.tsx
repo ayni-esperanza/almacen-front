@@ -26,6 +26,7 @@ interface EditMovementFormProps {
   entry: MovementEntry;
   onSubmit: (data: UpdateEntryData) => Promise<void> | void;
   onCancel: () => void;
+  onDelete?: (entry: MovementEntry) => Promise<void> | void;
 }
 
 function toISODate(date: string | undefined): string {
@@ -46,6 +47,7 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({
   entry,
   onSubmit,
   onCancel,
+  onDelete,
 }) => {
   // Bloquear scroll de la ventana
   useModalScrollLock(true);
@@ -264,6 +266,22 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({
             )}
 
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-200 dark:border-slate-800 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!onDelete) {
+                    console.info("Eliminar entrada pendiente de integración");
+                    return;
+                  }
+                  const confirmed = window.confirm("¿Eliminar esta entrada de inventario?");
+                  if (!confirmed) return;
+                  onDelete(entry);
+                }}
+                className="rounded-full border border-red-200 px-4 py-1.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/40 dark:text-red-200 dark:hover:bg-red-500/10"
+                disabled={submitting}
+              >
+                Eliminar
+              </button>
               <button
                 type="button"
                 onClick={onCancel}

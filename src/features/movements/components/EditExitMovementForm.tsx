@@ -26,6 +26,7 @@ interface EditExitMovementFormProps {
   exit: MovementExit;
   onSubmit: (data: UpdateExitData) => Promise<void> | void;
   onCancel: () => void;
+  onDelete?: (exit: MovementExit) => Promise<void> | void;
 }
 
 function toISODate(date: string | undefined): string {
@@ -46,6 +47,7 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
   exit,
   onSubmit,
   onCancel,
+  onDelete,
 }) => {
   // Bloquear scroll
   useModalScrollLock(true);
@@ -282,6 +284,22 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
             )}
 
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-200 dark:border-slate-800 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!onDelete) {
+                    console.info("Eliminar salida pendiente de integración");
+                    return;
+                  }
+                  const confirmed = window.confirm("¿Eliminar esta salida de inventario?");
+                  if (!confirmed) return;
+                  onDelete(exit);
+                }}
+                className="rounded-full border border-red-200 px-4 py-1.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/40 dark:text-red-200 dark:hover:bg-red-500/10"
+                disabled={submitting}
+              >
+                Eliminar
+              </button>
               <button
                 type="button"
                 onClick={onCancel}

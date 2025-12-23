@@ -17,6 +17,7 @@ interface EditProductModalProps {
   onEdit: (product: Product) => void;
   onCreateArea: (name: string) => Promise<void>;
   onCreateCategoria: (name: string) => Promise<void>;
+  onDelete?: (product: Product) => void | Promise<void>;
 }
 
 export const EditProductModal: React.FC<EditProductModalProps> = ({
@@ -26,6 +27,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   onEdit,
   onCreateArea,
   onCreateCategoria,
+  onDelete,
 }) => {
   // Bloquear scroll cuando la modal está abierta
   useModalScrollLock(isOpen);
@@ -109,6 +111,17 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       categoria,
     });
     onClose();
+  };
+
+  const handleDelete = () => {
+    if (!product) return;
+    if (!onDelete) {
+      console.info("Eliminar producto pendiente de integración");
+      return;
+    }
+    const confirmed = window.confirm("¿Eliminar este producto del inventario?");
+    if (!confirmed) return;
+    onDelete(product);
   };
 
   if (!isOpen || !product) return null;
@@ -286,6 +299,13 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2 mt-2 border-t border-gray-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="px-4 py-1.5 text-sm font-semibold text-red-600 transition-colors border border-red-200 rounded-full hover:bg-red-50 dark:border-red-500/40 dark:text-red-200 dark:hover:bg-red-500/10"
+              >
+                Eliminar
+              </button>
               <button
                 type="button"
                 onClick={onClose}
