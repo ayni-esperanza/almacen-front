@@ -150,6 +150,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                   <input
                     type="number"
                     min={0}
+                    step="0.01"
                     value={costoUnitario}
                     onChange={(e) => setCostoUnitario(Number(e.target.value))}
                     className={inputClasses}
@@ -161,6 +162,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                   <input
                     type="number"
                     min={0}
+                    step={1}
                     value={stockActual}
                     onChange={(e) => setStockActual(Number(e.target.value))}
                     className={inputClasses}
@@ -243,6 +245,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                   <input
                     type="number"
                     min={0}
+                    step={1}
                     value={stockMinimo}
                     onChange={(e) => setStockMinimo(Number(e.target.value))}
                     className={inputClasses}
