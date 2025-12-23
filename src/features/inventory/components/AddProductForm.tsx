@@ -119,10 +119,21 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    
+    // Si es el campo código, convertir a mayúsculas y limitar a 6 caracteres
+    if (name === 'codigo') {
+      const upperCaseValue = value.toUpperCase().slice(0, 6);
+      setFormData({
+        ...formData,
+        [name]: upperCaseValue,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const labelClasses =
@@ -168,6 +179,11 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   onChange={handleChange}
                   className={inputClasses}
                   required
+                  maxLength={6}
+                  minLength={6}
+                  pattern="[A-Z0-9]{6}"
+                  title="El código debe tener exactamente 6 caracteres en mayúsculas"
+                  placeholder="Ej: ABC123"
                 />
               </div>
               <div>
@@ -179,6 +195,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   onChange={handleChange}
                   className={inputClasses}
                   min="0"
+                  step="0.01"
                   required
                 />
               </div>
@@ -189,6 +206,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   name="stockActual"
                   value={formData.stockActual || ""}
                   onChange={handleChange}
+                  onFocus={(e) => e.target.select()}
                   className={inputClasses}
                   min="0"
                   required

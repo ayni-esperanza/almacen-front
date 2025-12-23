@@ -169,9 +169,15 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
   ) => {
     const { name, value } = e.target;
 
+    // Si es el campo código, convertir a mayúsculas y limitar a 6 caracteres
+    let processedValue = value;
+    if (name === "codigoProducto") {
+      processedValue = value.toUpperCase().slice(0, 6);
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: processedValue,
     }));
 
     // Si cambia el código del producto, buscar autocompletado
@@ -229,8 +235,12 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                         value={formData.codigoProducto}
                         onChange={handleChange}
                         className={entryInputClasses}
-                        placeholder="Ingresa el código"
+                        placeholder="Ej: ABC123"
                         required
+                        maxLength={6}
+                        minLength={6}
+                        pattern="[A-Z0-9]{6}"
+                        title="El código debe tener exactamente 6 caracteres en mayúsculas"
                       />
                       {/* Indicador de estado */}
                       <div className="absolute inset-y-0 right-0 flex items-center pr-3">

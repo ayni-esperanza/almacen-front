@@ -139,9 +139,16 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = event.target;
+    
+    // Si es el campo código, convertir a mayúsculas y limitar a 6 caracteres
+    let processedValue = value;
+    if (name === "serieCodigo") {
+      processedValue = value.toUpperCase().slice(0, 6);
+    }
+    
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: processedValue,
     }));
   };
 
@@ -236,8 +243,12 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
                   value={formData.serieCodigo}
                   onChange={handleChange}
                   className={inputClasses}
-                  placeholder="Ingresa código"
+                  placeholder="Ej: ABC123"
                   required
+                  maxLength={6}
+                  minLength={6}
+                  pattern="[A-Z0-9]{6}"
+                  title="El código debe tener exactamente 6 caracteres en mayúsculas"
                   disabled={submitting}
                 />
               </label>
