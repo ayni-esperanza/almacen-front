@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, Search, Loader2 } from "lucide-react";
 
 interface SearchableSelectProps {
@@ -30,6 +31,7 @@ export const SearchableSelect = ({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [options, setOptions] = useState<string[]>(localOptions || []);
   const [isLoading, setIsLoading] = useState(false);
+  const [dropdownStyles, setDropdownStyles] = useState<{ top?: number; left?: number; width?: number; bottom?: number }>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -107,10 +109,11 @@ export const SearchableSelect = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
+      // Verificar si el click está dentro del contenedor o del dropdown
+      const isClickInContainer = containerRef.current && containerRef.current.contains(event.target as Node);
+      const isClickInDropdown = dropdownRef.current && dropdownRef.current.contains(event.target as Node);
+      
+      if (!isClickInContainer && !isClickInDropdown) {
         setIsOpen(false);
         setSearchTerm("");
         setHighlightedIndex(-1);
@@ -158,6 +161,29 @@ export const SearchableSelect = ({
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
       searchInputRef.current.focus();
+      
+      // Calcular la posición del dropdown
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const dropdownHeight = 320; // maxHeight del dropdown
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        
+        // Si no hay suficiente espacio abajo pero sí arriba, abrir hacia arriba
+        if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+          setDropdownStyles({
+            bottom: window.innerHeight - rect.top + 8,
+            left: rect.left,
+            width: rect.width,
+          });
+        } else {
+          setDropdownStyles({
+            top: rect.bottom + 8,
+            left: rect.left,
+            width: rect.width,
+          });
+        }
+      }
     }
   }, [isOpen]);
 
@@ -270,42 +296,21 @@ export const SearchableSelect = ({
           />
         </button>
 
-        {/* Dropdown */}
-        {isOpen && (
+        {/* Dropdown - usando Portal */}
+        {isOpen && createPortal(
           <div
-            className="absolute z-50 w-full mt-2 overflow-hidden bg-white border border-gray-200 shadow-xl dark:bg-slate-800 dark:border-slate-700 rounded-xl"
-            style={{ maxHeight: "320px" }}
+            ref={dropdownRef}
+            className="fixed z-[9999] overflow-hidden bg-white border border-gray-200 shadow-xl dark:bg-slate-800 dark:border-slate-700 rounded-xl"
+            style={{ 
+              maxHeight: "320px",
+              ...dropdownStyles
+            }}
+            // Evitar que el clic en el dropdown cierre la modal padre
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Search Input */}
-            <div className="p-2 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
-              <div className="relative">
-                <Search className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    if (!isAsyncMode) {
-                      setHighlightedIndex(0);
-                    }
-                  }}
-                  onKeyDown={handleKeyDown}
-                  placeholder={
-                    isAsyncMode ? "Buscar en servidor..." : "Buscar..."
-                  }
-                  className="w-full py-1.5 pl-9 pr-9 text-sm bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 focus:border-blue-500 dark:text-white dark:placeholder-slate-400"
-                  disabled={isLoading}
-                />
-                {isLoading && (
-                  <Loader2 className="absolute w-4 h-4 text-blue-500 -translate-y-1/2 animate-spin right-3 top-1/2" />
-                )}
-              </div>
-            </div>
-
-            {/* Options List */}
+            {/* Options List - Ahora arriba */}
             <div
-              ref={dropdownRef}
               className="overflow-y-auto"
               style={{ maxHeight: "240px" }}
             >
@@ -342,7 +347,35 @@ export const SearchableSelect = ({
                 ))
               )}
             </div>
-          </div>
+            
+            {/* Search Input - Ahora abajo */}
+            <div className="p-2 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
+              <div className="relative">
+                <Search className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    if (!isAsyncMode) {
+                      setHighlightedIndex(0);
+                    }
+                  }}
+                  onKeyDown={handleKeyDown}
+                  placeholder={
+                    isAsyncMode ? "Buscar en servidor..." : "Buscar..."
+                  }
+                  className="w-full py-1.5 pl-9 pr-9 text-sm bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 focus:border-blue-500 dark:text-white dark:placeholder-slate-400"
+                  disabled={isLoading}
+                />
+                {isLoading && (
+                  <Loader2 className="absolute w-4 h-4 text-blue-500 -translate-y-1/2 animate-spin right-3 top-1/2" />
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body
         )}
       </div>
     </div>
