@@ -158,7 +158,7 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
       <div className="flex-shrink-0 bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 sm:px-6 sm:py-4 text-white rounded-t-xl">
         <div className="flex items-center gap-2 sm:gap-3">
           <Wrench className="h-5 w-5 sm:h-6 sm:w-6" />
-          <h2 className="text-base font-bold sm:text-xl">Reporte de Salidas de Herramientas/Equipos</h2>
+          <h2 className="text-base font-bold sm:text-xl">Trazabilidad de Salidas de Herramientas, Equipos y EPP</h2>
         </div>
       </div>
 

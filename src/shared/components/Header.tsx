@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
             </div>
             <div>
               <h1 className="text-base font-bold text-gray-900 sm:text-xl dark:text-slate-100">
-                Sistema de Inventario
+                Módulo de Inventario
               </h1>
               <p className="hidden text-sm text-gray-500 sm:block dark:text-slate-400">
                 Gestión de productos y movimientos
