@@ -25,7 +25,7 @@ export const StockAlertPage: React.FC = () => {
     itemsPerPage,
     handlePageChange,
     handleItemsPerPageChange,
-  } = usePagination({ data: filteredAlerts, initialItemsPerPage: 15 });
+  } = usePagination({ data: filteredAlerts, initialItemsPerPage: 100 });
 
   const cardClasses =
     "rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-900";

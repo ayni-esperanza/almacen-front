@@ -150,7 +150,7 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
     itemsPerPage,
     handlePageChange,
     handleItemsPerPageChange,
-  } = usePagination({ data: filteredEquipments, initialItemsPerPage: 15 });
+  } = usePagination({ data: filteredEquipments, initialItemsPerPage: 100 });
 
   return (
     <div className="flex flex-col bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">

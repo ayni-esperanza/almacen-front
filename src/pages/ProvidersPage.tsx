@@ -37,7 +37,7 @@ const ProvidersPage = () => {
     itemsPerPage,
     handlePageChange,
     handleItemsPerPageChange,
-  } = usePagination({ data: filteredProviders, initialItemsPerPage: 10 });
+  } = usePagination({ data: filteredProviders, initialItemsPerPage: 100 });
 
   if (loading) {
     return (

@@ -33,7 +33,7 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = React.memo(
       itemsPerPage,
       handlePageChange,
       handleItemsPerPageChange,
-    } = usePagination({ data: data, initialItemsPerPage: 15 });
+    } = usePagination({ data: data, initialItemsPerPage: 100 });
     const formatCurrency = (value: number) => {
       return new Intl.NumberFormat("es-PE", {
         style: "currency",

@@ -60,7 +60,7 @@ export const UsersPage = () => {
     itemsPerPage,
     handlePageChange,
     handleItemsPerPageChange,
-  } = usePagination({ data: filteredUsers, initialItemsPerPage: 15 });
+  } = usePagination({ data: filteredUsers, initialItemsPerPage: 100 });
 
   const fetchUsers = async () => {
     try {
