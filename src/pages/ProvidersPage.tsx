@@ -9,8 +9,15 @@ import { TableWithFixedHeader } from "../shared/components/TableWithFixedHeader"
 import { usePagination } from "../shared/hooks/usePagination";
 
 const ProvidersPage = () => {
-  const { providers, loading, error, refetch, createProvider, updateProvider } =
-    useProviders();
+  const {
+    providers,
+    loading,
+    error,
+    refetch,
+    createProvider,
+    updateProvider,
+    deleteProvider,
+  } = useProviders();
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -110,6 +117,22 @@ const ProvidersPage = () => {
     }
   };
 
+  const handleDeleteProvider = async (provider: Provider) => {
+    try {
+      const success = await deleteProvider(provider.id);
+      if (success) {
+        setEditModalOpen(false);
+        setSelectedProvider(null);
+        // El hook ya hace refetch automáticamente si devuelve true
+      } else {
+        alert("No se pudo eliminar el proveedor. Intente nuevamente.");
+      }
+    } catch (error) {
+      console.error("Error deleting provider:", error);
+      alert("Ocurrió un error al eliminar el proveedor.");
+    }
+  };
+
   return (
     <>
       <div className={containerClasses}>
@@ -126,6 +149,7 @@ const ProvidersPage = () => {
           }}
           provider={selectedProvider}
           onEdit={handleEditProvider}
+          onDelete={handleDeleteProvider}
         />
         <div className="px-6 py-4 text-white bg-gradient-to-r from-purple-500 to-purple-600 rounded-t-xl">
           <div className="flex items-center space-x-3">
@@ -147,7 +171,7 @@ const ProvidersPage = () => {
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-purple-600 rounded-lg shadow-md hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
+              className="flex items-center flex-shrink-0 px-6 py-2 space-x-2 font-medium text-white transition-colors bg-purple-600 rounded-lg shadow-md hover:bg-purple-700 whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
               <span>Agregar Proveedor</span>
