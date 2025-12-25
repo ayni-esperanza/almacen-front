@@ -97,7 +97,10 @@ class MovementsService {
     return this.createMovementEntry(entryData);
   }
 
-  async updateEntry(id: number, entryData: UpdateEntryData): Promise<MovementEntry | null> {
+  async updateEntry(
+    id: number,
+    entryData: UpdateEntryData
+  ): Promise<MovementEntry | null> {
     const payload: UpdateEntryData = {};
 
     if (entryData.fecha) {
@@ -117,16 +120,19 @@ class MovementsService {
     }
 
     if (entryData.responsable !== undefined) {
-      const trimmed = entryData.responsable?.trim() ?? '';
-      payload.responsable = trimmed === '' ? null : trimmed;
+      const trimmed = entryData.responsable?.trim() ?? "";
+      payload.responsable = trimmed === "" ? null : trimmed;
     }
 
     if (entryData.area !== undefined) {
-      const trimmed = entryData.area?.trim() ?? '';
-      payload.area = trimmed === '' ? null : trimmed;
+      const trimmed = entryData.area?.trim() ?? "";
+      payload.area = trimmed === "" ? null : trimmed;
     }
 
-    const response = await apiClient.patch<MovementEntry>(`/movements/entries/${id}`, payload);
+    const response = await apiClient.patch<MovementEntry>(
+      `/movements/entries/${id}`,
+      payload
+    );
     if (response.error) {
       throw new Error(response.error);
     }
@@ -188,7 +194,10 @@ class MovementsService {
     return response.data || null;
   }
 
-  async updateExit(id: number, exitData: UpdateExitData): Promise<MovementExit | null> {
+  async updateExit(
+    id: number,
+    exitData: UpdateExitData
+  ): Promise<MovementExit | null> {
     const payload: UpdateExitData = {};
 
     if (exitData.fecha) {
@@ -208,26 +217,51 @@ class MovementsService {
     }
 
     if (exitData.responsable !== undefined) {
-      const trimmed = exitData.responsable?.trim() ?? '';
-      payload.responsable = trimmed === '' ? null : trimmed;
+      const trimmed = exitData.responsable?.trim() ?? "";
+      payload.responsable = trimmed === "" ? null : trimmed;
     }
 
     if (exitData.area !== undefined) {
-      const trimmed = exitData.area?.trim() ?? '';
-      payload.area = trimmed === '' ? null : trimmed;
+      const trimmed = exitData.area?.trim() ?? "";
+      payload.area = trimmed === "" ? null : trimmed;
     }
 
     if (exitData.proyecto !== undefined) {
-      const trimmed = exitData.proyecto?.trim() ?? '';
-      payload.proyecto = trimmed === '' ? null : trimmed;
+      const trimmed = exitData.proyecto?.trim() ?? "";
+      payload.proyecto = trimmed === "" ? null : trimmed;
     }
 
-    const response = await apiClient.patch<MovementExit>(`/movements/exits/${id}`, payload);
+    const response = await apiClient.patch<MovementExit>(
+      `/movements/exits/${id}`,
+      payload
+    );
     if (response.error) {
       throw new Error(response.error);
     }
 
     return response.data || null;
+  }
+
+  async deleteEntry(id: number): Promise<boolean> {
+    const response = await apiClient.delete(`/movements/entries/${id}`);
+
+    if (response.error) {
+      console.error("Error deleting entry:", response.error);
+      throw new Error(response.error); // Lanzar error para que el hook lo capture
+    }
+
+    return true;
+  }
+
+  async deleteExit(id: number): Promise<boolean> {
+    const response = await apiClient.delete(`/movements/exits/${id}`);
+
+    if (response.error) {
+      console.error("Error deleting exit:", response.error);
+      throw new Error(response.error);
+    }
+
+    return true;
   }
 }
 

@@ -70,6 +70,27 @@ export const MovementsPage = () => {
     }
   };
 
+  const handleDeleteEntry = async (entry: MovementEntry) => {
+    try {
+      await movementsData.deleteEntry(entry.id);
+      setSelectedEntry(null); // Cerrar el modal/formulario
+    } catch (error) {
+      console.error("No se pudo eliminar la entrada:", error);
+      // Mostrar toast o alerta de error aquí
+      alert(error instanceof Error ? error.message : "Error al eliminar");
+    }
+  };
+
+  const handleDeleteExit = async (exit: MovementExit) => {
+    try {
+      await movementsData.deleteExit(exit.id);
+      setSelectedExit(null); // Cerrar el modal/formulario
+    } catch (error) {
+      console.error("No se pudo eliminar la salida:", error);
+      alert(error instanceof Error ? error.message : "Error al eliminar");
+    }
+  };
+
   const handleExportPdf = async () => {
     try {
       const userName =
@@ -152,6 +173,7 @@ export const MovementsPage = () => {
           entry={selectedEntry}
           onSubmit={handleUpdateEntry}
           onCancel={() => setSelectedEntry(null)}
+          onDelete={handleDeleteEntry}
         />
       )}
 
@@ -160,6 +182,7 @@ export const MovementsPage = () => {
           exit={selectedExit}
           onSubmit={handleUpdateExit}
           onCancel={() => setSelectedExit(null)}
+          onDelete={handleDeleteExit}
         />
       )}
     </>
