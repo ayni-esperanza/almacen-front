@@ -12,6 +12,7 @@ interface ProductTableRowProps {
   ) => Promise<Product | null>;
   onCreateArea: (name: string) => Promise<void>;
   onCreateCategoria: (name: string) => Promise<void>;
+  onDelete: (product: Product) => Promise<void> | void;
 }
 
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({
@@ -19,6 +20,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   onEdit,
   onCreateArea,
   onCreateCategoria,
+  onDelete,
 }) => {
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -59,10 +61,10 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         onClick={handleRowClick}
         style={{ cursor: "pointer", userSelect: "text" }}
       >
-        <td className="px-3 py-2 text-xs font-medium text-gray-900 dark:text-slate-100 select-text">
+        <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
           {product.codigo}
         </td>
-        <td className="px-3 py-2 text-xs text-gray-700 dark:text-slate-300 select-text">
+        <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
           {product.nombre}
         </td>
         <td className="px-3 py-2">
@@ -70,25 +72,25 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
             {product.ubicacion}
           </span>
         </td>
-        <td className="px-3 py-2 text-xs text-gray-700 dark:text-slate-200 select-text">
+        <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-200">
           {product.salidas}
         </td>
-        <td className="px-3 py-2 text-xs text-gray-700 dark:text-slate-200 select-text">
+        <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-200">
           {product.stockActual}
         </td>
-        <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-300 select-text">
+        <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-300">
           {product.unidadMedida}
         </td>
-        <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-300 select-text">
+        <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-300">
           {product.provider?.name || "N.A"}
         </td>
-        <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-300 select-text">
+        <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-300">
           {product.marca || "N.A"}
         </td>
-        <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-300 select-text">
+        <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-300">
           {product.categoria || "N.A"}
         </td>
-        <td className="px-3 py-2 text-xs font-medium text-green-600 dark:text-emerald-300 select-text">
+        <td className="px-3 py-2 text-xs font-medium text-green-600 select-text dark:text-emerald-300">
           S/ {product.costoUnitario?.toFixed(2) ?? "0.00"}
         </td>
       </tr>
@@ -98,6 +100,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           onClose={() => setShowEditModal(false)}
           product={product}
           onEdit={handleEdit}
+          onDelete={onDelete}
           onCreateArea={onCreateArea}
           onCreateCategoria={onCreateCategoria}
         />

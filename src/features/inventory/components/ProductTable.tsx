@@ -17,6 +17,7 @@ interface ProductTableProps {
     id: number,
     productData: UpdateProductData
   ) => Promise<Product | null>;
+  deleteProduct: (id: number) => Promise<boolean>;
   createArea: (name: string) => Promise<void>;
   createCategoria: (name: string) => Promise<void>;
   onAddProduct?: () => void;
@@ -30,6 +31,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   setSearchTerm,
   refetch,
   updateProduct,
+  deleteProduct,
   createArea,
   createCategoria,
   onAddProduct,
@@ -127,7 +129,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           {onAddProduct && (
             <button
               onClick={onAddProduct}
-              className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap flex-shrink-0"
+              className="flex items-center flex-shrink-0 px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
               <span>Agregar Producto</span>
@@ -147,7 +149,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         </div>
       ) : (
         <>
-          <div className="flex-1 overflow-auto" style={{ maxHeight: '600px' }}>
+          <div className="flex-1 overflow-auto" style={{ maxHeight: "600px" }}>
             <table className="w-full text-xs text-gray-700 dark:text-slate-200">
               <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
                 <tr className="border-b border-gray-200 dark:border-slate-800">
@@ -189,6 +191,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     key={product.id}
                     product={product}
                     onEdit={updateProduct}
+                    onDelete={async (p) => {
+                      await deleteProduct(p.id);
+                    }}
                     onCreateArea={createArea}
                     onCreateCategoria={createCategoria}
                   />
