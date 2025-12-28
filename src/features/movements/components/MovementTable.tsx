@@ -130,7 +130,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     handleItemsPerPageChange,
   } = usePagination({
     data: filteredMovements,
-    initialItemsPerPage: 15,
+    initialItemsPerPage: 100,
   });
 
   // SOLUCIÓN: Manejar el cambio de búsqueda de manera controlada
