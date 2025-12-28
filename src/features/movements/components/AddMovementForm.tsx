@@ -119,9 +119,9 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
   };
 
   const entryInputClasses =
-    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/40";
+    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/40 [color-scheme:light] dark:[color-scheme:dark] cursor-pointer";
   const exitInputClasses =
-    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-rose-400 dark:focus:ring-rose-500/40";
+    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-rose-400 dark:focus:ring-rose-500/40 [color-scheme:light] dark:[color-scheme:dark] cursor-pointer";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

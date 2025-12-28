@@ -152,7 +152,7 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
   const labelClasses =
     "flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200";
   const inputClasses =
-    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-rose-400 dark:focus:ring-rose-500/30";
+    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-rose-400 dark:focus:ring-rose-500/30 [color-scheme:light] dark:[color-scheme:dark] cursor-pointer";
   const disabledInputClasses =
     "w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-100 px-3 py-1.5 text-sm text-gray-500 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-400";
   const footerButtonClasses =

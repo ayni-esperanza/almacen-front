@@ -155,7 +155,7 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
   const labelClasses =
     "flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200";
   const inputClasses =
-    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-70 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:opacity-60 dark:focus:border-blue-400 dark:focus:ring-blue-500/30";
+    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-70 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:opacity-60 dark:focus:border-blue-400 dark:focus:ring-blue-500/30 [color-scheme:light] dark:[color-scheme:dark] cursor-pointer";
   const selectClasses =
     "w-full appearance-none rounded-xl border border-gray-300 px-3 py-1.5 pr-10 text-sm text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-70 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:opacity-60 dark:focus:border-blue-400 dark:focus:ring-blue-500/30";
   const dividerClasses =
