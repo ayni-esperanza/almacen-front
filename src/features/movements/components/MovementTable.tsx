@@ -45,44 +45,44 @@ const MovementRow: React.FC<MovementRowProps> = ({
             : "default",
         userSelect: "text",
       }}
-      className="border-b border-gray-100 transition-colors dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800"
+      className="transition-colors border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800"
     >
-      <td className="px-3 py-2 text-xs text-gray-700 dark:text-slate-300 select-text">
+      <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
         {movement.fecha}
       </td>
-      <td className="px-3 py-2 text-xs font-medium text-gray-900 dark:text-slate-100 select-text">
+      <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
         {movement.codigoProducto}
       </td>
       {isEntry ? (
         <>
-          <td className="px-3 py-2 text-xs text-gray-700 dark:text-slate-300 select-text">
+          <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
             {movement.descripcion}
           </td>
-          <td className="px-3 py-2 text-xs font-medium text-gray-900 dark:text-slate-100 select-text">
+          <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
             {movement.cantidad}
           </td>
-          <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-400 select-text">
+          <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {movement.area || "-"}
           </td>
-          <td className="px-3 py-2 text-xs font-medium text-green-600 dark:text-emerald-400 select-text">
+          <td className="px-3 py-2 text-xs font-medium text-green-600 select-text dark:text-emerald-400">
             S/ {movement.precioUnitario.toFixed(2)}
           </td>
         </>
       ) : (
         <>
-          <td className="px-3 py-2 text-xs text-gray-700 dark:text-slate-300 select-text">
+          <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
             {movement.descripcion}
           </td>
-          <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-400 select-text">
+          <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {movement.area || "-"}
           </td>
-          <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-400 select-text">
+          <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {"proyecto" in movement ? movement.proyecto || "-" : "-"}
           </td>
-          <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-400 select-text">
+          <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {movement.responsable || "-"}
           </td>
-          <td className="px-3 py-2 text-xs font-medium text-gray-900 dark:text-slate-100 select-text">
+          <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
             {movement.cantidad}
           </td>
         </>
@@ -101,24 +101,26 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = React.useState("");
 
-  // SOLUCIÓN: Usar useMemo para evitar recálculos innecesarios
-  const filteredMovements = React.useMemo(
-    () =>
-      movements.filter(
-        (movement) =>
-          movement.codigoProducto
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          movement.descripcion
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          (movement.responsable &&
-            movement.responsable
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()))
-      ),
-    [movements, searchTerm] // Solo recalcular cuando movements o searchTerm cambien
-  );
+  // useMemo para filtrar Y ORDENAR
+  const filteredMovements = React.useMemo(() => {
+    // Filtrar
+    const filtered = movements.filter((movement) => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        movement.codigoProducto.toLowerCase().includes(searchLower) ||
+        movement.descripcion.toLowerCase().includes(searchLower) ||
+        (movement.responsable &&
+          movement.responsable.toLowerCase().includes(searchLower))
+      );
+    });
+
+    // Ordenar por fecha de creación (createdAt) descendente
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA; // Descendente: B - A
+    });
+  }, [movements, searchTerm]);
 
   const {
     paginatedData: paginatedMovements,
@@ -133,7 +135,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     initialItemsPerPage: 100,
   });
 
-  // SOLUCIÓN: Manejar el cambio de búsqueda de manera controlada
+  // Manejar el cambio de búsqueda de manera controlada
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSearchTerm = e.target.value;
     setSearchTerm(newSearchTerm);
@@ -153,7 +155,9 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   return (
     <>
       {/* Header */}
-      <div className={`bg-gradient-to-r ${gradientColor} text-white py-3 px-4 sm:py-4 sm:px-6 shadow-sm`}>
+      <div
+        className={`bg-gradient-to-r ${gradientColor} text-white py-3 px-4 sm:py-4 sm:px-6 shadow-sm`}
+      >
         <div className="flex items-center space-x-2 sm:space-x-3">
           {icon}
           <h2 className="text-lg font-bold sm:text-xl">{titleText}</h2>
@@ -165,7 +169,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
         {/* Filtros sticky */}
         <div className="sticky top-[163px] z-20 p-3 bg-white border-b border-gray-200/70 sm:p-4 dark:border-slate-800/70 dark:bg-slate-900 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 w-full">
+            <div className="flex items-center flex-1 w-full gap-2 sm:gap-3">
               <div className="relative flex-1 sm:max-w-md">
                 <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
                 <input
@@ -173,7 +177,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                   placeholder="Buscar..."
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  className="w-full py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                  className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
                 />
               </div>
               {onExportPdf && (
@@ -203,9 +207,14 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
         {paginatedMovements.length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-slate-400">
-            {isEntry ? <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" /> : <TrendingDown className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />}
+            {isEntry ? (
+              <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
+            ) : (
+              <TrendingDown className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
+            )}
             <p>
-              No se encontraron {isEntry ? "entradas" : "salidas"} con los filtros aplicados.
+              No se encontraron {isEntry ? "entradas" : "salidas"} con los
+              filtros aplicados.
             </p>
           </div>
         ) : (
@@ -256,7 +265,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
+              <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
                 {paginatedMovements.map((movement) => (
                   <MovementRow
                     key={movement.id}
