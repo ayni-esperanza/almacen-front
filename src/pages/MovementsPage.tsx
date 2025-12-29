@@ -94,7 +94,7 @@ export const MovementsPage = () => {
   return (
     <>
       {/* Navegación secundaria estilo pestañas - STICKY */}
-      <div className="sticky top-[109px] z-20 bg-gray-50 border-b border-gray-200 dark:border-slate-700 dark:bg-slate-900">
+      <div className="sticky top-[109px] z-20 bg-gray-50 border-b border-gray-200 dark:border-slate-700 dark:bg-slate-900 h-fit">
         <nav className="flex items-center px-2 overflow-x-auto sm:px-6 scrollbar-hide">
           <button
             onClick={() => setActiveSubTab("entradas")}
