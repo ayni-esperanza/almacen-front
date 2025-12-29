@@ -169,31 +169,31 @@ const ProvidersPage = () => {
               {/* HEADER DE TABLA - STICKY */}
               <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
                 <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Foto
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Nombre
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Teléfonos
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Email
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Dirección
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
+              <tbody className="divide-y divide-gray-100 bg-white text-sm dark:divide-slate-800 dark:bg-slate-950">
                 {paginatedProviders.map((provider) => (
                   <tr
                     key={provider.id}
                     className="transition-colors border-b border-gray-100 hover:bg-purple-50 dark:border-slate-800 dark:hover:bg-slate-900/40"
                   >
                     <td
-                      className="px-4 py-4 cursor-pointer"
+                      className="px-3 py-3 cursor-pointer"
                       onClick={() => {
                         setSelectedProvider(provider);
                         setEditModalOpen(true);
@@ -203,14 +203,14 @@ const ProvidersPage = () => {
                         <img
                           src={provider.photoUrl}
                           alt={provider.name}
-                          className="object-cover w-10 h-10 border border-purple-400 rounded-full"
+                          className="object-cover w-9 h-9 border border-purple-400 rounded-full"
                         />
                       ) : (
-                        <User className="w-8 h-8 text-purple-400" />
+                        <User className="w-7 h-7 text-purple-400" />
                       )}
                     </td>
                     <td
-                      className="px-4 py-4 font-medium text-gray-900 cursor-pointer dark:text-slate-200"
+                      className="px-3 py-3 font-medium text-gray-900 cursor-pointer dark:text-slate-200"
                       onClick={() => {
                         setSelectedProvider(provider);
                         setEditModalOpen(true);
@@ -219,13 +219,13 @@ const ProvidersPage = () => {
                       {provider.name}
                     </td>
                     <td
-                      className="px-4 py-4 cursor-pointer"
+                      className="px-3 py-3 cursor-pointer"
                       onClick={() => {
                         setSelectedProvider(provider);
                         setEditModalOpen(true);
                       }}
                     >
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1.5">
                         {provider.phones.map((phone, idx) => (
                           <button
                             key={idx}
@@ -244,19 +244,19 @@ const ProvidersPage = () => {
                       </div>
                     </td>
                     <td
-                      className="px-4 py-4 text-gray-600 cursor-pointer dark:text-slate-300"
+                      className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
                       onClick={() => {
                         setSelectedProvider(provider);
                         setEditModalOpen(true);
                       }}
                     >
-                      <span className="inline-flex items-center gap-2 px-3 py-1 text-xs font-medium text-purple-700 rounded-full bg-purple-50 dark:bg-purple-500/10 dark:text-purple-200">
+                      <span className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-purple-700 rounded-full bg-purple-50 dark:bg-purple-500/10 dark:text-purple-200">
                         <Mail className="w-4 h-4" />
                         <span>{provider.email}</span>
                       </span>
                     </td>
                     <td
-                      className="px-4 py-4 text-gray-600 cursor-pointer dark:text-slate-300"
+                      className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
                       onClick={() => {
                         setSelectedProvider(provider);
                         setEditModalOpen(true);

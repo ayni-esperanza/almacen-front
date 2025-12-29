@@ -38,26 +38,26 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({
           : "hover:bg-gray-50 dark:hover:bg-slate-800"
       }`}
     >
-      <td className="px-4 py-4">
+      <td className="px-3 py-3">
         {user.avatarUrl ? (
           <img
             src={user.avatarUrl}
             alt={user.username}
-            className="object-cover w-10 h-10 border border-gray-200 rounded-full dark:border-slate-700"
+            className="object-cover w-9 h-9 border border-gray-200 rounded-full dark:border-slate-700"
           />
         ) : (
-          <div className="flex items-center justify-center w-10 h-10 font-semibold text-blue-600 border border-blue-100 rounded-full bg-blue-50 dark:border-blue-500/40 dark:bg-blue-500/15 dark:text-blue-200">
+          <div className="flex items-center justify-center w-9 h-9 font-semibold text-blue-600 border border-blue-100 rounded-full bg-blue-50 dark:border-blue-500/40 dark:bg-blue-500/15 dark:text-blue-200">
             {user.firstName?.[0] || user.username[0]}
           </div>
         )}
       </td>
-      <td className="px-4 py-4 font-medium text-gray-900 dark:text-slate-100 select-text">
+      <td className="px-3 py-3 font-medium text-gray-900 dark:text-slate-100 select-text">
         {user.username}
       </td>
-      <td className="px-4 py-4 text-gray-700 dark:text-slate-300 select-text">
+      <td className="px-3 py-3 text-gray-700 dark:text-slate-300 select-text">
         {[user.firstName, user.lastName].filter(Boolean).join(" ") || "-"}
       </td>
-      <td className="px-4 py-4 text-gray-700 dark:text-slate-300">
+      <td className="px-3 py-3 text-gray-700 dark:text-slate-300">
         {user.phoneNumber ? (
           <button
             type="button"
@@ -65,36 +65,36 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({
               event.stopPropagation();
               openWhatsApp(user.phoneNumber || "");
             }}
-            className="inline-flex items-center px-3 py-1 space-x-2 text-sm font-medium transition-colors rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:text-emerald-200 dark:hover:bg-emerald-500/25"
+            className="inline-flex items-center px-2 py-1 space-x-1 text-xs font-medium transition-colors rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:text-emerald-200 dark:hover:bg-emerald-500/25"
             title="Abrir WhatsApp"
           >
-            <Phone className="w-4 h-4" />
+            <Phone className="w-3 h-3" />
             <span className="select-text">{user.phoneNumber}</span>
           </button>
         ) : (
           "-"
         )}
       </td>
-      <td className="px-4 py-4 text-gray-700 dark:text-slate-300">
+      <td className="px-3 py-3 text-gray-700 dark:text-slate-300">
         {user.email ? (
-          <span className="inline-flex items-center px-3 py-1 space-x-2 text-sm font-medium text-blue-700 rounded-full bg-blue-50 dark:bg-blue-500/15 dark:text-blue-200 select-text">
-            <Mail className="w-4 h-4" />
+          <span className="inline-flex items-center px-2 py-1 space-x-1 text-xs font-medium text-blue-700 rounded-full bg-blue-50 dark:bg-blue-500/15 dark:text-blue-200 select-text">
+            <Mail className="w-3 h-3" />
             <span>{user.email}</span>
           </span>
         ) : (
           "-"
         )}
       </td>
-      <td className="px-4 py-4">
+      <td className="px-3 py-3">
         <span
-          className={`px-2 py-1 text-xs font-medium ${getRoleBadgeColor(
+          className={`px-2 py-0.5 text-xs font-medium ${getRoleBadgeColor(
             user.role
           )} rounded-full`}
         >
           {user.role}
         </span>
       </td>
-      <td className="px-4 py-4">
+      <td className="px-3 py-3">
         <button
           type="button"
           onClick={(event) => handleToggleUserStatus(user, event)}
