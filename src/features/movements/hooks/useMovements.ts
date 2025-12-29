@@ -14,6 +14,8 @@ export interface UseMovementsReturn {
   updateExitQuantity: (id: number, quantityData: UpdateExitQuantityData) => Promise<MovementExit | null>;
   updateEntry: (id: number, entryData: UpdateEntryData) => Promise<MovementEntry | null>;
   updateExit: (id: number, exitData: UpdateExitData) => Promise<MovementExit | null>;
+  deleteEntry: (id: number) => Promise<void>;
+  deleteExit: (id: number) => Promise<void>;
 }
 
 export const useMovements = (): UseMovementsReturn => {
@@ -122,6 +124,35 @@ export const useMovements = (): UseMovementsReturn => {
     }
   };
 
+  const deleteEntry = async (id: number) => {
+    try {
+      setLoading(true);
+      await movementsService.deleteEntry(id);
+      // Refrescamos para que desaparezca de la tabla y se actualice el stock visualmente si lo muestras
+      await refetchEntries();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Error al eliminar entrada"
+      );
+      throw err; // Re-lanzamos para que el componente UI sepa que falló
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteExit = async (id: number) => {
+    try {
+      setLoading(true);
+      await movementsService.deleteExit(id);
+      await refetchExits();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al eliminar salida");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Initial load
   useEffect(() => {
     fetchEntries();
@@ -139,6 +170,8 @@ export const useMovements = (): UseMovementsReturn => {
     createExit,
     updateExitQuantity,
     updateEntry,
-    updateExit
+    updateExit,
+    deleteEntry,
+    deleteExit,
   };
 };

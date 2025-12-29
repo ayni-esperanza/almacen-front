@@ -17,6 +17,7 @@ interface ProductTableProps {
     id: number,
     productData: UpdateProductData
   ) => Promise<Product | null>;
+  deleteProduct: (id: number) => Promise<boolean>;
   createArea: (name: string) => Promise<void>;
   createCategoria: (name: string) => Promise<void>;
   onAddProduct?: () => void;
@@ -30,6 +31,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   setSearchTerm,
   refetch,
   updateProduct,
+  deleteProduct,
   createArea,
   createCategoria,
   onAddProduct,
@@ -193,6 +195,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     key={product.id}
                     product={product}
                     onEdit={updateProduct}
+                    onDelete={async (p) => {
+                      await deleteProduct(p.id);
+                    }}
                     onCreateArea={createArea}
                     onCreateCategoria={createCategoria}
                   />

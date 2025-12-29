@@ -113,15 +113,22 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     onClose();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!product) return;
-    if (!onDelete) {
-      console.info("Eliminar producto pendiente de integración");
-      return;
-    }
+
     const confirmed = window.confirm("¿Eliminar este producto del inventario?");
     if (!confirmed) return;
-    onDelete(product);
+
+    try {
+      // Si onDelete existe (ahora sí existe porque viene del Row), lo ejecutamos
+      if (onDelete) {
+        await onDelete(product);
+        onClose(); // Cerramos modal tras éxito
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error al eliminar");
+    }
   };
 
   if (!isOpen || !product) return null;

@@ -162,9 +162,9 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="w-full max-w-3xl max-h-95vh overflow-hidden rounded-3xl border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col"
+        className="flex flex-col w-full max-w-3xl overflow-hidden transition-colors bg-white border border-transparent shadow-2xl max-h-95vh rounded-3xl dark:border-slate-800 dark:bg-slate-950"
       >
-        <div className="flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-red-500 to-red-600 px-4 py-2 text-white flex-shrink-0">
+        <div className="flex items-center justify-between flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-red-500 to-red-600">
           <h2 className="text-base font-semibold">Editar Salida de Producto</h2>
           <button
             type="button"
@@ -286,14 +286,22 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-200 dark:border-slate-800 sm:flex-row sm:justify-end">
               <button
                 type="button"
-                onClick={() => {
-                  if (!onDelete) {
-                    console.info("Eliminar salida pendiente de integración");
-                    return;
-                  }
-                  const confirmed = window.confirm("¿Eliminar esta salida de inventario?");
+                onClick={async () => {
+                  if (!onDelete) return;
+
+                  const confirmed = window.confirm(
+                    "¿Eliminar esta salida de inventario?"
+                  );
                   if (!confirmed) return;
-                  onDelete(exit);
+
+                  try {
+                    setSubmitting(true); // Bloqueamos el formulario
+                    await onDelete(exit);
+                    // Si tiene éxito, el padre cerrará el modal y desmontará este componente
+                  } catch (error) {
+                    console.error("Error al eliminar:", error);
+                    setSubmitting(false); // Si falla, desbloqueamos para intentar de nuevo
+                  }
                 }}
                 className="rounded-full border border-red-200 px-4 py-1.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/40 dark:text-red-200 dark:hover:bg-red-500/10"
                 disabled={submitting}
