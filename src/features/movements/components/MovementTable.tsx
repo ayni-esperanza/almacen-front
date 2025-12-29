@@ -30,7 +30,6 @@ interface MovementRowProps {
   onEditExit?: (movement: MovementExit) => void;
 }
 
-// Tipo para la configuración de ordenamiento
 type SortKey = "fecha" | "area";
 type SortDirection = "asc" | "desc";
 
@@ -38,6 +37,24 @@ interface SortConfig {
   key: SortKey;
   direction: SortDirection;
 }
+
+// Función auxiliar para convertir "DD/MM/YYYY" a un timestamp numérico
+const parseDateString = (dateStr: string | undefined): number => {
+  if (!dateStr) return 0;
+  // Si ya viene como ISO (ej: created_at), lo procesamos normal
+  if (dateStr.includes("T") || dateStr.includes("-")) {
+    return new Date(dateStr).getTime();
+  }
+  // Procesar formato DD/MM/YYYY
+  const parts = dateStr.split("/");
+  if (parts.length === 3) {
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // Meses en JS son 0-11
+    const year = parseInt(parts[2], 10);
+    return new Date(year, month, day).getTime();
+  }
+  return 0;
+};
 
 const MovementRow: React.FC<MovementRowProps> = ({
   movement,
@@ -119,7 +136,6 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Estado para el ordenamiento con inicialización desde localStorage
   const [sortConfig, setSortConfig] = useState<SortConfig>(() => {
     try {
       const saved = localStorage.getItem("movementTableSortConfig");
@@ -129,30 +145,25 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     }
   });
 
-  // Efecto para guardar en localStorage cuando cambie la configuración
   useEffect(() => {
     localStorage.setItem("movementTableSortConfig", JSON.stringify(sortConfig));
   }, [sortConfig]);
 
-  // Función para manejar el click en la columna Area
   const handleSort = (key: SortKey) => {
     setSortConfig((current) => {
       if (current.key === key) {
-        // Si ya estamos ordenando por esta columna, invertimos la dirección
         return {
           key,
           direction: current.direction === "asc" ? "desc" : "asc",
         };
       }
-      // Si es una columna nueva, empezamos ascendente
       return { key, direction: "asc" };
     });
   };
 
-  // Helper para renderizar el icono de ordenamiento
   const getSortIcon = (columnKey: SortKey) => {
     if (sortConfig.key !== columnKey) {
-      return <ArrowUpDown className="w-3 h-3 text-gray-400" />;
+      return <ArrowUpDown className="w-3 h-3 text-gray-400 opacity-50" />;
     }
     return sortConfig.direction === "asc" ? (
       <ArrowUp className="w-3 h-3 text-green-600 dark:text-green-400" />
@@ -161,7 +172,6 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     );
   };
 
-  // Filtrado y Ordenamiento Combinados
   const filteredAndSortedMovements = React.useMemo(() => {
     // Filtrar
     const filtered = movements.filter((movement) => {
@@ -176,7 +186,6 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
     // Ordenar
     return filtered.sort((a, b) => {
-      // Lógica para ordenar por AREA
       if (sortConfig.key === "area") {
         const areaA = (a.area || "").toLowerCase();
         const areaB = (b.area || "").toLowerCase();
@@ -186,12 +195,10 @@ export const MovementTable: React.FC<MovementTableProps> = ({
         return 0;
       }
 
-      // Lógica por defecto (FECHA) - createdAt
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
+      // función parseDateString para leer "20/08/2025" correctamente
+      const dateA = parseDateString(a.fecha);
+      const dateB = parseDateString(b.fecha);
 
-      // Para fechas, 'asc' significa del más antiguo al más nuevo
-      // 'desc' significa del más nuevo al más antiguo
       return sortConfig.direction === "asc" ? dateA - dateB : dateB - dateA;
     });
   }, [movements, searchTerm, sortConfig]);
@@ -226,7 +233,6 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
   return (
     <>
-      {/* Header */}
       <div
         className={`bg-gradient-to-r ${gradientColor} text-white py-3 px-4 sm:py-4 sm:px-6 shadow-sm`}
       >
@@ -236,9 +242,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
         </div>
       </div>
 
-      {/* Filters + Table Container */}
       <div className="flex flex-col bg-white border border-transparent shadow-lg dark:border-slate-800 dark:bg-slate-950">
-        {/* Filtros sticky */}
         <div className="sticky top-[163px] z-20 p-3 bg-white border-b border-gray-200/70 sm:p-4 dark:border-slate-800/70 dark:bg-slate-900 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center flex-1 w-full gap-2 sm:gap-3">
@@ -296,13 +300,11 @@ export const MovementTable: React.FC<MovementTableProps> = ({
               style={{ maxHeight: "600px" }}
             >
               <table className="w-full text-xs text-gray-700 dark:text-slate-200">
-                {/* Header de tabla - STICKY */}
                 <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-900">
                   <tr className="border-b border-gray-200 dark:border-slate-800">
-                    {/* FECHA: ordenable, por defecto */}
                     <th
                       onClick={() => handleSort("fecha")}
-                      className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 group"
+                      className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
                     >
                       <div className="flex items-center gap-1">
                         Fecha
@@ -320,10 +322,9 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                           Cantidad
                         </th>
-                        {/* AREA (Entrada) - Clickeable */}
                         <th
                           onClick={() => handleSort("area")}
-                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
                         >
                           <div className="flex items-center gap-1">
                             Área
@@ -339,10 +340,9 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                           Nombre
                         </th>
-                        {/* AREA (Salida) - Clickeable */}
                         <th
                           onClick={() => handleSort("area")}
-                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
                         >
                           <div className="flex items-center gap-1">
                             Área
