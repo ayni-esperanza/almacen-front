@@ -21,6 +21,7 @@ interface MovementTableProps {
   onEditExit?: (movement: MovementExit) => void;
   onExportPdf?: () => void;
   onAddMovement?: () => void;
+  onDataFiltered?: (data: (MovementEntry | MovementExit)[]) => void;
 }
 
 interface MovementRowProps {
@@ -38,18 +39,18 @@ interface SortConfig {
   direction: SortDirection;
 }
 
-// Función auxiliar para convertir "DD/MM/YYYY" a un timestamp numérico
+// Helper function to convert "DD/MM/YYYY" to a numeric timestamp
 const parseDateString = (dateStr: string | undefined): number => {
   if (!dateStr) return 0;
-  // Si ya viene como ISO (ej: created_at), lo procesamos normal
+  // If it comes as ISO (e.g., created_at), process normally
   if (dateStr.includes("T") || dateStr.includes("-")) {
     return new Date(dateStr).getTime();
   }
-  // Procesar formato DD/MM/YYYY
+  // Process DD/MM/YYYY format
   const parts = dateStr.split("/");
   if (parts.length === 3) {
     const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1; // Meses en JS son 0-11
+    const month = parseInt(parts[1], 10) - 1; // JS months are 0-11
     const year = parseInt(parts[2], 10);
     return new Date(year, month, day).getTime();
   }
@@ -133,6 +134,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   onEditExit,
   onExportPdf,
   onAddMovement,
+  onDataFiltered,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -173,7 +175,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   };
 
   const filteredAndSortedMovements = React.useMemo(() => {
-    // Filtrar
+    // Filter
     const filtered = movements.filter((movement) => {
       const searchLower = searchTerm.toLowerCase();
       return (
@@ -184,7 +186,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
       );
     });
 
-    // Ordenar
+    // Sort
     return filtered.sort((a, b) => {
       if (sortConfig.key === "area") {
         const areaA = (a.area || "").toLowerCase();
@@ -195,7 +197,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
         return 0;
       }
 
-      // función parseDateString para leer "20/08/2025" correctamente
+      // Use parseDateString function to read "20/08/2025" correctly
       const dateA = parseDateString(a.fecha);
       const dateB = parseDateString(b.fecha);
 
@@ -215,6 +217,15 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     data: filteredAndSortedMovements,
     initialItemsPerPage: 100,
   });
+
+  // Notify parent component whenever paginatedMovements changes
+  // This must be placed AFTER usePagination
+  useEffect(() => {
+    if (onDataFiltered) {
+      // Send ONLY what is visible in the current table page
+      onDataFiltered(paginatedMovements);
+    }
+  }, [paginatedMovements, onDataFiltered]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);

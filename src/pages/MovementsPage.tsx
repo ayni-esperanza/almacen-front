@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { MovementTable } from "../features/movements/components/MovementTable.tsx";
 import { AddMovementForm } from "../features/movements/components/AddMovementForm.tsx";
@@ -28,12 +28,29 @@ export const MovementsPage = () => {
   );
   const [selectedExit, setSelectedExit] = useState<MovementExit | null>(null);
   const movementsData = useMovements();
+  // Almacena los datos filtrados/ordenados que vienen de la tabla
+  const [visibleData, setVisibleData] = useState<
+    (MovementEntry | MovementExit)[]
+  >([]);
   const { user } = useAuth();
 
+  // Limpiar/Reiniciar visibleData cuando se cambie de pestaña
   useEffect(() => {
     setSelectedEntry(null);
     setSelectedExit(null);
-  }, [activeSubTab]);
+    // Reiniciamos con todos los datos para evitar que se quede pegada data de la tab anterior momentáneamente
+    setVisibleData(
+      activeSubTab === "entradas" ? movementsData.entries : movementsData.exits
+    );
+  }, [activeSubTab, movementsData.entries, movementsData.exits]);
+
+  // Usamos useCallback para evitar re-renders infinitos en la tabla
+  const handleDataFiltered = useCallback(
+    (data: (MovementEntry | MovementExit)[]) => {
+      setVisibleData(data);
+    },
+    []
+  );
 
   const handleAddMovement = async (data: CreateEntryData | CreateExitData) => {
     try {
@@ -97,14 +114,20 @@ export const MovementsPage = () => {
         user?.firstName && user?.lastName
           ? `${user.firstName} ${user.lastName}`
           : user?.username || "Usuario";
-      const data =
-        activeSubTab === "entradas"
-          ? movementsData.entries
-          : movementsData.exits;
+
+      // Usamos 'visibleData' en lugar de 'movementsData.entries/exits'
+      const dataToExport = visibleData;
+
+      if (!dataToExport || dataToExport.length === 0) {
+        // Fallback por seguridad o mostrar alerta
+        console.warn("No hay datos visibles para exportar");
+        alert("No hay datos en la tabla para exportar.");
+        return;
+      }
 
       await movementsPDFService.exportMovements({
         type: activeSubTab,
-        data,
+        data: dataToExport as any,
         userName,
       });
     } catch (error) {
@@ -149,6 +172,7 @@ export const MovementsPage = () => {
           onEditEntry={setSelectedEntry}
           onExportPdf={handleExportPdf}
           onAddMovement={() => setShowAddForm(true)}
+          onDataFiltered={handleDataFiltered}
         />
       ) : (
         <MovementTable
@@ -157,6 +181,7 @@ export const MovementsPage = () => {
           onEditExit={setSelectedExit}
           onExportPdf={handleExportPdf}
           onAddMovement={() => setShowAddForm(true)}
+          onDataFiltered={handleDataFiltered}
         />
       )}
 
