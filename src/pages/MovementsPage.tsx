@@ -93,29 +93,29 @@ export const MovementsPage = () => {
 
   return (
     <>
-      {/* Navegación secundaria estilo pestañas - Responsive */}
-      <div className="mb-4 border-b border-gray-200 sm:mb-6 dark:border-slate-800">
-        <nav className="flex px-2 -mb-px space-x-4 sm:px-0 sm:space-x-8">
+      {/* Navegación secundaria estilo pestañas - STICKY */}
+      <div className="sticky top-[109px] z-20 bg-gray-50 border-b border-gray-200 dark:border-slate-700 dark:bg-slate-900">
+        <nav className="flex items-center px-2 overflow-x-auto sm:px-6 scrollbar-hide">
           <button
             onClick={() => setActiveSubTab("entradas")}
-            className={`py-3 px-1 sm:py-4 border-b-2 font-medium text-xs sm:text-sm flex items-center space-x-1.5 sm:space-x-2 ${
+            className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
               activeSubTab === "entradas"
                 ? "border-green-500 text-green-600 dark:text-emerald-400"
-                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-700"
+                : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600"
             }`}
           >
-            <TrendingUp className="w-4 h-4" />
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Entradas</span>
           </button>
           <button
             onClick={() => setActiveSubTab("salidas")}
-            className={`py-3 px-1 sm:py-4 border-b-2 font-medium text-xs sm:text-sm flex items-center space-x-1.5 sm:space-x-2 ${
+            className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
               activeSubTab === "salidas"
                 ? "border-red-500 text-red-600 dark:text-rose-400"
-                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-700"
+                : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600"
             }`}
           >
-            <TrendingDown className="w-4 h-4" />
+            <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Salidas</span>
           </button>
         </nav>

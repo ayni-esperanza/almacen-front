@@ -71,22 +71,22 @@ export const ReportsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
-      {/* Navigation Tabs - Responsive */}
-      <div className="bg-white border-b border-gray-200 dark:border-slate-800 dark:bg-slate-900">
-        <nav className="flex px-2 -mb-px overflow-x-auto sm:px-0 sm:space-x-8 scrollbar-hide">
+      {/* Navigation Tabs - Responsive - STICKY */}
+      <div className="sticky top-[109px] z-20 bg-gray-50 border-b border-gray-200 dark:border-slate-700 dark:bg-slate-900">
+        <nav className="flex items-center px-2 overflow-x-auto sm:px-6 scrollbar-hide">
           {REPORTS.map((report) => {
             const Icon = report.icon;
             return (
               <button
                 key={report.id}
                 onClick={() => handleReportChange(report.id)}
-                className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-1 py-3 sm:py-4 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
+                className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-3 sm:py-4 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap transition-colors ${
                   activeReport === report.id
-                    ? "border-green-500 text-green-600 dark:text-emerald-300"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-200"
+                    ? "border-green-500 text-green-600 dark:text-emerald-400"
+                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600"
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="hidden sm:inline">{report.title}</span>
               </button>
             );

@@ -4,7 +4,6 @@ import { User, UserRole } from "../features/auth/types";
 import { usersService } from "../shared/services/users.service";
 import { ProtectedComponent } from "../shared/components/ProtectedComponent";
 import { Pagination } from "../shared/components/Pagination";
-import { TableWithFixedHeader } from "../shared/components/TableWithFixedHeader";
 import { Permission } from "../shared/types/permissions";
 import { usePagination } from "../shared/hooks/usePagination";
 import { usePermissions } from "../shared/hooks/usePermissions";
@@ -287,37 +286,41 @@ export const UsersPage = () => {
 
   return (
     <>
-      <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-900">
-        <div className="px-6 py-4 text-white rounded-t-xl bg-gradient-to-r from-blue-500 to-blue-600">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Users className="w-6 h-6" />
-              <h2 className="text-xl font-bold">Gestión de Usuarios</h2>
-            </div>
+      {/* Header */}
+      <div className="px-6 py-4 text-white bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Users className="w-6 h-6" />
+            <h2 className="text-xl font-bold">Gestión de Usuarios</h2>
           </div>
         </div>
-        <div className="p-4 border-b bg-gray-50 dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center justify-between gap-3">
-            <div className="relative flex-1 max-w-md">
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Buscar por usuario, nombre, email o rol..."
-                className={searchInputClasses}
-              />
+      </div>
+
+      {/* Filters + Table Container */}
+      <div className="flex flex-col bg-white border border-transparent shadow-lg dark:border-slate-800 dark:bg-slate-900">
+        {/* Filtros sticky */}
+        <div className="sticky top-[109px] z-20 p-4 border-b bg-gray-50 dark:border-slate-800 dark:bg-slate-900 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div className="relative flex-1 max-w-md">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder="Buscar por usuario, nombre, email o rol..."
+                  className={searchInputClasses}
+                />
+              </div>
+              <ProtectedComponent permission={Permission.USERS_CREATE}>
+                <button
+                  type="button"
+                  className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 whitespace-nowrap flex-shrink-0"
+                  onClick={openCreateModal}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Nuevo Usuario</span>
+                </button>
+              </ProtectedComponent>
             </div>
-            <ProtectedComponent permission={Permission.USERS_CREATE}>
-              <button
-                type="button"
-                className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 whitespace-nowrap flex-shrink-0"
-                onClick={openCreateModal}
-              >
-                <Plus className="w-4 h-4" />
-                <span>Nuevo Usuario</span>
-              </button>
-            </ProtectedComponent>
-          </div>
         </div>
 
         {filteredUsers.length === 0 ? (
@@ -327,33 +330,34 @@ export const UsersPage = () => {
           </div>
         ) : (
           <>
-            <TableWithFixedHeader maxHeight="600px">
-              <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-900">
+            <table className="w-full text-sm text-gray-700 dark:text-slate-200">
+              {/* HEADER DE TABLA - STICKY */}
+              <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
                 <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Foto
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Usuario
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Nombre
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Teléfono
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Email
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Rol
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Estado
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
                 {paginatedUsers.map((user) => (
                   <UserTableRow
                     key={user.id}
@@ -367,23 +371,22 @@ export const UsersPage = () => {
                   />
                 ))}
               </tbody>
-            </TableWithFixedHeader>
-
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
-            />
+            </table>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+          />
           </>
         )}
       </div>
 
       {isModalOpen && (
         <UserFormModal
-          isOpen={isModalOpen}
+          isOpen={true}
           mode={modalMode}
           title={
             modalMode === "create" ? "Crear Nuevo Usuario" : "Editar Usuario"

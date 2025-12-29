@@ -103,87 +103,91 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   }
 
   return (
-    <div className="flex flex-col bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">
-      {/* Header de la tabla */}
-      <div className="flex-shrink-0 px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600 rounded-t-xl">
+    <>
+      {/* Header - sticky */}
+      <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600 shadow-sm">
         <div className="flex items-center space-x-3">
           <Package className="w-6 h-6" />
           <h2 className="text-xl font-bold">Inventario de Productos</h2>
         </div>
       </div>
-      {/* Search Filter */}
-      <div className="flex-shrink-0 p-4 bg-white border-b border-gray-200/70 dark:border-slate-800/70 dark:bg-slate-900">
-        <div className="flex items-center justify-between gap-3">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
-            <input
-              type="text"
-              placeholder="Buscar por código, descripción o proveedor..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={searchInputClasses}
-            />
-          </div>
-          {onAddProduct && (
-            <button
-              onClick={onAddProduct}
-              className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap flex-shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Agregar Producto</span>
-            </button>
-          )}
-        </div>
-      </div>
 
-      {filteredProducts.length === 0 ? (
-        <div className="p-8 text-center text-gray-500 dark:text-slate-400">
-          <Package className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-          <p>
-            {products.length === 0
-              ? "No se encontraron productos"
-              : "No se encontraron productos con los filtros aplicados"}
-          </p>
+      {/* Filters + Table Container */}
+      <div className="flex flex-col bg-white border border-transparent shadow-lg dark:border-slate-800 dark:bg-slate-950">
+        {/* Search Filter sticky */}
+        <div className="sticky top-[109px] z-30 p-4 bg-white border-b border-gray-200/70 dark:border-slate-800/70 dark:bg-slate-900 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
+              <input
+                type="text"
+                placeholder="Buscar por código, descripción o proveedor..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={searchInputClasses}
+              />
+            </div>
+            {onAddProduct && (
+              <button
+                onClick={onAddProduct}
+                className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap flex-shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Agregar Producto</span>
+              </button>
+            )}
+          </div>
         </div>
-      ) : (
-        <>
-          <div className="flex-1 overflow-auto" style={{ maxHeight: '600px' }}>
+
+        {/* Contenido scrolleable */}
+        {filteredProducts.length === 0 ? (
+          <div className="p-8 text-center text-gray-500 dark:text-slate-400">
+            <Package className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
+            <p>
+              {products.length === 0
+                ? "No se encontraron productos"
+                : "No se encontraron productos con los filtros aplicados"}
+            </p>
+          </div>
+        ) : (
+          <>
             <table className="w-full text-xs text-gray-700 dark:text-slate-200">
-              <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-950">
-                <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+              {/* Header de tabla - STICKY */}
+              <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
+              <tr className="border-b border-gray-200 dark:border-slate-800">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Código
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Nombre
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Ubicación
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Salidas
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Stock Actual
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Unidad
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Proveedor
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Marca
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Categoría
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Costo Unitario
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
                 {paginatedProducts.map((product) => (
                   <ProductTableRow
                     key={product.id}
@@ -195,9 +199,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 ))}
               </tbody>
             </table>
-          </div>
-
-          <div className="flex-shrink-0">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -206,9 +207,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               onPageChange={handlePageChange}
               onItemsPerPageChange={handleItemsPerPageChange}
             />
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </>
   );
 };

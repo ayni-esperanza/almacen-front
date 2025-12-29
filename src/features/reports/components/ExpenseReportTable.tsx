@@ -17,7 +17,7 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = React.memo(
     const headingClasses =
       "px-2 text-lg font-semibold text-gray-800 dark:text-slate-100";
     const tableHeaderClasses =
-      "bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:bg-slate-900 dark:text-slate-300";
+      "bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-600 shadow-sm dark:bg-slate-900 dark:text-slate-300";
     const cellTextClasses =
       "px-6 py-4 text-sm text-gray-900 dark:text-slate-200";
     const badgeCurrencyClasses =
@@ -80,8 +80,10 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = React.memo(
           </span>
         </div>
 
-        <TableWithFixedHeader maxHeight="600px">
-          <thead className="sticky top-0 z-10">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-gray-700 dark:text-slate-200">
+            {/* HEADER DE TABLA - STICKY */}
+            <thead className="sticky top-[109px] z-10 bg-gray-50 dark:bg-slate-900">
             <tr>
               <th className={tableHeaderClasses}>Código</th>
               <th className={tableHeaderClasses}>Nombre</th>
@@ -130,7 +132,8 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = React.memo(
               <td></td>
             </tr>
           </tfoot>
-        </TableWithFixedHeader>
+        </table>
+        </div>
 
         <Pagination
           currentPage={currentPage}

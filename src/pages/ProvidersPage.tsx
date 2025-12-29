@@ -112,28 +112,31 @@ const ProvidersPage = () => {
 
   return (
     <>
-      <div className={containerClasses}>
-        <AddProviderModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onAdd={handleAddProvider}
-        />
-        <EditProviderModal
-          isOpen={editModalOpen}
-          onClose={() => {
-            setEditModalOpen(false);
-            setSelectedProvider(null);
-          }}
-          provider={selectedProvider}
-          onEdit={handleEditProvider}
-        />
-        <div className="px-6 py-4 text-white bg-gradient-to-r from-purple-500 to-purple-600 rounded-t-xl">
-          <div className="flex items-center space-x-3">
-            <User className="w-5 h-5" />
-            <h2 className="text-xl font-bold">Gestión de Proveedores</h2>
-          </div>
+      <AddProviderModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAdd={handleAddProvider}
+      />
+      <EditProviderModal
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedProvider(null);
+        }}
+        provider={selectedProvider}
+        onEdit={handleEditProvider}
+      />
+      {/* HEADER */}
+      <div className="px-6 py-4 text-white bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm">
+        <div className="flex items-center space-x-3">
+          <User className="w-5 h-5" />
+          <h2 className="text-xl font-bold">Gestión de Proveedores</h2>
         </div>
-        <div className="p-4 border-b border-gray-200 bg-gray-50 dark:border-slate-800 dark:bg-slate-900">
+      </div>
+      {/* Filters + Table Container */}
+      <div className="flex flex-col bg-white border border-transparent shadow-lg dark:border-slate-800 dark:bg-slate-950">
+        {/* FILTROS sticky */}
+        <div className="sticky top-[109px] z-20 p-4 border-b border-gray-200 bg-gray-50 dark:border-slate-800 dark:bg-slate-900 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
@@ -154,6 +157,7 @@ const ProvidersPage = () => {
             </button>
           </div>
         </div>
+
         {filteredProviders.length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-slate-400">
             <User className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
@@ -161,27 +165,28 @@ const ProvidersPage = () => {
           </div>
         ) : (
           <>
-            <TableWithFixedHeader maxHeight="600px">
-              <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-900">
+            <table className="w-full text-sm text-gray-700 dark:text-slate-200">
+              {/* HEADER DE TABLA - STICKY */}
+              <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
                 <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Foto
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Nombre
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Teléfonos
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Email
                   </th>
-                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-4 py-4 font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
                     Dirección
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
                 {paginatedProviders.map((provider) => (
                   <tr
                     key={provider.id}
@@ -262,15 +267,15 @@ const ProvidersPage = () => {
                   </tr>
                 ))}
               </tbody>
-            </TableWithFixedHeader>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
-            />
+            </table>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+          />
           </>
         )}
       </div>
