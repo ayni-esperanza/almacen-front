@@ -1,9 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MovementEntry, MovementExit } from "../types/index.ts";
 import { Pagination } from "../../../shared/components/Pagination";
 import { usePagination } from "../../../shared/hooks/usePagination";
 import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowClick";
-import { TrendingUp, TrendingDown, Search, Download, Plus } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Search,
+  Download,
+  Plus,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 
 interface MovementTableProps {
   movements: (MovementEntry | MovementExit)[];
@@ -19,6 +28,15 @@ interface MovementRowProps {
   isEntry: boolean;
   onEditEntry?: (movement: MovementEntry) => void;
   onEditExit?: (movement: MovementExit) => void;
+}
+
+// Tipo para la configuración de ordenamiento
+type SortKey = "fecha" | "area";
+type SortDirection = "asc" | "desc";
+
+interface SortConfig {
+  key: SortKey;
+  direction: SortDirection;
 }
 
 const MovementRow: React.FC<MovementRowProps> = ({
@@ -99,10 +117,52 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   onExportPdf,
   onAddMovement,
 }) => {
-  const [searchTerm, setSearchTerm] = React.useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // useMemo para filtrar Y ORDENAR
-  const filteredMovements = React.useMemo(() => {
+  // Estado para el ordenamiento con inicialización desde localStorage
+  const [sortConfig, setSortConfig] = useState<SortConfig>(() => {
+    try {
+      const saved = localStorage.getItem("movementTableSortConfig");
+      return saved ? JSON.parse(saved) : { key: "fecha", direction: "desc" };
+    } catch {
+      return { key: "fecha", direction: "desc" };
+    }
+  });
+
+  // Efecto para guardar en localStorage cuando cambie la configuración
+  useEffect(() => {
+    localStorage.setItem("movementTableSortConfig", JSON.stringify(sortConfig));
+  }, [sortConfig]);
+
+  // Función para manejar el click en la columna Area
+  const handleSort = (key: SortKey) => {
+    setSortConfig((current) => {
+      if (current.key === key) {
+        // Si ya estamos ordenando por esta columna, invertimos la dirección
+        return {
+          key,
+          direction: current.direction === "asc" ? "desc" : "asc",
+        };
+      }
+      // Si es una columna nueva, empezamos ascendente
+      return { key, direction: "asc" };
+    });
+  };
+
+  // Helper para renderizar el icono de ordenamiento
+  const getSortIcon = (columnKey: SortKey) => {
+    if (sortConfig.key !== columnKey) {
+      return <ArrowUpDown className="w-3 h-3 text-gray-400" />;
+    }
+    return sortConfig.direction === "asc" ? (
+      <ArrowUp className="w-3 h-3 text-green-600 dark:text-green-400" />
+    ) : (
+      <ArrowDown className="w-3 h-3 text-green-600 dark:text-green-400" />
+    );
+  };
+
+  // Filtrado y Ordenamiento Combinados
+  const filteredAndSortedMovements = React.useMemo(() => {
     // Filtrar
     const filtered = movements.filter((movement) => {
       const searchLower = searchTerm.toLowerCase();
@@ -114,13 +174,27 @@ export const MovementTable: React.FC<MovementTableProps> = ({
       );
     });
 
-    // Ordenar por fecha de creación (createdAt) descendente
+    // Ordenar
     return filtered.sort((a, b) => {
+      // Lógica para ordenar por AREA
+      if (sortConfig.key === "area") {
+        const areaA = (a.area || "").toLowerCase();
+        const areaB = (b.area || "").toLowerCase();
+
+        if (areaA < areaB) return sortConfig.direction === "asc" ? -1 : 1;
+        if (areaA > areaB) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      }
+
+      // Lógica por defecto (FECHA) - createdAt
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
-      return dateB - dateA; // Descendente: B - A
+
+      // Para fechas, 'asc' significa del más antiguo al más nuevo
+      // 'desc' significa del más nuevo al más antiguo
+      return sortConfig.direction === "asc" ? dateA - dateB : dateB - dateA;
     });
-  }, [movements, searchTerm]);
+  }, [movements, searchTerm, sortConfig]);
 
   const {
     paginatedData: paginatedMovements,
@@ -131,14 +205,12 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     handlePageChange,
     handleItemsPerPageChange,
   } = usePagination({
-    data: filteredMovements,
+    data: filteredAndSortedMovements,
     initialItemsPerPage: 100,
   });
 
-  // Manejar el cambio de búsqueda de manera controlada
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearchTerm = e.target.value;
-    setSearchTerm(newSearchTerm);
+    setSearchTerm(e.target.value);
   };
 
   const isEntry = type === "entrada";
@@ -219,64 +291,90 @@ export const MovementTable: React.FC<MovementTableProps> = ({
           </div>
         ) : (
           <>
-            <table className="w-full text-xs text-gray-700 dark:text-slate-200">
-              {/* Header de tabla - STICKY */}
-              <thead className="sticky top-[230px] z-10 bg-gray-50 dark:bg-slate-900">
-                <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                    Fecha
-                  </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                    Código
-                  </th>
-                  {isEntry ? (
-                    <>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Nombre
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Cantidad
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Área
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Costo U.
-                      </th>
-                    </>
-                  ) : (
-                    <>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Nombre
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Área
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Proyecto
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Responsable
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Cantidad
-                      </th>
-                    </>
-                  )}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
-                {paginatedMovements.map((movement) => (
-                  <MovementRow
-                    key={movement.id}
-                    movement={movement}
-                    isEntry={isEntry}
-                    onEditEntry={onEditEntry}
-                    onEditExit={onEditExit}
-                  />
-                ))}
-              </tbody>
-            </table>
+            <div
+              className="flex-1 overflow-auto"
+              style={{ maxHeight: "600px" }}
+            >
+              <table className="w-full text-xs text-gray-700 dark:text-slate-200">
+                {/* Header de tabla - STICKY */}
+                <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-900">
+                  <tr className="border-b border-gray-200 dark:border-slate-800">
+                    {/* FECHA: ordenable, por defecto */}
+                    <th
+                      onClick={() => handleSort("fecha")}
+                      className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 group"
+                    >
+                      <div className="flex items-center gap-1">
+                        Fecha
+                        {getSortIcon("fecha")}
+                      </div>
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                      Código
+                    </th>
+                    {isEntry ? (
+                      <>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Nombre
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Cantidad
+                        </th>
+                        {/* AREA (Entrada) - Clickeable */}
+                        <th
+                          onClick={() => handleSort("area")}
+                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                        >
+                          <div className="flex items-center gap-1">
+                            Área
+                            {getSortIcon("area")}
+                          </div>
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Costo U.
+                        </th>
+                      </>
+                    ) : (
+                      <>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Nombre
+                        </th>
+                        {/* AREA (Salida) - Clickeable */}
+                        <th
+                          onClick={() => handleSort("area")}
+                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                        >
+                          <div className="flex items-center gap-1">
+                            Área
+                            {getSortIcon("area")}
+                          </div>
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Proyecto
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Responsable
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Cantidad
+                        </th>
+                      </>
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
+                  {paginatedMovements.map((movement) => (
+                    <MovementRow
+                      key={movement.id}
+                      movement={movement}
+                      isEntry={isEntry}
+                      onEditEntry={onEditEntry}
+                      onEditExit={onEditExit}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
