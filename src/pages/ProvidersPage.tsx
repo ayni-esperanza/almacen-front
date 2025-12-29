@@ -1,11 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Plus, User, Phone, AlertCircle, Mail, Search } from "lucide-react";
 import { Provider } from "../features/providers/types";
 import { AddProviderModal } from "../features/providers/components/AddProviderModal";
 import { EditProviderModal } from "../features/providers/components/EditProviderModal";
 import { useProviders } from "../features/providers/hooks/useProviders";
 import { Pagination } from "../shared/components/Pagination";
-import { TableWithFixedHeader } from "../shared/components/TableWithFixedHeader";
 import { usePagination } from "../shared/hooks/usePagination";
 
 const ProvidersPage = () => {
@@ -29,12 +28,23 @@ const ProvidersPage = () => {
   const searchInputClasses =
     "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-purple-400 dark:focus:ring-purple-500/30";
 
-  const filteredProviders = providers.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.address.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Usar useMemo para filtrar Y ORDENAR
+  const filteredProviders = React.useMemo(() => {
+    // Filtrar
+    const filtered = providers.filter(
+      (p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.address.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Ordenar por fecha de creación (createdAt) descendente
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0).getTime();
+      const dateB = new Date(b.createdAt || 0).getTime();
+      return dateB - dateA; // Descendente: B - A
+    });
+  }, [providers, searchTerm]);
 
   const {
     paginatedData: paginatedProviders,
@@ -150,7 +160,7 @@ const ProvidersPage = () => {
         onEdit={handleEditProvider}
       />
       {/* HEADER */}
-      <div className="px-6 py-4 text-white bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm">
+      <div className="px-6 py-4 text-white shadow-sm bg-gradient-to-r from-purple-500 to-purple-600">
         <div className="flex items-center space-x-3">
           <User className="w-5 h-5" />
           <h2 className="text-xl font-bold">Gestión de Proveedores</h2>
@@ -192,24 +202,24 @@ const ProvidersPage = () => {
               {/* HEADER DE TABLA - STICKY */}
               <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
                 <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Foto
                   </th>
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Nombre
                   </th>
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Teléfonos
                   </th>
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Email
                   </th>
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Dirección
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white text-sm dark:divide-slate-800 dark:bg-slate-950">
+              <tbody className="text-sm bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
                 {paginatedProviders.map((provider) => (
                   <tr
                     key={provider.id}
@@ -226,10 +236,10 @@ const ProvidersPage = () => {
                         <img
                           src={provider.photoUrl}
                           alt={provider.name}
-                          className="object-cover w-9 h-9 border border-purple-400 rounded-full"
+                          className="object-cover border border-purple-400 rounded-full w-9 h-9"
                         />
                       ) : (
-                        <User className="w-7 h-7 text-purple-400" />
+                        <User className="text-purple-400 w-7 h-7" />
                       )}
                     </td>
                     <td
@@ -291,14 +301,14 @@ const ProvidersPage = () => {
                 ))}
               </tbody>
             </table>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={handlePageChange}
-            onItemsPerPageChange={handleItemsPerPageChange}
-          />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
           </>
         )}
       </div>
