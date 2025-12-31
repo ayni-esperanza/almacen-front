@@ -124,8 +124,7 @@ export const usePhoneDropdown = (
     countryIso: string | undefined,
     onValue: (cleaned: string) => void,
   ) => {
-    const cleanedValue = phone.replace(/[\s\-\(\)\+]/g, '');
-    onValue(cleanedValue);
+    onValue(phone || '');
     if (countryIso) closeDropdown(index);
   };
 

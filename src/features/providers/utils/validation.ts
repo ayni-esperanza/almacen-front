@@ -50,16 +50,21 @@ export const validatePhone = (phone: string): ValidationError | null => {
   if (!phone || phone.trim().length === 0) {
     return { field: 'phone', message: 'Al menos un teléfono es requerido' };
   }
-  
-  if (!/^\d+$/.test(phone)) {
+
+  // Permitir prefijo + y limpiar espacios/paréntesis/guiones
+  const normalized = phone
+    .replace(/[\s\-\(\)]/g, '')
+    .replace(/^\+/, '');
+
+  if (!/^\d+$/.test(normalized)) {
     return { field: 'phone', message: 'El teléfono solo puede contener números' };
   }
   
-  if (phone.length < 7) {
+  if (normalized.length < 7) {
     return { field: 'phone', message: 'El teléfono debe tener al menos 7 dígitos' };
   }
   
-  if (phone.length > 20) {
+  if (normalized.length > 20) {
     return { field: 'phone', message: 'El teléfono no puede exceder 20 dígitos' };
   }
   

@@ -125,7 +125,8 @@ const ProvidersPage = () => {
   const handleEditProvider = async (updatedProvider: Provider) => {
     try {
       // Extraer solo los campos editables (sin id, createdAt, updatedAt)
-      const { id, createdAt, updatedAt, ...providerData } = updatedProvider;
+      const { id, createdAt, updatedAt, deletedAt, ...providerData } =
+        updatedProvider;
       const result = await updateProvider(id, providerData);
       if (result) {
         addToast(`Proveedor "${updatedProvider.name}" actualizado exitosamente`, 'success');
