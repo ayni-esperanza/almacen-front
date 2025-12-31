@@ -5,6 +5,7 @@ import {
   CreateProviderData,
   UpdateProviderData,
 } from "../services/providers.service";
+import { validateProviderForm, cleanPhones, ProviderFormData } from "../utils/validation";
 
 export interface UseProvidersReturn {
   providers: Provider[];
@@ -33,9 +34,9 @@ export const useProviders = (): UseProvidersReturn => {
       const data = await providersService.getAllProviders();
       setProviders(data);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Error al cargar proveedores"
-      );
+      const errorMessage = err instanceof Error ? err.message : "Error al cargar proveedores";
+      setError(errorMessage);
+      console.error("Error fetching providers:", err);
     } finally {
       setLoading(false);
     }
@@ -49,13 +50,33 @@ export const useProviders = (): UseProvidersReturn => {
     providerData: CreateProviderData
   ): Promise<Provider | null> => {
     try {
-      const newProvider = await providersService.createProvider(providerData);
+      // Validar datos antes de enviar
+      const cleanedPhones = cleanPhones(providerData.phones);
+      const validationData: ProviderFormData = {
+        ...providerData,
+        phones: cleanedPhones,
+      };
+      
+      const validationError = validateProviderForm(validationData);
+      if (validationError) {
+        throw new Error(validationError.message);
+      }
+
+      // Limpiar array de teléfonos antes de enviar
+      const dataToSend = {
+        ...providerData,
+        phones: cleanedPhones,
+      };
+
+      const newProvider = await providersService.createProvider(dataToSend);
       if (newProvider) {
         await refetch(); // Refresh the list
       }
       return newProvider;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al crear proveedor");
+      const errorMessage = err instanceof Error ? err.message : "Error al crear proveedor";
+      setError(errorMessage);
+      console.error("Error creating provider:", err);
       throw err;
     }
   };
@@ -65,18 +86,42 @@ export const useProviders = (): UseProvidersReturn => {
     providerData: UpdateProviderData
   ): Promise<Provider | null> => {
     try {
+      // Limpiar teléfonos si se incluyen en la actualización
+      let dataToSend = providerData;
+      if (providerData.phones) {
+        const cleanedPhones = cleanPhones(providerData.phones);
+        dataToSend = {
+          ...providerData,
+          phones: cleanedPhones,
+        };
+
+        // Validar datos
+        const validationData: ProviderFormData = {
+          name: providerData.name || "",
+          email: providerData.email || "",
+          address: providerData.address || "",
+          phones: cleanedPhones,
+          photoUrl: providerData.photoUrl,
+        };
+        
+        const validationError = validateProviderForm(validationData);
+        if (validationError) {
+          throw new Error(validationError.message);
+        }
+      }
+
       const updatedProvider = await providersService.updateProvider(
         id,
-        providerData
+        dataToSend
       );
       if (updatedProvider) {
         await refetch(); // Refresh the list
       }
       return updatedProvider;
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Error al actualizar proveedor"
-      );
+      const errorMessage = err instanceof Error ? err.message : "Error al actualizar proveedor";
+      setError(errorMessage);
+      console.error("Error updating provider:", err);
       throw err;
     }
   };
@@ -89,9 +134,9 @@ export const useProviders = (): UseProvidersReturn => {
       }
       return success;
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Error al eliminar proveedor"
-      );
+      const errorMessage = err instanceof Error ? err.message : "Error al eliminar proveedor";
+      setError(errorMessage);
+      console.error("Error deleting provider:", err);
       return false;
     }
   };

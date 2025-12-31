@@ -4,6 +4,7 @@ import { Provider } from "../features/providers/types";
 import { AddProviderModal } from "../features/providers/components/AddProviderModal";
 import { EditProviderModal } from "../features/providers/components/EditProviderModal";
 import { useProviders } from "../features/providers/hooks/useProviders";
+import { useToast } from "../shared/hooks/useToast";
 import { Pagination } from "../shared/components/Pagination";
 import { usePagination } from "../shared/hooks/usePagination";
 
@@ -15,7 +16,9 @@ const ProvidersPage = () => {
     refetch,
     createProvider,
     updateProvider,
+    deleteProvider,
   } = useProviders();
+  const { addToast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -107,9 +110,14 @@ const ProvidersPage = () => {
 
   const handleAddProvider = async (newProvider: Omit<Provider, "id">) => {
     try {
-      await createProvider(newProvider);
-      setIsModalOpen(false);
+      const result = await createProvider(newProvider);
+      if (result) {
+        addToast(`Proveedor "${newProvider.name}" creado exitosamente`, 'success');
+        setIsModalOpen(false);
+      }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al crear el proveedor';
+      addToast(errorMessage, 'error');
       console.error("Error adding provider:", error);
     }
   };
@@ -118,11 +126,34 @@ const ProvidersPage = () => {
     try {
       // Extraer solo los campos editables (sin id, createdAt, updatedAt)
       const { id, createdAt, updatedAt, ...providerData } = updatedProvider;
-      await updateProvider(id, providerData);
-      setEditModalOpen(false);
-      setSelectedProvider(null);
+      const result = await updateProvider(id, providerData);
+      if (result) {
+        addToast(`Proveedor "${updatedProvider.name}" actualizado exitosamente`, 'success');
+        setEditModalOpen(false);
+        setSelectedProvider(null);
+      }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al actualizar el proveedor';
+      addToast(errorMessage, 'error');
       console.error("Error updating provider:", error);
+    }
+  };
+
+  const handleDeleteProvider = async (provider: Provider) => {
+    try {
+      const success = await deleteProvider(provider.id);
+      if (success) {
+        addToast(`Proveedor "${provider.name}" eliminado exitosamente`, 'success');
+        setEditModalOpen(false);
+        setSelectedProvider(null);
+      } else {
+        addToast('No se pudo eliminar el proveedor', 'error');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al eliminar el proveedor';
+      addToast(errorMessage, 'error');
+      console.error("Error deleting provider:", error);
+      throw error;
     }
   };
 
@@ -141,6 +172,7 @@ const ProvidersPage = () => {
         }}
         provider={selectedProvider}
         onEdit={handleEditProvider}
+        onDelete={handleDeleteProvider}
       />
       {/* HEADER */}
       <div className="px-6 py-4 text-white shadow-sm bg-gradient-to-r from-purple-500 to-purple-600">
