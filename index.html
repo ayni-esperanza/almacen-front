@@ -5,6 +5,23 @@
     <link rel="icon" type="image/svg+xml" href="/inventory-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Módulo de Inventario</title>
+    <script>
+      (() => {
+        try {
+          const saved = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const isDark = saved === 'dark' || (!saved && prefersDark);
+          const html = document.documentElement;
+          const body = document.body;
+          if (isDark) {
+            html.classList.add('dark');
+            body.classList.add('dark');
+          }
+        } catch (err) {
+          /* ignore */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
