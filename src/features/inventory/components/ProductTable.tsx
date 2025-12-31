@@ -3,7 +3,7 @@ import { Product } from "../types";
 import { ProductTableRow } from "./ProductTableRow";
 import { Pagination } from "../../../shared/components/Pagination";
 import { usePagination } from "../../../shared/hooks/usePagination";
-import { Package, Search, AlertCircle, Plus } from "lucide-react";
+import { Package, Search, AlertCircle, Plus, Trash2 } from "lucide-react";
 import { UpdateProductData } from "../../../shared/services/inventory.service";
 
 interface ProductTableProps {
@@ -36,6 +36,80 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   createCategoria,
   onAddProduct,
 }) => {
+  // Estado para selección múltiple
+  const [selectedIds, setSelectedIds] = React.useState<Set<number>>(new Set());
+  const [isSelecting, setIsSelecting] = React.useState(false);
+  const [isDragging, setIsDragging] = React.useState(false);
+
+  // Funciones de selección
+  const toggleSelection = (id: number) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === paginatedProducts.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(paginatedProducts.map((p) => p.id)));
+    }
+  };
+
+  const handleMouseDown = (id: number, isSelectedRow: boolean) => {
+    // Iniciar arrastre sin alternar todavía; el toggle inicial ocurre en el checkbox
+    setIsDragging(true);
+    setIsSelecting(!isSelectedRow);
+  };
+
+  const handleMouseEnter = (id: number) => {
+    if (isDragging) {
+      if (isSelecting && !selectedIds.has(id)) {
+        toggleSelection(id);
+      } else if (!isSelecting && selectedIds.has(id)) {
+        toggleSelection(id);
+      }
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  React.useEffect(() => {
+    if (isDragging) {
+      document.addEventListener("mouseup", handleMouseUp);
+      return () => document.removeEventListener("mouseup", handleMouseUp);
+    }
+  }, [isDragging]);
+
+  const handleDeleteSelected = async () => {
+    if (selectedIds.size === 0) return;
+    
+    const confirmed = window.confirm(
+      `¿Estás seguro de que deseas eliminar ${selectedIds.size} producto(s)?`
+    );
+    
+    if (!confirmed) return;
+
+    try {
+      const deletePromises = Array.from(selectedIds).map((id) =>
+        deleteProduct(id)
+      );
+      await Promise.all(deletePromises);
+      setSelectedIds(new Set());
+      await refetch();
+    } catch (error) {
+      console.error("Error deleting products:", error);
+    }
+  };
+
   // Filtrar Y Ordenar productos localmente usando useMemo
   const filteredProducts = React.useMemo(() => {
     // Primero filtramos
@@ -135,15 +209,26 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 className={searchInputClasses}
               />
             </div>
-            {onAddProduct && (
-              <button
-                onClick={onAddProduct}
-                className="flex items-center flex-shrink-0 px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Agregar Producto</span>
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              {selectedIds.size > 0 && (
+                <button
+                  onClick={handleDeleteSelected}
+                  className="flex items-center flex-shrink-0 px-4 py-2 space-x-2 font-medium text-white transition-colors bg-red-500 rounded-lg shadow-md hover:bg-red-600 whitespace-nowrap"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Eliminar ({selectedIds.size})</span>
+                </button>
+              )}
+              {onAddProduct && (
+                <button
+                  onClick={onAddProduct}
+                  className="flex items-center flex-shrink-0 px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Agregar Producto</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -164,6 +249,14 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 {/* Header de tabla - STICKY */}
                 <thead className="sticky top-[174px] z-20 bg-gray-50 dark:bg-slate-900">
                   <tr className="border-b border-gray-200 dark:border-slate-800">
+                  <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.size === paginatedProducts.length && paginatedProducts.length > 0}
+                      onChange={toggleAll}
+                      className="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-green-500 dark:border-slate-600 dark:bg-slate-800"
+                    />
+                  </th>
                   <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Código
                   </th>
@@ -207,6 +300,10 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     }}
                     onCreateArea={createArea}
                     onCreateCategoria={createCategoria}
+                    isSelected={selectedIds.has(product.id)}
+                    onToggleSelect={() => toggleSelection(product.id)}
+                    onMouseDown={() => handleMouseDown(product.id, selectedIds.has(product.id))}
+                    onMouseEnter={() => handleMouseEnter(product.id)}
                   />
                 ))}
               </tbody>
