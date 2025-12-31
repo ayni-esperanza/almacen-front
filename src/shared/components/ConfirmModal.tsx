@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -25,13 +25,41 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCancel();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onCancel]);
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-900 dark:border dark:border-slate-700">
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4"
+      onMouseDown={onCancel}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirm-modal-title"
+      aria-describedby="confirm-modal-message"
+    >
+      <div
+        ref={dialogRef}
+        className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-900 dark:border dark:border-slate-700"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
         <div className="px-5 py-4 border-b border-gray-200 dark:border-slate-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{title}</h3>
+          <h3 id="confirm-modal-title" className="text-lg font-semibold text-gray-900 dark:text-slate-100">{title}</h3>
         </div>
-        <div className="px-5 py-4 text-sm text-gray-700 dark:text-slate-200">
+        <div id="confirm-modal-message" className="px-5 py-4 text-sm text-gray-700 dark:text-slate-200">
           {message}
         </div>
         <div className="flex justify-end gap-3 px-5 py-4 border-t border-gray-200 dark:border-slate-700">
