@@ -203,41 +203,43 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
           </div>
         ) : (
           <>
-            <table className="w-full text-xs text-gray-700 dark:text-slate-200">
-              <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
-                <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Código</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Nombre</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Cantidad</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Área/Proyecto</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Responsable</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Estado</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Fecha de S.</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Hora de S.</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300 border-l border-blue-100 dark:border-blue-500/20">Estado R.</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Fecha de R.</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Hora de R.</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Responsable</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
-                {paginatedEquipments.map(equipment => {
-                  const salidaStatus = getStatusBadge(equipment.estadoEquipo);
-                  const retornoStatus = getStatusBadge(equipment.estadoRetorno ?? null);
+            <div className="overflow-x-auto md:overflow-visible">
+              <table className="min-w-[1100px] w-full text-xs text-gray-700 dark:text-slate-200">
+                <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
+                  <tr className="border-b border-gray-200 dark:border-slate-800">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Código</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Nombre</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Cantidad</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Área/Proyecto</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Responsable</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Estado</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Fecha de S.</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Hora de S.</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300 border-l border-blue-100 dark:border-blue-500/20">Estado R.</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Fecha de R.</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Hora de R.</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Responsable</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
+                  {paginatedEquipments.map(equipment => {
+                    const salidaStatus = getStatusBadge(equipment.estadoEquipo);
+                    const retornoStatus = getStatusBadge(equipment.estadoRetorno ?? null);
 
-                  return (
-                    <EquipmentRow
-                      key={equipment.id}
-                      equipment={equipment}
-                      salidaStatus={salidaStatus}
-                      retornoStatus={retornoStatus}
-                      onEdit={onEdit}
-                    />
-                  );
-                })}
-              </tbody>
-            </table>
+                    return (
+                      <EquipmentRow
+                        key={equipment.id}
+                        equipment={equipment}
+                        salidaStatus={salidaStatus}
+                        retornoStatus={retornoStatus}
+                        onEdit={onEdit}
+                      />
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

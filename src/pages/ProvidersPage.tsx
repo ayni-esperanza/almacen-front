@@ -215,109 +215,111 @@ const ProvidersPage = () => {
           </div>
         ) : (
           <>
-            <table className="w-full text-sm text-gray-700 dark:text-slate-200">
-              {/* HEADER DE TABLA - STICKY */}
-              <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
-                <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Foto
-                  </th>
-                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Nombre
-                  </th>
-                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Teléfonos
-                  </th>
-                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Email
-                  </th>
-                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Dirección
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="text-sm bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
-                {paginatedProviders.map((provider) => (
-                  <tr
-                    key={provider.id}
-                    className="transition-colors border-b border-gray-100 hover:bg-purple-50 dark:border-slate-800 dark:hover:bg-slate-900/40"
-                  >
-                    <td
-                      className="px-3 py-3 cursor-pointer"
-                      onClick={() => {
-                        setSelectedProvider(provider);
-                        setEditModalOpen(true);
-                      }}
-                    >
-                      {provider.photoUrl ? (
-                        <img
-                          src={provider.photoUrl}
-                          alt={provider.name}
-                          className="object-cover border border-purple-400 rounded-full w-9 h-9"
-                        />
-                      ) : (
-                        <User className="text-purple-400 w-7 h-7" />
-                      )}
-                    </td>
-                    <td
-                      className="px-3 py-3 font-medium text-gray-900 cursor-pointer dark:text-slate-200"
-                      onClick={() => {
-                        setSelectedProvider(provider);
-                        setEditModalOpen(true);
-                      }}
-                    >
-                      {provider.name}
-                    </td>
-                    <td
-                      className="px-3 py-3 cursor-pointer"
-                      onClick={() => {
-                        setSelectedProvider(provider);
-                        setEditModalOpen(true);
-                      }}
-                    >
-                      <div className="flex flex-wrap gap-1.5">
-                        {provider.phones.map((phone, idx) => (
-                          <button
-                            key={idx}
-                            className="flex items-center px-2 py-1 text-xs font-medium text-green-800 transition-colors bg-green-100 rounded-full hover:bg-green-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              openWhatsApp(phone);
-                            }}
-                            type="button"
-                            title={`Abrir WhatsApp de ${phone}`}
-                          >
-                            <Phone className="w-4 h-4 mr-1" />
-                            {phone}
-                          </button>
-                        ))}
-                      </div>
-                    </td>
-                    <td
-                      className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
-                      onClick={() => {
-                        setSelectedProvider(provider);
-                        setEditModalOpen(true);
-                      }}
-                    >
-                      <span className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-purple-700 rounded-full bg-purple-50 dark:bg-purple-500/10 dark:text-purple-200">
-                        <Mail className="w-4 h-4" />
-                        <span>{provider.email}</span>
-                      </span>
-                    </td>
-                    <td
-                      className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
-                      onClick={() => {
-                        setSelectedProvider(provider);
-                        setEditModalOpen(true);
-                      }}
-                    >
-                      {provider.address}
-                    </td>
+            <div className="overflow-x-auto md:overflow-visible">
+              <table className="min-w-[900px] w-full text-sm text-gray-700 dark:text-slate-200">
+                {/* HEADER DE TABLA - STICKY */}
+                <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
+                  <tr className="border-b border-gray-200 dark:border-slate-800">
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Foto
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Nombre
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Teléfonos
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Email
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Dirección
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="text-sm bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
+                  {paginatedProviders.map((provider) => (
+                    <tr
+                      key={provider.id}
+                      className="transition-colors border-b border-gray-100 hover:bg-purple-50 dark:border-slate-800 dark:hover:bg-slate-900/40"
+                    >
+                      <td
+                        className="px-3 py-3 cursor-pointer"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        {provider.photoUrl ? (
+                          <img
+                            src={provider.photoUrl}
+                            alt={provider.name}
+                            className="object-cover border border-purple-400 rounded-full w-9 h-9"
+                          />
+                        ) : (
+                          <User className="text-purple-400 w-7 h-7" />
+                        )}
+                      </td>
+                      <td
+                        className="px-3 py-3 font-medium text-gray-900 cursor-pointer dark:text-slate-200"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        {provider.name}
+                      </td>
+                      <td
+                        className="px-3 py-3 cursor-pointer"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        <div className="flex flex-wrap gap-1.5">
+                          {provider.phones.map((phone, idx) => (
+                            <button
+                              key={idx}
+                              className="flex items-center px-2 py-1 text-xs font-medium text-green-800 transition-colors bg-green-100 rounded-full hover:bg-green-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                openWhatsApp(phone);
+                              }}
+                              type="button"
+                              title={`Abrir WhatsApp de ${phone}`}
+                            >
+                              <Phone className="w-4 h-4 mr-1" />
+                              {phone}
+                            </button>
+                          ))}
+                        </div>
+                      </td>
+                      <td
+                        className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        <span className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-purple-700 rounded-full bg-purple-50 dark:bg-purple-500/10 dark:text-purple-200">
+                          <Mail className="w-4 h-4" />
+                          <span>{provider.email}</span>
+                        </span>
+                      </td>
+                      <td
+                        className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        {provider.address}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

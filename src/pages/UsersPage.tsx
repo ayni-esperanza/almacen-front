@@ -330,48 +330,50 @@ export const UsersPage = () => {
           </div>
         ) : (
           <>
-            <table className="w-full text-sm text-gray-700 dark:text-slate-200">
-              {/* HEADER DE TABLA - STICKY */}
-              <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
-                <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
-                    Foto
-                  </th>
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
-                    Usuario
-                  </th>
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
-                    Nombre
-                  </th>
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
-                    Teléfono
-                  </th>
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
-                    Email
-                  </th>
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
-                    Rol
-                  </th>
-                  <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
-                    Estado
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
-                {paginatedUsers.map((user) => (
-                  <UserTableRow
-                    key={user.id}
-                    user={user}
-                    canUpdateUsers={canUpdateUsers}
-                    togglingStatusId={togglingStatusId}
-                    getRoleBadgeColor={getRoleBadgeColor}
-                    openEditModal={openEditModal}
-                    openWhatsApp={openWhatsApp}
-                    handleToggleUserStatus={handleToggleUserStatus}
-                  />
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto md:overflow-visible">
+              <table className="min-w-[880px] w-full text-sm text-gray-700 dark:text-slate-200">
+                {/* HEADER DE TABLA - STICKY */}
+                <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
+                  <tr className="border-b border-gray-200 dark:border-slate-800">
+                    <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                      Foto
+                    </th>
+                    <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                      Usuario
+                    </th>
+                    <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                      Nombre
+                    </th>
+                    <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                      Teléfono
+                    </th>
+                    <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                      Email
+                    </th>
+                    <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                      Rol
+                    </th>
+                    <th className="px-3 py-3 font-semibold text-sm text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                      Estado
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
+                  {paginatedUsers.map((user) => (
+                    <UserTableRow
+                      key={user.id}
+                      user={user}
+                      canUpdateUsers={canUpdateUsers}
+                      togglingStatusId={togglingStatusId}
+                      getRoleBadgeColor={getRoleBadgeColor}
+                      openEditModal={openEditModal}
+                      openWhatsApp={openWhatsApp}
+                      handleToggleUserStatus={handleToggleUserStatus}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

@@ -159,10 +159,11 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           </div>
         ) : (
           <>
-            <table className="w-full text-xs text-gray-700 dark:text-slate-200">
-              {/* Header de tabla - STICKY */}
-              <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
-                <tr className="border-b border-gray-200 dark:border-slate-800">
+            <div className="overflow-x-auto md:overflow-visible">
+              <table className="min-w-[960px] w-full text-xs text-gray-700 dark:text-slate-200">
+                {/* Header de tabla - STICKY */}
+                <thead className="sticky top-[174px] z-20 bg-gray-50 dark:bg-slate-900">
+                  <tr className="border-b border-gray-200 dark:border-slate-800">
                   <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Código
                   </th>
@@ -210,15 +211,16 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 ))}
               </tbody>
             </table>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
-            />
-          </>
+          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+          />
+        </>
         )}
       </div>
     </>
