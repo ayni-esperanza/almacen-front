@@ -148,22 +148,16 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
   const handleDelete = async () => {
     if (!provider || !onDelete) return;
 
-    const confirmed = window.confirm(
-      "¿Eliminar este proveedor? Esta acción no se puede deshacer."
-    );
-
-    if (!confirmed) return;
-
     try {
       setIsDeleting(true); // Bloquear botón
       await onDelete(provider);
-      addToast('Proveedor eliminado exitosamente', 'success');
-      // Si tiene éxito, el padre cerrará el modal
+      // El padre gestiona confirmación y toasts
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al eliminar el proveedor';
       console.error("Error al eliminar:", error);
       addToast(errorMessage, 'error', 5000);
-      setIsDeleting(false); // Desbloquear si falla
+    } finally {
+      setIsDeleting(false); // Desbloquear para permitir reintentar si sigue abierto
     }
   };
 

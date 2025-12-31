@@ -272,20 +272,7 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({
                 type="button"
                 onClick={async () => {
                   if (!onDelete) return;
-
-                  const confirmed = window.confirm(
-                    "¿Eliminar esta entrada de inventario?"
-                  );
-                  if (!confirmed) return;
-
-                  try {
-                    setSubmitting(true); // Bloqueamos el formulario
-                    await onDelete(entry);
-                    // Si tiene éxito, el padre cerrará el modal y desmontará este componente
-                  } catch (error) {
-                    console.error("Error al eliminar:", error);
-                    setSubmitting(false); // Si falla, desbloqueamos para intentar de nuevo
-                  }
+                  await onDelete(entry);
                 }}
                 className="rounded-full border border-red-200 px-4 py-1.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/40 dark:text-red-200 dark:hover:bg-red-500/10"
                 disabled={submitting}

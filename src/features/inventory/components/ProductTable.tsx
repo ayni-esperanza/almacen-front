@@ -4,6 +4,7 @@ import { ProductTableRow } from "./ProductTableRow";
 import { Pagination } from "../../../shared/components/Pagination";
 import { usePagination } from "../../../shared/hooks/usePagination";
 import { Package, Search, AlertCircle, Plus, Trash2 } from "lucide-react";
+import { ConfirmModal } from "../../../shared/components/ConfirmModal";
 import { UpdateProductData } from "../../../shared/services/inventory.service";
 
 interface ProductTableProps {
@@ -41,6 +42,12 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   const [isSelecting, setIsSelecting] = React.useState(false);
   const [isDragging, setIsDragging] = React.useState(false);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [confirmState, setConfirmState] = React.useState<{
+    open: boolean;
+    mode: "single" | "bulk";
+    target?: Product | null;
+  }>({ open: false, mode: "single", target: null });
+  const [isConfirming, setIsConfirming] = React.useState(false);
 
   // Funciones de selección
   const toggleSelection = (id: number) => {
@@ -90,14 +97,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     }
   }, [isDragging]);
 
-  const handleDeleteSelected = async () => {
+  const deleteSelectedProducts = async () => {
     if (selectedIds.size === 0) return;
-    
-    const confirmed = window.confirm(
-      `¿Estás seguro de que deseas eliminar ${selectedIds.size} producto(s)?`
-    );
-    
-    if (!confirmed) return;
 
     try {
       setIsRefreshing(true);
@@ -111,6 +112,32 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       console.error("Error deleting products:", error);
     } finally {
       setIsRefreshing(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmState.open) return;
+
+    setIsConfirming(true);
+    try {
+      if (confirmState.mode === "single" && confirmState.target) {
+        setIsRefreshing(true);
+        const deleted = await deleteProduct(confirmState.target.id);
+        if (deleted) {
+          setSelectedIds((prev) => {
+            const next = new Set(prev);
+            next.delete(confirmState.target!.id);
+            return next;
+          });
+          await refetch();
+        }
+      } else if (confirmState.mode === "bulk") {
+        await deleteSelectedProducts();
+      }
+    } finally {
+      setIsConfirming(false);
+      setIsRefreshing(false);
+      setConfirmState({ open: false, mode: "single", target: null });
     }
   };
 
@@ -216,7 +243,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
             <div className="flex items-center gap-3">
               {selectedIds.size > 0 && (
                 <button
-                  onClick={handleDeleteSelected}
+                  onClick={() =>
+                    setConfirmState({ open: true, mode: "bulk", target: null })
+                  }
                   className="flex items-center flex-shrink-0 px-4 py-2 space-x-2 font-medium text-white transition-colors bg-red-500 rounded-lg shadow-md hover:bg-red-600 whitespace-nowrap"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -299,17 +328,13 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     key={product.id}
                     product={product}
                     onEdit={updateProduct}
-                    onDelete={async (p) => {
-                      try {
-                        setIsRefreshing(true);
-                        const deleted = await deleteProduct(p.id);
-                        if (deleted) {
-                          await refetch();
-                        }
-                      } finally {
-                        setIsRefreshing(false);
-                      }
-                    }}
+                    onDelete={(p) =>
+                      setConfirmState({
+                        open: true,
+                        mode: "single",
+                        target: p,
+                      })
+                    }
                     onCreateArea={createArea}
                     onCreateCategoria={createCategoria}
                     isSelected={selectedIds.has(product.id)}
@@ -332,6 +357,20 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         </>
         )}
       </div>
+      <ConfirmModal
+        isOpen={confirmState.open}
+        title={confirmState.mode === "bulk" ? "Eliminar productos" : "Eliminar producto"}
+        message={
+          confirmState.mode === "bulk"
+            ? `¿Seguro que deseas eliminar ${selectedIds.size} producto(s)?`
+            : `¿Seguro que deseas eliminar "${confirmState.target?.nombre ?? ""}"?`
+        }
+        confirmLabel={confirmState.mode === "bulk" ? "Eliminar seleccionados" : "Eliminar"}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmState({ open: false, mode: "single", target: null })}
+        isProcessing={isConfirming}
+        destructive
+      />
     </>
   );
 };

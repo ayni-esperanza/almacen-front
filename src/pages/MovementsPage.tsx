@@ -17,6 +17,7 @@ import { EditMovementForm } from "../features/movements/components/EditMovementF
 import { EditExitMovementForm } from "../features/movements/components/EditExitMovementForm.tsx";
 import { movementsPDFService } from "../features/movements/services/movements-pdf.service.ts";
 import { useAuth } from "../shared/hooks/useAuth.tsx";
+import { ConfirmModal } from "../shared/components/ConfirmModal.tsx";
 
 export const MovementsPage = () => {
   const [activeSubTab, setActiveSubTab] = useState<"entradas" | "salidas">(
@@ -29,6 +30,12 @@ export const MovementsPage = () => {
   const [selectedExit, setSelectedExit] = useState<MovementExit | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [confirmState, setConfirmState] = useState<{
+    open: boolean;
+    type: "entry" | "exit" | null;
+    target: MovementEntry | MovementExit | null;
+  }>({ open: false, type: null, target: null });
   const movementsData = useMovements();
   // Almacena los datos filtrados/ordenados que vienen de la tabla
   const [visibleData, setVisibleData] = useState<
@@ -93,35 +100,45 @@ export const MovementsPage = () => {
   };
 
   const handleDeleteEntry = async (entry: MovementEntry) => {
-    try {
-      setIsRefreshing(true);
-      await movementsData.deleteEntry(entry.id);
-      if (activeSubTab === "entradas") {
-        await movementsData.refetchEntries();
-      }
-      setSelectedEntry(null); // Cerrar el modal/formulario
-    } catch (error) {
-      console.error("No se pudo eliminar la entrada:", error);
-      // Mostrar toast o alerta de error aquí
-      alert(error instanceof Error ? error.message : "Error al eliminar");
-    } finally {
-      setIsRefreshing(false);
-    }
+    setConfirmState({ open: true, type: "entry", target: entry });
   };
 
   const handleDeleteExit = async (exit: MovementExit) => {
+    setConfirmState({ open: true, type: "exit", target: exit });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmState.type || !confirmState.target) {
+      setConfirmState({ open: false, type: null, target: null });
+      return;
+    }
+
     try {
+      setIsConfirming(true);
       setIsRefreshing(true);
-      await movementsData.deleteExit(exit.id);
-      if (activeSubTab === "salidas") {
-        await movementsData.refetchExits();
+
+      if (confirmState.type === "entry") {
+        const entry = confirmState.target as MovementEntry;
+        await movementsData.deleteEntry(entry.id);
+        if (activeSubTab === "entradas") {
+          await movementsData.refetchEntries();
+        }
+        setSelectedEntry(null);
+      } else {
+        const exit = confirmState.target as MovementExit;
+        await movementsData.deleteExit(exit.id);
+        if (activeSubTab === "salidas") {
+          await movementsData.refetchExits();
+        }
+        setSelectedExit(null);
       }
-      setSelectedExit(null); // Cerrar el modal/formulario
     } catch (error) {
-      console.error("No se pudo eliminar la salida:", error);
+      console.error("No se pudo eliminar el movimiento:", error);
       alert(error instanceof Error ? error.message : "Error al eliminar");
     } finally {
+      setIsConfirming(false);
       setIsRefreshing(false);
+      setConfirmState({ open: false, type: null, target: null });
     }
   };
 
@@ -183,7 +200,10 @@ export const MovementsPage = () => {
       </div>
 
       {movementsData.loading && !hasLoaded ? (
-        <div className="p-6 text-center text-gray-500 dark:text-slate-400">Cargando movimientos...</div>
+        <div className="flex flex-col items-center justify-center gap-4 p-8 text-gray-600 dark:text-slate-300">
+          <div className="w-12 h-12 border-b-2 border-green-500 rounded-full animate-spin" aria-label="Cargando movimientos" />
+          <p className="text-sm font-medium">Cargando movimientos...</p>
+        </div>
       ) : activeSubTab === "entradas" ? (
         <MovementTable
           movements={movementsData.entries}
@@ -231,6 +251,29 @@ export const MovementsPage = () => {
           onDelete={handleDeleteExit}
         />
       )}
+
+      <ConfirmModal
+        isOpen={confirmState.open}
+        title={
+          confirmState.type === "entry"
+            ? "Eliminar entrada"
+            : confirmState.type === "exit"
+              ? "Eliminar salida"
+              : "Eliminar movimiento"
+        }
+        message={
+          confirmState.type === "entry"
+            ? `¿Eliminar definitivamente la entrada de "${(confirmState.target as MovementEntry | null)?.descripcion ?? ""}"?`
+            : confirmState.type === "exit"
+              ? `¿Eliminar definitivamente la salida de "${(confirmState.target as MovementExit | null)?.descripcion ?? ""}"?`
+              : ""
+        }
+        confirmLabel={confirmState.type === "entry" ? "Eliminar entrada" : "Eliminar salida"}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmState({ open: false, type: null, target: null })}
+        isProcessing={isConfirming}
+        destructive
+      />
     </>
   );
 };

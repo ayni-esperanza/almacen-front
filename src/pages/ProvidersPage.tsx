@@ -7,6 +7,7 @@ import { useProviders } from "../features/providers/hooks/useProviders";
 import { useToast } from "../shared/hooks/useToast";
 import { Pagination } from "../shared/components/Pagination";
 import { usePagination } from "../shared/hooks/usePagination";
+import { ConfirmModal } from "../shared/components/ConfirmModal";
 
 const ProvidersPage = () => {
   const {
@@ -26,6 +27,11 @@ const ProvidersPage = () => {
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
     null
   );
+  const [confirmState, setConfirmState] = useState<{ open: boolean; provider: Provider | null }>({
+    open: false,
+    provider: null,
+  });
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   React.useEffect(() => {
     if (!loading) {
@@ -148,21 +154,33 @@ const ProvidersPage = () => {
   };
 
   const handleDeleteProvider = async (provider: Provider) => {
+    setConfirmState({ open: true, provider });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmState.provider) {
+      setConfirmState({ open: false, provider: null });
+      return;
+    }
+
     try {
-      const success = await deleteProvider(provider.id);
+      setIsConfirmingDelete(true);
+      const success = await deleteProvider(confirmState.provider.id);
       if (success) {
-        addToast(`Proveedor "${provider.name}" eliminado exitosamente`, 'success');
+        addToast(`Proveedor "${confirmState.provider.name}" eliminado exitosamente`, "success");
         setEditModalOpen(false);
         setSelectedProvider(null);
         await refetch();
       } else {
-        addToast('No se pudo eliminar el proveedor', 'error');
+        addToast("No se pudo eliminar el proveedor", "error");
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error al eliminar el proveedor';
-      addToast(errorMessage, 'error');
+      const errorMessage = error instanceof Error ? error.message : "Error al eliminar el proveedor";
+      addToast(errorMessage, "error");
       console.error("Error deleting provider:", error);
-      throw error;
+    } finally {
+      setIsConfirmingDelete(false);
+      setConfirmState({ open: false, provider: null });
     }
   };
 
@@ -339,6 +357,17 @@ const ProvidersPage = () => {
           </>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={confirmState.open}
+        title="Eliminar proveedor"
+        message={`¿Eliminar definitivamente al proveedor "${confirmState.provider?.name ?? ""}"?`}
+        confirmLabel="Eliminar"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmState({ open: false, provider: null })}
+        isProcessing={isConfirmingDelete}
+        destructive
+      />
     </>
   );
 };

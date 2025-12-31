@@ -8,6 +8,7 @@ import {
 } from "react";
 import { X, Image as ImageIcon, Eye, EyeOff } from "lucide-react";
 import { User, UserRole } from "../types";
+import { ConfirmModal } from "../../../shared/components/ConfirmModal";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
@@ -71,6 +72,8 @@ export const UserFormModal = ({
   const [showPassword, setShowPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarData, setAvatarData] = useState<string | null>(null);
+  const [confirmToggleOpen, setConfirmToggleOpen] = useState(false);
+  const [isConfirmingToggle, setIsConfirmingToggle] = useState(false);
   const emailInputRef = useRef<HTMLInputElement | null>(null);
   const inputClasses =
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-300 dark:focus:ring-blue-500/30";
@@ -158,30 +161,43 @@ export const UserFormModal = ({
 
   const handleDelete = async () => {
     if (!onDelete) return;
+    setConfirmToggleOpen(true);
+  };
 
-    const isActive = initialUser?.isActive ?? true;
-    const confirmMessage = isActive
-      ? "¿Estás seguro de desactivar este usuario? El usuario quedará inactivo pero podrás reactivarlo más tarde."
-      : "¿Estás seguro de activar este usuario? El usuario volverá a tener acceso al sistema.";
+  const handleConfirmToggle = async () => {
+    if (!onDelete) {
+      setConfirmToggleOpen(false);
+      return;
+    }
 
-    const confirmed = window.confirm(confirmMessage);
-    if (!confirmed) return;
-    await onDelete();
+    try {
+      setIsConfirmingToggle(true);
+      await onDelete();
+    } finally {
+      setIsConfirmingToggle(false);
+      setConfirmToggleOpen(false);
+    }
   };
 
   const showDeleteAction = mode === "edit" && canDelete && onDelete;
   const deleteButtonText = initialUser?.isActive
     ? "Desactivar Usuario"
     : "Activar Usuario";
+  const isActiveUser = initialUser?.isActive ?? true;
+  const confirmTitle = isActiveUser ? "Desactivar usuario" : "Activar usuario";
+  const confirmMessage = isActiveUser
+    ? "¿Estás seguro de desactivar este usuario? El usuario quedará inactivo pero podrás reactivarlo más tarde."
+    : "¿Estás seguro de activar este usuario? El usuario volverá a tener acceso al sistema.";
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
-      <div
-        ref={modalRef}
-        className="w-full max-w-3xl max-h-95vh rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col overflow-hidden"
-      >
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
+        <div
+          ref={modalRef}
+          className="w-full max-w-3xl max-h-95vh rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col overflow-hidden"
+        >
         <div className="flex items-center justify-between flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-blue-500 to-blue-600">
           <h2 className="text-base font-semibold">{title}</h2>
           <button
@@ -409,7 +425,19 @@ export const UserFormModal = ({
             </div>
           </form>
         </div>
+        </div>
       </div>
-    </div>
+
+      <ConfirmModal
+        isOpen={confirmToggleOpen}
+        title={confirmTitle}
+        message={confirmMessage}
+        confirmLabel={isActiveUser ? "Desactivar" : "Activar"}
+        onConfirm={handleConfirmToggle}
+        onCancel={() => setConfirmToggleOpen(false)}
+        isProcessing={isConfirmingToggle}
+        destructive={isActiveUser}
+      />
+    </>
   );
 };
