@@ -261,7 +261,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                 <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
                 <input
                   type="text"
-                  placeholder="Buscar..."
+                  placeholder="Buscar por código, descripción o responsable..."
                   value={searchTerm}
                   onChange={handleSearchChange}
                   className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
