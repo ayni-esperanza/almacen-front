@@ -166,6 +166,7 @@ const ProvidersPage = () => {
         onAdd={handleAddProvider}
       />
       <EditProviderModal
+        key={selectedProvider?.id ?? 'new'}
         isOpen={editModalOpen}
         onClose={() => {
           setEditModalOpen(false);

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Image as ImageIcon, Minus, Plus, AlertCircle } from "lucide-react";
+import { Image as ImageIcon, Minus, Plus } from "lucide-react";
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import { Provider } from "../types";
@@ -44,7 +44,6 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
     provider?.phones?.length ? provider.phones : [""]
   );
   const [photoUrl, setPhotoUrl] = useState<string>(provider?.photoUrl || "");
-  const [validationError, setValidationError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputClasses =
@@ -57,14 +56,35 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
     fieldCount: phones.length,
   });
 
+  // Normaliza teléfonos entrantes para que PhoneInput pueda mostrarlos
+  const normalizePhone = (value: string): string => {
+    const trimmed = value?.trim() ?? "";
+    if (!trimmed) return "";
+
+    // Preferir el valor si ya viene con "+"
+    if (trimmed.startsWith("+")) return trimmed;
+
+    // Extraer dígitos (manteniendo posibles 51 iniciales)
+    const digits = trimmed.replace(/\D/g, "");
+    if (!digits) return trimmed; // fallback al bruto si no hay dígitos
+
+    // Si ya incluye 51 al inicio, solo prepende "+"; si no, anteponer código PE
+    if (digits.startsWith("51")) {
+      return `+${digits}`;
+    }
+    return `+51${digits}`;
+  };
+
   useEffect(() => {
     if (!provider) return;
     setName(provider.name);
     setEmail(provider.email);
     setAddress(provider.address);
-    setPhones(provider.phones.length ? provider.phones : [""]);
+    const normalized = provider.phones.length
+      ? provider.phones.map(normalizePhone)
+      : [""];
+    setPhones(normalized);
     setPhotoUrl(provider.photoUrl || "");
-    setValidationError(null);
   }, [provider]);
 
   const handleAddPhone = () => {
@@ -105,7 +125,6 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
     });
 
     if (error) {
-      setValidationError(error.message);
       addToast(error.message, 'error', 5000);
       return;
     }
@@ -115,11 +134,9 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
     try {
       onEdit({ ...provider, name, email, address, phones: cleanedPhones, photoUrl });
       addToast('Proveedor actualizado exitosamente', 'success');
-      setValidationError(null);
       onClose();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al actualizar el proveedor';
-      setValidationError(errorMessage);
       addToast(errorMessage, 'error', 5000);
     } finally {
       setIsSubmitting(false);
@@ -171,19 +188,6 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
 
         <div className="flex-1 overflow-y-auto">
           <form onSubmit={handleSubmit} className="px-4 pt-4 pb-4">
-            {validationError && (
-              <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-500/30 dark:bg-red-500/10">
-                <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                    Error en el formulario
-                  </p>
-                  <p className="text-xs text-red-700 dark:text-red-300 mt-1">
-                    {validationError}
-                  </p>
-                </div>
-              </div>
-            )}
             <div className="grid gap-4 md:grid-cols-[180px_minmax(0,1fr)]">
               <div className="flex flex-col items-center">
                 <span className="mb-2 text-xs font-semibold text-gray-600 dark:text-slate-300">
@@ -240,7 +244,6 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                         onChange={(phone, meta) =>
                           handleChange(0, phone, meta?.country?.iso2, cleaned => {
                             setPhones(prev => prev.map((p, i) => (i === 0 ? cleaned : p)));
-                            if (validationError) setValidationError(null);
                           })
                         }
                         inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"
@@ -308,7 +311,6 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                           onChange={(phone, meta) =>
                             handleChange(idx + 1, phone, meta?.country?.iso2, cleaned => {
                               setPhones(prev => prev.map((p, i) => (i === idx + 1 ? cleaned : p)));
-                              if (validationError) setValidationError(null);
                             })
                           }
                           inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"

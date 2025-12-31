@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Image as ImageIcon, Minus, Plus, AlertCircle } from 'lucide-react';
+import { Image as ImageIcon, Minus, Plus } from 'lucide-react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import { Provider } from '../types';
@@ -34,7 +34,6 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
   const [address, setAddress] = useState('');
   const [phones, setPhones] = useState<string[]>(['']);
   const [photoUrl, setPhotoUrl] = useState('');
-  const [validationError, setValidationError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -77,11 +76,6 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
     } else {
       event.target.setCustomValidity('');
     }
-    
-    // Limpiar error de validación
-    if (validationError) {
-      setValidationError(null);
-    }
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -100,7 +94,6 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
     });
     
     if (error) {
-      setValidationError(error.message);
       addToast(error.message, 'error', 5000);
       return;
     }
@@ -116,11 +109,9 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
       setAddress('');
       setPhones(['']);
       setPhotoUrl('');
-      setValidationError(null);
       onClose();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al crear el proveedor';
-      setValidationError(errorMessage);
       addToast(errorMessage, 'error', 5000);
     } finally {
       setIsSubmitting(false);
@@ -142,19 +133,6 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
 
         <div className="overflow-y-auto flex-1">
           <form onSubmit={handleSubmit} className="px-4 pb-4 pt-4">
-            {validationError && (
-              <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-500/30 dark:bg-red-500/10">
-                <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                    Error en el formulario
-                  </p>
-                  <p className="text-xs text-red-700 dark:text-red-300 mt-1">
-                    {validationError}
-                  </p>
-                </div>
-              </div>
-            )}
           <div className="grid gap-4 md:grid-cols-[180px_minmax(0,1fr)]">
             <div className="flex flex-col items-center">
               <span className="mb-2 text-xs font-semibold text-gray-600 dark:text-slate-300">Foto de Perfil</span>
@@ -205,7 +183,6 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
                       onChange={(phone, meta) =>
                         handleChange(0, phone, meta?.country?.iso2, cleaned => {
                           setPhones(prev => prev.map((p, i) => (i === 0 ? cleaned : p)));
-                          if (validationError) setValidationError(null);
                         })
                       }
                       inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"
@@ -270,9 +247,8 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
                         defaultCountry="pe"
                         value={phone}
                         onChange={(phone, meta) =>
-                          handleChange(idx + 1, phone, meta?.country?.iso2, cleaned => {
+                            handleChange(idx + 1, phone, meta?.country?.iso2, cleaned => {
                             setPhones(prev => prev.map((p, i) => (i === idx + 1 ? cleaned : p)));
-                            if (validationError) setValidationError(null);
                           })
                         }
                         inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"
