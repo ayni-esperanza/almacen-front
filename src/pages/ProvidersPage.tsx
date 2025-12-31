@@ -5,7 +5,6 @@ import { AddProviderModal } from "../features/providers/components/AddProviderMo
 import { EditProviderModal } from "../features/providers/components/EditProviderModal";
 import { useProviders } from "../features/providers/hooks/useProviders";
 import { Pagination } from "../shared/components/Pagination";
-import { TableWithFixedHeader } from "../shared/components/TableWithFixedHeader";
 import { usePagination } from "../shared/hooks/usePagination";
 
 const ProvidersPage = () => {
@@ -16,7 +15,6 @@ const ProvidersPage = () => {
     refetch,
     createProvider,
     updateProvider,
-    deleteProvider,
   } = useProviders();
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -114,22 +112,6 @@ const ProvidersPage = () => {
       setSelectedProvider(null);
     } catch (error) {
       console.error("Error updating provider:", error);
-    }
-  };
-
-  const handleDeleteProvider = async (provider: Provider) => {
-    try {
-      const success = await deleteProvider(provider.id);
-      if (success) {
-        setEditModalOpen(false);
-        setSelectedProvider(null);
-        // El hook ya hace refetch automáticamente si devuelve true
-      } else {
-        alert("No se pudo eliminar el proveedor. Intente nuevamente.");
-      }
-    } catch (error) {
-      console.error("Error deleting provider:", error);
-      alert("Ocurrió un error al eliminar el proveedor.");
     }
   };
 
