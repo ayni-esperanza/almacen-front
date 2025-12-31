@@ -18,11 +18,9 @@ class MovementsPDFService {
   }
 
   private formatDate(dateString: string): string {
-    // Si la fecha ya viene en formato DD/MM/YYYY, la retornamos tal cual
     if (dateString.includes("/")) {
       return dateString;
     }
-    // Si viene en formato ISO, la convertimos
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -44,6 +42,7 @@ class MovementsPDFService {
     const { type, data, userName } = options;
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight(); // Obtenemos el alto de la página
     let yPosition = 20;
 
     // Título
@@ -112,18 +111,17 @@ class MovementsPDFService {
           cellPadding: 2,
         },
         columnStyles: {
-          0: { cellWidth: 20 }, // Fecha
-          1: { cellWidth: 18 }, // Código
-          2: { cellWidth: 45 }, // Descripción
-          3: { cellWidth: 13, halign: "center" }, // Cantidad
-          4: { cellWidth: 18, halign: "right" }, // P. Unitario
-          5: { cellWidth: 18, halign: "right" }, // Total
-          6: { cellWidth: 23 }, // Área
-          7: { cellWidth: "auto" }, // Responsable - auto ajusta al espacio restante
+          0: { cellWidth: 20 },
+          1: { cellWidth: 18 },
+          2: { cellWidth: 45 },
+          3: { cellWidth: 13, halign: "center" },
+          4: { cellWidth: 18, halign: "right" },
+          5: { cellWidth: 18, halign: "right" },
+          6: { cellWidth: 23 },
+          7: { cellWidth: "auto" },
         },
         margin: { left: 15, right: 15 },
         didDrawPage: (data) => {
-          // Footer con número de página
           const pageCount = (pdf as any).internal.getNumberOfPages();
           const currentPage = (pdf as any).internal.getCurrentPageInfo()
             .pageNumber;
@@ -133,7 +131,7 @@ class MovementsPDFService {
           pdf.text(
             `Página ${currentPage} de ${pageCount}`,
             pageWidth / 2,
-            pdf.internal.pageSize.getHeight() - 10,
+            pageHeight - 10,
             { align: "center" }
           );
         },
@@ -149,7 +147,14 @@ class MovementsPDFService {
         0
       );
 
-      const finalY = (pdf as any).lastAutoTable.finalY + 10;
+      // Obtenemos donde terminó la tabla
+      let finalY = (pdf as any).lastAutoTable.finalY + 10;
+
+      // Si finalY + 30mm supera el alto de la página, creamos nueva página
+      if (finalY + 30 > pageHeight) {
+        pdf.addPage();
+        finalY = 20; // Reiniciamos Y en el margen superior de la nueva hoja
+      }
 
       pdf.setFontSize(10);
       pdf.setFont("helvetica", "bold");
@@ -203,19 +208,18 @@ class MovementsPDFService {
           cellPadding: 2,
         },
         columnStyles: {
-          0: { cellWidth: 19 }, // Fecha
-          1: { cellWidth: 17 }, // Código
-          2: { cellWidth: 40 }, // Descripción
-          3: { cellWidth: 12, halign: "center" }, // Cantidad
-          4: { cellWidth: 17, halign: "right" }, // P. Unitario
-          5: { cellWidth: 17, halign: "right" }, // Total
-          6: { cellWidth: 20 }, // Área
-          7: { cellWidth: 20 }, // Proyecto
-          8: { cellWidth: "auto" }, // Responsable - auto ajusta al espacio restante
+          0: { cellWidth: 19 },
+          1: { cellWidth: 17 },
+          2: { cellWidth: 40 },
+          3: { cellWidth: 12, halign: "center" },
+          4: { cellWidth: 17, halign: "right" },
+          5: { cellWidth: 17, halign: "right" },
+          6: { cellWidth: 20 },
+          7: { cellWidth: 20 },
+          8: { cellWidth: "auto" },
         },
         margin: { left: 15, right: 15 },
         didDrawPage: (data) => {
-          // Footer con número de página
           const pageCount = (pdf as any).internal.getNumberOfPages();
           const currentPage = (pdf as any).internal.getCurrentPageInfo()
             .pageNumber;
@@ -225,13 +229,13 @@ class MovementsPDFService {
           pdf.text(
             `Página ${currentPage} de ${pageCount}`,
             pageWidth / 2,
-            pdf.internal.pageSize.getHeight() - 10,
+            pageHeight - 10,
             { align: "center" }
           );
         },
       });
 
-      // Calcular totales
+      // Calcular totales para Salidas
       const totalCantidad = (data as MovementExit[]).reduce(
         (sum, exit) => sum + exit.cantidad,
         0
@@ -241,7 +245,12 @@ class MovementsPDFService {
         0
       );
 
-      const finalY = (pdf as any).lastAutoTable.finalY + 10;
+      let finalY = (pdf as any).lastAutoTable.finalY + 10;
+
+      if (finalY + 30 > pageHeight) {
+        pdf.addPage();
+        finalY = 20;
+      }
 
       pdf.setFontSize(10);
       pdf.setFont("helvetica", "bold");

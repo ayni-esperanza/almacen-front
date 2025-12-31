@@ -36,20 +36,26 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   createCategoria,
   onAddProduct,
 }) => {
-  // Filtrar productos localmente usando useMemo para evitar recálculos innecesarios
-  const filteredProducts = React.useMemo(
-    () =>
-      products.filter((product) => {
-        const searchLower = searchTerm.toLowerCase();
-        return (
-          product.codigo.toLowerCase().includes(searchLower) ||
-          product.nombre.toLowerCase().includes(searchLower) ||
-          (product.provider?.name &&
-            product.provider.name.toLowerCase().includes(searchLower))
-        );
-      }),
-    [products, searchTerm]
-  );
+  // Filtrar Y Ordenar productos localmente usando useMemo
+  const filteredProducts = React.useMemo(() => {
+    // Primero filtramos
+    const filtered = products.filter((product) => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        product.codigo.toLowerCase().includes(searchLower) ||
+        product.nombre.toLowerCase().includes(searchLower) ||
+        (product.provider?.name &&
+          product.provider.name.toLowerCase().includes(searchLower))
+      );
+    });
+
+    // ordenamos por fecha de creación (createdAt) descendente (más nuevo primero)
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0).getTime();
+      const dateB = new Date(b.createdAt || 0).getTime();
+      return dateB - dateA; // Descendente: B - A
+    });
+  }, [products, searchTerm]);
 
   const {
     paginatedData: paginatedProducts,
@@ -107,7 +113,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   return (
     <>
       {/* Header - sticky */}
-      <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600 shadow-sm">
+      <div className="px-6 py-4 text-white shadow-sm bg-gradient-to-r from-green-500 to-green-600">
         <div className="flex items-center space-x-3">
           <Package className="w-6 h-6" />
           <h2 className="text-xl font-bold">Inventario de Productos</h2>
@@ -132,7 +138,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
             {onAddProduct && (
               <button
                 onClick={onAddProduct}
-                className="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap flex-shrink-0"
+                className="flex items-center flex-shrink-0 px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
                 <span>Agregar Producto</span>
@@ -156,40 +162,40 @@ export const ProductTable: React.FC<ProductTableProps> = ({
             <table className="w-full text-xs text-gray-700 dark:text-slate-200">
               {/* Header de tabla - STICKY */}
               <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
-              <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                <tr className="border-b border-gray-200 dark:border-slate-800">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Código
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Nombre
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Ubicación
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Salidas
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Stock Actual
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Unidad
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Proveedor
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Marca
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Categoría
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Costo Unitario
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
+              <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
                 {paginatedProducts.map((product) => (
                   <ProductTableRow
                     key={product.id}

@@ -1,9 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MovementEntry, MovementExit } from "../types/index.ts";
 import { Pagination } from "../../../shared/components/Pagination";
 import { usePagination } from "../../../shared/hooks/usePagination";
 import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowClick";
-import { TrendingUp, TrendingDown, Search, Download, Plus } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Search,
+  Download,
+  Plus,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 
 interface MovementTableProps {
   movements: (MovementEntry | MovementExit)[];
@@ -12,6 +21,7 @@ interface MovementTableProps {
   onEditExit?: (movement: MovementExit) => void;
   onExportPdf?: () => void;
   onAddMovement?: () => void;
+  onDataFiltered?: (data: (MovementEntry | MovementExit)[]) => void;
 }
 
 interface MovementRowProps {
@@ -20,6 +30,32 @@ interface MovementRowProps {
   onEditEntry?: (movement: MovementEntry) => void;
   onEditExit?: (movement: MovementExit) => void;
 }
+
+type SortKey = "fecha" | "area";
+type SortDirection = "asc" | "desc";
+
+interface SortConfig {
+  key: SortKey;
+  direction: SortDirection;
+}
+
+// Helper function to convert "DD/MM/YYYY" to a numeric timestamp
+const parseDateString = (dateStr: string | undefined): number => {
+  if (!dateStr) return 0;
+  // If it comes as ISO (e.g., created_at), process normally
+  if (dateStr.includes("T") || dateStr.includes("-")) {
+    return new Date(dateStr).getTime();
+  }
+  // Process DD/MM/YYYY format
+  const parts = dateStr.split("/");
+  if (parts.length === 3) {
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // JS months are 0-11
+    const year = parseInt(parts[2], 10);
+    return new Date(year, month, day).getTime();
+  }
+  return 0;
+};
 
 const MovementRow: React.FC<MovementRowProps> = ({
   movement,
@@ -45,44 +81,44 @@ const MovementRow: React.FC<MovementRowProps> = ({
             : "default",
         userSelect: "text",
       }}
-      className="border-b border-gray-100 transition-colors dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800"
+      className="transition-colors border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800"
     >
-      <td className="px-3 py-2 text-xs text-gray-700 dark:text-slate-300 select-text">
+      <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
         {movement.fecha}
       </td>
-      <td className="px-3 py-2 text-xs font-medium text-gray-900 dark:text-slate-100 select-text">
+      <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
         {movement.codigoProducto}
       </td>
       {isEntry ? (
         <>
-          <td className="px-3 py-2 text-xs text-gray-700 dark:text-slate-300 select-text">
+          <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
             {movement.descripcion}
           </td>
-          <td className="px-3 py-2 text-xs font-medium text-gray-900 dark:text-slate-100 select-text">
+          <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
             {movement.cantidad}
           </td>
-          <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-400 select-text">
+          <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {movement.area || "-"}
           </td>
-          <td className="px-3 py-2 text-xs font-medium text-green-600 dark:text-emerald-400 select-text">
+          <td className="px-3 py-2 text-xs font-medium text-green-600 select-text dark:text-emerald-400">
             S/ {movement.precioUnitario.toFixed(2)}
           </td>
         </>
       ) : (
         <>
-          <td className="px-3 py-2 text-xs text-gray-700 dark:text-slate-300 select-text">
+          <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
             {movement.descripcion}
           </td>
-          <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-400 select-text">
+          <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {movement.area || "-"}
           </td>
-          <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-400 select-text">
+          <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {"proyecto" in movement ? movement.proyecto || "-" : "-"}
           </td>
-          <td className="px-3 py-2 text-xs text-gray-600 dark:text-slate-400 select-text">
+          <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {movement.responsable || "-"}
           </td>
-          <td className="px-3 py-2 text-xs font-medium text-gray-900 dark:text-slate-100 select-text">
+          <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
             {movement.cantidad}
           </td>
         </>
@@ -98,27 +134,76 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   onEditExit,
   onExportPdf,
   onAddMovement,
+  onDataFiltered,
 }) => {
-  const [searchTerm, setSearchTerm] = React.useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // SOLUCIÓN: Usar useMemo para evitar recálculos innecesarios
-  const filteredMovements = React.useMemo(
-    () =>
-      movements.filter(
-        (movement) =>
-          movement.codigoProducto
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          movement.descripcion
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          (movement.responsable &&
-            movement.responsable
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()))
-      ),
-    [movements, searchTerm] // Solo recalcular cuando movements o searchTerm cambien
-  );
+  const [sortConfig, setSortConfig] = useState<SortConfig>(() => {
+    try {
+      const saved = localStorage.getItem("movementTableSortConfig");
+      return saved ? JSON.parse(saved) : { key: "fecha", direction: "desc" };
+    } catch {
+      return { key: "fecha", direction: "desc" };
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("movementTableSortConfig", JSON.stringify(sortConfig));
+  }, [sortConfig]);
+
+  const handleSort = (key: SortKey) => {
+    setSortConfig((current) => {
+      if (current.key === key) {
+        return {
+          key,
+          direction: current.direction === "asc" ? "desc" : "asc",
+        };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  const getSortIcon = (columnKey: SortKey) => {
+    if (sortConfig.key !== columnKey) {
+      return <ArrowUpDown className="w-3 h-3 text-gray-400 opacity-50" />;
+    }
+    return sortConfig.direction === "asc" ? (
+      <ArrowUp className="w-3 h-3 text-green-600 dark:text-green-400" />
+    ) : (
+      <ArrowDown className="w-3 h-3 text-green-600 dark:text-green-400" />
+    );
+  };
+
+  const filteredAndSortedMovements = React.useMemo(() => {
+    // Filter
+    const filtered = movements.filter((movement) => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        movement.codigoProducto.toLowerCase().includes(searchLower) ||
+        movement.descripcion.toLowerCase().includes(searchLower) ||
+        (movement.responsable &&
+          movement.responsable.toLowerCase().includes(searchLower))
+      );
+    });
+
+    // Sort
+    return filtered.sort((a, b) => {
+      if (sortConfig.key === "area") {
+        const areaA = (a.area || "").toLowerCase();
+        const areaB = (b.area || "").toLowerCase();
+
+        if (areaA < areaB) return sortConfig.direction === "asc" ? -1 : 1;
+        if (areaA > areaB) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      }
+
+      // Use parseDateString function to read "20/08/2025" correctly
+      const dateA = parseDateString(a.fecha);
+      const dateB = parseDateString(b.fecha);
+
+      return sortConfig.direction === "asc" ? dateA - dateB : dateB - dateA;
+    });
+  }, [movements, searchTerm, sortConfig]);
 
   const {
     paginatedData: paginatedMovements,
@@ -129,14 +214,21 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     handlePageChange,
     handleItemsPerPageChange,
   } = usePagination({
-    data: filteredMovements,
+    data: filteredAndSortedMovements,
     initialItemsPerPage: 100,
   });
 
-  // SOLUCIÓN: Manejar el cambio de búsqueda de manera controlada
+  // Notify parent component whenever paginatedMovements changes
+  // This must be placed AFTER usePagination
+  useEffect(() => {
+    if (onDataFiltered) {
+      // Send ONLY what is visible in the current table page
+      onDataFiltered(paginatedMovements);
+    }
+  }, [paginatedMovements, onDataFiltered]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearchTerm = e.target.value;
-    setSearchTerm(newSearchTerm);
+    setSearchTerm(e.target.value);
   };
 
   const isEntry = type === "entrada";
@@ -152,20 +244,19 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
   return (
     <>
-      {/* Header */}
-      <div className={`bg-gradient-to-r ${gradientColor} text-white py-3 px-4 sm:py-4 sm:px-6 shadow-sm`}>
+      <div
+        className={`bg-gradient-to-r ${gradientColor} text-white py-3 px-4 sm:py-4 sm:px-6 shadow-sm`}
+      >
         <div className="flex items-center space-x-2 sm:space-x-3">
           {icon}
           <h2 className="text-lg font-bold sm:text-xl">{titleText}</h2>
         </div>
       </div>
 
-      {/* Filters + Table Container */}
       <div className="flex flex-col bg-white border border-transparent shadow-lg dark:border-slate-800 dark:bg-slate-950">
-        {/* Filtros sticky */}
         <div className="sticky top-[163px] z-20 p-3 bg-white border-b border-gray-200/70 sm:p-4 dark:border-slate-800/70 dark:bg-slate-900 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 w-full">
+            <div className="flex items-center flex-1 w-full gap-2 sm:gap-3">
               <div className="relative flex-1 sm:max-w-md">
                 <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
                 <input
@@ -173,7 +264,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                   placeholder="Buscar..."
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  className="w-full py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                  className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
                 />
               </div>
               {onExportPdf && (
@@ -203,71 +294,98 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
         {paginatedMovements.length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-slate-400">
-            {isEntry ? <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" /> : <TrendingDown className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />}
+            {isEntry ? (
+              <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
+            ) : (
+              <TrendingDown className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
+            )}
             <p>
-              No se encontraron {isEntry ? "entradas" : "salidas"} con los filtros aplicados.
+              No se encontraron {isEntry ? "entradas" : "salidas"} con los
+              filtros aplicados.
             </p>
           </div>
         ) : (
           <>
-            <table className="w-full text-xs text-gray-700 dark:text-slate-200">
-              {/* Header de tabla - STICKY */}
-              <thead className="sticky top-[230px] z-10 bg-gray-50 dark:bg-slate-900">
-                <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                    Fecha
-                  </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                    Código
-                  </th>
-                  {isEntry ? (
-                    <>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Nombre
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Cantidad
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Área
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Costo U.
-                      </th>
-                    </>
-                  ) : (
-                    <>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Nombre
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Área
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Proyecto
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Responsable
-                      </th>
-                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                        Cantidad
-                      </th>
-                    </>
-                  )}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
-                {paginatedMovements.map((movement) => (
-                  <MovementRow
-                    key={movement.id}
-                    movement={movement}
-                    isEntry={isEntry}
-                    onEditEntry={onEditEntry}
-                    onEditExit={onEditExit}
-                  />
-                ))}
-              </tbody>
-            </table>
+            <div
+              className="flex-1 overflow-auto"
+              style={{ maxHeight: "600px" }}
+            >
+              <table className="w-full text-xs text-gray-700 dark:text-slate-200">
+                <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-900">
+                  <tr className="border-b border-gray-200 dark:border-slate-800">
+                    <th
+                      onClick={() => handleSort("fecha")}
+                      className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                    >
+                      <div className="flex items-center gap-1">
+                        Fecha
+                        {getSortIcon("fecha")}
+                      </div>
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                      Código
+                    </th>
+                    {isEntry ? (
+                      <>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Nombre
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Cantidad
+                        </th>
+                        <th
+                          onClick={() => handleSort("area")}
+                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                        >
+                          <div className="flex items-center gap-1">
+                            Área
+                            {getSortIcon("area")}
+                          </div>
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Costo U.
+                        </th>
+                      </>
+                    ) : (
+                      <>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Nombre
+                        </th>
+                        <th
+                          onClick={() => handleSort("area")}
+                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                        >
+                          <div className="flex items-center gap-1">
+                            Área
+                            {getSortIcon("area")}
+                          </div>
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Proyecto
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Responsable
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Cantidad
+                        </th>
+                      </>
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
+                  {paginatedMovements.map((movement) => (
+                    <MovementRow
+                      key={movement.id}
+                      movement={movement}
+                      isEntry={isEntry}
+                      onEditEntry={onEditEntry}
+                      onEditExit={onEditExit}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
