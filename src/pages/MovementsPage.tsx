@@ -27,6 +27,8 @@ export const MovementsPage = () => {
     null
   );
   const [selectedExit, setSelectedExit] = useState<MovementExit | null>(null);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const movementsData = useMovements();
   // Almacena los datos filtrados/ordenados que vienen de la tabla
   const [visibleData, setVisibleData] = useState<
@@ -42,6 +44,9 @@ export const MovementsPage = () => {
     setVisibleData(
       activeSubTab === "entradas" ? movementsData.entries : movementsData.exits
     );
+    if (!movementsData.loading) {
+      setHasLoaded(true);
+    }
   }, [activeSubTab, movementsData.entries, movementsData.exits]);
 
   // Usamos useCallback para evitar re-renders infinitos en la tabla
@@ -89,22 +94,34 @@ export const MovementsPage = () => {
 
   const handleDeleteEntry = async (entry: MovementEntry) => {
     try {
+      setIsRefreshing(true);
       await movementsData.deleteEntry(entry.id);
+      if (activeSubTab === "entradas") {
+        await movementsData.refetchEntries();
+      }
       setSelectedEntry(null); // Cerrar el modal/formulario
     } catch (error) {
       console.error("No se pudo eliminar la entrada:", error);
       // Mostrar toast o alerta de error aquí
       alert(error instanceof Error ? error.message : "Error al eliminar");
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
   const handleDeleteExit = async (exit: MovementExit) => {
     try {
+      setIsRefreshing(true);
       await movementsData.deleteExit(exit.id);
+      if (activeSubTab === "salidas") {
+        await movementsData.refetchExits();
+      }
       setSelectedExit(null); // Cerrar el modal/formulario
     } catch (error) {
       console.error("No se pudo eliminar la salida:", error);
       alert(error instanceof Error ? error.message : "Error al eliminar");
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -165,7 +182,9 @@ export const MovementsPage = () => {
         </nav>
       </div>
 
-      {activeSubTab === "entradas" ? (
+      {movementsData.loading && !hasLoaded ? (
+        <div className="p-6 text-center text-gray-500 dark:text-slate-400">Cargando movimientos...</div>
+      ) : activeSubTab === "entradas" ? (
         <MovementTable
           movements={movementsData.entries}
           type="entrada"
@@ -173,6 +192,7 @@ export const MovementsPage = () => {
           onExportPdf={handleExportPdf}
           onAddMovement={() => setShowAddForm(true)}
           onDataFiltered={handleDataFiltered}
+          isRefreshing={isRefreshing}
         />
       ) : (
         <MovementTable
@@ -182,6 +202,7 @@ export const MovementsPage = () => {
           onExportPdf={handleExportPdf}
           onAddMovement={() => setShowAddForm(true)}
           onDataFiltered={handleDataFiltered}
+          isRefreshing={isRefreshing}
         />
       )}
 

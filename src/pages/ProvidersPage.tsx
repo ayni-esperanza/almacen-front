@@ -18,6 +18,7 @@ const ProvidersPage = () => {
     updateProvider,
     deleteProvider,
   } = useProviders();
+  const [hasLoaded, setHasLoaded] = useState(false);
   const { addToast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +26,12 @@ const ProvidersPage = () => {
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
     null
   );
+
+  React.useEffect(() => {
+    if (!loading) {
+      setHasLoaded(true);
+    }
+  }, [loading]);
   const containerClasses =
     "overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900";
   const searchInputClasses =
@@ -58,7 +65,7 @@ const ProvidersPage = () => {
     handleItemsPerPageChange,
   } = usePagination({ data: filteredProviders, initialItemsPerPage: 100 });
 
-  if (loading) {
+  if (loading && !hasLoaded) {
     return (
       <div className={containerClasses}>
         <div className="px-6 py-4 text-white bg-gradient-to-r from-purple-500 to-purple-600">
@@ -147,6 +154,7 @@ const ProvidersPage = () => {
         addToast(`Proveedor "${provider.name}" eliminado exitosamente`, 'success');
         setEditModalOpen(false);
         setSelectedProvider(null);
+        await refetch();
       } else {
         addToast('No se pudo eliminar el proveedor', 'error');
       }

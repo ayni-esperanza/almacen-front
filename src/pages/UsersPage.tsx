@@ -24,6 +24,7 @@ export const UsersPage = () => {
   const [modalSubmitting, setModalSubmitting] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const { checkPermission } = usePermissions();
   const { user: currentUser } = useAuth();
@@ -71,6 +72,7 @@ export const UsersPage = () => {
       setError(err instanceof Error ? err.message : "Error al cargar usuarios");
     } finally {
       setLoading(false);
+      setHasLoaded(true);
     }
   };
 
@@ -242,7 +244,7 @@ export const UsersPage = () => {
     }
   };
 
-  if (loading) {
+  if (loading && !hasLoaded) {
     return (
       <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-900">
         <div className="px-6 py-4 text-white bg-gradient-to-r from-blue-500 to-blue-600">

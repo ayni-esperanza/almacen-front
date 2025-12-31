@@ -40,6 +40,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   const [selectedIds, setSelectedIds] = React.useState<Set<number>>(new Set());
   const [isSelecting, setIsSelecting] = React.useState(false);
   const [isDragging, setIsDragging] = React.useState(false);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   // Funciones de selección
   const toggleSelection = (id: number) => {
@@ -99,6 +100,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     if (!confirmed) return;
 
     try {
+      setIsRefreshing(true);
       const deletePromises = Array.from(selectedIds).map((id) =>
         deleteProduct(id)
       );
@@ -107,6 +109,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       await refetch();
     } catch (error) {
       console.error("Error deleting products:", error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -142,7 +146,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   } = usePagination({ data: filteredProducts, initialItemsPerPage: 100 });
   const searchInputClasses =
     "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
-  if (loading) {
+  if (loading && !isRefreshing) {
     return (
       <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-900">
         <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
@@ -296,7 +300,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     product={product}
                     onEdit={updateProduct}
                     onDelete={async (p) => {
-                      await deleteProduct(p.id);
+                      try {
+                        setIsRefreshing(true);
+                        const deleted = await deleteProduct(p.id);
+                        if (deleted) {
+                          await refetch();
+                        }
+                      } finally {
+                        setIsRefreshing(false);
+                      }
                     }}
                     onCreateArea={createArea}
                     onCreateCategoria={createCategoria}

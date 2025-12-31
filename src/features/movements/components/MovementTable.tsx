@@ -22,6 +22,7 @@ interface MovementTableProps {
   onExportPdf?: () => void;
   onAddMovement?: () => void;
   onDataFiltered?: (data: (MovementEntry | MovementExit)[]) => void;
+  isRefreshing?: boolean;
 }
 
 interface MovementRowProps {
@@ -135,6 +136,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   onExportPdf,
   onAddMovement,
   onDataFiltered,
+  isRefreshing,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
