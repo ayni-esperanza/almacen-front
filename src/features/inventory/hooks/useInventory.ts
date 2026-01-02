@@ -9,6 +9,7 @@ import {
 export interface UseInventoryReturn {
   products: Product[];
   loading: boolean;
+  refreshing: boolean;
   error: string | null;
   searchTerm: string;
   areas: string[];
@@ -28,14 +29,23 @@ export interface UseInventoryReturn {
 export const useInventory = (): UseInventoryReturn => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [areas, setAreas] = useState<string[]>([]);
   const [categorias, setCategorias] = useState<string[]>([]);
 
-  const fetchProducts = async (search?: string) => {
+  const fetchProducts = async (
+    search?: string,
+    options?: { silent?: boolean }
+  ) => {
     try {
-      setLoading(true);
+      const isSilent = options?.silent;
+      if (isSilent) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       const data = await inventoryService.getAllProducts(search);
       setProducts(data);
@@ -44,7 +54,12 @@ export const useInventory = (): UseInventoryReturn => {
         err instanceof Error ? err.message : "Error al cargar productos"
       );
     } finally {
-      setLoading(false);
+      const isSilent = options?.silent;
+      if (isSilent) {
+        setRefreshing(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -66,8 +81,8 @@ export const useInventory = (): UseInventoryReturn => {
     }
   };
 
-  const refetch = async () => {
-    await fetchProducts(searchTerm || undefined);
+  const refetch = async (options?: { silent?: boolean }) => {
+    await fetchProducts(searchTerm || undefined, options);
   };
 
   const createProduct = async (
@@ -76,7 +91,7 @@ export const useInventory = (): UseInventoryReturn => {
     try {
       const newProduct = await inventoryService.createProduct(productData);
       if (newProduct) {
-        await refetch();
+        await refetch({ silent: true });
       }
       return newProduct;
     } catch (err) {
@@ -95,7 +110,7 @@ export const useInventory = (): UseInventoryReturn => {
         productData
       );
       if (updatedProduct) {
-        await refetch();
+        await refetch({ silent: true });
       }
       return updatedProduct;
     } catch (err) {
@@ -110,7 +125,7 @@ export const useInventory = (): UseInventoryReturn => {
     try {
       const success = await inventoryService.deleteProduct(id.toString());
       if (success) {
-        await refetch();
+        await refetch({ silent: true });
       }
       return success;
     } catch (err) {
@@ -179,6 +194,7 @@ export const useInventory = (): UseInventoryReturn => {
   return {
     products,
     loading,
+    refreshing,
     error,
     searchTerm,
     areas,

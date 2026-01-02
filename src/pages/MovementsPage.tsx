@@ -29,7 +29,6 @@ export const MovementsPage = () => {
   );
   const [selectedExit, setSelectedExit] = useState<MovementExit | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [confirmState, setConfirmState] = useState<{
     open: boolean;
@@ -111,14 +110,8 @@ export const MovementsPage = () => {
     try {
       if (type === "entrada") {
         await movementsData.deleteEntry(id);
-        if (activeSubTab === "entradas") {
-          await movementsData.refetchEntries();
-        }
       } else {
         await movementsData.deleteExit(id);
-        if (activeSubTab === "salidas") {
-          await movementsData.refetchExits();
-        }
       }
       return true;
     } catch (error) {
@@ -136,21 +129,14 @@ export const MovementsPage = () => {
 
     try {
       setIsConfirming(true);
-      setIsRefreshing(true);
 
       if (confirmState.type === "entry") {
         const entry = confirmState.target as MovementEntry;
         await movementsData.deleteEntry(entry.id);
-        if (activeSubTab === "entradas") {
-          await movementsData.refetchEntries();
-        }
         setSelectedEntry(null);
       } else {
         const exit = confirmState.target as MovementExit;
         await movementsData.deleteExit(exit.id);
-        if (activeSubTab === "salidas") {
-          await movementsData.refetchExits();
-        }
         setSelectedExit(null);
       }
     } catch (error) {
@@ -158,7 +144,6 @@ export const MovementsPage = () => {
       alert(error instanceof Error ? error.message : "Error al eliminar");
     } finally {
       setIsConfirming(false);
-      setIsRefreshing(false);
       setConfirmState({ open: false, type: null, target: null });
     }
   };
@@ -233,7 +218,7 @@ export const MovementsPage = () => {
           onExportPdf={handleExportPdf}
           onAddMovement={() => setShowAddForm(true)}
           onDataFiltered={handleDataFiltered}
-          isRefreshing={isRefreshing}
+          isRefreshing={movementsData.refreshing}
           deleteMovement={deleteMovement}
           refetchMovements={() => movementsData.refetchEntries()}
         />
@@ -245,7 +230,7 @@ export const MovementsPage = () => {
           onExportPdf={handleExportPdf}
           onAddMovement={() => setShowAddForm(true)}
           onDataFiltered={handleDataFiltered}
-          isRefreshing={isRefreshing}
+          isRefreshing={movementsData.refreshing}
           deleteMovement={deleteMovement}
           refetchMovements={() => movementsData.refetchExits()}
         />

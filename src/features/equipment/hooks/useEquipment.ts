@@ -5,8 +5,9 @@ import { equipmentService, CreateEquipmentData, UpdateEquipmentData, ReturnEquip
 export interface UseEquipmentReturn {
   equipment: EquipmentReport[];
   loading: boolean;
+  refreshing: boolean;
   error: string | null;
-  refetch: () => Promise<void>;
+  refetch: (options?: { silent?: boolean }) => Promise<void>;
   createEquipmentReport: (equipmentData: CreateEquipmentData) => Promise<EquipmentReport | null>;
   updateEquipment: (id: number, equipmentData: UpdateEquipmentData) => Promise<EquipmentReport | null>;
   returnEquipment: (id: number, returnData: ReturnEquipmentData) => Promise<EquipmentReport | null>;
@@ -16,30 +17,39 @@ export interface UseEquipmentReturn {
 export const useEquipment = (): UseEquipmentReturn => {
   const [equipment, setEquipment] = useState<EquipmentReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchEquipment = async () => {
+  const fetchEquipment = async (options?: { silent?: boolean }) => {
     try {
-      setLoading(true);
+      if (options?.silent) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       const data = await equipmentService.getAllEquipment();
       setEquipment(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar equipos');
     } finally {
-      setLoading(false);
+      if (options?.silent) {
+        setRefreshing(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
-  const refetch = async () => {
-    await fetchEquipment();
+  const refetch = async (options?: { silent?: boolean }) => {
+    await fetchEquipment(options);
   };
 
   const createEquipmentReport = async (equipmentData: CreateEquipmentData): Promise<EquipmentReport | null> => {
     try {
       const newEquipment = await equipmentService.createEquipmentReport(equipmentData);
       if (newEquipment) {
-        await refetch(); // Refresh the list
+        await refetch({ silent: true });
       }
       return newEquipment;
     } catch (err) {
@@ -52,7 +62,7 @@ export const useEquipment = (): UseEquipmentReturn => {
     try {
       const updatedEquipment = await equipmentService.updateEquipment(id.toString(), equipmentData);
       if (updatedEquipment) {
-        await refetch(); // Refresh the list
+        await refetch({ silent: true });
       }
       return updatedEquipment;
     } catch (err) {
@@ -65,7 +75,7 @@ export const useEquipment = (): UseEquipmentReturn => {
     try {
       const returnedEquipment = await equipmentService.returnEquipment(id.toString(), returnData);
       if (returnedEquipment) {
-        await refetch(); // Refresh the list
+        await refetch({ silent: true });
       }
       return returnedEquipment;
     } catch (err) {
@@ -78,7 +88,7 @@ export const useEquipment = (): UseEquipmentReturn => {
     try {
       const success = await equipmentService.deleteEquipment(id.toString());
       if (success) {
-        await refetch(); // Refresh the list
+        await refetch({ silent: true });
       }
       return success;
     } catch (err) {
@@ -95,6 +105,7 @@ export const useEquipment = (): UseEquipmentReturn => {
   return {
     equipment,
     loading,
+    refreshing,
     error,
     refetch,
     createEquipmentReport,

@@ -10,8 +10,9 @@ import { validateProviderForm, cleanPhones, ProviderFormData } from "../utils/va
 export interface UseProvidersReturn {
   providers: Provider[];
   loading: boolean;
+  refreshing: boolean;
   error: string | null;
-  refetch: () => Promise<void>;
+  refetch: (options?: { silent?: boolean }) => Promise<void>;
   createProvider: (
     providerData: CreateProviderData
   ) => Promise<Provider | null>;
@@ -25,11 +26,16 @@ export interface UseProvidersReturn {
 export const useProviders = (): UseProvidersReturn => {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProviders = async () => {
+  const fetchProviders = async (options?: { silent?: boolean }) => {
     try {
-      setLoading(true);
+      if (options?.silent) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       const data = await providersService.getAllProviders();
       setProviders(data);
@@ -38,12 +44,16 @@ export const useProviders = (): UseProvidersReturn => {
       setError(errorMessage);
       console.error("Error fetching providers:", err);
     } finally {
-      setLoading(false);
+      if (options?.silent) {
+        setRefreshing(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
-  const refetch = async () => {
-    await fetchProviders();
+  const refetch = async (options?: { silent?: boolean }) => {
+    await fetchProviders(options);
   };
 
   const createProvider = async (
@@ -70,7 +80,7 @@ export const useProviders = (): UseProvidersReturn => {
 
       const newProvider = await providersService.createProvider(dataToSend);
       if (newProvider) {
-        await refetch(); // Refresh the list
+        await refetch({ silent: true });
       }
       return newProvider;
     } catch (err) {
@@ -115,7 +125,7 @@ export const useProviders = (): UseProvidersReturn => {
         dataToSend
       );
       if (updatedProvider) {
-        await refetch(); // Refresh the list
+        await refetch({ silent: true });
       }
       return updatedProvider;
     } catch (err) {
@@ -130,7 +140,7 @@ export const useProviders = (): UseProvidersReturn => {
     try {
       const success = await providersService.deleteProvider(id);
       if (success) {
-        await refetch(); // Refresh the list
+        await refetch({ silent: true });
       }
       return success;
     } catch (err) {
@@ -149,6 +159,7 @@ export const useProviders = (): UseProvidersReturn => {
   return {
     providers,
     loading,
+    refreshing,
     error,
     refetch,
     createProvider,

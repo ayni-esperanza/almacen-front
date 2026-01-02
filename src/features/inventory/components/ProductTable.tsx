@@ -11,6 +11,7 @@ import { useBulkSelection } from "../../../shared/hooks/useBulkSelection";
 interface ProductTableProps {
   products: Product[];
   loading: boolean;
+  refreshing: boolean;
   error: string | null;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
@@ -28,6 +29,7 @@ interface ProductTableProps {
 export const ProductTable: React.FC<ProductTableProps> = ({
   products,
   loading,
+  refreshing,
   error,
   searchTerm,
   setSearchTerm,
@@ -90,7 +92,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   } = usePagination({ data: filteredProducts, initialItemsPerPage: 100 });
   const searchInputClasses =
     "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
-  if (loading && !isRefreshing) {
+  if (loading && !isRefreshing && !refreshing) {
     return (
       <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-900">
         <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
