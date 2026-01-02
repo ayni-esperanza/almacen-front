@@ -107,6 +107,27 @@ export const MovementsPage = () => {
     setConfirmState({ open: true, type: "exit", target: exit });
   };
 
+  const deleteMovement = async (id: number, type: "entrada" | "salida") => {
+    try {
+      if (type === "entrada") {
+        await movementsData.deleteEntry(id);
+        if (activeSubTab === "entradas") {
+          await movementsData.refetchEntries();
+        }
+      } else {
+        await movementsData.deleteExit(id);
+        if (activeSubTab === "salidas") {
+          await movementsData.refetchExits();
+        }
+      }
+      return true;
+    } catch (error) {
+      console.error("No se pudo eliminar el movimiento:", error);
+      alert(error instanceof Error ? error.message : "Error al eliminar");
+      return false;
+    }
+  };
+
   const handleConfirmDelete = async () => {
     if (!confirmState.type || !confirmState.target) {
       setConfirmState({ open: false, type: null, target: null });
@@ -213,6 +234,8 @@ export const MovementsPage = () => {
           onAddMovement={() => setShowAddForm(true)}
           onDataFiltered={handleDataFiltered}
           isRefreshing={isRefreshing}
+          deleteMovement={deleteMovement}
+          refetchMovements={() => movementsData.refetchEntries()}
         />
       ) : (
         <MovementTable
@@ -223,6 +246,8 @@ export const MovementsPage = () => {
           onAddMovement={() => setShowAddForm(true)}
           onDataFiltered={handleDataFiltered}
           isRefreshing={isRefreshing}
+          deleteMovement={deleteMovement}
+          refetchMovements={() => movementsData.refetchExits()}
         />
       )}
 
