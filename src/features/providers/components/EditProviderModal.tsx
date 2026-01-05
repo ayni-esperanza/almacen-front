@@ -1,9 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Image as ImageIcon, Minus, Plus } from "lucide-react";
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 import { Provider } from "../types";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
+import { useToast } from "../../../shared/hooks/useToast";
+import { validateProviderForm, cleanPhones } from "../utils/validation";
+import { usePhoneDropdown } from "../../../shared/hooks/usePhoneDropdown";
 
 interface EditProviderModalProps {
   isOpen: boolean;
@@ -28,6 +33,9 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
   const modalRef = useRef<HTMLDivElement>(null);
   // Cerrar modal al hacer click fuera
   useClickOutside(modalRef, onClose, isOpen);
+  
+  // Hook de notificaciones
+  const { addToast } = useToast();
 
   const [name, setName] = useState(provider?.name || "");
   const [email, setEmail] = useState(provider?.email || "");
@@ -36,27 +44,48 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
     provider?.phones?.length ? provider.phones : [""]
   );
   const [photoUrl, setPhotoUrl] = useState<string>(provider?.photoUrl || "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputClasses =
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-purple-300 dark:focus:ring-purple-500/30";
   const labelClasses =
     "mb-1 block text-xs font-semibold text-gray-700 dark:text-slate-200";
 
+  const { registerField, getDropdownStyle, handleChange } = usePhoneDropdown({
+    isOpen,
+    fieldCount: phones.length,
+  });
+
+  // Normaliza teléfonos entrantes para que PhoneInput pueda mostrarlos
+  const normalizePhone = (value: string): string => {
+    const trimmed = value?.trim() ?? "";
+    if (!trimmed) return "";
+
+    // Preferir el valor si ya viene con "+"
+    if (trimmed.startsWith("+")) return trimmed;
+
+    // Extraer dígitos (manteniendo posibles 51 iniciales)
+    const digits = trimmed.replace(/\D/g, "");
+    if (!digits) return trimmed; // fallback al bruto si no hay dígitos
+
+    // Si ya incluye 51 al inicio, solo prepende "+"; si no, anteponer código PE
+    if (digits.startsWith("51")) {
+      return `+${digits}`;
+    }
+    return `+51${digits}`;
+  };
+
   useEffect(() => {
     if (!provider) return;
     setName(provider.name);
     setEmail(provider.email);
     setAddress(provider.address);
-    setPhones(provider.phones.length ? provider.phones : [""]);
+    const normalized = provider.phones.length
+      ? provider.phones.map(normalizePhone)
+      : [""];
+    setPhones(normalized);
     setPhotoUrl(provider.photoUrl || "");
   }, [provider]);
-
-  const handlePhoneChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    setPhones((prev) =>
-      prev.map((phone, idx) => (idx === index ? value : phone))
-    );
-  };
 
   const handleAddPhone = () => {
     setPhones((prev) => (prev.length >= 4 ? prev : [...prev, ""]));
@@ -83,8 +112,35 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
     event.preventDefault();
     if (!provider) return;
 
-    onEdit({ ...provider, name, email, address, phones, photoUrl });
-    onClose();
+    // Limpiar teléfonos vacíos
+    const cleanedPhones = cleanPhones(phones);
+
+    // Validar datos
+    const error = validateProviderForm({
+      name,
+      email,
+      address,
+      phones: cleanedPhones,
+      photoUrl,
+    });
+
+    if (error) {
+      addToast(error.message, 'error', 5000);
+      return;
+    }
+
+    // Si la validación pasó, proceder con la actualización
+    setIsSubmitting(true);
+    try {
+      onEdit({ ...provider, name, email, address, phones: cleanedPhones, photoUrl });
+      addToast('Proveedor actualizado exitosamente', 'success');
+      onClose();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al actualizar el proveedor';
+      addToast(errorMessage, 'error', 5000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const [isDeleting, setIsDeleting] = useState(false);
@@ -92,19 +148,16 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
   const handleDelete = async () => {
     if (!provider || !onDelete) return;
 
-    const confirmed = window.confirm(
-      "¿Eliminar este proveedor? Esta acción no se puede deshacer."
-    );
-
-    if (!confirmed) return;
-
     try {
       setIsDeleting(true); // Bloquear botón
       await onDelete(provider);
-      // Si tiene éxito, el padre cerrará el modal
+      // El padre gestiona confirmación y toasts
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al eliminar el proveedor';
       console.error("Error al eliminar:", error);
-      setIsDeleting(false); // Desbloquear si falla
+      addToast(errorMessage, 'error', 5000);
+    } finally {
+      setIsDeleting(false); // Desbloquear para permitir reintentar si sigue abierto
     }
   };
 
@@ -169,7 +222,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                     value={name}
                     onChange={(event) => setName(event.target.value)}
                     required
-                    maxLength={255}
+                    maxLength={60}
                     className={inputClasses}
                     placeholder="Nombre del proveedor"
                   />
@@ -178,18 +231,28 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                 <label>
                   <span className={labelClasses}>Teléfono *</span>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={phones[0]}
-                      onChange={(event) =>
-                        handlePhoneChange(0, event.target.value)
-                      }
-                      required
-                      className={inputClasses}
-                      placeholder="Número principal"
-                    />
+                    <div className="flex-1 relative" ref={registerField(0)}>
+                      <PhoneInput
+                        defaultCountry="pe"
+                        value={phones[0]}
+                        onChange={(phone, meta) =>
+                          handleChange(0, phone, meta?.country?.iso2, cleaned => {
+                            setPhones(prev => prev.map((p, i) => (i === 0 ? cleaned : p)));
+                          })
+                        }
+                        inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"
+                        countrySelectorStyleProps={{
+                          buttonClassName: '!rounded-l-xl !border-gray-300 !px-2 hover:!bg-gray-50 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:hover:!bg-slate-800',
+                          dropdownStyleProps: {
+                            className: '!fixed !z-[9999] !bg-white dark:!bg-slate-900 !border !border-gray-300 dark:!border-slate-700 !shadow-xl !max-h-60 !overflow-auto !rounded-lg',
+                            style: getDropdownStyle(0),
+                            listItemClassName: '!cursor-pointer !px-3 !py-2 hover:!bg-gray-100 dark:hover:!bg-slate-800 dark:!text-slate-200',
+                          }
+                        }}
+                        disableDialCodePrefill
+                        forceDialCode
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={handleAddPhone}
@@ -225,7 +288,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                     type="text"
                     value={address}
                     onChange={(event) => setAddress(event.target.value)}
-                    maxLength={255}
+                    maxLength={80}
                     className={inputClasses}
                     placeholder="Dirección comercial"
                   />
@@ -235,18 +298,28 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                   <label key={idx} className="md:col-span-2">
                     <span className={labelClasses}>Teléfono adicional</span>
                     <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={phone}
-                        onChange={(event) =>
-                          handlePhoneChange(idx + 1, event.target.value)
-                        }
-                        required
-                        className={inputClasses}
-                        placeholder="Número adicional"
-                      />
+                      <div className="flex-1 relative" ref={registerField(idx + 1)}>
+                        <PhoneInput
+                          defaultCountry="pe"
+                          value={phone}
+                          onChange={(phone, meta) =>
+                            handleChange(idx + 1, phone, meta?.country?.iso2, cleaned => {
+                              setPhones(prev => prev.map((p, i) => (i === idx + 1 ? cleaned : p)));
+                            })
+                          }
+                          inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"
+                          countrySelectorStyleProps={{
+                            buttonClassName: '!rounded-l-xl !border-gray-300 !px-2 hover:!bg-gray-50 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:hover:!bg-slate-800',
+                            dropdownStyleProps: {
+                              className: '!fixed !z-[9999] !bg-white dark:!bg-slate-900 !border !border-gray-300 dark:!border-slate-700 !shadow-xl !max-h-60 !overflow-auto !rounded-lg',
+                              style: getDropdownStyle(idx + 1),
+                              listItemClassName: '!cursor-pointer !px-3 !py-2 hover:!bg-gray-100 dark:hover:!bg-slate-800 dark:!text-slate-200',
+                            }
+                          }}
+                          disableDialCodePrefill
+                          forceDialCode
+                        />
+                      </div>
                       <button
                         type="button"
                         onClick={() => handleRemovePhone(idx + 1)}
@@ -267,7 +340,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
               <button
                 type="button"
                 onClick={handleDelete}
-                disabled={isDeleting} // Deshabilitar mientras borra
+                disabled={isDeleting || isSubmitting}
                 className="w-full rounded-full border border-red-200 px-4 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-500/40 dark:text-rose-200 dark:hover:bg-rose-500/10 sm:w-auto"
               >
                 {isDeleting ? "Eliminando..." : "Eliminar"}
@@ -275,15 +348,17 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full rounded-full border border-gray-300 px-4 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 sm:w-auto"
+                disabled={isSubmitting}
+                className="w-full rounded-full border border-gray-300 px-4 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 sm:w-auto"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="w-full rounded-full bg-purple-600 px-4 py-1.5 text-xs font-semibold text-white shadow-md transition-colors hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-400 sm:w-auto"
+                disabled={isSubmitting}
+                className="w-full rounded-full bg-purple-600 px-4 py-1.5 text-xs font-semibold text-white shadow-md transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-purple-500 dark:hover:bg-purple-400 sm:w-auto"
               >
-                Guardar Cambios
+                {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
               </button>
             </div>
           </form>

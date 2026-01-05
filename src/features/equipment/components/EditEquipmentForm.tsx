@@ -245,10 +245,6 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
                   className={inputClasses}
                   placeholder="Ej: ABC123"
                   required
-                  maxLength={6}
-                  minLength={6}
-                  pattern="[A-Z0-9]{6}"
-                  title="El código debe tener exactamente 6 caracteres en mayúsculas"
                   disabled={submitting}
                 />
               </label>

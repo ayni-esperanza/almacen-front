@@ -64,7 +64,7 @@ export const DashboardTabs = ({ currentPath }: DashboardTabsProps) => {
   };
 
   return (
-    <div className="sticky top-[63px] z-30 flex items-center px-2 overflow-x-auto overflow-y-hidden border-b border-gray-200 sm:px-6 bg-gray-50 dark:border-slate-700 dark:bg-slate-900 scrollbar-hide">
+    <div className="sticky top-[63px] z-30 flex items-center px-2 overflow-x-auto overflow-y-hidden border-b border-gray-200 sm:px-6 bg-gray-50 dark:border-slate-700 dark:bg-slate-900 scrollbar-hide rounded-t-2xl">
       {tabs.map(({ path, label, icon: Icon, permission }) => (
         <ProtectedComponent key={path} permission={permission}>
           <Link

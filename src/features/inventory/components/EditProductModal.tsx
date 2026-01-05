@@ -9,6 +9,7 @@ import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { AddOptionModal } from "../../../shared/components/AddOptionModal";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { inventoryService } from "../../../shared/services/inventory.service";
+import { ConfirmModal } from "../../../shared/components/ConfirmModal";
 
 interface EditProductModalProps {
   isOpen: boolean;
@@ -42,6 +43,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const [providers, setProviders] = useState<Provider[]>([]);
   const [showUbicacionModal, setShowUbicacionModal] = useState(false);
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [nombre, setNombre] = useState(product?.nombre || "");
   const [codigo, setCodigo] = useState(product?.codigo || "");
   const [costoUnitario, setCostoUnitario] = useState(
@@ -114,31 +117,38 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   };
 
   const handleDelete = async () => {
-    if (!product) return;
+    if (!product || !onDelete) return;
+    setConfirmDeleteOpen(true);
+  };
 
-    const confirmed = window.confirm("¿Eliminar este producto del inventario?");
-    if (!confirmed) return;
+  const handleConfirmDelete = async () => {
+    if (!product || !onDelete) {
+      setConfirmDeleteOpen(false);
+      return;
+    }
 
     try {
-      // Si onDelete existe (ahora sí existe porque viene del Row), lo ejecutamos
-      if (onDelete) {
-        await onDelete(product);
-        onClose(); // Cerramos modal tras éxito
-      }
+      setIsConfirmingDelete(true);
+      await onDelete(product);
+      onClose();
     } catch (error) {
       console.error(error);
       alert("Error al eliminar");
+    } finally {
+      setIsConfirmingDelete(false);
+      setConfirmDeleteOpen(false);
     }
   };
 
   if (!isOpen || !product) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
-      <div
-        ref={modalRef}
-        className="w-full max-w-3xl max-h-[95vh] overflow-hidden rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col"
-      >
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
+        <div
+          ref={modalRef}
+          className="w-full max-w-3xl max-h-[95vh] overflow-hidden rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col"
+        >
         <div className="flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold">Editar Producto</h2>
@@ -353,7 +363,19 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
           />
         </div>
       </div>
-    </div>
+      </div>
+
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title="Eliminar producto"
+        message={`¿Eliminar definitivamente "${product?.nombre ?? "este producto"}"?`}
+        confirmLabel="Eliminar"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmDeleteOpen(false)}
+        isProcessing={isConfirmingDelete}
+        destructive
+      />
+    </>
   );
 
   return createPortal(modalContent, document.body);

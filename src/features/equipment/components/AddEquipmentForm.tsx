@@ -198,10 +198,6 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
                     className={inputClasses}
                     placeholder="Ej: ABC123"
                     required
-                    maxLength={6}
-                    minLength={6}
-                    pattern="[A-Z0-9]{6}"
-                    title="El código debe tener exactamente 6 caracteres en mayúsculas"
                   />
                   {/* Indicador de estado */}
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3">

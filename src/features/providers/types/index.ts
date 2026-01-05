@@ -7,4 +7,5 @@ export interface Provider {
   photoUrl?: string;
   createdAt?: string;
   updatedAt?: string;
+  deletedAt?: string | null;
 }

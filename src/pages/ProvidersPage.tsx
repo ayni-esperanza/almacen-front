@@ -4,8 +4,10 @@ import { Provider } from "../features/providers/types";
 import { AddProviderModal } from "../features/providers/components/AddProviderModal";
 import { EditProviderModal } from "../features/providers/components/EditProviderModal";
 import { useProviders } from "../features/providers/hooks/useProviders";
+import { useToast } from "../shared/hooks/useToast";
 import { Pagination } from "../shared/components/Pagination";
 import { usePagination } from "../shared/hooks/usePagination";
+import { ConfirmModal } from "../shared/components/ConfirmModal";
 
 const ProvidersPage = () => {
   const {
@@ -17,12 +19,25 @@ const ProvidersPage = () => {
     updateProvider,
     deleteProvider,
   } = useProviders();
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const { addToast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
     null
   );
+  const [confirmState, setConfirmState] = useState<{ open: boolean; provider: Provider | null }>({
+    open: false,
+    provider: null,
+  });
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+
+  React.useEffect(() => {
+    if (!loading) {
+      setHasLoaded(true);
+    }
+  }, [loading]);
   const containerClasses =
     "overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900";
   const searchInputClasses =
@@ -56,7 +71,7 @@ const ProvidersPage = () => {
     handleItemsPerPageChange,
   } = usePagination({ data: filteredProviders, initialItemsPerPage: 100 });
 
-  if (loading) {
+  if (loading && !hasLoaded) {
     return (
       <div className={containerClasses}>
         <div className="px-6 py-4 text-white bg-gradient-to-r from-purple-500 to-purple-600">
@@ -108,9 +123,14 @@ const ProvidersPage = () => {
 
   const handleAddProvider = async (newProvider: Omit<Provider, "id">) => {
     try {
-      await createProvider(newProvider);
-      setIsModalOpen(false);
+      const result = await createProvider(newProvider);
+      if (result) {
+        addToast(`Proveedor "${newProvider.name}" creado exitosamente`, 'success');
+        setIsModalOpen(false);
+      }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al crear el proveedor';
+      addToast(errorMessage, 'error');
       console.error("Error adding provider:", error);
     }
   };
@@ -118,28 +138,49 @@ const ProvidersPage = () => {
   const handleEditProvider = async (updatedProvider: Provider) => {
     try {
       // Extraer solo los campos editables (sin id, createdAt, updatedAt)
-      const { id, createdAt, updatedAt, ...providerData } = updatedProvider;
-      await updateProvider(id, providerData);
-      setEditModalOpen(false);
-      setSelectedProvider(null);
+      const { id, createdAt, updatedAt, deletedAt, ...providerData } =
+        updatedProvider;
+      const result = await updateProvider(id, providerData);
+      if (result) {
+        addToast(`Proveedor "${updatedProvider.name}" actualizado exitosamente`, 'success');
+        setEditModalOpen(false);
+        setSelectedProvider(null);
+      }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al actualizar el proveedor';
+      addToast(errorMessage, 'error');
       console.error("Error updating provider:", error);
     }
   };
 
   const handleDeleteProvider = async (provider: Provider) => {
+    setConfirmState({ open: true, provider });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmState.provider) {
+      setConfirmState({ open: false, provider: null });
+      return;
+    }
+
     try {
-      const success = await deleteProvider(provider.id);
+      setIsConfirmingDelete(true);
+      const success = await deleteProvider(confirmState.provider.id);
       if (success) {
+        addToast(`Proveedor "${confirmState.provider.name}" eliminado exitosamente`, "success");
         setEditModalOpen(false);
         setSelectedProvider(null);
-        // El hook ya hace refetch automáticamente si devuelve true
+        await refetch();
       } else {
-        alert("No se pudo eliminar el proveedor. Intente nuevamente.");
+        addToast("No se pudo eliminar el proveedor", "error");
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Error al eliminar el proveedor";
+      addToast(errorMessage, "error");
       console.error("Error deleting provider:", error);
-      alert("Ocurrió un error al eliminar el proveedor.");
+    } finally {
+      setIsConfirmingDelete(false);
+      setConfirmState({ open: false, provider: null });
     }
   };
 
@@ -151,6 +192,7 @@ const ProvidersPage = () => {
         onAdd={handleAddProvider}
       />
       <EditProviderModal
+        key={selectedProvider?.id ?? 'new'}
         isOpen={editModalOpen}
         onClose={() => {
           setEditModalOpen(false);
@@ -158,6 +200,7 @@ const ProvidersPage = () => {
         }}
         provider={selectedProvider}
         onEdit={handleEditProvider}
+        onDelete={handleDeleteProvider}
       />
       {/* HEADER */}
       <div className="px-6 py-4 text-white shadow-sm bg-gradient-to-r from-purple-500 to-purple-600">
@@ -198,109 +241,111 @@ const ProvidersPage = () => {
           </div>
         ) : (
           <>
-            <table className="w-full text-sm text-gray-700 dark:text-slate-200">
-              {/* HEADER DE TABLA - STICKY */}
-              <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
-                <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Foto
-                  </th>
-                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Nombre
-                  </th>
-                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Teléfonos
-                  </th>
-                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Email
-                  </th>
-                  <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Dirección
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="text-sm bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
-                {paginatedProviders.map((provider) => (
-                  <tr
-                    key={provider.id}
-                    className="transition-colors border-b border-gray-100 hover:bg-purple-50 dark:border-slate-800 dark:hover:bg-slate-900/40"
-                  >
-                    <td
-                      className="px-3 py-3 cursor-pointer"
-                      onClick={() => {
-                        setSelectedProvider(provider);
-                        setEditModalOpen(true);
-                      }}
-                    >
-                      {provider.photoUrl ? (
-                        <img
-                          src={provider.photoUrl}
-                          alt={provider.name}
-                          className="object-cover border border-purple-400 rounded-full w-9 h-9"
-                        />
-                      ) : (
-                        <User className="text-purple-400 w-7 h-7" />
-                      )}
-                    </td>
-                    <td
-                      className="px-3 py-3 font-medium text-gray-900 cursor-pointer dark:text-slate-200"
-                      onClick={() => {
-                        setSelectedProvider(provider);
-                        setEditModalOpen(true);
-                      }}
-                    >
-                      {provider.name}
-                    </td>
-                    <td
-                      className="px-3 py-3 cursor-pointer"
-                      onClick={() => {
-                        setSelectedProvider(provider);
-                        setEditModalOpen(true);
-                      }}
-                    >
-                      <div className="flex flex-wrap gap-1.5">
-                        {provider.phones.map((phone, idx) => (
-                          <button
-                            key={idx}
-                            className="flex items-center px-2 py-1 text-xs font-medium text-green-800 transition-colors bg-green-100 rounded-full hover:bg-green-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              openWhatsApp(phone);
-                            }}
-                            type="button"
-                            title={`Abrir WhatsApp de ${phone}`}
-                          >
-                            <Phone className="w-4 h-4 mr-1" />
-                            {phone}
-                          </button>
-                        ))}
-                      </div>
-                    </td>
-                    <td
-                      className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
-                      onClick={() => {
-                        setSelectedProvider(provider);
-                        setEditModalOpen(true);
-                      }}
-                    >
-                      <span className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-purple-700 rounded-full bg-purple-50 dark:bg-purple-500/10 dark:text-purple-200">
-                        <Mail className="w-4 h-4" />
-                        <span>{provider.email}</span>
-                      </span>
-                    </td>
-                    <td
-                      className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
-                      onClick={() => {
-                        setSelectedProvider(provider);
-                        setEditModalOpen(true);
-                      }}
-                    >
-                      {provider.address}
-                    </td>
+            <div className="overflow-x-auto md:overflow-visible">
+              <table className="min-w-[900px] w-full text-sm text-gray-700 dark:text-slate-200">
+                {/* HEADER DE TABLA - STICKY */}
+                <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
+                  <tr className="border-b border-gray-200 dark:border-slate-800">
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Foto
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Nombre
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Teléfonos
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Email
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Dirección
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="text-sm bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
+                  {paginatedProviders.map((provider) => (
+                    <tr
+                      key={provider.id}
+                      className="transition-colors border-b border-gray-100 hover:bg-purple-50 dark:border-slate-800 dark:hover:bg-slate-900/40"
+                    >
+                      <td
+                        className="px-3 py-3 cursor-pointer"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        {provider.photoUrl ? (
+                          <img
+                            src={provider.photoUrl}
+                            alt={provider.name}
+                            className="object-cover border border-purple-400 rounded-full w-9 h-9"
+                          />
+                        ) : (
+                          <User className="text-purple-400 w-7 h-7" />
+                        )}
+                      </td>
+                      <td
+                        className="px-3 py-3 font-medium text-gray-900 cursor-pointer dark:text-slate-200"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        {provider.name}
+                      </td>
+                      <td
+                        className="px-3 py-3 cursor-pointer"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        <div className="flex flex-wrap gap-1.5">
+                          {provider.phones.map((phone, idx) => (
+                            <button
+                              key={idx}
+                              className="flex items-center px-2 py-1 text-xs font-medium text-green-800 transition-colors bg-green-100 rounded-full hover:bg-green-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                openWhatsApp(phone);
+                              }}
+                              type="button"
+                              title={`Abrir WhatsApp de ${phone}`}
+                            >
+                              <Phone className="w-4 h-4 mr-1" />
+                              {phone}
+                            </button>
+                          ))}
+                        </div>
+                      </td>
+                      <td
+                        className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        <span className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-purple-700 rounded-full bg-purple-50 dark:bg-purple-500/10 dark:text-purple-200">
+                          <Mail className="w-4 h-4" />
+                          <span>{provider.email}</span>
+                        </span>
+                      </td>
+                      <td
+                        className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        {provider.address}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -312,6 +357,17 @@ const ProvidersPage = () => {
           </>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={confirmState.open}
+        title="Eliminar proveedor"
+        message={`¿Eliminar definitivamente al proveedor "${confirmState.provider?.name ?? ""}"?`}
+        confirmLabel="Eliminar"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmState({ open: false, provider: null })}
+        isProcessing={isConfirmingDelete}
+        destructive
+      />
     </>
   );
 };

@@ -171,7 +171,7 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
               <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
               <input
                 type="text"
-                placeholder="Buscar..."
+                placeholder="Buscar por equipo, serie, responsable o área..."
                 value={searchTerm}
                 onChange={event => setSearchTerm(event.target.value)}
                 className="w-full py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400 dark:focus:ring-blue-500/30"
@@ -203,41 +203,43 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
           </div>
         ) : (
           <>
-            <table className="w-full text-xs text-gray-700 dark:text-slate-200">
-              <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
-                <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Código</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Nombre</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Cantidad</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Área/Proyecto</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Responsable</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Estado</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Fecha de S.</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Hora de S.</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300 border-l border-blue-100 dark:border-blue-500/20">Estado R.</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Fecha de R.</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Hora de R.</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Responsable</th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
-                {paginatedEquipments.map(equipment => {
-                  const salidaStatus = getStatusBadge(equipment.estadoEquipo);
-                  const retornoStatus = getStatusBadge(equipment.estadoRetorno ?? null);
+            <div className="overflow-x-auto md:overflow-visible">
+              <table className="min-w-[1100px] w-full text-xs text-gray-700 dark:text-slate-200">
+                <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
+                  <tr className="border-b border-gray-200 dark:border-slate-800">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Código</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Nombre</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Cantidad</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Área/Proyecto</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Responsable</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Estado</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Fecha de S.</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Hora de S.</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300 border-l border-blue-100 dark:border-blue-500/20">Estado R.</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Fecha de R.</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Hora de R.</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Responsable</th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">
+                  {paginatedEquipments.map(equipment => {
+                    const salidaStatus = getStatusBadge(equipment.estadoEquipo);
+                    const retornoStatus = getStatusBadge(equipment.estadoRetorno ?? null);
 
-                  return (
-                    <EquipmentRow
-                      key={equipment.id}
-                      equipment={equipment}
-                      salidaStatus={salidaStatus}
-                      retornoStatus={retornoStatus}
-                      onEdit={onEdit}
-                    />
-                  );
-                })}
-              </tbody>
-            </table>
+                    return (
+                      <EquipmentRow
+                        key={equipment.id}
+                        equipment={equipment}
+                        salidaStatus={salidaStatus}
+                        retornoStatus={retornoStatus}
+                        onEdit={onEdit}
+                      />
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

@@ -3,6 +3,8 @@ import { MovementEntry, MovementExit } from "../types/index.ts";
 import { Pagination } from "../../../shared/components/Pagination";
 import { usePagination } from "../../../shared/hooks/usePagination";
 import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowClick";
+import { useBulkSelection } from "../../../shared/hooks/useBulkSelection";
+import { ConfirmModal } from "../../../shared/components/ConfirmModal";
 import {
   TrendingUp,
   TrendingDown,
@@ -13,6 +15,7 @@ import {
   ArrowUp,
   ArrowDown,
   Calendar,
+  Trash2,
 } from "lucide-react";
 
 interface MovementTableProps {
@@ -27,6 +30,8 @@ interface MovementTableProps {
   endDate?: string;
   onStartDateChange?: (date: string) => void;
   onEndDateChange?: (date: string) => void;
+  deleteMovement: (id: number, type: "entrada" | "salida") => Promise<boolean>;
+  refetchMovements?: () => Promise<void>;
 }
 
 interface MovementRowProps {
@@ -34,6 +39,10 @@ interface MovementRowProps {
   isEntry: boolean;
   onEditEntry?: (movement: MovementEntry) => void;
   onEditExit?: (movement: MovementExit) => void;
+  isSelected: boolean;
+  onToggleSelect: () => void;
+  onMouseDownSelect: (isSelected: boolean) => void;
+  onMouseEnterRow: () => void;
 }
 
 type SortKey = "fecha" | "area";
@@ -67,6 +76,10 @@ const MovementRow: React.FC<MovementRowProps> = ({
   isEntry,
   onEditEntry,
   onEditExit,
+  isSelected,
+  onToggleSelect,
+  onMouseDownSelect,
+  onMouseEnterRow,
 }) => {
   const handleRowClick = useSelectableRowClick(() => {
     if (isEntry && onEditEntry) {
@@ -79,15 +92,36 @@ const MovementRow: React.FC<MovementRowProps> = ({
   return (
     <tr
       onClick={handleRowClick}
+      onMouseEnter={onMouseEnterRow}
+      className="transition-colors border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 [&]:cursor-pointer [&]:select-text"
       style={{
         cursor:
           (isEntry && onEditEntry) || (!isEntry && onEditExit)
             ? "pointer"
             : "default",
-        userSelect: "text",
       }}
-      className="transition-colors border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800"
     >
+      <td
+        className="px-3 py-2 text-xs text-center select-none"
+        onMouseDown={(e) => {
+          if (e.button === 0) {
+            e.stopPropagation();
+            onMouseDownSelect(isSelected);
+          }
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={(e) => {
+            e.stopPropagation();
+            onToggleSelect();
+          }}
+          onClick={(e) => e.stopPropagation()}
+          aria-label={`Seleccionar movimiento ${movement.codigoProducto}`}
+          className="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-green-500 dark:border-slate-600 dark:bg-slate-800"
+        />
+      </td>
       <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
         {movement.fecha}
       </td>
@@ -144,6 +178,8 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   endDate = "",
   onStartDateChange,
   onEndDateChange,
+  deleteMovement,
+  refetchMovements,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -241,6 +277,24 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   };
 
   const isEntry = type === "entrada";
+  const {
+    selectedIds,
+    toggleSelection,
+    toggleAll,
+    handleMouseDown,
+    handleMouseEnter,
+    areAllVisibleSelected,
+    requestBulkDelete,
+    handleConfirmDelete,
+    confirmState,
+    closeConfirm,
+    isConfirming,
+    isRefreshing: _isBulkRefreshing,
+  } = useBulkSelection<MovementEntry | MovementExit>({
+    getId: (movement) => movement.id,
+    deleteItem: (id) => deleteMovement(id, type),
+    refetch: refetchMovements,
+  });
   const gradientColor = isEntry
     ? "from-green-500 to-green-600 dark:from-green-600 dark:to-emerald-700"
     : "from-red-500 to-red-600 dark:from-red-600 dark:to-rose-700";
@@ -286,6 +340,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                     type="date"
                     value={startDate}
                     onChange={(e) => onStartDateChange?.(e.target.value)}
+                    aria-label="Fecha de inicio del filtro"
                     className="py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
                   />
                 </div>
@@ -309,6 +364,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                     type="date"
                     value={endDate}
                     onChange={(e) => onEndDateChange?.(e.target.value)}
+                    aria-label="Fecha de fin del filtro"
                     className="py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
                   />
                 </div>
@@ -332,7 +388,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                   <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
                   <input
                     type="text"
-                    placeholder="Buscar..."
+                    placeholder="Buscar por código, descripción o responsable..."
                     value={searchTerm}
                     onChange={handleSearchChange}
                     className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
@@ -350,6 +406,15 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                 )}
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
+                {selectedIds.size > 0 && (
+                  <button
+                    onClick={requestBulkDelete}
+                    className="flex items-center justify-center px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-red-500 rounded-lg shadow-md sm:px-4 hover:bg-red-600 whitespace-nowrap"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Eliminar ({selectedIds.size})</span>
+                  </button>
+                )}
                 {onAddMovement && (
                   <button
                     onClick={onAddMovement}
@@ -378,13 +443,19 @@ export const MovementTable: React.FC<MovementTableProps> = ({
           </div>
         ) : (
           <>
-            <div
-              className="flex-1 overflow-auto"
-              style={{ maxHeight: "600px" }}
-            >
-              <table className="w-full text-xs text-gray-700 dark:text-slate-200">
+            <div className="overflow-x-auto md:overflow-visible">
+              <table className="min-w-[880px] w-full text-xs text-gray-700 dark:text-slate-200">
                 <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-900">
                   <tr className="border-b border-gray-200 dark:border-slate-800">
+                    <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      <input
+                        type="checkbox"
+                        checked={areAllVisibleSelected(paginatedMovements)}
+                        onChange={() => toggleAll(paginatedMovements)}
+                        aria-label="Seleccionar todos los movimientos visibles"
+                        className="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-green-500 dark:border-slate-600 dark:bg-slate-800"
+                      />
+                    </th>
                     <th
                       onClick={() => handleSort("fecha")}
                       className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
@@ -453,6 +524,12 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                       isEntry={isEntry}
                       onEditEntry={onEditEntry}
                       onEditExit={onEditExit}
+                      isSelected={selectedIds.has(movement.id)}
+                      onToggleSelect={() => toggleSelection(movement.id)}
+                      onMouseDownSelect={(isSelectedRow) =>
+                        handleMouseDown(movement.id, isSelectedRow)
+                      }
+                      onMouseEnterRow={() => handleMouseEnter(movement.id)}
                     />
                   ))}
                 </tbody>
@@ -469,6 +546,31 @@ export const MovementTable: React.FC<MovementTableProps> = ({
           </>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={confirmState.open}
+        title={
+          confirmState.mode === "bulk"
+            ? "Eliminar movimientos"
+            : isEntry
+            ? "Eliminar entrada"
+            : "Eliminar salida"
+        }
+        message={
+          confirmState.mode === "bulk"
+            ? `¿Seguro que deseas eliminar ${selectedIds.size} movimiento(s)?`
+            : `¿Seguro que deseas eliminar "${
+                confirmState.target?.descripcion ?? ""
+              }"?`
+        }
+        confirmLabel={
+          confirmState.mode === "bulk" ? "Eliminar seleccionados" : "Eliminar"
+        }
+        onConfirm={handleConfirmDelete}
+        onCancel={closeConfirm}
+        isProcessing={isConfirming}
+        destructive
+      />
     </>
   );
 };
