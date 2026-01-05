@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { MovementEntry, MovementExit } from "../types/index.ts";
 import {
   movementsService,
@@ -46,46 +46,75 @@ export const useMovements = (): UseMovementsReturn => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const isInitialMount = useRef(true);
+  const fetchAbortController = useRef<AbortController | null>(null);
 
-  const fetchEntries = async () => {
+  const fetchEntries = useCallback(async () => {
     try {
-      setLoading(true);
-      setError(null);
       const data = await movementsService.getAllEntries(
         startDate || undefined,
         endDate || undefined
       );
       setEntries(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar entradas");
-    } finally {
-      setLoading(false);
+      if (err instanceof Error && err.name !== "AbortError") {
+        setError(err.message);
+      }
     }
-  };
+  }, [startDate, endDate]);
 
-  const fetchExits = async () => {
+  const fetchExits = useCallback(async () => {
     try {
-      setLoading(true);
-      setError(null);
       const data = await movementsService.getAllExits(
         startDate || undefined,
         endDate || undefined
       );
       setExits(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar salidas");
+      if (err instanceof Error && err.name !== "AbortError") {
+        setError(err.message);
+      }
+    }
+  }, [startDate, endDate]);
+
+  const fetchBoth = useCallback(async () => {
+    // Cancelar peticiones anteriores si existen
+    if (fetchAbortController.current) {
+      fetchAbortController.current.abort();
+    }
+    fetchAbortController.current = new AbortController();
+
+    try {
+      setLoading(true);
+      setError(null);
+      // Ejecutar ambas peticiones en paralelo
+      await Promise.all([fetchEntries(), fetchExits()]);
+    } catch (err) {
+      if (err instanceof Error && err.name !== "AbortError") {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+      fetchAbortController.current = null;
+    }
+  }, [fetchEntries, fetchExits]);
+
+  const refetchEntries = useCallback(async () => {
+    setLoading(true);
+    try {
+      await fetchEntries();
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchEntries]);
 
-  const refetchEntries = async () => {
-    await fetchEntries();
-  };
-
-  const refetchExits = async () => {
-    await fetchExits();
-  };
+  const refetchExits = useCallback(async () => {
+    setLoading(true);
+    try {
+      await fetchExits();
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchExits]);
 
   const createEntry = async (
     entryData: CreateEntryData
@@ -206,21 +235,23 @@ export const useMovements = (): UseMovementsReturn => {
 
   // Initial load
   useEffect(() => {
-    fetchEntries();
-    fetchExits();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    fetchBoth();
+  }, [fetchBoth]);
 
   // Refetch when date filters change (skip initial mount)
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
-    } else {
-      fetchEntries();
-      fetchExits();
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDate, endDate]);
+
+    // Debounce: esperar 300ms antes de hacer la petición
+    const timeoutId = setTimeout(() => {
+      fetchBoth();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [startDate, endDate, fetchBoth]);
 
   return {
     entries,
