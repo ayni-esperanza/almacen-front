@@ -49,11 +49,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       );
     });
 
-    // ordenamos por fecha de creación (createdAt) descendente (más nuevo primero)
+    // ordenamos alfabéticamente por nombre (A-Z)
     return filtered.sort((a, b) => {
-      const dateA = new Date(a.createdAt || 0).getTime();
-      const dateB = new Date(b.createdAt || 0).getTime();
-      return dateB - dateA; // Descendente: B - A
+      return a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" });
     });
   }, [products, searchTerm]);
 

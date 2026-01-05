@@ -55,7 +55,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
       <tr
         className={`border-b border-gray-100 transition-colors hover:bg-green-50 dark:border-slate-800/70 dark:hover:bg-slate-900/60 ${
           product.stockActual === 0 || product.stockActual <= 3
-            ? "bg-red-50 dark:bg-rose-500/15"
+            ? "bg-red-200 dark:bg-red-900/40 font-medium"
             : "bg-white dark:bg-slate-950/40"
         }`}
         onClick={handleRowClick}
