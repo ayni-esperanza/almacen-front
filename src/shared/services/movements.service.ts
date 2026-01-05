@@ -1,5 +1,8 @@
 import { apiClient } from "./api.ts";
-import { MovementEntry, MovementExit } from "../../features/movements/types/index.ts";
+import {
+  MovementEntry,
+  MovementExit,
+} from "../../features/movements/types/index.ts";
 
 export interface CreateEntryData {
   fecha: string;
@@ -55,8 +58,20 @@ function formatDateToDMY(date: string): string {
 
 class MovementsService {
   // === ENTRIES ===
-  async getAllEntries(): Promise<MovementEntry[]> {
-    const response = await apiClient.get<MovementEntry[]>("/movements/entries");
+  async getAllEntries(
+    startDate?: string,
+    endDate?: string
+  ): Promise<MovementEntry[]> {
+    const params = new URLSearchParams();
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+
+    const queryString = params.toString();
+    const url = queryString
+      ? `/movements/entries?${queryString}`
+      : "/movements/entries";
+
+    const response = await apiClient.get<MovementEntry[]>(url);
     if (response.error) {
       console.error("Error fetching entries:", response.error);
       return [];
@@ -141,8 +156,20 @@ class MovementsService {
   }
 
   // === EXITS ===
-  async getAllExits(): Promise<MovementExit[]> {
-    const response = await apiClient.get<MovementExit[]>("/movements/exits");
+  async getAllExits(
+    startDate?: string,
+    endDate?: string
+  ): Promise<MovementExit[]> {
+    const params = new URLSearchParams();
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+
+    const queryString = params.toString();
+    const url = queryString
+      ? `/movements/exits?${queryString}`
+      : "/movements/exits";
+
+    const response = await apiClient.get<MovementExit[]>(url);
     if (response.error) {
       console.error("Error fetching exits:", response.error);
       return [];

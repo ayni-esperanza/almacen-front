@@ -173,6 +173,10 @@ export const MovementsPage = () => {
           onExportPdf={handleExportPdf}
           onAddMovement={() => setShowAddForm(true)}
           onDataFiltered={handleDataFiltered}
+          startDate={movementsData.startDate}
+          endDate={movementsData.endDate}
+          onStartDateChange={movementsData.setStartDate}
+          onEndDateChange={movementsData.setEndDate}
         />
       ) : (
         <MovementTable
@@ -182,6 +186,10 @@ export const MovementsPage = () => {
           onExportPdf={handleExportPdf}
           onAddMovement={() => setShowAddForm(true)}
           onDataFiltered={handleDataFiltered}
+          startDate={movementsData.startDate}
+          endDate={movementsData.endDate}
+          onStartDateChange={movementsData.setStartDate}
+          onEndDateChange={movementsData.setEndDate}
         />
       )}
 

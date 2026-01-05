@@ -12,6 +12,7 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  Calendar,
 } from "lucide-react";
 
 interface MovementTableProps {
@@ -22,6 +23,10 @@ interface MovementTableProps {
   onExportPdf?: () => void;
   onAddMovement?: () => void;
   onDataFiltered?: (data: (MovementEntry | MovementExit)[]) => void;
+  startDate?: string;
+  endDate?: string;
+  onStartDateChange?: (date: string) => void;
+  onEndDateChange?: (date: string) => void;
 }
 
 interface MovementRowProps {
@@ -135,6 +140,10 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   onExportPdf,
   onAddMovement,
   onDataFiltered,
+  startDate = "",
+  endDate = "",
+  onStartDateChange,
+  onEndDateChange,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -255,39 +264,102 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
       <div className="flex flex-col bg-white border border-transparent shadow-lg dark:border-slate-800 dark:bg-slate-950">
         <div className="sticky top-[163px] z-20 p-3 bg-white border-b border-gray-200/70 sm:p-4 dark:border-slate-800/70 dark:bg-slate-900 shadow-sm">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center flex-1 w-full gap-2 sm:gap-3">
-              <div className="relative flex-1 sm:max-w-md">
-                <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
-                <input
-                  type="text"
-                  placeholder="Buscar..."
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
-                />
+          <div className="flex flex-col gap-3">
+            {/* Fila de filtros de fecha */}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap">
+                  Desde:
+                </label>
+                <div className="relative">
+                  <Calendar
+                    className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                    onClick={() => {
+                      const input = document.getElementById(
+                        "startDateInput"
+                      ) as HTMLInputElement;
+                      input?.showPicker?.();
+                    }}
+                  />
+                  <input
+                    id="startDateInput"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => onStartDateChange?.(e.target.value)}
+                    className="py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                  />
+                </div>
               </div>
-              {onExportPdf && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap">
+                  Hasta:
+                </label>
+                <div className="relative">
+                  <Calendar
+                    className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                    onClick={() => {
+                      const input = document.getElementById(
+                        "endDateInput"
+                      ) as HTMLInputElement;
+                      input?.showPicker?.();
+                    }}
+                  />
+                  <input
+                    id="endDateInput"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => onEndDateChange?.(e.target.value)}
+                    className="py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                  />
+                </div>
+              </div>
+              {(startDate || endDate) && (
                 <button
-                  onClick={onExportPdf}
-                  className="flex items-center justify-center px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md sm:px-4 hover:bg-green-600 whitespace-nowrap"
+                  onClick={() => {
+                    onStartDateChange?.("");
+                    onEndDateChange?.("");
+                  }}
+                  className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 whitespace-nowrap"
                 >
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">Exportar PDF</span>
-                  <span className="sm:hidden">PDF</span>
+                  Limpiar fechas
                 </button>
               )}
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              {onAddMovement && (
-                <button
-                  onClick={onAddMovement}
-                  className="flex items-center justify-center flex-1 px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md sm:flex-none sm:px-6 hover:bg-green-600 whitespace-nowrap"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Agregar</span>
-                </button>
-              )}
+            {/* Fila de búsqueda y botones */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center flex-1 w-full gap-2 sm:gap-3">
+                <div className="relative flex-1 sm:max-w-md">
+                  <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="Buscar..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                  />
+                </div>
+                {onExportPdf && (
+                  <button
+                    onClick={onExportPdf}
+                    className="flex items-center justify-center px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md sm:px-4 hover:bg-green-600 whitespace-nowrap"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span className="hidden sm:inline">Exportar PDF</span>
+                    <span className="sm:hidden">PDF</span>
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-2 sm:gap-3">
+                {onAddMovement && (
+                  <button
+                    onClick={onAddMovement}
+                    className="flex items-center justify-center flex-1 px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md sm:flex-none sm:px-6 hover:bg-green-600 whitespace-nowrap"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Agregar</span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

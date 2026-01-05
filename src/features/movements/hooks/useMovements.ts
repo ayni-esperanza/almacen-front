@@ -1,19 +1,39 @@
-import { useState, useEffect } from 'react';
-import { MovementEntry, MovementExit } from '../types/index.ts';
-import { movementsService, CreateEntryData, CreateExitData, UpdateEntryData, UpdateExitData, UpdateExitQuantityData } from '../../../shared/services/movements.service.ts';
+import { useState, useEffect, useRef } from "react";
+import { MovementEntry, MovementExit } from "../types/index.ts";
+import {
+  movementsService,
+  CreateEntryData,
+  CreateExitData,
+  UpdateEntryData,
+  UpdateExitData,
+  UpdateExitQuantityData,
+} from "../../../shared/services/movements.service.ts";
 
 export interface UseMovementsReturn {
   entries: MovementEntry[];
   exits: MovementExit[];
   loading: boolean;
   error: string | null;
+  startDate: string;
+  endDate: string;
+  setStartDate: (date: string) => void;
+  setEndDate: (date: string) => void;
   refetchEntries: () => Promise<void>;
   refetchExits: () => Promise<void>;
   createEntry: (entryData: CreateEntryData) => Promise<MovementEntry | null>;
   createExit: (exitData: CreateExitData) => Promise<MovementExit | null>;
-  updateExitQuantity: (id: number, quantityData: UpdateExitQuantityData) => Promise<MovementExit | null>;
-  updateEntry: (id: number, entryData: UpdateEntryData) => Promise<MovementEntry | null>;
-  updateExit: (id: number, exitData: UpdateExitData) => Promise<MovementExit | null>;
+  updateExitQuantity: (
+    id: number,
+    quantityData: UpdateExitQuantityData
+  ) => Promise<MovementExit | null>;
+  updateEntry: (
+    id: number,
+    entryData: UpdateEntryData
+  ) => Promise<MovementEntry | null>;
+  updateExit: (
+    id: number,
+    exitData: UpdateExitData
+  ) => Promise<MovementExit | null>;
   deleteEntry: (id: number) => Promise<void>;
   deleteExit: (id: number) => Promise<void>;
 }
@@ -23,15 +43,21 @@ export const useMovements = (): UseMovementsReturn => {
   const [exits, setExits] = useState<MovementExit[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const isInitialMount = useRef(true);
 
   const fetchEntries = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await movementsService.getAllEntries();
+      const data = await movementsService.getAllEntries(
+        startDate || undefined,
+        endDate || undefined
+      );
       setEntries(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar entradas');
+      setError(err instanceof Error ? err.message : "Error al cargar entradas");
     } finally {
       setLoading(false);
     }
@@ -41,10 +67,13 @@ export const useMovements = (): UseMovementsReturn => {
     try {
       setLoading(true);
       setError(null);
-      const data = await movementsService.getAllExits();
+      const data = await movementsService.getAllExits(
+        startDate || undefined,
+        endDate || undefined
+      );
       setExits(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar salidas');
+      setError(err instanceof Error ? err.message : "Error al cargar salidas");
     } finally {
       setLoading(false);
     }
@@ -58,7 +87,9 @@ export const useMovements = (): UseMovementsReturn => {
     await fetchExits();
   };
 
-  const createEntry = async (entryData: CreateEntryData): Promise<MovementEntry | null> => {
+  const createEntry = async (
+    entryData: CreateEntryData
+  ): Promise<MovementEntry | null> => {
     try {
       // Conecta directamente con el servicio de creación de entradas
       const newEntry = await movementsService.createMovementEntry(entryData);
@@ -67,12 +98,14 @@ export const useMovements = (): UseMovementsReturn => {
       }
       return newEntry;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al crear entrada');
+      setError(err instanceof Error ? err.message : "Error al crear entrada");
       throw err;
     }
   };
 
-  const createExit = async (exitData: CreateExitData): Promise<MovementExit | null> => {
+  const createExit = async (
+    exitData: CreateExitData
+  ): Promise<MovementExit | null> => {
     try {
       const newExit = await movementsService.createExit(exitData);
       if (newExit) {
@@ -80,25 +113,36 @@ export const useMovements = (): UseMovementsReturn => {
       }
       return newExit;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al crear salida');
+      setError(err instanceof Error ? err.message : "Error al crear salida");
       throw err;
     }
   };
 
-  const updateExitQuantity = async (id: number, quantityData: UpdateExitQuantityData): Promise<MovementExit | null> => {
+  const updateExitQuantity = async (
+    id: number,
+    quantityData: UpdateExitQuantityData
+  ): Promise<MovementExit | null> => {
     try {
-      const updatedExit = await movementsService.updateExitQuantity(id.toString(), quantityData);
+      const updatedExit = await movementsService.updateExitQuantity(
+        id.toString(),
+        quantityData
+      );
       if (updatedExit) {
         await refetchExits(); // Refresh the list
       }
       return updatedExit;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al actualizar cantidad');
+      setError(
+        err instanceof Error ? err.message : "Error al actualizar cantidad"
+      );
       throw err;
     }
   };
 
-  const updateEntry = async (id: number, entryData: UpdateEntryData): Promise<MovementEntry | null> => {
+  const updateEntry = async (
+    id: number,
+    entryData: UpdateEntryData
+  ): Promise<MovementEntry | null> => {
     try {
       const updatedEntry = await movementsService.updateEntry(id, entryData);
       if (updatedEntry) {
@@ -106,12 +150,17 @@ export const useMovements = (): UseMovementsReturn => {
       }
       return updatedEntry;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al actualizar la entrada');
+      setError(
+        err instanceof Error ? err.message : "Error al actualizar la entrada"
+      );
       throw err;
     }
   };
 
-  const updateExit = async (id: number, exitData: UpdateExitData): Promise<MovementExit | null> => {
+  const updateExit = async (
+    id: number,
+    exitData: UpdateExitData
+  ): Promise<MovementExit | null> => {
     try {
       const updatedExit = await movementsService.updateExit(id, exitData);
       if (updatedExit) {
@@ -119,7 +168,9 @@ export const useMovements = (): UseMovementsReturn => {
       }
       return updatedExit;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al actualizar la salida');
+      setError(
+        err instanceof Error ? err.message : "Error al actualizar la salida"
+      );
       throw err;
     }
   };
@@ -157,13 +208,29 @@ export const useMovements = (): UseMovementsReturn => {
   useEffect(() => {
     fetchEntries();
     fetchExits();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Refetch when date filters change (skip initial mount)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      fetchEntries();
+      fetchExits();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startDate, endDate]);
 
   return {
     entries,
     exits,
     loading,
     error,
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
     refetchEntries,
     refetchExits,
     createEntry,
