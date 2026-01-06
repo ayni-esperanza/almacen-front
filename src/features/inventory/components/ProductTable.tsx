@@ -3,7 +3,16 @@ import { Product } from "../types";
 import { ProductTableRow } from "./ProductTableRow";
 import { Pagination } from "../../../shared/components/Pagination";
 import { usePagination } from "../../../shared/hooks/usePagination";
-import { Package, Search, AlertCircle, Plus, Trash2 } from "lucide-react";
+import {
+  Package,
+  Search,
+  AlertCircle,
+  Plus,
+  Trash2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 import { ConfirmModal } from "../../../shared/components/ConfirmModal";
 import { UpdateProductData } from "../../../shared/services/inventory.service";
 import { useBulkSelection } from "../../../shared/hooks/useBulkSelection";
@@ -40,6 +49,38 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   createCategoria,
   onAddProduct,
 }) => {
+  type SortDirection = "asc" | "desc";
+
+  const [nameSortDirection, setNameSortDirection] = React.useState<SortDirection>(() => {
+    try {
+      const saved = localStorage.getItem("productTableNameSortDirection");
+      return saved === "asc" || saved === "desc" ? saved : "asc";
+    } catch {
+      return "asc";
+    }
+  });
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("productTableNameSortDirection", nameSortDirection);
+    } catch {
+      /* ignore */
+    }
+  }, [nameSortDirection]);
+
+  const toggleNameSort = () => {
+    setNameSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+
+  const getNameSortIcon = () => {
+    if (!nameSortDirection) return <ArrowUpDown className="w-3 h-3 text-gray-400 opacity-50" />;
+    return nameSortDirection === "asc" ? (
+      <ArrowUp className="w-3 h-3 text-green-600 dark:text-green-400" />
+    ) : (
+      <ArrowDown className="w-3 h-3 text-green-600 dark:text-green-400" />
+    );
+  };
+
   const {
     selectedIds,
     toggleSelection,
@@ -75,9 +116,10 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
     // ordenamos alfabéticamente por nombre (A-Z)
     return filtered.sort((a, b) => {
-      return a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" });
+      const comparison = a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" });
+      return nameSortDirection === "asc" ? comparison : -comparison;
     });
-  }, [products, searchTerm]);
+  }, [products, searchTerm, nameSortDirection]);
 
   const {
     paginatedData: paginatedProducts,
@@ -210,8 +252,14 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                   <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Código
                   </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Nombre
+                  <th
+                    onClick={toggleNameSort}
+                    className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      Nombre
+                      {getNameSortIcon()}
+                    </span>
                   </th>
                   <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Ubicación
