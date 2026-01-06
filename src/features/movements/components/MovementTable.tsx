@@ -14,7 +14,10 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  Calendar,
   Trash2,
+  Filter,
+  RefreshCw,
 } from "lucide-react";
 
 interface MovementTableProps {
@@ -25,7 +28,10 @@ interface MovementTableProps {
   onExportPdf?: () => void;
   onAddMovement?: () => void;
   onDataFiltered?: (data: (MovementEntry | MovementExit)[]) => void;
-  isRefreshing?: boolean;
+  startDate?: string;
+  endDate?: string;
+  onStartDateChange?: (date: string) => void;
+  onEndDateChange?: (date: string) => void;
   deleteMovement: (id: number, type: "entrada" | "salida") => Promise<boolean>;
   refetchMovements?: () => Promise<void>;
 }
@@ -89,14 +95,13 @@ const MovementRow: React.FC<MovementRowProps> = ({
     <tr
       onClick={handleRowClick}
       onMouseEnter={onMouseEnterRow}
+      className="transition-colors border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 [&]:cursor-pointer [&]:select-text"
       style={{
         cursor:
           (isEntry && onEditEntry) || (!isEntry && onEditExit)
             ? "pointer"
             : "default",
-        userSelect: "text",
       }}
-      className="transition-colors border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800"
     >
       <td
         className="px-3 py-2 text-xs text-center select-none"
@@ -115,6 +120,7 @@ const MovementRow: React.FC<MovementRowProps> = ({
             onToggleSelect();
           }}
           onClick={(e) => e.stopPropagation()}
+          aria-label={`Seleccionar movimiento ${movement.codigoProducto}`}
           className="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-green-500 dark:border-slate-600 dark:bg-slate-800"
         />
       </td>
@@ -170,11 +176,15 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   onExportPdf,
   onAddMovement,
   onDataFiltered,
-  isRefreshing,
+  startDate = "",
+  endDate = "",
+  onStartDateChange,
+  onEndDateChange,
   deleteMovement,
   refetchMovements,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [showDateFilters, setShowDateFilters] = useState(false);
 
   const [sortConfig, setSortConfig] = useState<SortConfig>(() => {
     try {
@@ -282,7 +292,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     confirmState,
     closeConfirm,
     isConfirming,
-    isRefreshing: isBulkRefreshing,
+    isRefreshing: _isBulkRefreshing,
   } = useBulkSelection<MovementEntry | MovementExit>({
     getId: (movement) => movement.id,
     deleteItem: (id) => deleteMovement(id, type),
@@ -311,48 +321,133 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
       <div className="flex flex-col bg-white border border-transparent shadow-lg dark:border-slate-800 dark:bg-slate-950">
         <div className="sticky top-[163px] z-20 p-3 bg-white border-b border-gray-200/70 sm:p-4 dark:border-slate-800/70 dark:bg-slate-900 shadow-sm">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center flex-1 w-full gap-2 sm:gap-3">
-              <div className="relative flex-1 sm:max-w-md">
-                <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
-                <input
-                  type="text"
-                  placeholder="Buscar por código, descripción o responsable..."
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
-                />
+          <div className="flex flex-col gap-3">
+            {/* Fila de búsqueda, exportar, filtros y acciones */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center flex-1 w-full gap-2 sm:gap-3">
+                <div className="relative flex-1 sm:max-w-md">
+                  <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="Buscar por código, descripción o responsable..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                  />
+                </div>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowDateFilters((prev) => !prev)}
+                    aria-pressed={showDateFilters}
+                    aria-label="Mostrar u ocultar filtros de fecha"
+                    className="p-2 text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 h-[38px]"
+                  >
+                    <Filter className="w-4 h-4" />
+                  </button>
+
+                  <div
+                    className={`flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 overflow-hidden transition-all duration-300 ease-in-out ${
+                      showDateFilters
+                        ? "max-w-[800px] opacity-100"
+                        : "max-w-0 opacity-0"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap">
+                        Desde:
+                      </label>
+                      <div className="relative w-[160px]">
+                        <Calendar
+                          className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                          onClick={() => {
+                            const input = document.getElementById(
+                              "startDateInput"
+                            ) as HTMLInputElement;
+                            input?.showPicker?.();
+                          }}
+                        />
+                        <input
+                          id="startDateInput"
+                          type="date"
+                          value={startDate}
+                          onChange={(e) => onStartDateChange?.(e.target.value)}
+                          aria-label="Fecha de inicio del filtro"
+                          className="w-[160px] py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap">
+                        Hasta:
+                      </label>
+                      <div className="relative w-[160px]">
+                        <Calendar
+                          className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                          onClick={() => {
+                            const input = document.getElementById(
+                              "endDateInput"
+                            ) as HTMLInputElement;
+                            input?.showPicker?.();
+                          }}
+                        />
+                        <input
+                          id="endDateInput"
+                          type="date"
+                          value={endDate}
+                          onChange={(e) => onEndDateChange?.(e.target.value)}
+                          aria-label="Fecha de fin del filtro"
+                          className="w-[160px] py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                        />
+                      </div>
+                    </div>
+
+                    {(startDate || endDate) && (
+                      <button
+                        onClick={() => {
+                          onStartDateChange?.("");
+                          onEndDateChange?.("");
+                        }}
+                        className="p-2 text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
+                        aria-label="Limpiar fechas"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {onExportPdf && (
+                  <button
+                    onClick={onExportPdf}
+                    aria-label="Descargar PDF"
+                    className="flex items-center justify-center p-2 text-sm font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md sm:px-3 sm:py-2 hover:bg-green-600 h-[36px]"
+                  >
+                    <Download className="w-4 h-4" />
+                  </button>
+                )}
               </div>
-              {onExportPdf && (
-                <button
-                  onClick={onExportPdf}
-                  className="flex items-center justify-center px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md sm:px-4 hover:bg-green-600 whitespace-nowrap"
-                >
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">Exportar PDF</span>
-                  <span className="sm:hidden">PDF</span>
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              {selectedIds.size > 0 && (
-                <button
-                  onClick={requestBulkDelete}
-                  className="flex items-center justify-center px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-red-500 rounded-lg shadow-md sm:px-4 hover:bg-red-600 whitespace-nowrap"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Eliminar ({selectedIds.size})</span>
-                </button>
-              )}
-              {onAddMovement && (
-                <button
-                  onClick={onAddMovement}
-                  className="flex items-center justify-center flex-1 px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md sm:flex-none sm:px-6 hover:bg-green-600 whitespace-nowrap"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Agregar</span>
-                </button>
-              )}
+              <div className="flex items-center gap-2 sm:gap-3">
+                {selectedIds.size > 0 && (
+                  <button
+                    onClick={requestBulkDelete}
+                    className="flex items-center justify-center px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-red-500 rounded-lg shadow-md sm:px-4 hover:bg-red-600 whitespace-nowrap"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Eliminar ({selectedIds.size})</span>
+                  </button>
+                )}
+                {onAddMovement && (
+                  <button
+                    onClick={onAddMovement}
+                    className="flex items-center justify-center flex-1 px-3 py-2 space-x-2 text-sm font-medium text-center text-white transition-colors bg-green-500 rounded-lg shadow-md sm:flex-none sm:px-6 hover:bg-green-600 whitespace-nowrap"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Agregar</span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -380,6 +475,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         type="checkbox"
                         checked={areAllVisibleSelected(paginatedMovements)}
                         onChange={() => toggleAll(paginatedMovements)}
+                        aria-label="Seleccionar todos los movimientos visibles"
                         className="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-green-500 dark:border-slate-600 dark:bg-slate-800"
                       />
                     </th>
@@ -453,7 +549,9 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                       onEditExit={onEditExit}
                       isSelected={selectedIds.has(movement.id)}
                       onToggleSelect={() => toggleSelection(movement.id)}
-                      onMouseDownSelect={(isSelectedRow) => handleMouseDown(movement.id, isSelectedRow)}
+                      onMouseDownSelect={(isSelectedRow) =>
+                        handleMouseDown(movement.id, isSelectedRow)
+                      }
                       onMouseEnterRow={() => handleMouseEnter(movement.id)}
                     />
                   ))}
@@ -472,20 +570,30 @@ export const MovementTable: React.FC<MovementTableProps> = ({
         )}
       </div>
 
-        <ConfirmModal
-          isOpen={confirmState.open}
-          title={confirmState.mode === "bulk" ? "Eliminar movimientos" : isEntry ? "Eliminar entrada" : "Eliminar salida"}
-          message={
-            confirmState.mode === "bulk"
-              ? `¿Seguro que deseas eliminar ${selectedIds.size} movimiento(s)?`
-              : `¿Seguro que deseas eliminar "${confirmState.target?.descripcion ?? ""}"?`
-          }
-          confirmLabel={confirmState.mode === "bulk" ? "Eliminar seleccionados" : "Eliminar"}
-          onConfirm={handleConfirmDelete}
-          onCancel={closeConfirm}
-          isProcessing={isConfirming}
-          destructive
-        />
+      <ConfirmModal
+        isOpen={confirmState.open}
+        title={
+          confirmState.mode === "bulk"
+            ? "Eliminar movimientos"
+            : isEntry
+            ? "Eliminar entrada"
+            : "Eliminar salida"
+        }
+        message={
+          confirmState.mode === "bulk"
+            ? `¿Seguro que deseas eliminar ${selectedIds.size} movimiento(s)?`
+            : `¿Seguro que deseas eliminar "${
+                confirmState.target?.descripcion ?? ""
+              }"?`
+        }
+        confirmLabel={
+          confirmState.mode === "bulk" ? "Eliminar seleccionados" : "Eliminar"
+        }
+        onConfirm={handleConfirmDelete}
+        onCancel={closeConfirm}
+        isProcessing={isConfirming}
+        destructive
+      />
     </>
   );
 };

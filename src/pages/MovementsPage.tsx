@@ -53,7 +53,12 @@ export const MovementsPage = () => {
     if (!movementsData.loading) {
       setHasLoaded(true);
     }
-  }, [activeSubTab, movementsData.entries, movementsData.exits]);
+  }, [
+    activeSubTab,
+    movementsData.entries,
+    movementsData.exits,
+    movementsData.loading,
+  ]);
 
   // Usamos useCallback para evitar re-renders infinitos en la tabla
   const handleDataFiltered = useCallback(
@@ -167,7 +172,7 @@ export const MovementsPage = () => {
 
       await movementsPDFService.exportMovements({
         type: activeSubTab,
-        data: dataToExport as any,
+        data: dataToExport as MovementEntry[] | MovementExit[],
         userName,
       });
     } catch (error) {
@@ -207,7 +212,10 @@ export const MovementsPage = () => {
 
       {movementsData.loading && !hasLoaded ? (
         <div className="flex flex-col items-center justify-center gap-4 p-8 text-gray-600 dark:text-slate-300">
-          <div className="w-12 h-12 border-b-2 border-green-500 rounded-full animate-spin" aria-label="Cargando movimientos" />
+          <div
+            className="w-12 h-12 border-b-2 border-green-500 rounded-full animate-spin"
+            aria-label="Cargando movimientos"
+          />
           <p className="text-sm font-medium">Cargando movimientos...</p>
         </div>
       ) : activeSubTab === "entradas" ? (
@@ -218,7 +226,10 @@ export const MovementsPage = () => {
           onExportPdf={handleExportPdf}
           onAddMovement={() => setShowAddForm(true)}
           onDataFiltered={handleDataFiltered}
-          isRefreshing={movementsData.refreshing}
+          startDate={movementsData.startDate}
+          endDate={movementsData.endDate}
+          onStartDateChange={movementsData.setStartDate}
+          onEndDateChange={movementsData.setEndDate}
           deleteMovement={deleteMovement}
           refetchMovements={() => movementsData.refetchEntries()}
         />
@@ -230,7 +241,10 @@ export const MovementsPage = () => {
           onExportPdf={handleExportPdf}
           onAddMovement={() => setShowAddForm(true)}
           onDataFiltered={handleDataFiltered}
-          isRefreshing={movementsData.refreshing}
+          startDate={movementsData.startDate}
+          endDate={movementsData.endDate}
+          onStartDateChange={movementsData.setStartDate}
+          onEndDateChange={movementsData.setEndDate}
           deleteMovement={deleteMovement}
           refetchMovements={() => movementsData.refetchExits()}
         />
@@ -268,19 +282,27 @@ export const MovementsPage = () => {
           confirmState.type === "entry"
             ? "Eliminar entrada"
             : confirmState.type === "exit"
-              ? "Eliminar salida"
-              : "Eliminar movimiento"
+            ? "Eliminar salida"
+            : "Eliminar movimiento"
         }
         message={
           confirmState.type === "entry"
-            ? `¿Eliminar definitivamente la entrada de "${(confirmState.target as MovementEntry | null)?.descripcion ?? ""}"?`
+            ? `¿Eliminar definitivamente la entrada de "${
+                (confirmState.target as MovementEntry | null)?.descripcion ?? ""
+              }"?`
             : confirmState.type === "exit"
-              ? `¿Eliminar definitivamente la salida de "${(confirmState.target as MovementExit | null)?.descripcion ?? ""}"?`
-              : ""
+            ? `¿Eliminar definitivamente la salida de "${
+                (confirmState.target as MovementExit | null)?.descripcion ?? ""
+              }"?`
+            : ""
         }
-        confirmLabel={confirmState.type === "entry" ? "Eliminar entrada" : "Eliminar salida"}
+        confirmLabel={
+          confirmState.type === "entry" ? "Eliminar entrada" : "Eliminar salida"
+        }
         onConfirm={handleConfirmDelete}
-        onCancel={() => setConfirmState({ open: false, type: null, target: null })}
+        onCancel={() =>
+          setConfirmState({ open: false, type: null, target: null })
+        }
         isProcessing={isConfirming}
         destructive
       />

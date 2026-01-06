@@ -219,7 +219,6 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
                     <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Fecha de R.</th>
                     <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Hora de R.</th>
                     <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Responsable</th>
-                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white dark:divide-slate-800 dark:bg-slate-950">

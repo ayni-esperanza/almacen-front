@@ -1,6 +1,17 @@
-import { useState, useEffect } from 'react';
-import { MovementEntry, MovementExit } from '../types/index.ts';
-import { movementsService, CreateEntryData, CreateExitData, UpdateEntryData, UpdateExitData, UpdateExitQuantityData } from '../../../shared/services/movements.service.ts';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { MovementEntry, MovementExit } from "../types/index.ts";
+import {
+  movementsService,
+  CreateEntryData,
+  CreateExitData,
+  UpdateEntryData,
+  UpdateExitData,
+  UpdateExitQuantityData,
+} from "../../../shared/services/movements.service.ts";
+
+type RefetchOptions = {
+  silent?: boolean;
+};
 
 export interface UseMovementsReturn {
   entries: MovementEntry[];
@@ -8,13 +19,26 @@ export interface UseMovementsReturn {
   loading: boolean;
   refreshing: boolean;
   error: string | null;
-  refetchEntries: (options?: { silent?: boolean }) => Promise<void>;
-  refetchExits: (options?: { silent?: boolean }) => Promise<void>;
+  startDate: string;
+  endDate: string;
+  setStartDate: (date: string) => void;
+  setEndDate: (date: string) => void;
+  refetchEntries: (options?: RefetchOptions) => Promise<void>;
+  refetchExits: (options?: RefetchOptions) => Promise<void>;
   createEntry: (entryData: CreateEntryData) => Promise<MovementEntry | null>;
   createExit: (exitData: CreateExitData) => Promise<MovementExit | null>;
-  updateExitQuantity: (id: number, quantityData: UpdateExitQuantityData) => Promise<MovementExit | null>;
-  updateEntry: (id: number, entryData: UpdateEntryData) => Promise<MovementEntry | null>;
-  updateExit: (id: number, exitData: UpdateExitData) => Promise<MovementExit | null>;
+  updateExitQuantity: (
+    id: number,
+    quantityData: UpdateExitQuantityData
+  ) => Promise<MovementExit | null>;
+  updateEntry: (
+    id: number,
+    entryData: UpdateEntryData
+  ) => Promise<MovementEntry | null>;
+  updateExit: (
+    id: number,
+    exitData: UpdateExitData
+  ) => Promise<MovementExit | null>;
   deleteEntry: (id: number) => Promise<void>;
   deleteExit: (id: number) => Promise<void>;
 }
@@ -25,60 +49,112 @@ export const useMovements = (): UseMovementsReturn => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const isInitialMount = useRef(true);
+  const fetchAbortController = useRef<AbortController | null>(null);
 
-  const fetchEntries = async (options?: { silent?: boolean }) => {
+  const fetchEntries = useCallback(async () => {
     try {
-      const isSilent = options?.silent;
-      if (isSilent) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-      setError(null);
-      const data = await movementsService.getAllEntries();
+      const data = await movementsService.getAllEntries(
+        startDate || undefined,
+        endDate || undefined
+      );
       setEntries(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar entradas');
-    } finally {
-      if (options?.silent) {
-        setRefreshing(false);
-      } else {
-        setLoading(false);
+      if (err instanceof Error && err.name !== "AbortError") {
+        setError(err.message);
       }
     }
-  };
+  }, [startDate, endDate]);
 
-  const fetchExits = async (options?: { silent?: boolean }) => {
+  const fetchExits = useCallback(async () => {
     try {
-      const isSilent = options?.silent;
-      if (isSilent) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-      setError(null);
-      const data = await movementsService.getAllExits();
+      const data = await movementsService.getAllExits(
+        startDate || undefined,
+        endDate || undefined
+      );
       setExits(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar salidas');
+      if (err instanceof Error && err.name !== "AbortError") {
+        setError(err.message);
+      }
+    }
+  }, [startDate, endDate]);
+
+  const fetchBoth = useCallback(
+    async (options?: RefetchOptions) => {
+      // Cancelar peticiones anteriores si existen
+      if (fetchAbortController.current) {
+        fetchAbortController.current.abort();
+      }
+      fetchAbortController.current = new AbortController();
+
+      const isSilent = options?.silent ?? false;
+      try {
+        if (isSilent) {
+          setRefreshing(true);
+        } else {
+          setLoading(true);
+        }
+        setError(null);
+        // Ejecutar ambas peticiones en paralelo
+        await Promise.all([fetchEntries(), fetchExits()]);
+      } catch (err) {
+        if (err instanceof Error && err.name !== "AbortError") {
+          setError(err.message);
+        }
+      } finally {
+        if (isSilent) {
+          setRefreshing(false);
+        } else {
+          setLoading(false);
+        }
+        fetchAbortController.current = null;
+      }
+    },
+    [fetchEntries, fetchExits]
+  );
+
+  const refetchEntries = useCallback(async (options?: RefetchOptions) => {
+    const isSilent = options?.silent;
+    if (isSilent) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+    try {
+      await fetchEntries();
     } finally {
-      if (options?.silent) {
+      if (isSilent) {
         setRefreshing(false);
       } else {
         setLoading(false);
       }
     }
-  };
+  }, [fetchEntries]);
 
-  const refetchEntries = async (options?: { silent?: boolean }) => {
-    await fetchEntries(options);
-  };
+  const refetchExits = useCallback(async (options?: RefetchOptions) => {
+    const isSilent = options?.silent;
+    if (isSilent) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+    try {
+      await fetchExits();
+    } finally {
+      if (isSilent) {
+        setRefreshing(false);
+      } else {
+        setLoading(false);
+      }
+    }
+  }, [fetchExits]);
 
-  const refetchExits = async (options?: { silent?: boolean }) => {
-    await fetchExits(options);
-  };
-
-  const createEntry = async (entryData: CreateEntryData): Promise<MovementEntry | null> => {
+  const createEntry = async (
+    entryData: CreateEntryData
+  ): Promise<MovementEntry | null> => {
     try {
       // Conecta directamente con el servicio de creación de entradas
       const newEntry = await movementsService.createMovementEntry(entryData);
@@ -87,12 +163,14 @@ export const useMovements = (): UseMovementsReturn => {
       }
       return newEntry;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al crear entrada');
+      setError(err instanceof Error ? err.message : "Error al crear entrada");
       throw err;
     }
   };
 
-  const createExit = async (exitData: CreateExitData): Promise<MovementExit | null> => {
+  const createExit = async (
+    exitData: CreateExitData
+  ): Promise<MovementExit | null> => {
     try {
       const newExit = await movementsService.createExit(exitData);
       if (newExit) {
@@ -100,25 +178,36 @@ export const useMovements = (): UseMovementsReturn => {
       }
       return newExit;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al crear salida');
+      setError(err instanceof Error ? err.message : "Error al crear salida");
       throw err;
     }
   };
 
-  const updateExitQuantity = async (id: number, quantityData: UpdateExitQuantityData): Promise<MovementExit | null> => {
+  const updateExitQuantity = async (
+    id: number,
+    quantityData: UpdateExitQuantityData
+  ): Promise<MovementExit | null> => {
     try {
-      const updatedExit = await movementsService.updateExitQuantity(id.toString(), quantityData);
+      const updatedExit = await movementsService.updateExitQuantity(
+        id.toString(),
+        quantityData
+      );
       if (updatedExit) {
         await refetchExits({ silent: true });
       }
       return updatedExit;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al actualizar cantidad');
+      setError(
+        err instanceof Error ? err.message : "Error al actualizar cantidad"
+      );
       throw err;
     }
   };
 
-  const updateEntry = async (id: number, entryData: UpdateEntryData): Promise<MovementEntry | null> => {
+  const updateEntry = async (
+    id: number,
+    entryData: UpdateEntryData
+  ): Promise<MovementEntry | null> => {
     try {
       const updatedEntry = await movementsService.updateEntry(id, entryData);
       if (updatedEntry) {
@@ -126,12 +215,17 @@ export const useMovements = (): UseMovementsReturn => {
       }
       return updatedEntry;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al actualizar la entrada');
+      setError(
+        err instanceof Error ? err.message : "Error al actualizar la entrada"
+      );
       throw err;
     }
   };
 
-  const updateExit = async (id: number, exitData: UpdateExitData): Promise<MovementExit | null> => {
+  const updateExit = async (
+    id: number,
+    exitData: UpdateExitData
+  ): Promise<MovementExit | null> => {
     try {
       const updatedExit = await movementsService.updateExit(id, exitData);
       if (updatedExit) {
@@ -139,7 +233,9 @@ export const useMovements = (): UseMovementsReturn => {
       }
       return updatedExit;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al actualizar la salida');
+      setError(
+        err instanceof Error ? err.message : "Error al actualizar la salida"
+      );
       throw err;
     }
   };
@@ -172,9 +268,23 @@ export const useMovements = (): UseMovementsReturn => {
 
   // Initial load
   useEffect(() => {
-    fetchEntries();
-    fetchExits();
-  }, []);
+    fetchBoth();
+  }, [fetchBoth]);
+
+  // Refetch when date filters change (skip initial mount)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    // Debounce: esperar 300ms antes de hacer la petición
+    const timeoutId = setTimeout(() => {
+      fetchBoth();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [startDate, endDate, fetchBoth]);
 
   return {
     entries,
@@ -182,6 +292,10 @@ export const useMovements = (): UseMovementsReturn => {
     loading,
     refreshing,
     error,
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
     refetchEntries,
     refetchExits,
     createEntry,
