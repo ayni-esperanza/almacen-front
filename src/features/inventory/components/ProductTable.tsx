@@ -196,8 +196,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           <>
             <div className="overflow-x-auto md:overflow-visible">
               <table className="min-w-[960px] w-full text-xs text-gray-700 dark:text-slate-200">
-                {/* Header de tabla - STICKY */}
-                <thead className="sticky top-[174px] z-20 bg-gray-50 dark:bg-slate-900">
+                {/* Header de tabla */}
+                <thead className="bg-gray-50 dark:bg-slate-900">
                   <tr className="border-b border-gray-200 dark:border-slate-800">
                   <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     <input

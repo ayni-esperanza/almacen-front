@@ -82,8 +82,8 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = React.memo(
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-gray-700 dark:text-slate-200">
-            {/* HEADER DE TABLA - STICKY */}
-            <thead className="sticky top-[109px] z-10 bg-gray-50 dark:bg-slate-900">
+            {/* HEADER DE TABLA */}
+            <thead className="bg-gray-50 dark:bg-slate-900">
             <tr>
               <th className={tableHeaderClasses}>Código</th>
               <th className={tableHeaderClasses}>Nombre</th>

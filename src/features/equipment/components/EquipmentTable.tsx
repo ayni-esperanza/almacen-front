@@ -205,7 +205,7 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
           <>
             <div className="overflow-x-auto md:overflow-visible">
               <table className="min-w-[1100px] w-full text-xs text-gray-700 dark:text-slate-200">
-                <thead className="sticky top-[174px] z-10 bg-gray-50 dark:bg-slate-900">
+                <thead className="bg-gray-50 dark:bg-slate-900">
                   <tr className="border-b border-gray-200 dark:border-slate-800">
                     <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Código</th>
                     <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 shadow-sm dark:bg-slate-900 dark:text-slate-300">Nombre</th>
