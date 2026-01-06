@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Product } from "../types";
 import { ProductTableRow } from "./ProductTableRow";
 import { Pagination } from "../../../shared/components/Pagination";
@@ -16,6 +16,7 @@ import {
 import { ConfirmModal } from "../../../shared/components/ConfirmModal";
 import { UpdateProductData } from "../../../shared/services/inventory.service";
 import { useBulkSelection } from "../../../shared/hooks/useBulkSelection";
+import { useSort, SortColumnConfig } from "../../../shared/hooks/useSort";
 
 interface ProductTableProps {
   products: Product[];
@@ -49,32 +50,31 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   createCategoria,
   onAddProduct,
 }) => {
-  type SortDirection = "asc" | "desc";
+  type SortKey = "nombre";
 
-  const [nameSortDirection, setNameSortDirection] = React.useState<SortDirection>(() => {
-    try {
-      const saved = localStorage.getItem("productTableNameSortDirection");
-      return saved === "asc" || saved === "desc" ? saved : "asc";
-    } catch {
-      return "asc";
-    }
+  const productSortColumns = useMemo<Record<SortKey, SortColumnConfig<Product>>>(
+    () => ({
+      nombre: {
+        selector: (product: Product) => product.nombre,
+        type: "string",
+        locale: "es",
+      },
+    }),
+    []
+  );
+
+  const { sortConfig, toggleSort, sortData } = useSort<Product, SortKey>({
+    defaultKey: "nombre",
+    defaultDirection: "asc",
+    storageKey: "productTableSortConfig",
+    columns: productSortColumns,
   });
 
-  React.useEffect(() => {
-    try {
-      localStorage.setItem("productTableNameSortDirection", nameSortDirection);
-    } catch {
-      /* ignore */
-    }
-  }, [nameSortDirection]);
-
-  const toggleNameSort = () => {
-    setNameSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-  };
-
   const getNameSortIcon = () => {
-    if (!nameSortDirection) return <ArrowUpDown className="w-3 h-3 text-gray-400 opacity-50" />;
-    return nameSortDirection === "asc" ? (
+    if (sortConfig.key !== "nombre") {
+      return <ArrowUpDown className="w-3 h-3 text-gray-400 opacity-50" />;
+    }
+    return sortConfig.direction === "asc" ? (
       <ArrowUp className="w-3 h-3 text-green-600 dark:text-green-400" />
     ) : (
       <ArrowDown className="w-3 h-3 text-green-600 dark:text-green-400" />
@@ -114,12 +114,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       );
     });
 
-    // ordenamos alfabéticamente por nombre (A-Z)
-    return filtered.sort((a, b) => {
-      const comparison = a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" });
-      return nameSortDirection === "asc" ? comparison : -comparison;
-    });
-  }, [products, searchTerm, nameSortDirection]);
+    return sortData(filtered);
+  }, [products, searchTerm, sortData]);
 
   const {
     paginatedData: paginatedProducts,
@@ -253,7 +249,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     Código
                   </th>
                   <th
-                    onClick={toggleNameSort}
+                    onClick={() => toggleSort("nombre")}
                     className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
                   >
                     <span className="inline-flex items-center gap-1">

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { MovementEntry, MovementExit } from "../types/index.ts";
 import { Pagination } from "../../../shared/components/Pagination";
 import { usePagination } from "../../../shared/hooks/usePagination";
 import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowClick";
 import { useBulkSelection } from "../../../shared/hooks/useBulkSelection";
+import { useSort, SortColumnConfig } from "../../../shared/hooks/useSort";
 import { ConfirmModal } from "../../../shared/components/ConfirmModal";
 import {
   TrendingUp,
@@ -48,12 +49,6 @@ interface MovementRowProps {
 }
 
 type SortKey = "fecha" | "area";
-type SortDirection = "asc" | "desc";
-
-interface SortConfig {
-  key: SortKey;
-  direction: SortDirection;
-}
 
 // Helper function to convert "DD/MM/YYYY" to a numeric timestamp
 const parseDateString = (dateStr: string | undefined): number => {
@@ -186,30 +181,33 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [showDateFilters, setShowDateFilters] = useState(false);
 
-  const [sortConfig, setSortConfig] = useState<SortConfig>(() => {
-    try {
-      const saved = localStorage.getItem("movementTableSortConfig");
-      return saved ? JSON.parse(saved) : { key: "fecha", direction: "desc" };
-    } catch {
-      return { key: "fecha", direction: "desc" };
-    }
+  const movementSortColumns = useMemo<
+    Record<SortKey, SortColumnConfig<MovementEntry | MovementExit>>
+  >(
+    () => ({
+      fecha: {
+        selector: (movement: MovementEntry | MovementExit) => movement.fecha,
+        comparator: (a: MovementEntry | MovementExit, b: MovementEntry | MovementExit) =>
+          parseDateString(a.fecha) - parseDateString(b.fecha),
+      },
+      area: {
+        selector: (movement: MovementEntry | MovementExit) => movement.area ?? "",
+        type: "string",
+        locale: "es",
+      },
+    }),
+    []
+  );
+
+  const { sortConfig, toggleSort, sortData } = useSort<
+    MovementEntry | MovementExit,
+    SortKey
+  >({
+    defaultKey: "fecha",
+    defaultDirection: "desc",
+    storageKey: "movementTableSortConfig",
+    columns: movementSortColumns,
   });
-
-  useEffect(() => {
-    localStorage.setItem("movementTableSortConfig", JSON.stringify(sortConfig));
-  }, [sortConfig]);
-
-  const handleSort = (key: SortKey) => {
-    setSortConfig((current) => {
-      if (current.key === key) {
-        return {
-          key,
-          direction: current.direction === "asc" ? "desc" : "asc",
-        };
-      }
-      return { key, direction: "asc" };
-    });
-  };
 
   const getSortIcon = (columnKey: SortKey) => {
     if (sortConfig.key !== columnKey) {
@@ -235,23 +233,8 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     });
 
     // Sort
-    return filtered.sort((a, b) => {
-      if (sortConfig.key === "area") {
-        const areaA = (a.area || "").toLowerCase();
-        const areaB = (b.area || "").toLowerCase();
-
-        if (areaA < areaB) return sortConfig.direction === "asc" ? -1 : 1;
-        if (areaA > areaB) return sortConfig.direction === "asc" ? 1 : -1;
-        return 0;
-      }
-
-      // Use parseDateString function to read "20/08/2025" correctly
-      const dateA = parseDateString(a.fecha);
-      const dateB = parseDateString(b.fecha);
-
-      return sortConfig.direction === "asc" ? dateA - dateB : dateB - dateA;
-    });
-  }, [movements, searchTerm, sortConfig]);
+    return sortData(filtered);
+  }, [movements, searchTerm, sortData]);
 
   const {
     paginatedData: paginatedMovements,
@@ -480,7 +463,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                       />
                     </th>
                     <th
-                      onClick={() => handleSort("fecha")}
+                      onClick={() => toggleSort("fecha")}
                       className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
                     >
                       <div className="flex items-center gap-1">
@@ -500,7 +483,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                           Cantidad
                         </th>
                         <th
-                          onClick={() => handleSort("area")}
+                          onClick={() => toggleSort("area")}
                           className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
                         >
                           <div className="flex items-center gap-1">
@@ -518,7 +501,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                           Nombre
                         </th>
                         <th
-                          onClick={() => handleSort("area")}
+                          onClick={() => toggleSort("area")}
                           className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
                         >
                           <div className="flex items-center gap-1">
