@@ -72,7 +72,7 @@ export const ReportsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
       {/* Navigation Tabs - Responsive - STICKY */}
-      <div className="sticky top-[109px] z-20 bg-gray-50 border-b border-gray-200 dark:border-slate-700 dark:bg-slate-900">
+      <div className="sticky top-[109px] z-20 bg-gray-50 border-b border-gray-200 dark:border-slate-700 dark:bg-slate-900 fade-section">
         <nav className="flex items-center px-2 overflow-x-auto sm:px-6 scrollbar-hide">
           {REPORTS.map((report) => {
             const Icon = report.icon;
@@ -95,7 +95,10 @@ export const ReportsPage: React.FC = () => {
       </div>
 
       {/* Content - Solo renderiza el componente activo */}
-      <div className="px-0 pb-8 mx-auto max-w-7xl sm:px-4 lg:px-8">
+      <div
+        key={activeReport}
+        className="px-0 pb-8 mx-auto max-w-7xl sm:px-4 lg:px-8 fade-section"
+      >
         {ActiveComponent && (
           <React.Suspense
             fallback={
