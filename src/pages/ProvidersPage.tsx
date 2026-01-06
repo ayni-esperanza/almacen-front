@@ -241,7 +241,10 @@ const ProvidersPage = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto md:overflow-visible">
+            <div
+              key={`${currentPage}-${itemsPerPage}-${searchTerm}`}
+              className="overflow-x-auto md:overflow-visible fade-section"
+            >
               <table className="min-w-[900px] w-full text-sm text-gray-700 dark:text-slate-200">
                 {/* HEADER DE TABLA */}
                 <thead className="bg-gray-50 dark:bg-slate-900">

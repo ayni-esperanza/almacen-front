@@ -27,7 +27,10 @@ export const DashboardPage = () => {
             <DashboardTabs currentPath={location.pathname} />
           </div>
 
-          <div className="bg-white dark:bg-slate-900">
+          <div
+            key={location.pathname}
+            className="bg-white dark:bg-slate-900 fade-section"
+          >
             <Outlet />
           </div>
         </div>

@@ -383,7 +383,10 @@ export const StockAlertPage: React.FC = () => {
         ) : (
           <>
             {/* Vista de tabla para desktop */}
-            <div className="flex-1 hidden md:block">
+            <div
+              key={`${currentPage}-${itemsPerPage}-${filters.estado ?? "all"}`}
+              className="flex-1 hidden md:block fade-section"
+            >
               <table className="w-full text-xs text-gray-700 dark:text-slate-200">
                 {/* HEADER DE TABLA */}
                 <thead className="bg-gray-50 dark:bg-slate-900">

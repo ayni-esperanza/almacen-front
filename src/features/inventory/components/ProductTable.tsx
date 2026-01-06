@@ -232,7 +232,10 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto md:overflow-visible">
+            <div
+              key={`${sortConfig.key}-${sortConfig.direction}-${currentPage}-${itemsPerPage}-${searchTerm}`}
+              className="overflow-x-auto md:overflow-visible fade-section"
+            >
               <table className="min-w-[960px] w-full text-xs text-gray-700 dark:text-slate-200">
                 {/* Header de tabla */}
                 <thead className="bg-gray-50 dark:bg-slate-900">

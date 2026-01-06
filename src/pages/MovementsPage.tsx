@@ -183,7 +183,7 @@ export const MovementsPage = () => {
   return (
     <>
       {/* Navegación secundaria estilo pestañas - STICKY */}
-      <div className="sticky top-[109px] z-20 bg-gray-50 border-b border-gray-200 dark:border-slate-700 dark:bg-slate-900 h-fit">
+      <div className="sticky top-[109px] z-20 bg-gray-50 border-b border-gray-200 dark:border-slate-700 dark:bg-slate-900 h-fit fade-section">
         <nav className="flex items-center px-2 overflow-x-auto sm:px-6 scrollbar-hide">
           <button
             onClick={() => setActiveSubTab("entradas")}
@@ -211,7 +211,7 @@ export const MovementsPage = () => {
       </div>
 
       {movementsData.loading && !hasLoaded ? (
-        <div className="flex flex-col items-center justify-center gap-4 p-8 text-gray-600 dark:text-slate-300">
+        <div className="flex flex-col items-center justify-center gap-4 p-8 text-gray-600 dark:text-slate-300 fade-section">
           <div
             className="w-12 h-12 border-b-2 border-green-500 rounded-full animate-spin"
             aria-label="Cargando movimientos"
@@ -219,35 +219,45 @@ export const MovementsPage = () => {
           <p className="text-sm font-medium">Cargando movimientos...</p>
         </div>
       ) : activeSubTab === "entradas" ? (
-        <MovementTable
-          movements={movementsData.entries}
-          type="entrada"
-          onEditEntry={setSelectedEntry}
-          onExportPdf={handleExportPdf}
-          onAddMovement={() => setShowAddForm(true)}
-          onDataFiltered={handleDataFiltered}
-          startDate={movementsData.startDate}
-          endDate={movementsData.endDate}
-          onStartDateChange={movementsData.setStartDate}
-          onEndDateChange={movementsData.setEndDate}
-          deleteMovement={deleteMovement}
-          refetchMovements={() => movementsData.refetchEntries()}
-        />
+        <div
+          key={`entradas-${movementsData.startDate}-${movementsData.endDate}-${movementsData.entries.length}`}
+          className="fade-section"
+        >
+          <MovementTable
+            movements={movementsData.entries}
+            type="entrada"
+            onEditEntry={setSelectedEntry}
+            onExportPdf={handleExportPdf}
+            onAddMovement={() => setShowAddForm(true)}
+            onDataFiltered={handleDataFiltered}
+            startDate={movementsData.startDate}
+            endDate={movementsData.endDate}
+            onStartDateChange={movementsData.setStartDate}
+            onEndDateChange={movementsData.setEndDate}
+            deleteMovement={deleteMovement}
+            refetchMovements={() => movementsData.refetchEntries()}
+          />
+        </div>
       ) : (
-        <MovementTable
-          movements={movementsData.exits}
-          type="salida"
-          onEditExit={setSelectedExit}
-          onExportPdf={handleExportPdf}
-          onAddMovement={() => setShowAddForm(true)}
-          onDataFiltered={handleDataFiltered}
-          startDate={movementsData.startDate}
-          endDate={movementsData.endDate}
-          onStartDateChange={movementsData.setStartDate}
-          onEndDateChange={movementsData.setEndDate}
-          deleteMovement={deleteMovement}
-          refetchMovements={() => movementsData.refetchExits()}
-        />
+        <div
+          key={`salidas-${movementsData.startDate}-${movementsData.endDate}-${movementsData.exits.length}`}
+          className="fade-section"
+        >
+          <MovementTable
+            movements={movementsData.exits}
+            type="salida"
+            onEditExit={setSelectedExit}
+            onExportPdf={handleExportPdf}
+            onAddMovement={() => setShowAddForm(true)}
+            onDataFiltered={handleDataFiltered}
+            startDate={movementsData.startDate}
+            endDate={movementsData.endDate}
+            onStartDateChange={movementsData.setStartDate}
+            onEndDateChange={movementsData.setEndDate}
+            deleteMovement={deleteMovement}
+            refetchMovements={() => movementsData.refetchExits()}
+          />
+        </div>
       )}
 
       {showAddForm && (

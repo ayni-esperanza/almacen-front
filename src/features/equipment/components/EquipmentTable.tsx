@@ -203,7 +203,10 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto md:overflow-visible">
+            <div
+              key={`${currentPage}-${itemsPerPage}-${searchTerm}`}
+              className="overflow-x-auto md:overflow-visible fade-section"
+            >
               <table className="min-w-[1100px] w-full text-xs text-gray-700 dark:text-slate-200">
                 <thead className="bg-gray-50 dark:bg-slate-900">
                   <tr className="border-b border-gray-200 dark:border-slate-800">

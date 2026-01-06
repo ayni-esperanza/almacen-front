@@ -80,7 +80,10 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = React.memo(
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        <div
+          key={`${currentPage}-${itemsPerPage}`}
+          className="overflow-x-auto fade-section"
+        >
           <table className="w-full text-sm text-gray-700 dark:text-slate-200">
             {/* HEADER DE TABLA */}
             <thead className="bg-gray-50 dark:bg-slate-900">

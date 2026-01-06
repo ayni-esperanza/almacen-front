@@ -449,7 +449,10 @@ export const MovementTable: React.FC<MovementTableProps> = ({
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto md:overflow-visible">
+            <div
+              key={`${sortConfig.key}-${sortConfig.direction}-${currentPage}-${itemsPerPage}-${searchTerm}-${startDate}-${endDate}`}
+              className="overflow-x-auto md:overflow-visible fade-section"
+            >
               <table className="min-w-[880px] w-full text-xs text-gray-700 dark:text-slate-200">
                 <thead className="bg-gray-50 dark:bg-slate-900">
                   <tr className="border-b border-gray-200 dark:border-slate-800">
