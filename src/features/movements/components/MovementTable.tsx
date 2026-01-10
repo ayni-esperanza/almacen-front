@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { MovementEntry, MovementExit } from "../types/index.ts";
 import { Pagination } from "../../../shared/components/Pagination";
-import { usePagination } from "../../../shared/hooks/usePagination";
 import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowClick";
 import { useBulkSelection } from "../../../shared/hooks/useBulkSelection";
 import { useSort, SortColumnConfig } from "../../../shared/hooks/useSort";
@@ -35,6 +34,13 @@ interface MovementTableProps {
   onEndDateChange?: (date: string) => void;
   deleteMovement: (id: number, type: "entrada" | "salida") => Promise<boolean>;
   refetchMovements?: () => Promise<void>;
+  // Server-side pagination
+  currentPage: number;
+  itemsPerPage: number;
+  totalPages: number;
+  totalItems: number;
+  onPageChange: (page: number) => void;
+  onItemsPerPageChange: (limit: number) => void;
 }
 
 interface MovementRowProps {
@@ -177,6 +183,13 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   onEndDateChange,
   deleteMovement,
   refetchMovements,
+  // Server-side pagination props
+  currentPage,
+  itemsPerPage,
+  totalPages,
+  totalItems,
+  onPageChange,
+  onItemsPerPageChange,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showDateFilters, setShowDateFilters] = useState(false);
@@ -187,11 +200,14 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     () => ({
       fecha: {
         selector: (movement: MovementEntry | MovementExit) => movement.fecha,
-        comparator: (a: MovementEntry | MovementExit, b: MovementEntry | MovementExit) =>
-          parseDateString(a.fecha) - parseDateString(b.fecha),
+        comparator: (
+          a: MovementEntry | MovementExit,
+          b: MovementEntry | MovementExit
+        ) => parseDateString(a.fecha) - parseDateString(b.fecha),
       },
       area: {
-        selector: (movement: MovementEntry | MovementExit) => movement.area ?? "",
+        selector: (movement: MovementEntry | MovementExit) =>
+          movement.area ?? "",
         type: "string",
         locale: "es",
       },
@@ -236,27 +252,11 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     return sortData(filtered);
   }, [movements, searchTerm, sortData]);
 
-  const {
-    paginatedData: paginatedMovements,
-    currentPage,
-    totalPages,
-    totalItems,
-    itemsPerPage,
-    handlePageChange,
-    handleItemsPerPageChange,
-  } = usePagination({
-    data: filteredAndSortedMovements,
-    initialItemsPerPage: 100,
-  });
-
-  // Notify parent component whenever paginatedMovements changes
-  // This must be placed AFTER usePagination
   useEffect(() => {
     if (onDataFiltered) {
-      // Send ONLY what is visible in the current table page
-      onDataFiltered(paginatedMovements);
+      onDataFiltered(filteredAndSortedMovements);
     }
-  }, [paginatedMovements, onDataFiltered]);
+  }, [filteredAndSortedMovements, onDataFiltered]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -275,7 +275,6 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     confirmState,
     closeConfirm,
     isConfirming,
-    isRefreshing: _isBulkRefreshing,
   } = useBulkSelection<MovementEntry | MovementExit>({
     getId: (movement) => movement.id,
     deleteItem: (id) => deleteMovement(id, type),
@@ -305,7 +304,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
       <div className="flex flex-col bg-white border border-transparent shadow-lg dark:border-slate-800 dark:bg-slate-950">
         <div className="sticky top-[163px] z-20 p-3 bg-white border-b border-gray-200/70 sm:p-4 dark:border-slate-800/70 dark:bg-slate-900 shadow-sm">
           <div className="flex flex-col gap-3">
-            {/* Fila de búsqueda, exportar, filtros y acciones */}
+            {/* Fila de búsqueda, filtros y acciones */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center flex-1 w-full gap-2 sm:gap-3">
                 <div className="relative flex-1 sm:max-w-md">
@@ -435,7 +434,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
           </div>
         </div>
 
-        {paginatedMovements.length === 0 ? (
+        {filteredAndSortedMovements.length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-slate-400">
             {isEntry ? (
               <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
@@ -459,8 +458,10 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                     <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       <input
                         type="checkbox"
-                        checked={areAllVisibleSelected(paginatedMovements)}
-                        onChange={() => toggleAll(paginatedMovements)}
+                        checked={areAllVisibleSelected(
+                          filteredAndSortedMovements
+                        )}
+                        onChange={() => toggleAll(filteredAndSortedMovements)}
                         aria-label="Seleccionar todos los movimientos visibles"
                         className="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-green-500 dark:border-slate-600 dark:bg-slate-800"
                       />
@@ -526,7 +527,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
-                  {paginatedMovements.map((movement) => (
+                  {filteredAndSortedMovements.map((movement) => (
                     <MovementRow
                       key={movement.id}
                       movement={movement}
@@ -549,8 +550,8 @@ export const MovementTable: React.FC<MovementTableProps> = ({
               totalPages={totalPages}
               totalItems={totalItems}
               itemsPerPage={itemsPerPage}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
+              onPageChange={onPageChange}
+              onItemsPerPageChange={onItemsPerPageChange}
             />
           </>
         )}

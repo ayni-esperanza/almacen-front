@@ -41,6 +41,19 @@ export interface UseMovementsReturn {
   ) => Promise<MovementExit | null>;
   deleteEntry: (id: number) => Promise<void>;
   deleteExit: (id: number) => Promise<void>;
+  // Pagination states
+  entriesPage: number;
+  entriesLimit: number;
+  entriesTotalPages: number;
+  entriesTotalItems: number;
+  setEntriesPage: (page: number) => void;
+  setEntriesLimit: (limit: number) => void;
+  exitsPage: number;
+  exitsLimit: number;
+  exitsTotalPages: number;
+  exitsTotalItems: number;
+  setExitsPage: (page: number) => void;
+  setExitsLimit: (limit: number) => void;
 }
 
 export const useMovements = (): UseMovementsReturn => {
@@ -51,36 +64,57 @@ export const useMovements = (): UseMovementsReturn => {
   const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  // Pagination states for entries
+  const [entriesPage, setEntriesPage] = useState(1);
+  const [entriesLimit, setEntriesLimit] = useState(100);
+  const [entriesTotalPages, setEntriesTotalPages] = useState(0);
+  const [entriesTotalItems, setEntriesTotalItems] = useState(0);
+
+  // Pagination states for exits
+  const [exitsPage, setExitsPage] = useState(1);
+  const [exitsLimit, setExitsLimit] = useState(100);
+  const [exitsTotalPages, setExitsTotalPages] = useState(0);
+  const [exitsTotalItems, setExitsTotalItems] = useState(0);
+
   const isInitialMount = useRef(true);
   const fetchAbortController = useRef<AbortController | null>(null);
 
   const fetchEntries = useCallback(async () => {
     try {
-      const data = await movementsService.getAllEntries(
+      const response = await movementsService.getAllEntries(
         startDate || undefined,
-        endDate || undefined
+        endDate || undefined,
+        entriesPage,
+        entriesLimit
       );
-      setEntries(data);
+      setEntries(response.data);
+      setEntriesTotalPages(response.pagination.totalPages);
+      setEntriesTotalItems(response.pagination.total);
     } catch (err) {
       if (err instanceof Error && err.name !== "AbortError") {
         setError(err.message);
       }
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate, entriesPage, entriesLimit]);
 
   const fetchExits = useCallback(async () => {
     try {
-      const data = await movementsService.getAllExits(
+      const response = await movementsService.getAllExits(
         startDate || undefined,
-        endDate || undefined
+        endDate || undefined,
+        exitsPage,
+        exitsLimit
       );
-      setExits(data);
+      setExits(response.data);
+      setExitsTotalPages(response.pagination.totalPages);
+      setExitsTotalItems(response.pagination.total);
     } catch (err) {
       if (err instanceof Error && err.name !== "AbortError") {
         setError(err.message);
       }
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate, exitsPage, exitsLimit]);
 
   const fetchBoth = useCallback(
     async (options?: RefetchOptions) => {
@@ -116,41 +150,47 @@ export const useMovements = (): UseMovementsReturn => {
     [fetchEntries, fetchExits]
   );
 
-  const refetchEntries = useCallback(async (options?: RefetchOptions) => {
-    const isSilent = options?.silent;
-    if (isSilent) {
-      setRefreshing(true);
-    } else {
-      setLoading(true);
-    }
-    try {
-      await fetchEntries();
-    } finally {
+  const refetchEntries = useCallback(
+    async (options?: RefetchOptions) => {
+      const isSilent = options?.silent;
       if (isSilent) {
-        setRefreshing(false);
+        setRefreshing(true);
       } else {
-        setLoading(false);
+        setLoading(true);
       }
-    }
-  }, [fetchEntries]);
+      try {
+        await fetchEntries();
+      } finally {
+        if (isSilent) {
+          setRefreshing(false);
+        } else {
+          setLoading(false);
+        }
+      }
+    },
+    [fetchEntries]
+  );
 
-  const refetchExits = useCallback(async (options?: RefetchOptions) => {
-    const isSilent = options?.silent;
-    if (isSilent) {
-      setRefreshing(true);
-    } else {
-      setLoading(true);
-    }
-    try {
-      await fetchExits();
-    } finally {
+  const refetchExits = useCallback(
+    async (options?: RefetchOptions) => {
+      const isSilent = options?.silent;
       if (isSilent) {
-        setRefreshing(false);
+        setRefreshing(true);
       } else {
-        setLoading(false);
+        setLoading(true);
       }
-    }
-  }, [fetchExits]);
+      try {
+        await fetchExits();
+      } finally {
+        if (isSilent) {
+          setRefreshing(false);
+        } else {
+          setLoading(false);
+        }
+      }
+    },
+    [fetchExits]
+  );
 
   const createEntry = async (
     entryData: CreateEntryData
@@ -305,5 +345,18 @@ export const useMovements = (): UseMovementsReturn => {
     updateExit,
     deleteEntry,
     deleteExit,
+    // Pagination returns
+    entriesPage,
+    entriesLimit,
+    entriesTotalPages,
+    entriesTotalItems,
+    setEntriesPage,
+    setEntriesLimit,
+    exitsPage,
+    exitsLimit,
+    exitsTotalPages,
+    exitsTotalItems,
+    setExitsPage,
+    setExitsLimit,
   };
 };

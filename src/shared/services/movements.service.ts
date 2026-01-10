@@ -60,23 +60,50 @@ class MovementsService {
   // === ENTRIES ===
   async getAllEntries(
     startDate?: string,
-    endDate?: string
-  ): Promise<MovementEntry[]> {
+    endDate?: string,
+    page: number = 1,
+    limit: number = 100
+  ): Promise<{
+    data: MovementEntry[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
     const params = new URLSearchParams();
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
 
     const queryString = params.toString();
-    const url = queryString
-      ? `/movements/entries?${queryString}`
-      : "/movements/entries";
+    const url = `/movements/entries?${queryString}`;
 
-    const response = await apiClient.get<MovementEntry[]>(url);
+    const response = await apiClient.get<{
+      data: MovementEntry[];
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+      };
+    }>(url);
+
     if (response.error) {
       console.error("Error fetching entries:", response.error);
-      return [];
+      return {
+        data: [],
+        pagination: { page: 1, limit, total: 0, totalPages: 0 },
+      };
     }
-    return response.data || [];
+    return (
+      response.data || {
+        data: [],
+        pagination: { page: 1, limit, total: 0, totalPages: 0 },
+      }
+    );
   }
 
   async createMovementEntry(
@@ -158,23 +185,50 @@ class MovementsService {
   // === EXITS ===
   async getAllExits(
     startDate?: string,
-    endDate?: string
-  ): Promise<MovementExit[]> {
+    endDate?: string,
+    page: number = 1,
+    limit: number = 100
+  ): Promise<{
+    data: MovementExit[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
     const params = new URLSearchParams();
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
 
     const queryString = params.toString();
-    const url = queryString
-      ? `/movements/exits?${queryString}`
-      : "/movements/exits";
+    const url = `/movements/exits?${queryString}`;
 
-    const response = await apiClient.get<MovementExit[]>(url);
+    const response = await apiClient.get<{
+      data: MovementExit[];
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+      };
+    }>(url);
+
     if (response.error) {
       console.error("Error fetching exits:", response.error);
-      return [];
+      return {
+        data: [],
+        pagination: { page: 1, limit, total: 0, totalPages: 0 },
+      };
     }
-    return response.data || [];
+    return (
+      response.data || {
+        data: [],
+        pagination: { page: 1, limit, total: 0, totalPages: 0 },
+      }
+    );
   }
 
   async createExit(exitData: CreateExitData): Promise<MovementExit | null> {

@@ -236,6 +236,12 @@ export const MovementsPage = () => {
             onEndDateChange={movementsData.setEndDate}
             deleteMovement={deleteMovement}
             refetchMovements={() => movementsData.refetchEntries()}
+            currentPage={movementsData.entriesPage}
+            itemsPerPage={movementsData.entriesLimit}
+            totalPages={movementsData.entriesTotalPages}
+            totalItems={movementsData.entriesTotalItems}
+            onPageChange={movementsData.setEntriesPage}
+            onItemsPerPageChange={movementsData.setEntriesLimit}
           />
         </div>
       ) : (
@@ -256,6 +262,12 @@ export const MovementsPage = () => {
             onEndDateChange={movementsData.setEndDate}
             deleteMovement={deleteMovement}
             refetchMovements={() => movementsData.refetchExits()}
+            currentPage={movementsData.exitsPage}
+            itemsPerPage={movementsData.exitsLimit}
+            totalPages={movementsData.exitsTotalPages}
+            totalItems={movementsData.exitsTotalItems}
+            onPageChange={movementsData.setExitsPage}
+            onItemsPerPageChange={movementsData.setExitsLimit}
           />
         </div>
       )}
