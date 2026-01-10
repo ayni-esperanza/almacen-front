@@ -50,9 +50,13 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   createCategoria,
   onAddProduct,
 }) => {
+  const [filterEPP, setFilterEPP] = React.useState(false);
+
   type SortKey = "nombre";
 
-  const productSortColumns = useMemo<Record<SortKey, SortColumnConfig<Product>>>(
+  const productSortColumns = useMemo<
+    Record<SortKey, SortColumnConfig<Product>>
+  >(
     () => ({
       nombre: {
         selector: (product: Product) => product.nombre,
@@ -104,7 +108,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   // Filtrar Y Ordenar productos localmente usando useMemo
   const filteredProducts = React.useMemo(() => {
     // Primero filtramos
-    const filtered = products.filter((product) => {
+    let filtered = products.filter((product) => {
       const searchLower = searchTerm.toLowerCase();
       return (
         product.codigo.toLowerCase().includes(searchLower) ||
@@ -114,8 +118,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       );
     });
 
+    // Aplicar filtro EPP si está activo
+    if (filterEPP) {
+      filtered = filtered.filter((product) => {
+        return product.categoria?.toLowerCase() === "epp";
+      });
+    }
+
     return sortData(filtered);
-  }, [products, searchTerm, sortData]);
+  }, [products, searchTerm, filterEPP, sortData]);
 
   const {
     paginatedData: paginatedProducts,
@@ -185,22 +196,32 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         {/* Search Filter sticky */}
         <div className="sticky top-[109px] z-30 p-4 bg-white border-b border-gray-200/70 dark:border-slate-800/70 dark:bg-slate-900 shadow-sm">
           <div className="flex items-center justify-between gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
-              <input
-                type="text"
-                placeholder="Buscar por código, descripción o proveedor..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={searchInputClasses}
-              />
+            <div className="flex items-center flex-1 gap-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
+                <input
+                  type="text"
+                  placeholder="Buscar por código, descripción o proveedor..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={searchInputClasses}
+                />
+              </div>
+              <button
+                onClick={() => setFilterEPP(!filterEPP)}
+                className={`flex items-center flex-shrink-0 px-4 py-2 font-medium transition-all rounded-lg shadow-md whitespace-nowrap ${
+                  filterEPP
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                }`}
+              >
+                <span>EPP</span>
+              </button>
             </div>
             <div className="flex items-center gap-3">
               {selectedIds.size > 0 && (
                 <button
-                  onClick={() =>
-                    requestBulkDelete()
-                  }
+                  onClick={() => requestBulkDelete()}
                   className="flex items-center flex-shrink-0 px-4 py-2 space-x-2 font-medium text-white transition-colors bg-red-500 rounded-lg shadow-md hover:bg-red-600 whitespace-nowrap"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -240,92 +261,100 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 {/* Header de tabla */}
                 <thead className="bg-gray-50 dark:bg-slate-900">
                   <tr className="border-b border-gray-200 dark:border-slate-800">
-                  <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    <input
-                      type="checkbox"
-                      checked={areAllVisibleSelected(paginatedProducts)}
-                      onChange={() => toggleAll(paginatedProducts)}
-                      className="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-green-500 dark:border-slate-600 dark:bg-slate-800"
+                    <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      <input
+                        type="checkbox"
+                        checked={areAllVisibleSelected(paginatedProducts)}
+                        onChange={() => toggleAll(paginatedProducts)}
+                        className="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-green-500 dark:border-slate-600 dark:bg-slate-800"
+                      />
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Código
+                    </th>
+                    <th
+                      onClick={() => toggleSort("nombre")}
+                      className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors shadow-sm cursor-pointer select-none bg-gray-50 dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        Nombre
+                        {getNameSortIcon()}
+                      </span>
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Ubicación
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Salidas
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Stock Actual
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Unidad
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Proveedor
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Marca
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Categoría
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Costo Unitario
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
+                  {paginatedProducts.map((product) => (
+                    <ProductTableRow
+                      key={product.id}
+                      product={product}
+                      onEdit={updateProduct}
+                      onDelete={(p) => requestSingleDelete(p)}
+                      onCreateArea={createArea}
+                      onCreateCategoria={createCategoria}
+                      isSelected={selectedIds.has(product.id)}
+                      onToggleSelect={() => toggleSelection(product.id)}
+                      onMouseDown={() =>
+                        handleMouseDown(product.id, selectedIds.has(product.id))
+                      }
+                      onMouseEnter={() => handleMouseEnter(product.id)}
                     />
-                  </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Código
-                  </th>
-                  <th
-                    onClick={() => toggleSort("nombre")}
-                    className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
-                  >
-                    <span className="inline-flex items-center gap-1">
-                      Nombre
-                      {getNameSortIcon()}
-                    </span>
-                  </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Ubicación
-                  </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Salidas
-                  </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Stock Actual
-                  </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Unidad
-                  </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Proveedor
-                  </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Marca
-                  </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Categoría
-                  </th>
-                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                    Costo Unitario
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
-                {paginatedProducts.map((product) => (
-                  <ProductTableRow
-                    key={product.id}
-                    product={product}
-                    onEdit={updateProduct}
-                    onDelete={(p) =>
-                      requestSingleDelete(p)
-                    }
-                    onCreateArea={createArea}
-                    onCreateCategoria={createCategoria}
-                    isSelected={selectedIds.has(product.id)}
-                    onToggleSelect={() => toggleSelection(product.id)}
-                    onMouseDown={() => handleMouseDown(product.id, selectedIds.has(product.id))}
-                    onMouseEnter={() => handleMouseEnter(product.id)}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={handlePageChange}
-            onItemsPerPageChange={handleItemsPerPageChange}
-          />
-        </>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          </>
         )}
       </div>
       <ConfirmModal
         isOpen={confirmState.open}
-        title={confirmState.mode === "bulk" ? "Eliminar productos" : "Eliminar producto"}
+        title={
+          confirmState.mode === "bulk"
+            ? "Eliminar productos"
+            : "Eliminar producto"
+        }
         message={
           confirmState.mode === "bulk"
             ? `¿Seguro que deseas eliminar ${selectedIds.size} producto(s)?`
-            : `¿Seguro que deseas eliminar "${confirmState.target?.nombre ?? ""}"?`
+            : `¿Seguro que deseas eliminar "${
+                confirmState.target?.nombre ?? ""
+              }"?`
         }
-        confirmLabel={confirmState.mode === "bulk" ? "Eliminar seleccionados" : "Eliminar"}
+        confirmLabel={
+          confirmState.mode === "bulk" ? "Eliminar seleccionados" : "Eliminar"
+        }
         onConfirm={handleConfirmDelete}
         onCancel={closeConfirm}
         isProcessing={isConfirming}
