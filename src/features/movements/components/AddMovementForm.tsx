@@ -1,25 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { X, Check, Loader2, AlertCircle } from "lucide-react";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { useProductAutocomplete } from "../../../shared/hooks/useProductAutocomplete";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
-
-// Áreas predefinidas para movimientos
-const AREAS_MOVIMIENTOS = [
-  "Almacén",
-  "Contabilidad",
-  "Electricidad",
-  "Extrusora",
-  "Fibra",
-  "Líneas de vida",
-  "Mecánica",
-  "Metalmecánica",
-  "Oficina",
-  "Pozos",
-  "Torres de Enfriamiento",
-];
+import { AddOptionModal } from "../../../shared/components/AddOptionModal";
+import { movementsService } from "../../../shared/services/movements.service.ts";
 
 interface AddMovementFormProps {
   type: "entrada" | "salida";
@@ -32,14 +19,16 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const [showAreaModal, setShowAreaModal] = useState(false);
+
   // Bloquear scroll de la ventana
   useModalScrollLock(true);
-  // Cerrar modal con tecla ESC
-  useEscapeKey(onCancel);
+  // Cerrar modal con tecla ESC solo si la modal de área no está abierta
+  useEscapeKey(onCancel, !showAreaModal);
   // Referencia para detectar clicks fuera de la modal
   const modalRef = useRef<HTMLDivElement>(null);
-  // Cerrar modal al hacer click fuera
-  useClickOutside(modalRef, onCancel, true);
+  // Cerrar modal al hacer click fuera solo si la modal de área no está abierta
+  useClickOutside(modalRef, onCancel, !showAreaModal);
 
   const isEntry = type === "entrada";
   const [formData, setFormData] = useState(() => ({
@@ -71,6 +60,21 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
     minChars: 2,
   });
 
+  // Función para buscar áreas desde la API
+  const fetchAreas = useCallback(async (searchTerm: string) => {
+    const data = await movementsService.getAreas(searchTerm);
+    return data;
+  }, []);
+
+  // Función para crear nueva área
+  const handleCreateArea = async (name: string) => {
+    const result = await movementsService.createArea(name);
+    if (result) {
+      setFormData({ ...formData, area: result });
+      setShowAreaModal(false);
+    }
+  };
+
   // Efecto para autocompletar cuando se encuentre un producto
   useEffect(() => {
     if (product && formData.codigoProducto === product.codigo) {
@@ -81,7 +85,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
       }));
       setIsAutofilled(true);
       setErrorMessage(null);
-      
+
       // Verificar stock solo para salidas
       if (!isEntry) {
         checkStock(product.stockActual, parseInt(formData.cantidad) || 0);
@@ -145,7 +149,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
         );
         return;
       }
-      
+
       if (parsedQuantity > product.stockActual) {
         setErrorMessage(
           `No se puede registrar la salida. Stock insuficiente (disponible: ${product.stockActual}, solicitado: ${parsedQuantity}).`
@@ -320,16 +324,28 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     />
                   </label>
 
-                  <SearchableSelect
-                    name="area"
-                    label="Área"
-                    value={formData.area}
-                    onChange={(value) =>
-                      setFormData({ ...formData, area: value })
-                    }
-                    options={AREAS_MOVIMIENTOS}
-                    placeholder="Selecciona un área"
-                  />
+                  <div className="flex items-end gap-3">
+                    <div className="w-full">
+                      <SearchableSelect
+                        name="area"
+                        label="Área"
+                        value={formData.area}
+                        onChange={(value) =>
+                          setFormData({ ...formData, area: value })
+                        }
+                        fetchOptions={fetchAreas}
+                        placeholder="Selecciona un área"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAreaModal(true)}
+                      className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+                      title="Agregar nueva área"
+                    >
+                      <span className="text-lg font-bold">+</span>
+                    </button>
+                  </div>
                 </div>
               </>
             ) : (
@@ -426,30 +442,42 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                   >
                     <AlertCircle className="flex-shrink-0 w-5 h-5 mt-0.5" />
                     <div className="flex-1">
-                      <p className="font-semibold text-xs">
+                      <p className="text-xs font-semibold">
                         {stockWarning.type === "sin-stock"
                           ? "Sin Stock Disponible"
                           : stockWarning.type === "stock-bajo"
                           ? "Stock Insuficiente"
                           : "Advertencia de Stock"}
                       </p>
-                      <p className="text-xs mt-1">{stockWarning.message}</p>
+                      <p className="mt-1 text-xs">{stockWarning.message}</p>
                     </div>
                   </div>
                 )}
 
                 <div className="grid gap-3 md:grid-cols-3">
-                  <SearchableSelect
-                    name="area"
-                    label="Área *"
-                    value={formData.area}
-                    onChange={(value) =>
-                      setFormData({ ...formData, area: value })
-                    }
-                    options={AREAS_MOVIMIENTOS}
-                    placeholder="Selecciona un área"
-                    required
-                  />
+                  <div className="flex items-end gap-3">
+                    <div className="w-full">
+                      <SearchableSelect
+                        name="area"
+                        label="Área *"
+                        value={formData.area}
+                        onChange={(value) =>
+                          setFormData({ ...formData, area: value })
+                        }
+                        fetchOptions={fetchAreas}
+                        placeholder="Selecciona un área"
+                        required
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAreaModal(true)}
+                      className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-red-500 text-white transition-colors hover:bg-red-600 dark:bg-rose-600 dark:hover:bg-rose-500"
+                      title="Agregar nueva área"
+                    >
+                      <span className="text-lg font-bold">+</span>
+                    </button>
+                  </div>
 
                   <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Proyecto</span>
@@ -503,6 +531,16 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
           </form>
         </div>
       </div>
+
+      {/* Modal para agregar nueva área */}
+      <AddOptionModal
+        isOpen={showAreaModal}
+        onClose={() => setShowAreaModal(false)}
+        onSubmit={handleCreateArea}
+        title="Nueva Área"
+        label="Área *"
+        color={isEntry ? "green" : "red"}
+      />
     </div>
   );
 };

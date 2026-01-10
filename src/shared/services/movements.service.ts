@@ -344,6 +344,35 @@ class MovementsService {
 
     return true;
   }
+
+  // === AREAS ===
+  async getAreas(search?: string): Promise<string[]> {
+    const endpoint = search
+      ? `/movements/areas?search=${encodeURIComponent(search)}`
+      : "/movements/areas";
+    const response = await apiClient.get<{ nombre: string }[]>(endpoint);
+
+    if (response.error) {
+      console.error("Error fetching areas:", response.error);
+      return [];
+    }
+
+    return response.data?.map((area) => area.nombre) || [];
+  }
+
+  async createArea(nombre: string): Promise<string | null> {
+    const response = await apiClient.post<{ nombre: string }>(
+      "/movements/areas",
+      { nombre }
+    );
+
+    if (response.error) {
+      console.error("Error creating area:", response.error);
+      return null;
+    }
+
+    return response.data?.nombre || null;
+  }
 }
 
 export const movementsService = new MovementsService();

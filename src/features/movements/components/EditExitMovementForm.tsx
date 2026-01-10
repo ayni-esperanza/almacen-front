@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import { X } from "lucide-react";
 import { MovementExit } from "../types/index.ts";
 import { UpdateExitData } from "../../../shared/services/movements.service.ts";
@@ -6,21 +12,8 @@ import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
-
-// Áreas predefinidas para movimientos
-const AREAS_MOVIMIENTOS = [
-  "Almacén",
-  "Contabilidad",
-  "Electricidad",
-  "Extrusora",
-  "Fibra",
-  "Líneas de vida",
-  "Mecánica",
-  "Metalmecánica",
-  "Oficina",
-  "Pozos",
-  "Torres de Enfriamiento",
-];
+import { AddOptionModal } from "../../../shared/components/AddOptionModal";
+import { movementsService } from "../../../shared/services/movements.service.ts";
 
 interface EditExitMovementFormProps {
   exit: MovementExit;
@@ -49,14 +42,16 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
   onCancel,
   onDelete,
 }) => {
+  const [showAreaModal, setShowAreaModal] = useState(false);
+
   // Bloquear scroll
   useModalScrollLock(true);
-  // Cerrar modal con tecla ESC
-  useEscapeKey(onCancel);
+  // Cerrar modal con tecla ESC solo si la modal de área no está abierta
+  useEscapeKey(onCancel, !showAreaModal);
   // Referencia para detectar clicks fuera de la modal
   const modalRef = useRef<HTMLDivElement>(null);
-  // Cerrar modal al hacer click fuera
-  useClickOutside(modalRef, onCancel, true);
+  // Cerrar modal al hacer click fuera solo si la modal de área no está abierta
+  useClickOutside(modalRef, onCancel, !showAreaModal);
 
   const initialState = useMemo(
     () => ({
@@ -87,6 +82,21 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
       mountedRef.current = false;
     };
   }, []);
+
+  // Función para buscar áreas desde la API
+  const fetchAreas = useCallback(async (searchTerm: string) => {
+    const data = await movementsService.getAreas(searchTerm);
+    return data;
+  }, []);
+
+  // Función para crear nueva área
+  const handleCreateArea = async (name: string) => {
+    const result = await movementsService.createArea(name);
+    if (result) {
+      setFormData({ ...formData, area: result });
+      setShowAreaModal(false);
+    }
+  };
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -239,15 +249,29 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
             </div>
 
             <div className="grid gap-3 md:grid-cols-3">
-              <SearchableSelect
-                name="area"
-                label="Área *"
-                value={formData.area}
-                onChange={(value) => setFormData({ ...formData, area: value })}
-                options={AREAS_MOVIMIENTOS}
-                placeholder="Selecciona un área"
-                required
-              />
+              <div className="flex items-end gap-3">
+                <div className="w-full">
+                  <SearchableSelect
+                    name="area"
+                    label="Área *"
+                    value={formData.area}
+                    onChange={(value) =>
+                      setFormData({ ...formData, area: value })
+                    }
+                    fetchOptions={fetchAreas}
+                    placeholder="Selecciona un área"
+                    required
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAreaModal(true)}
+                  className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-red-500 text-white transition-colors hover:bg-red-600 dark:bg-rose-600 dark:hover:bg-rose-500"
+                  title="Agregar nueva área"
+                >
+                  <span className="text-lg font-bold">+</span>
+                </button>
+              </div>
 
               <label className={labelClasses}>
                 <span>Proyecto</span>
@@ -314,6 +338,16 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
           </form>
         </div>
       </div>
+
+      {/* Modal para agregar nueva área */}
+      <AddOptionModal
+        isOpen={showAreaModal}
+        onClose={() => setShowAreaModal(false)}
+        onSubmit={handleCreateArea}
+        title="Nueva Área"
+        label="Área *"
+        color="red"
+      />
     </div>
   );
 };
