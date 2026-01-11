@@ -145,18 +145,8 @@ export const SearchableSelect = ({
     };
   }, [isOpen]);
 
-  // Bloquear scroll del body cuando el dropdown está abierto
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+  // No bloquear scroll aquí: la modal padre ya lo hace con useModalScrollLock
+  // y scrollbar-gutter: stable en html reserva el espacio del scrollbar
 
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
@@ -246,7 +236,7 @@ export const SearchableSelect = ({
   return (
     <div className="w-full" ref={containerRef}>
       {label && (
-        <label className="block mb-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200">
+        <label className="block mb-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
           {label}
           {required && <span className="ml-1 text-red-500">*</span>}
         </label>
@@ -269,7 +259,7 @@ export const SearchableSelect = ({
           onClick={() => setIsOpen(!isOpen)}
           onKeyDown={handleKeyDown}
           className={`
-            w-full h-[38px] px-3 py-2 text-left text-sm
+            w-full h-9 px-3 py-1.5 text-left text-sm
             bg-white dark:bg-slate-900
             border rounded-xl
             transition-all duration-200

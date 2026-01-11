@@ -340,10 +340,10 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowAreaModal(true)}
-                      className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-green-500 to-green-600 text-white transition-colors hover:from-green-600 hover:to-green-700 dark:from-emerald-600 dark:to-emerald-500 dark:hover:from-emerald-500 dark:hover:to-emerald-400"
                       title="Agregar nueva área"
                     >
-                      <span className="text-lg font-bold">+</span>
+                      <span className="text-lg font-bold leading-none">+</span>
                     </button>
                   </div>
                 </div>
@@ -472,10 +472,10 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowAreaModal(true)}
-                      className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-red-500 text-white transition-colors hover:bg-red-600 dark:bg-rose-600 dark:hover:bg-rose-500"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white transition-colors hover:from-red-600 hover:to-red-700 dark:from-rose-600 dark:to-rose-500 dark:hover:from-rose-500 dark:hover:to-rose-400"
                       title="Agregar nueva área"
                     >
-                      <span className="text-lg font-bold">+</span>
+                      <span className="text-lg font-bold leading-none">+</span>
                     </button>
                   </div>
 

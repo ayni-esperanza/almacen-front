@@ -7,18 +7,15 @@ import { useEffect } from 'react';
 export const useModalScrollLock = (isOpen: boolean) => {
   useEffect(() => {
     if (isOpen) {
-      // Guardar el scroll actual y el padding original
+      // Guardar el scroll actual
       const scrollY = window.scrollY;
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       
-      // Bloquear el scroll y compensar el ancho del scrollbar
+      // Bloquear el scroll (scrollbar-gutter: stable ya reserva el espacio)
       document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
 
       return () => {
         // Restaurar el scroll al cerrar
         document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
         window.scrollTo(0, scrollY);
       };
     }
