@@ -136,6 +136,9 @@ const MovementRow: React.FC<MovementRowProps> = ({
           <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
             {movement.descripcion}
           </td>
+          <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
+            {("categoria" in movement && movement.categoria) || "-"}
+          </td>
           <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
             {movement.cantidad}
           </td>
@@ -150,6 +153,9 @@ const MovementRow: React.FC<MovementRowProps> = ({
         <>
           <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
             {movement.descripcion}
+          </td>
+          <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
+            {("categoria" in movement && movement.categoria) || "-"}
           </td>
           <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {movement.area || "-"}
@@ -484,6 +490,9 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                           Nombre
                         </th>
                         <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Categoría
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                           Cantidad
                         </th>
                         <th
@@ -503,6 +512,9 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                       <>
                         <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                           Nombre
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Categoría
                         </th>
                         <th
                           onClick={() => toggleSort("area")}

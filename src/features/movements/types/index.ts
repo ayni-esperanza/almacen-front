@@ -7,6 +7,7 @@ export interface MovementEntry {
   cantidad: number;
   responsable?: string;
   area?: string;
+  categoria?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +22,7 @@ export interface MovementExit {
   responsable?: string;
   area?: string;
   proyecto?: string;
+  categoria?: string;
   createdAt: Date;
   updatedAt: Date;
 }
