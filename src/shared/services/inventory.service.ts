@@ -20,18 +20,53 @@ export interface CreateProductData {
 export type UpdateProductData = Partial<CreateProductData>;
 
 class InventoryService {
-  async getAllProducts(search?: string): Promise<Product[]> {
-    const endpoint = search
-      ? `/inventory/products?q=${encodeURIComponent(search)}`
-      : "/inventory/products";
-    const response = await apiClient.get<Product[]>(endpoint);
+  async getAllProducts(
+    search?: string,
+    categoria?: string,
+    page: number = 1,
+    limit: number = 100
+  ): Promise<{
+    data: Product[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    const params = new URLSearchParams();
+    if (search) params.append("q", search);
+    if (categoria) params.append("categoria", categoria);
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+
+    const queryString = params.toString();
+    const endpoint = `/inventory/products?${queryString}`;
+
+    const response = await apiClient.get<{
+      data: Product[];
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+      };
+    }>(endpoint);
 
     if (response.error) {
       console.error("Error fetching products:", response.error);
-      return [];
+      return {
+        data: [],
+        pagination: { page: 1, limit, total: 0, totalPages: 0 },
+      };
     }
 
-    return response.data || [];
+    return (
+      response.data || {
+        data: [],
+        pagination: { page: 1, limit, total: 0, totalPages: 0 },
+      }
+    );
   }
 
   async getProduct(id: string): Promise<Product | null> {

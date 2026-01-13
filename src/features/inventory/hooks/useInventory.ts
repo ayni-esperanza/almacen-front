@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Product } from "../types";
 import {
   inventoryService,
@@ -12,6 +12,8 @@ export interface UseInventoryReturn {
   refreshing: boolean;
   error: string | null;
   searchTerm: string;
+  filterEPP: boolean;
+  setFilterEPP: (filter: boolean) => void;
   areas: string[];
   categorias: string[];
   setSearchTerm: (term: string) => void;
@@ -24,6 +26,13 @@ export interface UseInventoryReturn {
   deleteProduct: (id: number) => Promise<boolean>;
   createArea: (nombre: string) => Promise<string | null>;
   createCategoria: (nombre: string) => Promise<string | null>;
+  // Pagination states
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalItems: number;
+  setPage: (page: number) => void;
+  setLimit: (limit: number) => void;
 }
 
 export const useInventory = (): UseInventoryReturn => {
@@ -32,36 +41,36 @@ export const useInventory = (): UseInventoryReturn => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterEPP, setFilterEPP] = useState(false);
   const [areas, setAreas] = useState<string[]>([]);
   const [categorias, setCategorias] = useState<string[]>([]);
 
-  const fetchProducts = async (
-    search?: string,
-    options?: { silent?: boolean }
-  ) => {
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(100);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+
+  const isInitialMount = useRef(true);
+  const fetchAbortController = useRef<AbortController | null>(null);
+
+  const fetchProducts = useCallback(async () => {
     try {
-      const isSilent = options?.silent;
-      if (isSilent) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-      setError(null);
-      const data = await inventoryService.getAllProducts(search);
-      setProducts(data);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Error al cargar productos"
+      const response = await inventoryService.getAllProducts(
+        searchTerm || undefined,
+        filterEPP ? "epp" : undefined,
+        page,
+        limit
       );
-    } finally {
-      const isSilent = options?.silent;
-      if (isSilent) {
-        setRefreshing(false);
-      } else {
-        setLoading(false);
+      setProducts(response.data);
+      setTotalPages(response.pagination.totalPages);
+      setTotalItems(response.pagination.total);
+    } catch (err) {
+      if (err instanceof Error && err.name !== "AbortError") {
+        setError(err.message);
       }
     }
-  };
+  }, [searchTerm, filterEPP, page, limit]);
 
   const fetchAreas = async () => {
     try {
@@ -81,9 +90,38 @@ export const useInventory = (): UseInventoryReturn => {
     }
   };
 
-  const refetch = async (options?: { silent?: boolean }) => {
-    await fetchProducts(searchTerm || undefined, options);
-  };
+  const refetch = useCallback(
+    async (options?: { silent?: boolean }) => {
+      // Cancelar peticiones anteriores si existen
+      if (fetchAbortController.current) {
+        fetchAbortController.current.abort();
+      }
+      fetchAbortController.current = new AbortController();
+
+      const isSilent = options?.silent ?? false;
+      try {
+        if (isSilent) {
+          setRefreshing(true);
+        } else {
+          setLoading(true);
+        }
+        setError(null);
+        await fetchProducts();
+      } catch (err) {
+        if (err instanceof Error && err.name !== "AbortError") {
+          setError(err.message);
+        }
+      } finally {
+        if (isSilent) {
+          setRefreshing(false);
+        } else {
+          setLoading(false);
+        }
+        fetchAbortController.current = null;
+      }
+    },
+    [fetchProducts]
+  );
 
   const createProduct = async (
     productData: CreateProductData
@@ -169,15 +207,16 @@ export const useInventory = (): UseInventoryReturn => {
         setLoading(true);
 
         // Cargar todo en paralelo para mejor performance
-        const [productsData, areasData, categoriasData] = await Promise.all([
-          inventoryService.getAllProducts(),
+        const [areasData, categoriasData] = await Promise.all([
           inventoryService.getAreas(),
           inventoryService.getCategorias(),
         ]);
 
-        setProducts(productsData);
         setAreas(areasData);
         setCategorias(categoriasData);
+
+        // Cargar productos inicialmente
+        await fetchProducts();
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Error al cargar datos iniciales"
@@ -188,8 +227,19 @@ export const useInventory = (): UseInventoryReturn => {
     };
 
     // Solo ejecutar una vez al montar el componente
-    loadInitialData();
+    if (isInitialMount.current) {
+      loadInitialData();
+      isInitialMount.current = false;
+    }
   }, []); // Array vacío para ejecutar solo al montar
+
+  // Efecto para cargar productos cuando cambian los parámetros de paginación, búsqueda o filtro
+  useEffect(() => {
+    if (!isInitialMount.current) {
+      refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, filterEPP, page, limit]);
 
   return {
     products,
@@ -197,6 +247,8 @@ export const useInventory = (): UseInventoryReturn => {
     refreshing,
     error,
     searchTerm,
+    filterEPP,
+    setFilterEPP,
     areas,
     categorias,
     setSearchTerm,
@@ -206,5 +258,11 @@ export const useInventory = (): UseInventoryReturn => {
     deleteProduct,
     createArea,
     createCategoria,
+    page,
+    limit,
+    totalPages,
+    totalItems,
+    setPage,
+    setLimit,
   };
 };

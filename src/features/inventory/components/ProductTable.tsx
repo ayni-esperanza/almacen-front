@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { Product } from "../types";
 import { ProductTableRow } from "./ProductTableRow";
 import { Pagination } from "../../../shared/components/Pagination";
-import { usePagination } from "../../../shared/hooks/usePagination";
 import {
   Package,
   Search,
@@ -24,6 +23,8 @@ interface ProductTableProps {
   refreshing: boolean;
   error: string | null;
   searchTerm: string;
+  filterEPP: boolean;
+  setFilterEPP: (filter: boolean) => void;
   setSearchTerm: (term: string) => void;
   refetch: () => Promise<void>;
   updateProduct: (
@@ -34,6 +35,13 @@ interface ProductTableProps {
   createArea: (name: string) => Promise<void>;
   createCategoria: (name: string) => Promise<void>;
   onAddProduct?: () => void;
+  // Pagination props
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalItems: number;
+  setPage: (page: number) => void;
+  setLimit: (limit: number) => void;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
@@ -42,6 +50,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   refreshing,
   error,
   searchTerm,
+  filterEPP,
+  setFilterEPP,
   setSearchTerm,
   refetch,
   updateProduct,
@@ -49,9 +59,13 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   createArea,
   createCategoria,
   onAddProduct,
+  page,
+  limit,
+  totalPages,
+  totalItems,
+  setPage,
+  setLimit,
 }) => {
-  const [filterEPP, setFilterEPP] = React.useState(false);
-
   type SortKey = "nombre";
 
   const productSortColumns = useMemo<
@@ -105,38 +119,10 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     refetch,
   });
 
-  // Filtrar Y Ordenar productos localmente usando useMemo
-  const filteredProducts = React.useMemo(() => {
-    // Primero filtramos
-    let filtered = products.filter((product) => {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        product.codigo.toLowerCase().includes(searchLower) ||
-        product.nombre.toLowerCase().includes(searchLower) ||
-        (product.provider?.name &&
-          product.provider.name.toLowerCase().includes(searchLower))
-      );
-    });
-
-    // Aplicar filtro EPP si está activo
-    if (filterEPP) {
-      filtered = filtered.filter((product) => {
-        return product.categoria?.toLowerCase() === "epp";
-      });
-    }
-
-    return sortData(filtered);
-  }, [products, searchTerm, filterEPP, sortData]);
-
-  const {
-    paginatedData: paginatedProducts,
-    currentPage,
-    totalPages,
-    totalItems,
-    itemsPerPage,
-    handlePageChange,
-    handleItemsPerPageChange,
-  } = usePagination({ data: filteredProducts, initialItemsPerPage: 100 });
+  // Ordenar productos localmente (filtrado y paginación se hace en backend)
+  const sortedProducts = React.useMemo(() => {
+    return sortData(products);
+  }, [products, sortData]);
   const searchInputClasses =
     "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
   if (loading && !isRefreshing && !refreshing) {
@@ -211,7 +197,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 onClick={() => setFilterEPP(!filterEPP)}
                 className={`flex items-center flex-shrink-0 px-4 py-2 font-medium transition-all rounded-lg shadow-md whitespace-nowrap ${
                   filterEPP
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    ? "bg-green-500 text-white hover:bg-green-600"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                 }`}
               >
@@ -242,19 +228,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         </div>
 
         {/* Contenido scrolleable */}
-        {filteredProducts.length === 0 ? (
+        {sortedProducts.length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-slate-400">
             <Package className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-            <p>
-              {products.length === 0
-                ? "No se encontraron productos"
-                : "No se encontraron productos con los filtros aplicados"}
-            </p>
+            <p>{"No se encontraron productos"}</p>
           </div>
         ) : (
           <>
             <div
-              key={`${sortConfig.key}-${sortConfig.direction}-${currentPage}-${itemsPerPage}-${searchTerm}`}
+              key={`${sortConfig.key}-${sortConfig.direction}-${page}-${limit}-${searchTerm}`}
               className="overflow-x-auto md:overflow-visible fade-section"
             >
               <table className="min-w-[960px] w-full text-xs text-gray-700 dark:text-slate-200">
@@ -264,8 +246,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       <input
                         type="checkbox"
-                        checked={areAllVisibleSelected(paginatedProducts)}
-                        onChange={() => toggleAll(paginatedProducts)}
+                        checked={areAllVisibleSelected(sortedProducts)}
+                        onChange={() => toggleAll(sortedProducts)}
                         className="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-green-500 dark:border-slate-600 dark:bg-slate-800"
                       />
                     </th>
@@ -308,7 +290,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
-                  {paginatedProducts.map((product) => (
+                  {sortedProducts.map((product) => (
                     <ProductTableRow
                       key={product.id}
                       product={product}
@@ -328,12 +310,12 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               </table>
             </div>
             <Pagination
-              currentPage={currentPage}
+              currentPage={page}
               totalPages={totalPages}
               totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
+              itemsPerPage={limit}
+              onPageChange={setPage}
+              onItemsPerPageChange={setLimit}
             />
           </>
         )}
