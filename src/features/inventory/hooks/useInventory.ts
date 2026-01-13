@@ -236,10 +236,19 @@ export const useInventory = (): UseInventoryReturn => {
   // Efecto para cargar productos cuando cambian los parámetros de paginación, búsqueda o filtro
   useEffect(() => {
     if (!isInitialMount.current) {
+      // Reset page to 1 when search term or filter changes
+      setPage(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, filterEPP]);
+
+  // Efecto para cargar productos cuando cambian page o limit
+  useEffect(() => {
+    if (!isInitialMount.current) {
       refetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, filterEPP, page, limit]);
+  }, [page, limit]);
 
   return {
     products,
