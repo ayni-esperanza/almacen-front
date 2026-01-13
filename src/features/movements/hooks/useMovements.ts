@@ -21,6 +21,8 @@ export interface UseMovementsReturn {
   error: string | null;
   startDate: string;
   endDate: string;
+  filterEPP: boolean;
+  setFilterEPP: (filter: boolean) => void;
   setStartDate: (date: string) => void;
   setEndDate: (date: string) => void;
   refetchEntries: (options?: RefetchOptions) => Promise<void>;
@@ -64,6 +66,7 @@ export const useMovements = (): UseMovementsReturn => {
   const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [filterEPP, setFilterEPP] = useState(false);
 
   // Pagination states for entries
   const [entriesPage, setEntriesPage] = useState(1);
@@ -86,7 +89,8 @@ export const useMovements = (): UseMovementsReturn => {
         startDate || undefined,
         endDate || undefined,
         entriesPage,
-        entriesLimit
+        entriesLimit,
+        filterEPP ? "epp" : undefined
       );
       setEntries(response.data);
       setEntriesTotalPages(response.pagination.totalPages);
@@ -96,7 +100,7 @@ export const useMovements = (): UseMovementsReturn => {
         setError(err.message);
       }
     }
-  }, [startDate, endDate, entriesPage, entriesLimit]);
+  }, [startDate, endDate, entriesPage, entriesLimit, filterEPP]);
 
   const fetchExits = useCallback(async () => {
     try {
@@ -104,7 +108,8 @@ export const useMovements = (): UseMovementsReturn => {
         startDate || undefined,
         endDate || undefined,
         exitsPage,
-        exitsLimit
+        exitsLimit,
+        filterEPP ? "epp" : undefined
       );
       setExits(response.data);
       setExitsTotalPages(response.pagination.totalPages);
@@ -114,7 +119,7 @@ export const useMovements = (): UseMovementsReturn => {
         setError(err.message);
       }
     }
-  }, [startDate, endDate, exitsPage, exitsLimit]);
+  }, [startDate, endDate, exitsPage, exitsLimit, filterEPP]);
 
   const fetchBoth = useCallback(
     async (options?: RefetchOptions) => {
@@ -334,6 +339,8 @@ export const useMovements = (): UseMovementsReturn => {
     error,
     startDate,
     endDate,
+    filterEPP,
+    setFilterEPP,
     setStartDate,
     setEndDate,
     refetchEntries,

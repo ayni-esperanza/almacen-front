@@ -234,6 +234,8 @@ export const MovementsPage = () => {
             endDate={movementsData.endDate}
             onStartDateChange={movementsData.setStartDate}
             onEndDateChange={movementsData.setEndDate}
+            filterEPP={movementsData.filterEPP}
+            setFilterEPP={movementsData.setFilterEPP}
             deleteMovement={deleteMovement}
             refetchMovements={() => movementsData.refetchEntries()}
             currentPage={movementsData.entriesPage}
@@ -260,6 +262,8 @@ export const MovementsPage = () => {
             endDate={movementsData.endDate}
             onStartDateChange={movementsData.setStartDate}
             onEndDateChange={movementsData.setEndDate}
+            filterEPP={movementsData.filterEPP}
+            setFilterEPP={movementsData.setFilterEPP}
             deleteMovement={deleteMovement}
             refetchMovements={() => movementsData.refetchExits()}
             currentPage={movementsData.exitsPage}

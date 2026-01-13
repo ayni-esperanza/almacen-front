@@ -62,7 +62,8 @@ class MovementsService {
     startDate?: string,
     endDate?: string,
     page: number = 1,
-    limit: number = 100
+    limit: number = 100,
+    categoria?: string
   ): Promise<{
     data: MovementEntry[];
     pagination: {
@@ -75,6 +76,7 @@ class MovementsService {
     const params = new URLSearchParams();
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
+    if (categoria) params.append("categoria", categoria);
     params.append("page", page.toString());
     params.append("limit", limit.toString());
 
@@ -187,7 +189,8 @@ class MovementsService {
     startDate?: string,
     endDate?: string,
     page: number = 1,
-    limit: number = 100
+    limit: number = 100,
+    categoria?: string
   ): Promise<{
     data: MovementExit[];
     pagination: {
@@ -200,6 +203,7 @@ class MovementsService {
     const params = new URLSearchParams();
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
+    if (categoria) params.append("categoria", categoria);
     params.append("page", page.toString());
     params.append("limit", limit.toString());
 

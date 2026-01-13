@@ -32,6 +32,8 @@ interface MovementTableProps {
   endDate?: string;
   onStartDateChange?: (date: string) => void;
   onEndDateChange?: (date: string) => void;
+  filterEPP: boolean;
+  setFilterEPP: (filter: boolean) => void;
   deleteMovement: (id: number, type: "entrada" | "salida") => Promise<boolean>;
   refetchMovements?: () => Promise<void>;
   // Server-side pagination
@@ -187,6 +189,8 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   endDate = "",
   onStartDateChange,
   onEndDateChange,
+  filterEPP,
+  setFilterEPP,
   deleteMovement,
   refetchMovements,
   // Server-side pagination props
@@ -324,6 +328,16 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                   />
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3">
+                  <button
+                    onClick={() => setFilterEPP(!filterEPP)}
+                    className={`flex items-center flex-shrink-0 px-4 py-2 font-medium transition-all rounded-lg shadow-md whitespace-nowrap ${
+                      filterEPP
+                        ? "bg-green-500 text-white hover:bg-green-600"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    <span>EPP</span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => setShowDateFilters((prev) => !prev)}
