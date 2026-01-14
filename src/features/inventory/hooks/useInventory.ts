@@ -53,6 +53,7 @@ export const useInventory = (): UseInventoryReturn => {
 
   const isInitialMount = useRef(true);
   const fetchAbortController = useRef<AbortController | null>(null);
+  const searchDebounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -223,37 +224,60 @@ export const useInventory = (): UseInventoryReturn => {
         );
       } finally {
         setLoading(false);
+        isInitialMount.current = false;
       }
     };
 
     // Solo ejecutar una vez al montar el componente
     if (isInitialMount.current) {
       loadInitialData();
-      isInitialMount.current = false;
     }
   }, []); // Array vacío para ejecutar solo al montar
 
-  // Efecto para cargar productos cuando cambian los parámetros de búsqueda o filtro
+  // Efecto con debounce para búsqueda de texto (500ms de espera)
   useEffect(() => {
-    if (!isInitialMount.current) {
-      // Si cambia la búsqueda o el filtro, resetear a página 1 y recargar
-      if (page !== 1) {
-        setPage(1);
-      } else {
-        // Si ya estamos en página 1, cargar directamente
-        refetch();
-      }
+    if (isInitialMount.current) {
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, filterEPP]);
 
-  // Efecto para cargar productos cuando cambian page o limit
+    // Limpiar el timer anterior si existe
+    if (searchDebounceTimer.current) {
+      clearTimeout(searchDebounceTimer.current);
+    }
+
+    // Configurar nuevo timer para hacer la búsqueda después de 500ms
+    searchDebounceTimer.current = setTimeout(() => {
+      // Resetear a página 1 cuando cambia el término de búsqueda
+      setPage(1);
+    }, 500);
+
+    // Cleanup: limpiar el timer cuando el componente se desmonte o searchTerm cambie
+    return () => {
+      if (searchDebounceTimer.current) {
+        clearTimeout(searchDebounceTimer.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
+
+  // Efecto para filtro EPP (sin debounce, es inmediato como en movimientos)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      return;
+    }
+
+    // Resetear a página 1 cuando cambia el filtro EPP
+    setPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterEPP]);
+
+  // Efecto para cargar productos cuando cambian page, limit o fetchProducts
   useEffect(() => {
     if (!isInitialMount.current) {
       refetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit]);
+  }, [page, limit, fetchProducts]);
 
   return {
     products,
