@@ -6,6 +6,10 @@ import {
   UpdateProductData,
 } from "../../../shared/services/inventory.service";
 
+type RefetchOptions = {
+  silent?: boolean;
+};
+
 export interface UseInventoryReturn {
   products: Product[];
   loading: boolean;
@@ -17,7 +21,7 @@ export interface UseInventoryReturn {
   areas: string[];
   categorias: string[];
   setSearchTerm: (term: string) => void;
-  refetch: () => Promise<void>;
+  refetch: (options?: RefetchOptions) => Promise<void>;
   createProduct: (productData: CreateProductData) => Promise<Product | null>;
   updateProduct: (
     id: number,
@@ -53,7 +57,6 @@ export const useInventory = (): UseInventoryReturn => {
 
   const isInitialMount = useRef(true);
   const fetchAbortController = useRef<AbortController | null>(null);
-  const searchDebounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -73,26 +76,8 @@ export const useInventory = (): UseInventoryReturn => {
     }
   }, [searchTerm, filterEPP, page, limit]);
 
-  const fetchAreas = async () => {
-    try {
-      const data = await inventoryService.getAreas();
-      setAreas(data);
-    } catch (err) {
-      console.error("Error fetching areas:", err);
-    }
-  };
-
-  const fetchCategorias = async () => {
-    try {
-      const data = await inventoryService.getCategorias();
-      setCategorias(data);
-    } catch (err) {
-      console.error("Error fetching categorias:", err);
-    }
-  };
-
-  const refetch = useCallback(
-    async (options?: { silent?: boolean }) => {
+  const fetchAll = useCallback(
+    async (options?: RefetchOptions) => {
       // Cancelar peticiones anteriores si existen
       if (fetchAbortController.current) {
         fetchAbortController.current.abort();
@@ -123,6 +108,45 @@ export const useInventory = (): UseInventoryReturn => {
     },
     [fetchProducts]
   );
+
+  const refetch = useCallback(
+    async (options?: RefetchOptions) => {
+      const isSilent = options?.silent;
+      if (isSilent) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      try {
+        await fetchProducts();
+      } finally {
+        if (isSilent) {
+          setRefreshing(false);
+        } else {
+          setLoading(false);
+        }
+      }
+    },
+    [fetchProducts]
+  );
+
+  const fetchAreas = async () => {
+    try {
+      const data = await inventoryService.getAreas();
+      setAreas(data);
+    } catch (err) {
+      console.error("Error fetching areas:", err);
+    }
+  };
+
+  const fetchCategorias = async () => {
+    try {
+      const data = await inventoryService.getCategorias();
+      setCategorias(data);
+    } catch (err) {
+      console.error("Error fetching categorias:", err);
+    }
+  };
 
   const createProduct = async (
     productData: CreateProductData
@@ -201,13 +225,10 @@ export const useInventory = (): UseInventoryReturn => {
     }
   };
 
-  // Carga inicial única y optimizada
+  // Carga inicial de áreas y categorías
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        setLoading(true);
-
-        // Cargar todo en paralelo para mejor performance
         const [areasData, categoriasData] = await Promise.all([
           inventoryService.getAreas(),
           inventoryService.getCategorias(),
@@ -215,80 +236,33 @@ export const useInventory = (): UseInventoryReturn => {
 
         setAreas(areasData);
         setCategorias(categoriasData);
-
-        // Cargar productos inicialmente
-        await fetchProducts();
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Error al cargar datos iniciales"
-        );
-      } finally {
-        setLoading(false);
-        isInitialMount.current = false;
+        console.error("Error loading initial data:", err);
       }
     };
 
-    // Solo ejecutar una vez al montar el componente
-    if (isInitialMount.current) {
-      loadInitialData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Array vacío para ejecutar solo al montar
+    loadInitialData();
+  }, []);
 
-  // Efecto con debounce para búsqueda de texto (500ms de espera)
+  // Initial load de productos
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
+
+  // Refetch when search term changes (con debounce de 300ms igual que movimientos)
   useEffect(() => {
     if (isInitialMount.current) {
+      isInitialMount.current = false;
       return;
     }
 
-    // Limpiar el timer anterior si existe
-    if (searchDebounceTimer.current) {
-      clearTimeout(searchDebounceTimer.current);
-    }
+    // Debounce: esperar 300ms antes de hacer la petición
+    const timeoutId = setTimeout(() => {
+      fetchAll();
+    }, 300);
 
-    // Configurar nuevo timer para hacer la búsqueda después de 500ms
-    searchDebounceTimer.current = setTimeout(() => {
-      // Resetear a página 1 cuando cambia el término de búsqueda
-      if (page !== 1) {
-        setPage(1);
-      } else {
-        // Si ya está en página 1, recargar directamente
-        refetch();
-      }
-    }, 500);
-
-    // Cleanup: limpiar el timer cuando el componente se desmonte o searchTerm cambie
-    return () => {
-      if (searchDebounceTimer.current) {
-        clearTimeout(searchDebounceTimer.current);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm]);
-
-  // Efecto para filtro EPP (sin debounce, es inmediato como en movimientos)
-  useEffect(() => {
-    if (isInitialMount.current) {
-      return;
-    }
-
-    // Resetear a página 1 cuando cambia el filtro EPP
-    if (page !== 1) {
-      setPage(1);
-    } else {
-      // Si ya está en página 1, recargar directamente
-      refetch();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterEPP]);
-
-  // Efecto para cargar productos cuando cambian page o limit
-  useEffect(() => {
-    if (!isInitialMount.current) {
-      refetch();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit]);
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, fetchAll]);
 
   return {
     products,
