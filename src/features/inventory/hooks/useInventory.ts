@@ -232,6 +232,7 @@ export const useInventory = (): UseInventoryReturn => {
     if (isInitialMount.current) {
       loadInitialData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Array vacío para ejecutar solo al montar
 
   // Efecto con debounce para búsqueda de texto (500ms de espera)
@@ -248,7 +249,12 @@ export const useInventory = (): UseInventoryReturn => {
     // Configurar nuevo timer para hacer la búsqueda después de 500ms
     searchDebounceTimer.current = setTimeout(() => {
       // Resetear a página 1 cuando cambia el término de búsqueda
-      setPage(1);
+      if (page !== 1) {
+        setPage(1);
+      } else {
+        // Si ya está en página 1, recargar directamente
+        refetch();
+      }
     }, 500);
 
     // Cleanup: limpiar el timer cuando el componente se desmonte o searchTerm cambie
@@ -267,17 +273,22 @@ export const useInventory = (): UseInventoryReturn => {
     }
 
     // Resetear a página 1 cuando cambia el filtro EPP
-    setPage(1);
+    if (page !== 1) {
+      setPage(1);
+    } else {
+      // Si ya está en página 1, recargar directamente
+      refetch();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterEPP]);
 
-  // Efecto para cargar productos cuando cambian page, limit o fetchProducts
+  // Efecto para cargar productos cuando cambian page o limit
   useEffect(() => {
     if (!isInitialMount.current) {
       refetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit, fetchProducts]);
+  }, [page, limit]);
 
   return {
     products,
