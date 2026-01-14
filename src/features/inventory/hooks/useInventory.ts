@@ -233,11 +233,16 @@ export const useInventory = (): UseInventoryReturn => {
     }
   }, []); // Array vacío para ejecutar solo al montar
 
-  // Efecto para cargar productos cuando cambian los parámetros de paginación, búsqueda o filtro
+  // Efecto para cargar productos cuando cambian los parámetros de búsqueda o filtro
   useEffect(() => {
     if (!isInitialMount.current) {
-      // Reset page to 1 when search term or filter changes
-      setPage(1);
+      // Si cambia la búsqueda o el filtro, resetear a página 1 y recargar
+      if (page !== 1) {
+        setPage(1);
+      } else {
+        // Si ya estamos en página 1, cargar directamente
+        refetch();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, filterEPP]);
