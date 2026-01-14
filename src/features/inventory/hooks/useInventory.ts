@@ -55,13 +55,12 @@ export const useInventory = (): UseInventoryReturn => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
 
-  const isInitialMount = useRef(true);
   const fetchAbortController = useRef<AbortController | null>(null);
 
   const fetchProducts = useCallback(async () => {
     try {
       const response = await inventoryService.getAllProducts(
-        searchTerm || undefined,
+        undefined, // No enviamos searchTerm al servidor
         filterEPP ? "epp" : undefined,
         page,
         limit
@@ -74,7 +73,7 @@ export const useInventory = (): UseInventoryReturn => {
         setError(err.message);
       }
     }
-  }, [searchTerm, filterEPP, page, limit]);
+  }, [filterEPP, page, limit]);
 
   const fetchAll = useCallback(
     async (options?: RefetchOptions) => {
@@ -244,25 +243,11 @@ export const useInventory = (): UseInventoryReturn => {
     loadInitialData();
   }, []);
 
-  // Initial load de productos
+  // Carga de productos solo cuando cambian filterEPP, page o limit
   useEffect(() => {
     fetchAll();
-  }, [fetchAll]);
-
-  // Refetch when search term changes (con debounce de 300ms igual que movimientos)
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-
-    // Debounce: esperar 300ms antes de hacer la petición
-    const timeoutId = setTimeout(() => {
-      fetchAll();
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm, fetchAll]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterEPP, page, limit]);
 
   return {
     products,
