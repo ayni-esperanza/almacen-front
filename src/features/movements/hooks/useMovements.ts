@@ -25,21 +25,25 @@ export interface UseMovementsReturn {
   setFilterEPP: (filter: boolean) => void;
   setStartDate: (date: string) => void;
   setEndDate: (date: string) => void;
+  searchTermEntries: string;
+  setSearchTermEntries: (term: string) => void;
+  searchTermExits: string;
+  setSearchTermExits: (term: string) => void;
   refetchEntries: (options?: RefetchOptions) => Promise<void>;
   refetchExits: (options?: RefetchOptions) => Promise<void>;
   createEntry: (entryData: CreateEntryData) => Promise<MovementEntry | null>;
   createExit: (exitData: CreateExitData) => Promise<MovementExit | null>;
   updateExitQuantity: (
     id: number,
-    quantityData: UpdateExitQuantityData
+    quantityData: UpdateExitQuantityData,
   ) => Promise<MovementExit | null>;
   updateEntry: (
     id: number,
-    entryData: UpdateEntryData
+    entryData: UpdateEntryData,
   ) => Promise<MovementEntry | null>;
   updateExit: (
     id: number,
-    exitData: UpdateExitData
+    exitData: UpdateExitData,
   ) => Promise<MovementExit | null>;
   deleteEntry: (id: number) => Promise<void>;
   deleteExit: (id: number) => Promise<void>;
@@ -67,6 +71,8 @@ export const useMovements = (): UseMovementsReturn => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [filterEPP, setFilterEPP] = useState(false);
+  const [searchTermEntries, setSearchTermEntries] = useState("");
+  const [searchTermExits, setSearchTermExits] = useState("");
 
   // Pagination states for entries
   const [entriesPage, setEntriesPage] = useState(1);
@@ -82,6 +88,14 @@ export const useMovements = (): UseMovementsReturn => {
 
   const isInitialMount = useRef(true);
   const fetchAbortController = useRef<AbortController | null>(null);
+  const searchEntriesTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const searchExitsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const searchTermEntriesRef = useRef(searchTermEntries);
+  const searchTermExitsRef = useRef(searchTermExits);
 
   const fetchEntries = useCallback(async () => {
     try {
@@ -90,7 +104,8 @@ export const useMovements = (): UseMovementsReturn => {
         endDate || undefined,
         entriesPage,
         entriesLimit,
-        filterEPP ? "epp" : undefined
+        filterEPP ? "epp" : undefined,
+        searchTermEntriesRef.current || undefined,
       );
       setEntries(response.data);
       setEntriesTotalPages(response.pagination.totalPages);
@@ -109,7 +124,8 @@ export const useMovements = (): UseMovementsReturn => {
         endDate || undefined,
         exitsPage,
         exitsLimit,
-        filterEPP ? "epp" : undefined
+        filterEPP ? "epp" : undefined,
+        searchTermExitsRef.current || undefined,
       );
       setExits(response.data);
       setExitsTotalPages(response.pagination.totalPages);
@@ -152,7 +168,7 @@ export const useMovements = (): UseMovementsReturn => {
         fetchAbortController.current = null;
       }
     },
-    [fetchEntries, fetchExits]
+    [fetchEntries, fetchExits],
   );
 
   const refetchEntries = useCallback(
@@ -173,7 +189,7 @@ export const useMovements = (): UseMovementsReturn => {
         }
       }
     },
-    [fetchEntries]
+    [fetchEntries],
   );
 
   const refetchExits = useCallback(
@@ -194,11 +210,11 @@ export const useMovements = (): UseMovementsReturn => {
         }
       }
     },
-    [fetchExits]
+    [fetchExits],
   );
 
   const createEntry = async (
-    entryData: CreateEntryData
+    entryData: CreateEntryData,
   ): Promise<MovementEntry | null> => {
     try {
       // Conecta directamente con el servicio de creación de entradas
@@ -214,7 +230,7 @@ export const useMovements = (): UseMovementsReturn => {
   };
 
   const createExit = async (
-    exitData: CreateExitData
+    exitData: CreateExitData,
   ): Promise<MovementExit | null> => {
     try {
       const newExit = await movementsService.createExit(exitData);
@@ -230,12 +246,12 @@ export const useMovements = (): UseMovementsReturn => {
 
   const updateExitQuantity = async (
     id: number,
-    quantityData: UpdateExitQuantityData
+    quantityData: UpdateExitQuantityData,
   ): Promise<MovementExit | null> => {
     try {
       const updatedExit = await movementsService.updateExitQuantity(
         id.toString(),
-        quantityData
+        quantityData,
       );
       if (updatedExit) {
         await refetchExits({ silent: true });
@@ -243,7 +259,7 @@ export const useMovements = (): UseMovementsReturn => {
       return updatedExit;
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al actualizar cantidad"
+        err instanceof Error ? err.message : "Error al actualizar cantidad",
       );
       throw err;
     }
@@ -251,7 +267,7 @@ export const useMovements = (): UseMovementsReturn => {
 
   const updateEntry = async (
     id: number,
-    entryData: UpdateEntryData
+    entryData: UpdateEntryData,
   ): Promise<MovementEntry | null> => {
     try {
       const updatedEntry = await movementsService.updateEntry(id, entryData);
@@ -261,7 +277,7 @@ export const useMovements = (): UseMovementsReturn => {
       return updatedEntry;
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al actualizar la entrada"
+        err instanceof Error ? err.message : "Error al actualizar la entrada",
       );
       throw err;
     }
@@ -269,7 +285,7 @@ export const useMovements = (): UseMovementsReturn => {
 
   const updateExit = async (
     id: number,
-    exitData: UpdateExitData
+    exitData: UpdateExitData,
   ): Promise<MovementExit | null> => {
     try {
       const updatedExit = await movementsService.updateExit(id, exitData);
@@ -279,7 +295,7 @@ export const useMovements = (): UseMovementsReturn => {
       return updatedExit;
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al actualizar la salida"
+        err instanceof Error ? err.message : "Error al actualizar la salida",
       );
       throw err;
     }
@@ -291,7 +307,7 @@ export const useMovements = (): UseMovementsReturn => {
       await refetchEntries({ silent: true });
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al eliminar entrada"
+        err instanceof Error ? err.message : "Error al eliminar entrada",
       );
       throw err; // Re-lanzamos para que el componente UI sepa que falló
     } finally {
@@ -331,6 +347,78 @@ export const useMovements = (): UseMovementsReturn => {
     return () => clearTimeout(timeoutId);
   }, [startDate, endDate, fetchBoth]);
 
+  // Debounce para búsqueda de entradas
+  useEffect(() => {
+    // Actualizar el ref con el valor actual
+    searchTermEntriesRef.current = searchTermEntries;
+
+    // Limpiar el timeout anterior si existe
+    if (searchEntriesTimerRef.current) {
+      clearTimeout(searchEntriesTimerRef.current);
+    }
+
+    // Si es el montaje inicial, no hacer búsqueda
+    if (isInitialMount.current) {
+      return;
+    }
+
+    // Configurar nuevo timeout de 700ms
+    searchEntriesTimerRef.current = setTimeout(() => {
+      setRefreshing(true);
+      fetchEntries().finally(() => setRefreshing(false));
+    }, 700);
+
+    return () => {
+      if (searchEntriesTimerRef.current) {
+        clearTimeout(searchEntriesTimerRef.current);
+      }
+    };
+  }, [searchTermEntries, fetchEntries]);
+
+  // Debounce para búsqueda de salidas
+  useEffect(() => {
+    // Actualizar el ref con el valor actual
+    searchTermExitsRef.current = searchTermExits;
+
+    // Limpiar el timeout anterior si existe
+    if (searchExitsTimerRef.current) {
+      clearTimeout(searchExitsTimerRef.current);
+    }
+
+    // Si es el montaje inicial, no hacer búsqueda
+    if (isInitialMount.current) {
+      return;
+    }
+
+    // Configurar nuevo timeout de 700ms
+    searchExitsTimerRef.current = setTimeout(() => {
+      setRefreshing(true);
+      fetchExits().finally(() => setRefreshing(false));
+    }, 700);
+
+    return () => {
+      if (searchExitsTimerRef.current) {
+        clearTimeout(searchExitsTimerRef.current);
+      }
+    };
+  }, [searchTermExits, fetchExits]);
+
+  // Refetch entries when pagination changes
+  useEffect(() => {
+    if (!isInitialMount.current) {
+      fetchEntries();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entriesPage, entriesLimit]);
+
+  // Refetch exits when pagination changes
+  useEffect(() => {
+    if (!isInitialMount.current) {
+      fetchExits();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exitsPage, exitsLimit]);
+
   return {
     entries,
     exits,
@@ -343,6 +431,10 @@ export const useMovements = (): UseMovementsReturn => {
     setFilterEPP,
     setStartDate,
     setEndDate,
+    searchTermEntries,
+    setSearchTermEntries,
+    searchTermExits,
+    setSearchTermExits,
     refetchEntries,
     refetchExits,
     createEntry,

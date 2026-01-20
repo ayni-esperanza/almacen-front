@@ -260,7 +260,7 @@ export const useInventory = (): UseInventoryReturn => {
       if (page !== 1) {
         setPage(1);
       } else {
-        fetchAll({ silent: true });
+        fetchProducts();
       }
     }, 500);
 

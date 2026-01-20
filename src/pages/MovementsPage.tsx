@@ -21,11 +21,11 @@ import { ConfirmModal } from "../shared/components/ConfirmModal.tsx";
 
 export const MovementsPage = () => {
   const [activeSubTab, setActiveSubTab] = useState<"entradas" | "salidas">(
-    "entradas"
+    "entradas",
   );
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<MovementEntry | null>(
-    null
+    null,
   );
   const [selectedExit, setSelectedExit] = useState<MovementExit | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -48,7 +48,7 @@ export const MovementsPage = () => {
     setSelectedExit(null);
     // Reiniciamos con todos los datos para evitar que se quede pegada data de la tab anterior momentáneamente
     setVisibleData(
-      activeSubTab === "entradas" ? movementsData.entries : movementsData.exits
+      activeSubTab === "entradas" ? movementsData.entries : movementsData.exits,
     );
     if (!movementsData.loading) {
       setHasLoaded(true);
@@ -65,7 +65,7 @@ export const MovementsPage = () => {
     (data: (MovementEntry | MovementExit)[]) => {
       setVisibleData(data);
     },
-    []
+    [],
   );
 
   const handleAddMovement = async (data: CreateEntryData | CreateExitData) => {
@@ -236,6 +236,8 @@ export const MovementsPage = () => {
             onEndDateChange={movementsData.setEndDate}
             filterEPP={movementsData.filterEPP}
             setFilterEPP={movementsData.setFilterEPP}
+            searchTerm={movementsData.searchTermEntries}
+            setSearchTerm={movementsData.setSearchTermEntries}
             deleteMovement={deleteMovement}
             refetchMovements={() => movementsData.refetchEntries()}
             currentPage={movementsData.entriesPage}
@@ -264,6 +266,8 @@ export const MovementsPage = () => {
             onEndDateChange={movementsData.setEndDate}
             filterEPP={movementsData.filterEPP}
             setFilterEPP={movementsData.setFilterEPP}
+            searchTerm={movementsData.searchTermExits}
+            setSearchTerm={movementsData.setSearchTermExits}
             deleteMovement={deleteMovement}
             refetchMovements={() => movementsData.refetchExits()}
             currentPage={movementsData.exitsPage}
@@ -308,8 +312,8 @@ export const MovementsPage = () => {
           confirmState.type === "entry"
             ? "Eliminar entrada"
             : confirmState.type === "exit"
-            ? "Eliminar salida"
-            : "Eliminar movimiento"
+              ? "Eliminar salida"
+              : "Eliminar movimiento"
         }
         message={
           confirmState.type === "entry"
@@ -317,10 +321,11 @@ export const MovementsPage = () => {
                 (confirmState.target as MovementEntry | null)?.descripcion ?? ""
               }"?`
             : confirmState.type === "exit"
-            ? `¿Eliminar definitivamente la salida de "${
-                (confirmState.target as MovementExit | null)?.descripcion ?? ""
-              }"?`
-            : ""
+              ? `¿Eliminar definitivamente la salida de "${
+                  (confirmState.target as MovementExit | null)?.descripcion ??
+                  ""
+                }"?`
+              : ""
         }
         confirmLabel={
           confirmState.type === "entry" ? "Eliminar entrada" : "Eliminar salida"

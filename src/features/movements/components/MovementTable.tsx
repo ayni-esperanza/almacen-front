@@ -34,6 +34,8 @@ interface MovementTableProps {
   onEndDateChange?: (date: string) => void;
   filterEPP: boolean;
   setFilterEPP: (filter: boolean) => void;
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
   deleteMovement: (id: number, type: "entrada" | "salida") => Promise<boolean>;
   refetchMovements?: () => Promise<void>;
   // Server-side pagination
@@ -200,8 +202,9 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   totalItems,
   onPageChange,
   onItemsPerPageChange,
+  searchTerm,
+  setSearchTerm,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [showDateFilters, setShowDateFilters] = useState(false);
 
   const movementSortColumns = useMemo<
@@ -212,7 +215,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
         selector: (movement: MovementEntry | MovementExit) => movement.fecha,
         comparator: (
           a: MovementEntry | MovementExit,
-          b: MovementEntry | MovementExit
+          b: MovementEntry | MovementExit,
         ) => parseDateString(a.fecha) - parseDateString(b.fecha),
       },
       area: {
@@ -222,7 +225,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
         locale: "es",
       },
     }),
-    []
+    [],
   );
 
   const { sortConfig, toggleSort, sortData } = useSort<
@@ -246,27 +249,16 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     );
   };
 
-  const filteredAndSortedMovements = React.useMemo(() => {
-    // Filter
-    const filtered = movements.filter((movement) => {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        movement.codigoProducto.toLowerCase().includes(searchLower) ||
-        movement.descripcion.toLowerCase().includes(searchLower) ||
-        (movement.responsable &&
-          movement.responsable.toLowerCase().includes(searchLower))
-      );
-    });
-
-    // Sort
-    return sortData(filtered);
-  }, [movements, searchTerm, sortData]);
+  // Ordenar los movimientos que vienen de la API (ya filtrados por el servidor)
+  const sortedMovements = React.useMemo(() => {
+    return sortData(movements);
+  }, [movements, sortData]);
 
   useEffect(() => {
     if (onDataFiltered) {
-      onDataFiltered(filteredAndSortedMovements);
+      onDataFiltered(sortedMovements);
     }
-  }, [filteredAndSortedMovements, onDataFiltered]);
+  }, [sortedMovements, onDataFiltered]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -364,7 +356,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                           className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
                           onClick={() => {
                             const input = document.getElementById(
-                              "startDateInput"
+                              "startDateInput",
                             ) as HTMLInputElement;
                             input?.showPicker?.();
                           }}
@@ -389,7 +381,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                           className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
                           onClick={() => {
                             const input = document.getElementById(
-                              "endDateInput"
+                              "endDateInput",
                             ) as HTMLInputElement;
                             input?.showPicker?.();
                           }}
@@ -454,7 +446,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
           </div>
         </div>
 
-        {filteredAndSortedMovements.length === 0 ? (
+        {sortedMovements.length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-slate-400">
             {isEntry ? (
               <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
@@ -478,10 +470,8 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                     <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       <input
                         type="checkbox"
-                        checked={areAllVisibleSelected(
-                          filteredAndSortedMovements
-                        )}
-                        onChange={() => toggleAll(filteredAndSortedMovements)}
+                        checked={areAllVisibleSelected(sortedMovements)}
+                        onChange={() => toggleAll(sortedMovements)}
                         aria-label="Seleccionar todos los movimientos visibles"
                         className="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-green-500 dark:border-slate-600 dark:bg-slate-800"
                       />
@@ -553,7 +543,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
-                  {filteredAndSortedMovements.map((movement) => (
+                  {sortedMovements.map((movement) => (
                     <MovementRow
                       key={movement.id}
                       movement={movement}
@@ -589,8 +579,8 @@ export const MovementTable: React.FC<MovementTableProps> = ({
           confirmState.mode === "bulk"
             ? "Eliminar movimientos"
             : isEntry
-            ? "Eliminar entrada"
-            : "Eliminar salida"
+              ? "Eliminar entrada"
+              : "Eliminar salida"
         }
         message={
           confirmState.mode === "bulk"

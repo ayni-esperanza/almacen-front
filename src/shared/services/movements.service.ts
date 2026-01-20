@@ -63,7 +63,8 @@ class MovementsService {
     endDate?: string,
     page: number = 1,
     limit: number = 100,
-    categoria?: string
+    categoria?: string,
+    search?: string,
   ): Promise<{
     data: MovementEntry[];
     pagination: {
@@ -77,6 +78,7 @@ class MovementsService {
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
     if (categoria) params.append("categoria", categoria);
+    if (search) params.append("q", search);
     params.append("page", page.toString());
     params.append("limit", limit.toString());
 
@@ -109,7 +111,7 @@ class MovementsService {
   }
 
   async createMovementEntry(
-    entryData: CreateEntryData
+    entryData: CreateEntryData,
   ): Promise<MovementEntry> {
     const payload: CreateEntryData = {
       fecha: formatDateToDMY(entryData.fecha),
@@ -129,7 +131,7 @@ class MovementsService {
 
     const response = await apiClient.post<MovementEntry>(
       "/movements/entries",
-      payload
+      payload,
     );
     if (response.error) throw new Error(response.error);
     if (!response.data) throw new Error("Empty response while creating entry");
@@ -143,7 +145,7 @@ class MovementsService {
 
   async updateEntry(
     id: number,
-    entryData: UpdateEntryData
+    entryData: UpdateEntryData,
   ): Promise<MovementEntry | null> {
     const payload: UpdateEntryData = {};
 
@@ -175,7 +177,7 @@ class MovementsService {
 
     const response = await apiClient.patch<MovementEntry>(
       `/movements/entries/${id}`,
-      payload
+      payload,
     );
     if (response.error) {
       throw new Error(response.error);
@@ -190,7 +192,8 @@ class MovementsService {
     endDate?: string,
     page: number = 1,
     limit: number = 100,
-    categoria?: string
+    categoria?: string,
+    search?: string,
   ): Promise<{
     data: MovementExit[];
     pagination: {
@@ -204,6 +207,7 @@ class MovementsService {
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
     if (categoria) params.append("categoria", categoria);
+    if (search) params.append("q", search);
     params.append("page", page.toString());
     params.append("limit", limit.toString());
 
@@ -255,7 +259,7 @@ class MovementsService {
 
     const response = await apiClient.post<MovementExit>(
       "/movements/exits",
-      payload
+      payload,
     );
     if (response.error) {
       console.error("Error creating exit:", response.error);
@@ -266,11 +270,11 @@ class MovementsService {
 
   async updateExitQuantity(
     id: string,
-    quantityData: UpdateExitQuantityData
+    quantityData: UpdateExitQuantityData,
   ): Promise<MovementExit | null> {
     const response = await apiClient.patch<MovementExit>(
       `/movements/exits/${id}/quantity`,
-      quantityData
+      quantityData,
     );
     if (response.error) {
       console.error("Error updating exit quantity:", response.error);
@@ -281,7 +285,7 @@ class MovementsService {
 
   async updateExit(
     id: number,
-    exitData: UpdateExitData
+    exitData: UpdateExitData,
   ): Promise<MovementExit | null> {
     const payload: UpdateExitData = {};
 
@@ -318,7 +322,7 @@ class MovementsService {
 
     const response = await apiClient.patch<MovementExit>(
       `/movements/exits/${id}`,
-      payload
+      payload,
     );
     if (response.error) {
       throw new Error(response.error);
@@ -367,7 +371,7 @@ class MovementsService {
   async createArea(nombre: string): Promise<string | null> {
     const response = await apiClient.post<{ nombre: string }>(
       "/movements/areas",
-      { nombre }
+      { nombre },
     );
 
     if (response.error) {
