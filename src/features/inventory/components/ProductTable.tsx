@@ -29,7 +29,7 @@ interface ProductTableProps {
   refetch: () => Promise<void>;
   updateProduct: (
     id: number,
-    productData: UpdateProductData
+    productData: UpdateProductData,
   ) => Promise<Product | null>;
   deleteProduct: (id: number) => Promise<boolean>;
   createArea: (name: string) => Promise<void>;
@@ -78,7 +78,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         locale: "es",
       },
     }),
-    []
+    [],
   );
 
   const { sortConfig, toggleSort, sortData } = useSort<Product, SortKey>({
@@ -119,26 +119,10 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     refetch,
   });
 
-  // Filtrar y ordenar productos localmente
-  const filteredAndSortedProducts = React.useMemo(() => {
-    // Primero filtrar por searchTerm
-    const filtered = searchTerm
-      ? products.filter((product) => {
-          const searchLower = searchTerm.toLowerCase();
-          return (
-            product.codigo.toLowerCase().includes(searchLower) ||
-            product.nombre.toLowerCase().includes(searchLower) ||
-            (product.provider?.name || "")
-              .toLowerCase()
-              .includes(searchLower) ||
-            (product.marca || "").toLowerCase().includes(searchLower)
-          );
-        })
-      : products;
-
-    // Luego ordenar
-    return sortData(filtered);
-  }, [products, searchTerm, sortData]);
+  // Solo ordenar productos localmente para mejor UX
+  const sortedProducts = React.useMemo(() => {
+    return sortData(products);
+  }, [products, sortData]);
 
   const searchInputClasses =
     "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
@@ -245,7 +229,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         </div>
 
         {/* Contenido scrolleable */}
-        {filteredAndSortedProducts.length === 0 ? (
+        {sortedProducts.length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-slate-400">
             <Package className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
             <p>{"No se encontraron productos"}</p>
@@ -264,10 +248,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                       <input
                         type="checkbox"
                         aria-label="Seleccionar todos los productos"
-                        checked={areAllVisibleSelected(
-                          filteredAndSortedProducts
-                        )}
-                        onChange={() => toggleAll(filteredAndSortedProducts)}
+                        checked={areAllVisibleSelected(sortedProducts)}
+                        onChange={() => toggleAll(sortedProducts)}
                         className="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-green-500 dark:border-slate-600 dark:bg-slate-800"
                       />
                     </th>
@@ -310,7 +292,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
-                  {filteredAndSortedProducts.map((product) => (
+                  {sortedProducts.map((product) => (
                     <ProductTableRow
                       key={product.id}
                       product={product}

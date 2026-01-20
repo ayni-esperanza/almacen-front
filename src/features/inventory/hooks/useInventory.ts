@@ -25,7 +25,7 @@ export interface UseInventoryReturn {
   createProduct: (productData: CreateProductData) => Promise<Product | null>;
   updateProduct: (
     id: number,
-    productData: UpdateProductData
+    productData: UpdateProductData,
   ) => Promise<Product | null>;
   deleteProduct: (id: number) => Promise<boolean>;
   createArea: (nombre: string) => Promise<string | null>;
@@ -56,14 +56,15 @@ export const useInventory = (): UseInventoryReturn => {
   const [totalItems, setTotalItems] = useState(0);
 
   const fetchAbortController = useRef<AbortController | null>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchProducts = useCallback(async () => {
     try {
       const response = await inventoryService.getAllProducts(
-        undefined, // No enviamos searchTerm al servidor
+        searchTerm || undefined,
         filterEPP ? "epp" : undefined,
         page,
-        limit
+        limit,
       );
       setProducts(response.data);
       setTotalPages(response.pagination.totalPages);
@@ -73,7 +74,7 @@ export const useInventory = (): UseInventoryReturn => {
         setError(err.message);
       }
     }
-  }, [filterEPP, page, limit]);
+  }, [searchTerm, filterEPP, page, limit]);
 
   const fetchAll = useCallback(
     async (options?: RefetchOptions) => {
@@ -105,7 +106,7 @@ export const useInventory = (): UseInventoryReturn => {
         fetchAbortController.current = null;
       }
     },
-    [fetchProducts]
+    [fetchProducts],
   );
 
   const refetch = useCallback(
@@ -126,7 +127,7 @@ export const useInventory = (): UseInventoryReturn => {
         }
       }
     },
-    [fetchProducts]
+    [fetchProducts],
   );
 
   const fetchAreas = async () => {
@@ -148,7 +149,7 @@ export const useInventory = (): UseInventoryReturn => {
   };
 
   const createProduct = async (
-    productData: CreateProductData
+    productData: CreateProductData,
   ): Promise<Product | null> => {
     try {
       const newProduct = await inventoryService.createProduct(productData);
@@ -164,12 +165,12 @@ export const useInventory = (): UseInventoryReturn => {
 
   const updateProduct = async (
     id: number,
-    productData: UpdateProductData
+    productData: UpdateProductData,
   ): Promise<Product | null> => {
     try {
       const updatedProduct = await inventoryService.updateProduct(
         id.toString(),
-        productData
+        productData,
       );
       if (updatedProduct) {
         await refetch({ silent: true });
@@ -177,7 +178,7 @@ export const useInventory = (): UseInventoryReturn => {
       return updatedProduct;
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al actualizar producto"
+        err instanceof Error ? err.message : "Error al actualizar producto",
       );
       throw err;
     }
@@ -192,7 +193,7 @@ export const useInventory = (): UseInventoryReturn => {
       return success;
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al eliminar producto"
+        err instanceof Error ? err.message : "Error al eliminar producto",
       );
       return false;
     }
@@ -248,6 +249,28 @@ export const useInventory = (): UseInventoryReturn => {
     fetchAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterEPP, page, limit]);
+
+  // Efecto con debounce para búsqueda
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      if (page !== 1) {
+        setPage(1);
+      } else {
+        fetchAll({ silent: true });
+      }
+    }, 500);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
 
   return {
     products,
