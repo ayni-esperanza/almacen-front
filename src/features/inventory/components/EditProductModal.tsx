@@ -48,7 +48,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const [nombre, setNombre] = useState(product?.nombre || "");
   const [codigo, setCodigo] = useState(product?.codigo || "");
   const [costoUnitario, setCostoUnitario] = useState(
-    product?.costoUnitario || 0
+    product?.costoUnitario || 0,
   );
   const [ubicacion, setUbicacion] = useState(product?.ubicacion || "");
   const [stockActual, setStockActual] = useState(product?.stockActual || 0);
@@ -57,6 +57,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const [providerId, setProviderId] = useState(product?.providerId || 0);
   const [marca, setMarca] = useState(product?.marca || "");
   const [categoria, setCategoria] = useState(product?.categoria || "");
+  const [oc, setOc] = useState(product?.oc || "");
   const inputClasses =
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
   const labelClasses =
@@ -94,6 +95,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setProviderId(product.providerId);
       setMarca(product.marca || "");
       setCategoria(product.categoria || "");
+      setOc(product.oc || "");
     }
   }, [product]);
 
@@ -112,6 +114,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       providerId,
       marca,
       categoria,
+      oc,
     });
     onClose();
   };
@@ -149,220 +152,234 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
           ref={modalRef}
           className="w-full max-w-3xl max-h-[95vh] overflow-hidden rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col"
         >
-        <div className="flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-green-500 to-green-600">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold">Editar Producto</h2>
-            <button
-              onClick={onClose}
-              className="p-1 text-white transition-colors rounded-full hover:bg-white hover:bg-opacity-20"
-            >
-              ×
-            </button>
+          <div className="flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-green-500 to-green-600">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold">Editar Producto</h2>
+              <button
+                onClick={onClose}
+                className="p-1 text-white transition-colors rounded-full hover:bg-white hover:bg-opacity-20"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            <form onSubmit={handleSubmit} className="p-4">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                {/* Columna izquierda */}
+                <div className="space-y-2">
+                  <div>
+                    <label className={labelClasses}>
+                      Código del Producto *
+                    </label>
+                    <input
+                      type="text"
+                      value={codigo}
+                      onChange={(e) => setCodigo(e.target.value)}
+                      className={inputClasses}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClasses}>Costo Unitario *</label>
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={costoUnitario}
+                      onChange={(e) => setCostoUnitario(Number(e.target.value))}
+                      className={inputClasses}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClasses}>Stock Actual *</label>
+                    <input
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={stockActual}
+                      onChange={(e) => setStockActual(Number(e.target.value))}
+                      className={inputClasses}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClasses}>Proveedor *</label>
+                    <select
+                      value={providerId}
+                      onChange={(e) => setProviderId(parseInt(e.target.value))}
+                      className={`${inputClasses} appearance-none`}
+                      required
+                    >
+                      <option value="">Selecciona un Proveedor</option>
+                      {providers.map((provider) => (
+                        <option key={provider.id} value={provider.id}>
+                          {provider.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-end gap-3">
+                    <div className="w-full">
+                      <SearchableSelect
+                        name="ubicacion"
+                        label="Ubicación"
+                        value={ubicacion}
+                        onChange={(value) => setUbicacion(value)}
+                        fetchOptions={fetchUbicaciones}
+                        placeholder="Estante dentro del Almacén"
+                        required
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowUbicacionModal(true)}
+                      className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
+                      title="Agregar nueva ubicación"
+                    >
+                      <span className="text-lg font-bold">+</span>
+                    </button>
+                  </div>
+                </div>
+                {/* Columna derecha */}
+                <div className="space-y-2">
+                  <div>
+                    <label className={labelClasses}>
+                      Nombre del Producto *
+                    </label>
+                    <input
+                      type="text"
+                      value={nombre}
+                      onChange={(e) => setNombre(e.target.value)}
+                      className={inputClasses}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClasses}>Unidad de medida *</label>
+                    <select
+                      value={unidadMedida}
+                      onChange={(e) => setUnidadMedida(e.target.value)}
+                      className={`${inputClasses} appearance-none`}
+                      required
+                    >
+                      <option value="">Seleccionar unidad</option>
+                      <option value="und">Unidad (und)</option>
+                      <option value="lt">Litro (lt)</option>
+                      <option value="kg">Kilogramo (kg)</option>
+                      <option value="m">Metro (m)</option>
+                      <option value="m2">Metro cuadrado (m²)</option>
+                      <option value="m3">Metro cúbico (m³)</option>
+                      <option value="pza">Pieza (pza)</option>
+                      <option value="caja">Caja</option>
+                      <option value="rollo">Rollo</option>
+                      <option value="par">Par</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClasses}>Stock Mínimo *</label>
+                    <input
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={stockMinimo}
+                      onChange={(e) => setStockMinimo(Number(e.target.value))}
+                      className={inputClasses}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClasses}>Marca *</label>
+                    <input
+                      type="text"
+                      value={marca}
+                      onChange={(e) => setMarca(e.target.value)}
+                      className={inputClasses}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClasses}>Orden de Compra (OC)</label>
+                    <input
+                      type="text"
+                      value={oc}
+                      onChange={(e) => setOc(e.target.value)}
+                      className={inputClasses}
+                      placeholder="Ej: OC-2025-001"
+                    />
+                  </div>
+                  <div className="flex items-end gap-3">
+                    <div className="w-full">
+                      <SearchableSelect
+                        name="categoria"
+                        label="Categoría"
+                        value={categoria}
+                        onChange={(value) => setCategoria(value)}
+                        fetchOptions={fetchCategorias}
+                        placeholder="Selecciona una Categoría"
+                        required
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowCategoriaModal(true)}
+                      className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
+                      title="Agregar nueva categoría"
+                    >
+                      <span className="text-lg font-bold">+</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2 mt-2 border-t border-gray-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="px-4 py-1.5 text-sm font-semibold text-red-600 transition-colors border border-red-200 rounded-full hover:bg-red-50 dark:border-red-500/40 dark:text-red-200 dark:hover:bg-red-500/10"
+                >
+                  Eliminar
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-1.5 text-sm font-semibold text-gray-700 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 text-sm font-semibold text-white transition-colors bg-green-500 rounded-full hover:bg-green-600 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+                >
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
+
+            {/* Modales para agregar opciones */}
+            <AddOptionModal
+              isOpen={showUbicacionModal}
+              onClose={() => setShowUbicacionModal(false)}
+              onSubmit={async (name) => {
+                await onCreateArea(name);
+                setShowUbicacionModal(false);
+              }}
+              title="Nueva Ubicación"
+              label="Ubicación *"
+            />
+
+            <AddOptionModal
+              isOpen={showCategoriaModal}
+              onClose={() => setShowCategoriaModal(false)}
+              onSubmit={async (name) => {
+                await onCreateCategoria(name);
+                setShowCategoriaModal(false);
+              }}
+              title="Nueva Categoría"
+              label="Categoría *"
+            />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="p-4">
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-              {/* Columna izquierda */}
-              <div className="space-y-2">
-                <div>
-                  <label className={labelClasses}>Código del Producto *</label>
-                  <input
-                    type="text"
-                    value={codigo}
-                    onChange={(e) => setCodigo(e.target.value)}
-                    className={inputClasses}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={labelClasses}>Costo Unitario *</label>
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={costoUnitario}
-                    onChange={(e) => setCostoUnitario(Number(e.target.value))}
-                    className={inputClasses}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={labelClasses}>Stock Actual *</label>
-                  <input
-                    type="number"
-                    min={0}
-                    step={1}
-                    value={stockActual}
-                    onChange={(e) => setStockActual(Number(e.target.value))}
-                    className={inputClasses}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={labelClasses}>Proveedor *</label>
-                  <select
-                    value={providerId}
-                    onChange={(e) => setProviderId(parseInt(e.target.value))}
-                    className={`${inputClasses} appearance-none`}
-                    required
-                  >
-                    <option value="">Selecciona un Proveedor</option>
-                    {providers.map((provider) => (
-                      <option key={provider.id} value={provider.id}>
-                        {provider.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex items-end gap-3">
-                  <div className="w-full">
-                    <SearchableSelect
-                      name="ubicacion"
-                      label="Ubicación"
-                      value={ubicacion}
-                      onChange={(value) => setUbicacion(value)}
-                      fetchOptions={fetchUbicaciones}
-                      placeholder="Estante dentro del Almacén"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowUbicacionModal(true)}
-                    className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
-                    title="Agregar nueva ubicación"
-                  >
-                    <span className="text-lg font-bold">+</span>
-                  </button>
-                </div>
-              </div>
-              {/* Columna derecha */}
-              <div className="space-y-2">
-                <div>
-                  <label className={labelClasses}>Nombre del Producto *</label>
-                  <input
-                    type="text"
-                    value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
-                    className={inputClasses}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={labelClasses}>Unidad de medida *</label>
-                  <select
-                    value={unidadMedida}
-                    onChange={(e) => setUnidadMedida(e.target.value)}
-                    className={`${inputClasses} appearance-none`}
-                    required
-                  >
-                    <option value="">Seleccionar unidad</option>
-                    <option value="und">Unidad (und)</option>
-                    <option value="lt">Litro (lt)</option>
-                    <option value="kg">Kilogramo (kg)</option>
-                    <option value="m">Metro (m)</option>
-                    <option value="m2">Metro cuadrado (m²)</option>
-                    <option value="m3">Metro cúbico (m³)</option>
-                    <option value="pza">Pieza (pza)</option>
-                    <option value="caja">Caja</option>
-                    <option value="rollo">Rollo</option>
-                    <option value="par">Par</option>
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClasses}>Stock Mínimo *</label>
-                  <input
-                    type="number"
-                    min={0}
-                    step={1}
-                    value={stockMinimo}
-                    onChange={(e) => setStockMinimo(Number(e.target.value))}
-                    className={inputClasses}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={labelClasses}>Marca *</label>
-                  <input
-                    type="text"
-                    value={marca}
-                    onChange={(e) => setMarca(e.target.value)}
-                    className={inputClasses}
-                    required
-                  />
-                </div>
-                <div className="flex items-end gap-3">
-                  <div className="w-full">
-                    <SearchableSelect
-                      name="categoria"
-                      label="Categoría"
-                      value={categoria}
-                      onChange={(value) => setCategoria(value)}
-                      fetchOptions={fetchCategorias}
-                      placeholder="Selecciona una Categoría"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowCategoriaModal(true)}
-                    className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
-                    title="Agregar nueva categoría"
-                  >
-                    <span className="text-lg font-bold">+</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-2 mt-2 border-t border-gray-200 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="px-4 py-1.5 text-sm font-semibold text-red-600 transition-colors border border-red-200 rounded-full hover:bg-red-50 dark:border-red-500/40 dark:text-red-200 dark:hover:bg-red-500/10"
-              >
-                Eliminar
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-1.5 text-sm font-semibold text-gray-700 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-1.5 text-sm font-semibold text-white transition-colors bg-green-500 rounded-full hover:bg-green-600 dark:bg-emerald-500 dark:hover:bg-emerald-400"
-              >
-                Guardar Cambios
-              </button>
-            </div>
-          </form>
-
-          {/* Modales para agregar opciones */}
-          <AddOptionModal
-            isOpen={showUbicacionModal}
-            onClose={() => setShowUbicacionModal(false)}
-            onSubmit={async (name) => {
-              await onCreateArea(name);
-              setShowUbicacionModal(false);
-            }}
-            title="Nueva Ubicación"
-            label="Ubicación *"
-          />
-
-          <AddOptionModal
-            isOpen={showCategoriaModal}
-            onClose={() => setShowCategoriaModal(false)}
-            onSubmit={async (name) => {
-              await onCreateCategoria(name);
-              setShowCategoriaModal(false);
-            }}
-            title="Nueva Categoría"
-            label="Categoría *"
-          />
-        </div>
-      </div>
       </div>
 
       <ConfirmModal

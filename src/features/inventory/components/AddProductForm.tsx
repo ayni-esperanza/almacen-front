@@ -51,6 +51,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     providerId: "",
     ubicacion: "",
     categoria: "",
+    oc: "",
   });
 
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -59,7 +60,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [ubicaciones, setUbicaciones] = useState<string[]>(areas);
   const [categorias, setCategorias] = useState<string[]>(
-    categoriasFromProps || []
+    categoriasFromProps || [],
   );
 
   // Sincronizar ubicaciones cuando cambian las areas
@@ -112,17 +113,18 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
       marca: formData.marca,
       ubicacion: formData.ubicacion,
       categoria: formData.categoria,
+      oc: formData.oc,
     };
     onSubmit(productData);
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
-    
+
     // Si es el campo código, convertir a mayúsculas y limitar a 6 caracteres
-    if (name === 'codigo') {
+    if (name === "codigo") {
       const upperCaseValue = value.toUpperCase().slice(0, 6);
       setFormData({
         ...formData,
@@ -309,6 +311,17 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   onChange={handleChange}
                   className={inputClasses}
                   required
+                />
+              </div>
+              <div>
+                <label className={labelClasses}>Orden de Compra (OC)</label>
+                <input
+                  type="text"
+                  name="oc"
+                  value={formData.oc || ""}
+                  onChange={handleChange}
+                  className={inputClasses}
+                  placeholder="Ej: OC-2025-001"
                 />
               </div>
               <div className="flex items-end gap-3">

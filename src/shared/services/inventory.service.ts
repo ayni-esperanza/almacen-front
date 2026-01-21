@@ -15,6 +15,7 @@ export interface CreateProductData {
   marca?: string;
   costoTotal?: number;
   categoria?: string;
+  oc?: string;
 }
 
 export type UpdateProductData = Partial<CreateProductData>;
@@ -24,7 +25,7 @@ class InventoryService {
     search?: string,
     categoria?: string,
     page: number = 1,
-    limit: number = 100
+    limit: number = 100,
   ): Promise<{
     data: Product[];
     pagination: {
@@ -82,7 +83,7 @@ class InventoryService {
 
   async getProductByCode(codigo: string): Promise<Product | null> {
     const response = await apiClient.get<Product>(
-      `/inventory/products/code/${encodeURIComponent(codigo)}`
+      `/inventory/products/code/${encodeURIComponent(codigo)}`,
     );
 
     if (response.error) {
@@ -99,7 +100,7 @@ class InventoryService {
   async createProduct(productData: CreateProductData): Promise<Product | null> {
     const response = await apiClient.post<Product>(
       "/inventory/products",
-      productData
+      productData,
     );
 
     if (response.error) {
@@ -112,11 +113,11 @@ class InventoryService {
 
   async updateProduct(
     id: string,
-    productData: UpdateProductData
+    productData: UpdateProductData,
   ): Promise<Product | null> {
     const response = await apiClient.patch<Product>(
       `/inventory/products/${id}`,
-      productData
+      productData,
     );
 
     if (response.error) {
@@ -155,7 +156,7 @@ class InventoryService {
   async createArea(nombre: string): Promise<string | null> {
     const response = await apiClient.post<{ nombre: string }>(
       "/inventory/areas",
-      { nombre }
+      { nombre },
     );
 
     if (response.error) {
@@ -183,7 +184,7 @@ class InventoryService {
   async createCategoria(nombre: string): Promise<string | null> {
     const response = await apiClient.post<{ nombre: string }>(
       "/inventory/categorias",
-      { nombre }
+      { nombre },
     );
 
     if (response.error) {
