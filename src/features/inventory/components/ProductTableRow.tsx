@@ -48,7 +48,6 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
       providerId: editedProduct.providerId,
       marca: editedProduct.marca,
       categoria: editedProduct.categoria,
-      oc: editedProduct.oc,
     };
 
     try {
@@ -159,13 +158,6 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           style={{ cursor: "pointer" }}
         >
           {product.categoria || "N.A"}
-        </td>
-        <td
-          className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-300"
-          onClick={handleRowClick}
-          style={{ cursor: "pointer" }}
-        >
-          {product.oc || "N.A"}
         </td>
         <td
           className="px-3 py-2 text-xs font-medium text-green-600 select-text dark:text-emerald-300"

@@ -51,7 +51,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     providerId: "",
     ubicacion: "",
     categoria: "",
-    oc: "",
   });
 
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -113,7 +112,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
       marca: formData.marca,
       ubicacion: formData.ubicacion,
       categoria: formData.categoria,
-      oc: formData.oc,
     };
     onSubmit(productData);
   };
@@ -311,17 +309,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   onChange={handleChange}
                   className={inputClasses}
                   required
-                />
-              </div>
-              <div>
-                <label className={labelClasses}>Orden de Compra (OC)</label>
-                <input
-                  type="text"
-                  name="oc"
-                  value={formData.oc || ""}
-                  onChange={handleChange}
-                  className={inputClasses}
-                  placeholder="Ej: OC-2025-001"
                 />
               </div>
               <div className="flex items-end gap-3">

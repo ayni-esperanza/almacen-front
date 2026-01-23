@@ -8,7 +8,6 @@ export interface MovementEntry {
   responsable?: string;
   area?: string;
   categoria?: string;
-  oc?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,7 +23,6 @@ export interface MovementExit {
   area?: string;
   proyecto?: string;
   categoria?: string;
-  oc?: string;
   createdAt: Date;
   updatedAt: Date;
 }

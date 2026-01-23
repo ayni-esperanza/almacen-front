@@ -16,7 +16,6 @@ export interface Product {
   marca?: string;
   costoTotal: number;
   categoria?: string;
-  oc?: string;
   createdAt: Date;
   updatedAt: Date;
 }

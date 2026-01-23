@@ -15,7 +15,6 @@ export interface CreateProductData {
   marca?: string;
   costoTotal?: number;
   categoria?: string;
-  oc?: string;
 }
 
 export type UpdateProductData = Partial<CreateProductData>;

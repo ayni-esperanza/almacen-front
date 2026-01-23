@@ -57,7 +57,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const [providerId, setProviderId] = useState(product?.providerId || 0);
   const [marca, setMarca] = useState(product?.marca || "");
   const [categoria, setCategoria] = useState(product?.categoria || "");
-  const [oc, setOc] = useState(product?.oc || "");
   const inputClasses =
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
   const labelClasses =
@@ -95,7 +94,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setProviderId(product.providerId);
       setMarca(product.marca || "");
       setCategoria(product.categoria || "");
-      setOc(product.oc || "");
     }
   }, [product]);
 
@@ -114,7 +112,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       providerId,
       marca,
       categoria,
-      oc,
     });
     onClose();
   };
@@ -297,16 +294,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                       onChange={(e) => setMarca(e.target.value)}
                       className={inputClasses}
                       required
-                    />
-                  </div>
-                  <div>
-                    <label className={labelClasses}>Orden de Compra (OC)</label>
-                    <input
-                      type="text"
-                      value={oc}
-                      onChange={(e) => setOc(e.target.value)}
-                      className={inputClasses}
-                      placeholder="Ej: OC-2025-001"
                     />
                   </div>
                   <div className="flex items-end gap-3">
