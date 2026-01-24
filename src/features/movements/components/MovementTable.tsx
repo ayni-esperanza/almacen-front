@@ -285,6 +285,9 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   const gradientColor = isEntry
     ? "from-green-500 to-green-600 dark:from-green-600 dark:to-emerald-700"
     : "from-red-500 to-red-600 dark:from-red-600 dark:to-rose-700";
+  const buttonColor = isEntry
+    ? "bg-green-500 hover:bg-green-600"
+    : "bg-red-500 hover:bg-red-600";
   const titleText = isEntry ? "Entradas de Productos" : "Salidas de Productos";
   const icon = isEntry ? (
     <TrendingUp className="w-6 h-6" />
@@ -435,7 +438,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                 {onAddMovement && (
                   <button
                     onClick={onAddMovement}
-                    className="flex items-center justify-center flex-1 px-3 py-2 space-x-2 text-sm font-medium text-center text-white transition-colors bg-green-500 rounded-lg shadow-md sm:flex-none sm:px-6 hover:bg-green-600 whitespace-nowrap"
+                    className={`flex items-center justify-center flex-1 px-3 py-2 space-x-2 text-sm font-medium text-center text-white transition-colors rounded-lg shadow-md sm:flex-none sm:px-6 whitespace-nowrap ${buttonColor}`}
                   >
                     <Plus className="w-4 h-4" />
                     <span>Agregar</span>
