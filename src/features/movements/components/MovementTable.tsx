@@ -143,11 +143,11 @@ const MovementRow: React.FC<MovementRowProps> = ({
           <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {("categoria" in movement && movement.categoria) || "-"}
           </td>
-          <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
-            {movement.cantidad}
-          </td>
           <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {movement.area || "-"}
+          </td>
+          <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
+            {movement.cantidad}
           </td>
           <td className="px-3 py-2 text-xs font-medium text-green-600 select-text dark:text-emerald-400">
             S/ {movement.precioUnitario.toFixed(2)}
@@ -496,9 +496,6 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                           Categoría
                         </th>
-                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                          Cantidad
-                        </th>
                         <th
                           onClick={() => toggleSort("area")}
                           className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
@@ -507,6 +504,9 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                             Área
                             {getSortIcon("area")}
                           </div>
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Cantidad
                         </th>
                         <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                           Costo U.
