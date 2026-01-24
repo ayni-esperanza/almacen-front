@@ -346,7 +346,7 @@ export const PurchaseOrderDetail = ({
               <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
                 <thead className="bg-gray-50 dark:bg-slate-800">
                   <tr>
-                    <th className="px-3 py-2 text-xs text-center select-none">
+                    <th className="w-12 py-3 text-xs text-center select-none">
                       <input
                         type="checkbox"
                         checked={areAllVisibleSelected(products)}
@@ -355,28 +355,28 @@ export const PurchaseOrderDetail = ({
                         className="w-4 h-4 text-orange-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-orange-500 dark:border-slate-600 dark:bg-slate-800"
                       />
                     </th>
-                    <th className="px-3 py-2 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-slate-400">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                       Fecha
                     </th>
-                    <th className="px-3 py-2 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-slate-400">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                       Código
                     </th>
-                    <th className="px-3 py-2 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-slate-400">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                       Nombre
                     </th>
-                    <th className="px-3 py-2 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-slate-400">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                       Área
                     </th>
-                    <th className="px-3 py-2 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-slate-400">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                       Proyecto
                     </th>
-                    <th className="px-3 py-2 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-slate-400">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                       Responsable
                     </th>
-                    <th className="px-3 py-2 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-slate-400">
+                    <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                       Cantidad
                     </th>
-                    <th className="px-3 py-2 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-slate-400">
+                    <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                       Costo U.
                     </th>
                   </tr>

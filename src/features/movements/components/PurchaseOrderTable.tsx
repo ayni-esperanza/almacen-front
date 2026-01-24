@@ -98,7 +98,7 @@ const PurchaseOrderRow: React.FC<PurchaseOrderRowProps> = ({
       className="transition-colors border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer select-text"
     >
       <td
-        className="px-3 py-2 text-xs text-center select-none"
+        className="py-2 text-xs text-center select-none"
         onMouseDown={(e) => {
           if (e.button === 0) {
             e.stopPropagation();
@@ -124,10 +124,10 @@ const PurchaseOrderRow: React.FC<PurchaseOrderRowProps> = ({
       <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
         {order.codigo}
       </td>
-      <td className="px-3 py-2 text-xs font-medium text-gray-900 text-right select-text dark:text-slate-100">
+      <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
         {order.cantidad}
       </td>
-      <td className="px-3 py-2 text-xs font-medium text-orange-600 text-right select-text dark:text-orange-400">
+      <td className="px-3 py-2 text-xs font-medium text-orange-600 text-center select-text dark:text-orange-400">
         S/ {order.costo.toFixed(2)}
       </td>
     </tr>
@@ -308,10 +308,10 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                 {onAddOrder && (
                   <button
                     onClick={onAddOrder}
-                    className="inline-flex items-center px-3 py-2 text-xs font-medium text-white transition-colors bg-orange-500 rounded-lg hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700"
+                    className="flex items-center justify-center flex-1 px-3 py-2 space-x-2 text-sm font-medium text-center text-white transition-colors bg-orange-500 rounded-lg shadow-md sm:flex-none sm:px-6 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 whitespace-nowrap"
                   >
-                    <Plus className="w-4 h-4 mr-1.5" />
-                    Nueva Orden
+                    <Plus className="w-4 h-4" />
+                    <span>Agregar</span>
                   </button>
                 )}
               </div>
@@ -322,9 +322,9 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
         {/* Tabla */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-            <thead className="bg-gray-50 dark:bg-slate-800">
+            <thead className="bg-gray-50 dark:bg-slate-900">
               <tr>
-                <th className="px-3 py-3 text-xs text-center select-none">
+                <th className="w-12 py-3 text-xs text-center select-none">
                   <input
                     type="checkbox"
                     checked={areAllVisibleSelected(sortedOrders)}
@@ -335,7 +335,7 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                 </th>
                 <th
                   onClick={() => toggleSort("fecha")}
-                  className="px-3 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase cursor-pointer select-none group hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-700"
+                  className="px-3 py-3 text-xs font-semibold text-left text-gray-700 cursor-pointer select-none hover:bg-gray-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   <div className="flex items-center gap-1">
                     Fecha
@@ -344,22 +344,22 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                 </th>
                 <th
                   onClick={() => toggleSort("codigo")}
-                  className="px-3 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase cursor-pointer select-none group hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-700"
+                  className="px-3 py-3 text-xs font-semibold text-left text-gray-700 cursor-pointer select-none hover:bg-gray-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   <div className="flex items-center gap-1">
                     Orden de Compra
                     {getSortIcon("codigo")}
                   </div>
                 </th>
-                <th className="px-3 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-slate-400">
+                <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                   Cantidad
                 </th>
-                <th className="px-3 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-slate-400">
+                <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                   Costo
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200 dark:bg-slate-900 dark:divide-slate-800">
+            <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
               {sortedOrders.length === 0 ? (
                 <tr>
                   <td
