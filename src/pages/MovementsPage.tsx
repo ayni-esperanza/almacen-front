@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, ShoppingCart } from "lucide-react";
 import { MovementTable } from "../features/movements/components/MovementTable.tsx";
 import { AddMovementForm } from "../features/movements/components/AddMovementForm.tsx";
 import { useMovements } from "../features/movements/hooks/useMovements.ts";
@@ -18,9 +18,18 @@ import { EditExitMovementForm } from "../features/movements/components/EditExitM
 import { movementsPDFService } from "../features/movements/services/movements-pdf.service.ts";
 import { useAuth } from "../shared/hooks/useAuth.tsx";
 import { ConfirmModal } from "../shared/components/ConfirmModal.tsx";
+import { PurchaseOrderTable } from "../features/movements/components/PurchaseOrderTable.tsx";
+import { PurchaseOrderForm } from "../features/movements/components/PurchaseOrderForm.tsx";
+import { PurchaseOrderDetail } from "../features/movements/components/PurchaseOrderDetail.tsx";
+import { usePurchaseOrders } from "../features/movements/hooks/usePurchaseOrders.ts";
+import { PurchaseOrder } from "../features/movements/types/purchases.ts";
+import {
+  CreatePurchaseOrderData,
+  UpdatePurchaseOrderData,
+} from "../features/movements/services/purchase-orders.service.ts";
 
 export const MovementsPage = () => {
-  const [activeSubTab, setActiveSubTab] = useState<"entradas" | "salidas">(
+  const [activeSubTab, setActiveSubTab] = useState<"entradas" | "salidas" | "compras">(
     "entradas",
   );
   const [showAddForm, setShowAddForm] = useState(false);
@@ -36,6 +45,14 @@ export const MovementsPage = () => {
     target: MovementEntry | MovementExit | null;
   }>({ open: false, type: null, target: null });
   const movementsData = useMovements();
+  
+  // Estados para Purchase Orders
+  const [showPurchaseOrderForm, setShowPurchaseOrderForm] = useState(false);
+  const [selectedPurchaseOrder, setSelectedPurchaseOrder] = useState<PurchaseOrder | null>(null);
+  const [showPurchaseOrderDetail, setShowPurchaseOrderDetail] = useState(false);
+  const [editingPurchaseOrder, setEditingPurchaseOrder] = useState<PurchaseOrder | null>(null);
+  const purchaseOrdersData = usePurchaseOrders();
+  
   // Almacena los datos filtrados/ordenados que vienen de la tabla
   const [visibleData, setVisibleData] = useState<
     (MovementEntry | MovementExit)[]
@@ -47,11 +64,17 @@ export const MovementsPage = () => {
     setSelectedEntry(null);
     setSelectedExit(null);
     // Reiniciamos con todos los datos para evitar que se quede pegada data de la tab anterior momentáneamente
-    setVisibleData(
-      activeSubTab === "entradas" ? movementsData.entries : movementsData.exits,
-    );
+    if (activeSubTab !== "compras") {
+      setVisibleData(
+        activeSubTab === "entradas" ? movementsData.entries : movementsData.exits,
+      );
+    }
     if (!movementsData.loading) {
       setHasLoaded(true);
+    }
+    // Cargar órdenes de compra cuando se seleccione esa pestaña
+    if (activeSubTab === "compras") {
+      purchaseOrdersData.fetchPurchaseOrders();
     }
   }, [
     activeSubTab,
@@ -171,12 +194,72 @@ export const MovementsPage = () => {
       }
 
       await movementsPDFService.exportMovements({
-        type: activeSubTab,
+        type: activeSubTab === "entradas" ? "entradas" : "salidas",
         data: dataToExport as MovementEntry[] | MovementExit[],
         userName,
       });
     } catch (error) {
       console.error("Error al exportar PDF:", error);
+    }
+  };
+
+  // Handlers para Purchase Orders
+  const handleAddPurchaseOrder = () => {
+    setEditingPurchaseOrder(null);
+    setShowPurchaseOrderForm(true);
+  };
+
+  const handleEditPurchaseOrder = (order: PurchaseOrder) => {
+    setEditingPurchaseOrder(order);
+    setShowPurchaseOrderForm(true);
+  };
+
+  const handleSelectPurchaseOrder = (order: PurchaseOrder) => {
+    setSelectedPurchaseOrder(order);
+    setShowPurchaseOrderDetail(true);
+  };
+
+  const handleSubmitPurchaseOrder = async (
+    data: CreatePurchaseOrderData | UpdatePurchaseOrderData
+  ) => {
+    try {
+      if (editingPurchaseOrder) {
+        await purchaseOrdersData.updatePurchaseOrder(
+          editingPurchaseOrder.id,
+          data as UpdatePurchaseOrderData
+        );
+      } else {
+        await purchaseOrdersData.createPurchaseOrder(data as CreatePurchaseOrderData);
+      }
+      setShowPurchaseOrderForm(false);
+      setEditingPurchaseOrder(null);
+    } catch (error) {
+      console.error("Error saving purchase order:", error);
+      throw error;
+    }
+  };
+
+  const handleDeletePurchaseOrder = async () => {
+    if (!editingPurchaseOrder) return;
+    if (confirm(`¿Eliminar la orden ${editingPurchaseOrder.codigo}?`)) {
+      try {
+        await purchaseOrdersData.deletePurchaseOrder(editingPurchaseOrder.id);
+        setShowPurchaseOrderForm(false);
+        setEditingPurchaseOrder(null);
+      } catch (error) {
+        console.error("Error deleting purchase order:", error);
+      }
+    }
+  };
+
+  const deletePurchaseOrderById = async (id: number): Promise<boolean> => {
+    try {
+      await purchaseOrdersData.deletePurchaseOrder(id);
+      return true;
+    } catch (error) {
+      console.error("No se pudo eliminar la orden de compra:", error);
+      alert(error instanceof Error ? error.message : "Error al eliminar");
+      return false;
     }
   };
 
@@ -207,10 +290,21 @@ export const MovementsPage = () => {
             <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Salidas</span>
           </button>
+          <button
+            onClick={() => setActiveSubTab("compras")}
+            className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
+              activeSubTab === "compras"
+                ? "border-orange-500 text-orange-600 dark:text-orange-400"
+                : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600"
+            }`}
+          >
+            <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span>Compras</span>
+          </button>
         </nav>
       </div>
 
-      {movementsData.loading && !hasLoaded ? (
+      {movementsData.loading && !hasLoaded && activeSubTab !== "compras" ? (
         <div className="flex flex-col items-center justify-center gap-4 p-8 text-gray-600 dark:text-slate-300 fade-section">
           <div
             className="w-12 h-12 border-b-2 border-green-500 rounded-full animate-spin"
@@ -248,7 +342,7 @@ export const MovementsPage = () => {
             onItemsPerPageChange={movementsData.setEntriesLimit}
           />
         </div>
-      ) : (
+      ) : activeSubTab === "salidas" ? (
         <div
           key={`salidas-${movementsData.startDate}-${movementsData.endDate}-${movementsData.exits.length}`}
           className="fade-section"
@@ -278,6 +372,32 @@ export const MovementsPage = () => {
             onItemsPerPageChange={movementsData.setExitsLimit}
           />
         </div>
+      ) : (
+        <div
+          key={`compras-${purchaseOrdersData.purchaseOrders.length}`}
+          className="fade-section"
+        >
+          <PurchaseOrderTable
+            purchaseOrders={purchaseOrdersData.purchaseOrders}
+            onSelectOrder={handleSelectPurchaseOrder}
+            onEditOrder={handleEditPurchaseOrder}
+            onAddOrder={handleAddPurchaseOrder}
+            startDate={purchaseOrdersData.startDate}
+            endDate={purchaseOrdersData.endDate}
+            onStartDateChange={purchaseOrdersData.setStartDate}
+            onEndDateChange={purchaseOrdersData.setEndDate}
+            searchTerm={purchaseOrdersData.searchTerm}
+            setSearchTerm={purchaseOrdersData.setSearchTerm}
+            refetch={purchaseOrdersData.refetch}
+            currentPage={purchaseOrdersData.currentPage}
+            itemsPerPage={purchaseOrdersData.itemsPerPage}
+            totalPages={purchaseOrdersData.totalPages}
+            totalItems={purchaseOrdersData.totalItems}
+            onPageChange={purchaseOrdersData.setCurrentPage}
+            onItemsPerPageChange={purchaseOrdersData.setItemsPerPage}
+            deletePurchaseOrder={deletePurchaseOrderById}
+          />
+        </div>
       )}
 
       {showAddForm && (
@@ -303,6 +423,29 @@ export const MovementsPage = () => {
           onSubmit={handleUpdateExit}
           onCancel={() => setSelectedExit(null)}
           onDelete={handleDeleteExit}
+        />
+      )}
+
+      {showPurchaseOrderForm && (
+        <PurchaseOrderForm
+          order={editingPurchaseOrder || undefined}
+          onSubmit={handleSubmitPurchaseOrder}
+          onCancel={() => {
+            setShowPurchaseOrderForm(false);
+            setEditingPurchaseOrder(null);
+          }}
+          onDelete={editingPurchaseOrder ? handleDeletePurchaseOrder : undefined}
+        />
+      )}
+
+      {showPurchaseOrderDetail && selectedPurchaseOrder && (
+        <PurchaseOrderDetail
+          order={selectedPurchaseOrder}
+          onClose={() => {
+            setShowPurchaseOrderDetail(false);
+            setSelectedPurchaseOrder(null);
+          }}
+          onRefresh={purchaseOrdersData.refetch}
         />
       )}
 
