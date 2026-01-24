@@ -287,7 +287,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                       Categoría
                     </th>
                     <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                      Costo Unitario
+                      Costo U.
                     </th>
                   </tr>
                 </thead>
