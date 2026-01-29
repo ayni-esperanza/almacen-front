@@ -155,7 +155,7 @@ export const PurchaseOrderDetail = ({
   const handleEditProduct = (product: PurchaseOrderProduct) => {
     setEditingProduct(product);
     setShowAddForm(true);
-    setSearchProductCode(product.codigo);
+    // No establecer searchProductCode al editar para evitar abrir el dropdown automáticamente
     setFormData({
       fecha: product.fecha,
       codigo: product.codigo,
