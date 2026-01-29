@@ -59,7 +59,6 @@ export const PurchaseOrderForm = ({
         : {
             fecha: formattedDate,
             // No incluir código - se genera automáticamente en el backend
-            estado: "BORRADOR" as const,
           };
 
       await onSubmit(data);

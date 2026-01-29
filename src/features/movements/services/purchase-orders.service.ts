@@ -4,15 +4,10 @@ import { PurchaseOrder, PurchaseOrderProduct } from "../types/purchases.ts";
 
 export interface CreatePurchaseOrderData {
   fecha: string;
-  proveedor?: string;
-  estado?: "BORRADOR" | "ENVIADA" | "RECIBIDA" | "CANCELADA";
-  observaciones?: string;
 }
 
 export interface UpdatePurchaseOrderData {
   fecha?: string;
-  proveedor?: string;
-  estado?: "BORRADOR" | "ENVIADA" | "RECIBIDA" | "CANCELADA";
   observaciones?: string;
 }
 

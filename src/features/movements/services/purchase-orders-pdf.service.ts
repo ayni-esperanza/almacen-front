@@ -23,26 +23,9 @@ class PurchaseOrdersPDFService {
     doc.setFont("helvetica", "normal");
     doc.text(`Código: ${order.codigo}`, 10, 35);
     doc.text(`Fecha: ${order.fecha}`, 10, 42);
-    if (order.proveedor) {
-      doc.text(`Proveedor: ${order.proveedor}`, 10, 49);
-    }
-    doc.text(`Estado: ${order.estado}`, 10, order.proveedor ? 56 : 49);
-    if (order.observaciones) {
-      doc.text(
-        `Observaciones: ${order.observaciones}`,
-        10,
-        order.proveedor ? 63 : 56,
-      );
-    }
 
     // Tabla de productos
-    const startY = order.observaciones
-      ? order.proveedor
-        ? 73
-        : 66
-      : order.proveedor
-        ? 66
-        : 59;
+    const startY = 52;
 
     const tableData = products.map((product) => [
       product.fecha,

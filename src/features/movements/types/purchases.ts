@@ -2,11 +2,8 @@ export interface PurchaseOrder {
   id: number;
   codigo: string;
   fecha: string;
-  proveedor?: string;
-  estado: "BORRADOR" | "ENVIADA" | "RECIBIDA" | "CANCELADA";
   cantidad: number; // Suma de cantidades de productos
   costo: number; // Suma de costos de productos
-  observaciones?: string;
   productos?: PurchaseOrderProduct[];
   createdAt: Date;
   updatedAt: Date;
