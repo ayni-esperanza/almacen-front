@@ -16,6 +16,7 @@ import {
   ArrowDown,
   Filter,
   Trash2,
+  X,
 } from "lucide-react";
 
 interface PurchaseOrderTableProps {
@@ -95,7 +96,7 @@ const PurchaseOrderRow: React.FC<PurchaseOrderRowProps> = ({
       onClick={handleRowClick}
       onContextMenu={handleContextMenu}
       onMouseEnter={onMouseEnterRow}
-      className="transition-colors border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer select-text"
+      className="transition-colors border-b border-gray-100 cursor-pointer select-text dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800"
     >
       <td
         className="py-2 text-xs text-center select-none"
@@ -127,7 +128,7 @@ const PurchaseOrderRow: React.FC<PurchaseOrderRowProps> = ({
       <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
         {order.cantidad}
       </td>
-      <td className="px-3 py-2 text-xs font-medium text-orange-600 text-center select-text dark:text-orange-400">
+      <td className="px-3 py-2 text-xs font-medium text-center text-orange-600 select-text dark:text-orange-400">
         S/ {order.costo.toFixed(2)}
       </td>
     </tr>
@@ -157,7 +158,9 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
 }) => {
   const [showDateFilters, setShowDateFilters] = useState(false);
 
-  const orderSortColumns = useMemo<Record<SortKey, SortColumnConfig<PurchaseOrder>>>(
+  const orderSortColumns = useMemo<
+    Record<SortKey, SortColumnConfig<PurchaseOrder>>
+  >(
     () => ({
       fecha: {
         selector: (order: PurchaseOrder) => order.fecha,
@@ -170,7 +173,7 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
         locale: "es",
       },
     }),
-    []
+    [],
   );
 
   const { sortConfig, toggleSort, sortData } = useSort<PurchaseOrder, SortKey>({
@@ -225,7 +228,7 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
 
   return (
     <>
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 text-white py-3 px-4 sm:py-4 sm:px-6 shadow-sm">
+      <div className="px-4 py-3 text-white shadow-sm bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 sm:py-4 sm:px-6">
         <div className="flex items-center space-x-2 sm:space-x-3">
           <ShoppingCart className="w-6 h-6" />
           <h2 className="text-lg font-bold sm:text-xl">Órdenes de Compra</h2>
@@ -254,7 +257,11 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                     onClick={() => setShowDateFilters((prev) => !prev)}
                     aria-pressed={showDateFilters}
                     aria-label="Mostrar u ocultar filtros de fecha"
-                    className="p-2 text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 h-[38px]"
+                    className={`p-2 transition-colors border rounded-lg h-[38px] ${
+                      startDate || endDate
+                        ? "text-white bg-orange-500 border-orange-500 hover:bg-orange-600"
+                        : "text-gray-600 border-gray-300 hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
+                    }`}
                   >
                     <Filter className="w-4 h-4" />
                   </button>
@@ -272,15 +279,32 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                         type="date"
                         value={startDate}
                         onChange={(e) => onStartDateChange?.(e.target.value)}
-                        className="w-full py-2 px-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200"
+                        placeholder="Desde"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200"
                       />
-                      <span className="text-sm text-gray-500">a</span>
+                      <span className="text-sm text-gray-500 dark:text-slate-400">
+                        a
+                      </span>
                       <input
                         type="date"
                         value={endDate}
                         onChange={(e) => onEndDateChange?.(e.target.value)}
-                        className="w-full py-2 px-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200"
+                        placeholder="Hasta"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200"
                       />
+                      {(startDate || endDate) && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onStartDateChange?.("");
+                            onEndDateChange?.("");
+                          }}
+                          className="p-2 text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
+                          title="Limpiar filtros de fecha"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
