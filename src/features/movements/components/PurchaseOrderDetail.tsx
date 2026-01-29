@@ -1,5 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
-import { X, Plus, Trash2, Save, Search, ArrowLeft } from "lucide-react";
+import {
+  X,
+  Plus,
+  Trash2,
+  Save,
+  Search,
+  ArrowLeft,
+  Download,
+} from "lucide-react";
 import { PurchaseOrder, PurchaseOrderProduct } from "../types/purchases.ts";
 import { purchaseOrdersService } from "../services/purchase-orders.service.ts";
 import { ConfirmModal } from "../../../shared/components/ConfirmModal.tsx";
@@ -8,6 +16,7 @@ import {
   inventoryService,
   Product,
 } from "../../../shared/services/inventory.service.ts";
+import { purchaseOrdersPDFService } from "../services/purchase-orders-pdf.service.ts";
 
 interface PurchaseOrderDetailProps {
   order: PurchaseOrder;
@@ -211,6 +220,11 @@ export const PurchaseOrderDetail = ({
     }
   };
 
+  // Función para descargar el PDF de la orden de compra
+  const handleDownloadPDF = () => {
+    purchaseOrdersPDFService.generatePurchaseOrderPDF(order, products);
+  };
+
   const totalCantidad = products.reduce((sum, p) => sum + p.cantidad, 0);
   const totalCosto = products.reduce((sum, p) => sum + p.subtotal, 0);
 
@@ -244,9 +258,19 @@ export const PurchaseOrderDetail = ({
           {/* Contenido scrollable */}
           <div className="flex-1 p-6 overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
-                Productos
-              </h3>
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+                  Productos
+                </h3>
+                <button
+                  onClick={handleDownloadPDF}
+                  className="inline-flex items-center px-3 py-2 text-xs font-medium text-gray-700 transition-colors bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-700"
+                  title="Descargar PDF"
+                >
+                  <Download className="w-4 h-4 mr-1.5" />
+                  Descargar PDF
+                </button>
+              </div>
               <div className="flex gap-2">
                 {selectedIds.size > 0 && (
                   <button
