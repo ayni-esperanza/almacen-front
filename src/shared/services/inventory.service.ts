@@ -196,3 +196,4 @@ class InventoryService {
 }
 
 export const inventoryService = new InventoryService();
+export type { Product };

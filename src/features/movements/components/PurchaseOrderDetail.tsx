@@ -1,14 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
-import { X, Plus, Trash2, Save } from "lucide-react";
+import { X, Plus, Trash2, Save, Search, ArrowLeft } from "lucide-react";
 import { PurchaseOrder, PurchaseOrderProduct } from "../types/purchases.ts";
 import { purchaseOrdersService } from "../services/purchase-orders.service.ts";
 import { ConfirmModal } from "../../../shared/components/ConfirmModal.tsx";
 import { useBulkSelection } from "../../../shared/hooks/useBulkSelection";
+import {
+  inventoryService,
+  Product,
+} from "../../../shared/services/inventory.service.ts";
 
 interface PurchaseOrderDetailProps {
   order: PurchaseOrder;
   onClose: () => void;
-  onRefresh?: () => void; // Opcional hasta que el backend esté listo
+  onRefresh?: () => void;
 }
 
 interface ProductFormData {
@@ -25,11 +29,20 @@ interface ProductFormData {
 export const PurchaseOrderDetail = ({
   order,
   onClose,
+  onRefresh,
 }: PurchaseOrderDetailProps) => {
   const [products, setProducts] = useState<PurchaseOrderProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<PurchaseOrderProduct | null>(null);
+  const [editingProduct, setEditingProduct] =
+    useState<PurchaseOrderProduct | null>(null);
+
+  // Search products from inventory
+  const [searchProductCode, setSearchProductCode] = useState("");
+  const [searchingProduct, setSearchingProduct] = useState(false);
+  const [inventoryProducts, setInventoryProducts] = useState<Product[]>([]);
+  const [showProductList, setShowProductList] = useState(false);
+
   const [formData, setFormData] = useState<ProductFormData>({
     fecha: new Date().toISOString().split("T")[0],
     codigo: "",
@@ -44,7 +57,9 @@ export const PurchaseOrderDetail = ({
   const loadProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await purchaseOrdersService.getPurchaseOrderProducts(order.id);
+      const data = await purchaseOrdersService.getPurchaseOrderProducts(
+        order.id,
+      );
       setProducts(data);
     } catch (error) {
       console.error("Error loading products:", error);
@@ -68,8 +83,7 @@ export const PurchaseOrderDetail = ({
   } = useBulkSelection<PurchaseOrderProduct>({
     getId: (product) => product.id,
     deleteItem: async (id) => {
-      // TODO: Implementar cuando el backend esté listo
-      console.log("Eliminando producto con id:", id);
+      await purchaseOrdersService.deletePurchaseOrderProduct(order.id, id);
       return true;
     },
     refetch: loadProducts,
@@ -79,9 +93,53 @@ export const PurchaseOrderDetail = ({
     loadProducts();
   }, [loadProducts]);
 
+  // Search products from inventory when typing
+  useEffect(() => {
+    const searchProducts = async () => {
+      if (searchProductCode.trim().length < 2) {
+        setInventoryProducts([]);
+        setShowProductList(false);
+        return;
+      }
+
+      try {
+        setSearchingProduct(true);
+        const result = await inventoryService.getAllProducts(
+          searchProductCode,
+          undefined,
+          1,
+          10,
+        );
+        setInventoryProducts(result.data);
+        setShowProductList(result.data.length > 0);
+      } catch (error) {
+        console.error("Error searching products:", error);
+      } finally {
+        setSearchingProduct(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(searchProducts, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchProductCode]);
+
+  const handleSelectProductFromInventory = (product: Product) => {
+    setFormData({
+      ...formData,
+      codigo: product.codigo,
+      nombre: product.nombre,
+      costoUnitario: product.costoUnitario,
+    });
+    setSearchProductCode(product.codigo);
+    setShowProductList(false);
+  };
+
   const handleAddProduct = () => {
     setShowAddForm(true);
     setEditingProduct(null);
+    setSearchProductCode("");
+    setInventoryProducts([]);
+    setShowProductList(false);
     setFormData({
       fecha: new Date().toISOString().split("T")[0],
       codigo: "",
@@ -97,6 +155,7 @@ export const PurchaseOrderDetail = ({
   const handleEditProduct = (product: PurchaseOrderProduct) => {
     setEditingProduct(product);
     setShowAddForm(true);
+    setSearchProductCode(product.codigo);
     setFormData({
       fecha: product.fecha,
       codigo: product.codigo,
@@ -113,389 +172,457 @@ export const PurchaseOrderDetail = ({
     e.preventDefault();
     try {
       if (editingProduct) {
-        // TODO: Descomentar cuando el backend esté listo
-        // await purchaseOrdersService.updatePurchaseOrderProduct(
-        //   order.id,
-        //   editingProduct.id,
-        //   formData
-        // );
-        console.log("Actualizando producto:", formData);
-        alert("Funcionalidad disponible cuando el backend esté listo");
+        await purchaseOrdersService.updatePurchaseOrderProduct(
+          order.id,
+          editingProduct.id,
+          formData,
+        );
       } else {
-        // TODO: Descomentar cuando el backend esté listo
-        // await purchaseOrdersService.addProductToPurchaseOrder(order.id, formData);
-        console.log("Agregando producto:", formData);
-        alert("Funcionalidad disponible cuando el backend esté listo");
+        await purchaseOrdersService.addProductToPurchaseOrder(
+          order.id,
+          formData,
+        );
       }
-      // await loadProducts();
-      // onRefresh();
+      await loadProducts();
+      if (onRefresh) {
+        onRefresh();
+      }
       setShowAddForm(false);
       setEditingProduct(null);
+      setSearchProductCode("");
     } catch (error) {
       console.error("Error saving product:", error);
       alert("Error al guardar el producto");
     }
   };
 
-
+  // Función para manejar el botón Volver de manera inteligente
+  const handleBack = () => {
+    if (showAddForm || editingProduct) {
+      // Si hay un formulario abierto, solo cerrarlo
+      setShowAddForm(false);
+      setEditingProduct(null);
+      setSearchProductCode("");
+      setInventoryProducts([]);
+      setShowProductList(false);
+    } else {
+      // Si no hay formulario abierto, cerrar el modal completo
+      onClose();
+    }
+  };
 
   const totalCantidad = products.reduce((sum, p) => sum + p.cantidad, 0);
   const totalCosto = products.reduce((sum, p) => sum + p.subtotal, 0);
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-        <div className="relative w-full max-w-5xl bg-white rounded-lg shadow-xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col">
+      {/* Overlay de fondo */}
+      <div className="fixed inset-0 z-[100] bg-black/50" onClick={onClose} />
+
+      {/* Contenedor del modal */}
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
+        <div className="relative w-full max-w-5xl bg-white rounded-lg shadow-xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col pointer-events-auto">
           {/* Header con degradado */}
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700">
             <div>
               <h2 className="text-2xl font-bold text-white">
                 Orden de Compra: {order.codigo}
               </h2>
-              <p className="text-sm text-orange-100 mt-1">
+              <p className="mt-1 text-sm text-orange-100">
                 Fecha: {order.fecha}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="text-white hover:text-orange-100 transition-colors"
+              className="text-white transition-colors hover:text-orange-100"
+              title="Cerrar"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
 
           {/* Contenido scrollable */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 p-6 overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
-              Productos
-            </h3>
-            <div className="flex gap-2">
-              {selectedIds.size > 0 && (
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+                Productos
+              </h3>
+              <div className="flex gap-2">
+                {selectedIds.size > 0 && (
+                  <button
+                    onClick={() => requestBulkDelete()}
+                    className="inline-flex items-center px-3 py-2 text-xs font-medium text-white transition-colors bg-red-500 rounded-lg hover:bg-red-600"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1.5" />
+                    Eliminar ({selectedIds.size})
+                  </button>
+                )}
                 <button
-                  onClick={() => requestBulkDelete()}
-                  className="inline-flex items-center px-3 py-2 text-xs font-medium text-white transition-colors bg-red-500 rounded-lg hover:bg-red-600"
+                  onClick={handleAddProduct}
+                  className="inline-flex items-center px-3 py-2 text-xs font-medium text-white transition-colors bg-orange-500 rounded-lg hover:bg-orange-600"
                 >
-                  <Trash2 className="w-4 h-4 mr-1.5" />
-                  Eliminar ({selectedIds.size})
+                  <Plus className="w-4 h-4 mr-1.5" />
+                  Agregar Producto
                 </button>
-              )}
-              <button
-                onClick={handleAddProduct}
-                className="inline-flex items-center px-3 py-2 text-xs font-medium text-white transition-colors bg-orange-500 rounded-lg hover:bg-orange-600"
-              >
-                <Plus className="w-4 h-4 mr-1.5" />
-                Agregar Producto
-              </button>
+              </div>
             </div>
-          </div>
 
-          {showAddForm && (
-            <form
-              onSubmit={handleSubmitProduct}
-              className="p-4 mb-4 border border-gray-200 rounded-lg dark:border-slate-700"
-            >
-              <h4 className="mb-3 text-sm font-semibold text-gray-900 dark:text-slate-100">
-                {editingProduct ? "Editar Producto" : "Nuevo Producto"}
-              </h4>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-                <div>
-                  <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
-                    Fecha *
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.fecha}
-                    onChange={(e) =>
-                      setFormData({ ...formData, fecha: e.target.value })
-                    }
-                    required
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
-                    Código *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.codigo}
-                    onChange={(e) =>
-                      setFormData({ ...formData, codigo: e.target.value })
-                    }
-                    required
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
-                    Nombre *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.nombre}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nombre: e.target.value })
-                    }
-                    required
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
-                    Área *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.area}
-                    onChange={(e) =>
-                      setFormData({ ...formData, area: e.target.value })
-                    }
-                    required
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
-                    Proyecto *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.proyecto}
-                    onChange={(e) =>
-                      setFormData({ ...formData, proyecto: e.target.value })
-                    }
-                    required
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
-                    Responsable *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.responsable}
-                    onChange={(e) =>
-                      setFormData({ ...formData, responsable: e.target.value })
-                    }
-                    required
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
-                    Cantidad *
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={formData.cantidad}
-                    onChange={(e) =>
-                      setFormData({ ...formData, cantidad: parseInt(e.target.value) || 1 })
-                    }
-                    required
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
-                    Costo U. *
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.costoUnitario}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        costoUnitario: parseFloat(e.target.value) || 0,
-                      })
-                    }
-                    required
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2 mt-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddForm(false);
-                    setEditingProduct(null);
-                  }}
-                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-3 py-1.5 text-xs font-medium text-white bg-orange-500 rounded hover:bg-orange-600"
-                >
-                  <Save className="inline w-4 h-4 mr-1" />
-                  Guardar
-                </button>
-              </div>
-            </form>
-          )}
-
-          <div className="overflow-hidden border border-gray-200 rounded-lg dark:border-slate-700">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                <thead className="bg-gray-50 dark:bg-slate-800">
-                  <tr>
-                    <th className="w-12 py-3 text-xs text-center select-none">
+            {showAddForm && (
+              <form
+                onSubmit={handleSubmitProduct}
+                className="p-4 mb-4 border border-gray-200 rounded-lg dark:border-slate-700"
+              >
+                <h4 className="mb-3 text-sm font-semibold text-gray-900 dark:text-slate-100">
+                  {editingProduct ? "Editar Producto" : "Nuevo Producto"}
+                </h4>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+                  <div>
+                    <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
+                      Fecha *
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.fecha}
+                      onChange={(e) =>
+                        setFormData({ ...formData, fecha: e.target.value })
+                      }
+                      required
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
+                    />
+                  </div>
+                  <div className="relative">
+                    <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
+                      Código (opcional - buscar en inventario)
+                    </label>
+                    <div className="relative">
                       <input
-                        type="checkbox"
-                        checked={areAllVisibleSelected(products)}
-                        onChange={() => toggleAll(products)}
-                        aria-label="Seleccionar todos los productos"
-                        className="w-4 h-4 text-orange-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-orange-500 dark:border-slate-600 dark:bg-slate-800"
+                        type="text"
+                        value={searchProductCode}
+                        onChange={(e) => {
+                          setSearchProductCode(e.target.value);
+                          setFormData({ ...formData, codigo: e.target.value });
+                        }}
+                        placeholder="Buscar producto..."
+                        className="w-full px-2 py-1.5 pr-8 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
                       />
-                    </th>
-                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                      Fecha
-                    </th>
-                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                      Código
-                    </th>
-                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                      Nombre
-                    </th>
-                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                      Área
-                    </th>
-                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                      Proyecto
-                    </th>
-                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                      Responsable
-                    </th>
-                    <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                      Cantidad
-                    </th>
-                    <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 dark:bg-slate-900 dark:text-slate-300">
-                      Costo U.
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200 dark:bg-slate-900 dark:divide-slate-800">
-                  {loading ? (
-                    <tr>
-                      <td colSpan={9} className="py-8 text-sm text-center text-gray-500">
-                        Cargando productos...
-                      </td>
-                    </tr>
-                  ) : products.length === 0 ? (
-                    <tr>
-                      <td colSpan={9} className="py-8 text-sm text-center text-gray-500">
-                        No hay productos agregados
-                      </td>
-                    </tr>
-                  ) : (
-                    products.map((product) => {
-                      const isSelected = selectedIds.has(product.id);
-                      
-                      return (
-                        <tr
-                          key={product.id}
-                          onClick={(e) => {
-                            // Verificar si el click fue en el checkbox o su contenedor
-                            const target = e.target as HTMLElement;
-                            const isCheckbox = target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'checkbox';
-                            const isCheckboxCell = target.closest('td')?.classList.contains('select-none');
-                            
-                            if (!isCheckbox && !isCheckboxCell) {
-                              handleEditProduct(product);
+                      <Search className="absolute right-2 top-1.5 w-4 h-4 text-gray-400" />
+                    </div>
+                    {searchingProduct && (
+                      <div className="absolute z-10 w-full mt-1 text-xs text-center bg-white border border-gray-300 rounded-md shadow-lg dark:bg-slate-700 dark:border-slate-600">
+                        <div className="px-3 py-2 text-gray-500">
+                          Buscando...
+                        </div>
+                      </div>
+                    )}
+                    {showProductList && inventoryProducts.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 overflow-y-auto bg-white border border-gray-300 rounded-md shadow-lg max-h-48 dark:bg-slate-700 dark:border-slate-600">
+                        {inventoryProducts.map((product) => (
+                          <button
+                            key={product.id}
+                            type="button"
+                            onClick={() =>
+                              handleSelectProductFromInventory(product)
                             }
-                          }}
-                          onMouseEnter={() => handleMouseEnter(product.id)}
-                          className="transition-colors cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800"
+                            className="flex flex-col w-full px-3 py-2 text-xs text-left hover:bg-gray-100 dark:hover:bg-slate-600"
+                          >
+                            <span className="font-medium text-gray-900 dark:text-slate-100">
+                              {product.codigo} - {product.nombre}
+                            </span>
+                            <span className="text-gray-600 dark:text-slate-400">
+                              Stock: {product.stockActual} | Costo: S/{" "}
+                              {product.costoUnitario.toFixed(2)}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
+                      Nombre *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.nombre}
+                      onChange={(e) =>
+                        setFormData({ ...formData, nombre: e.target.value })
+                      }
+                      required
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
+                      Área *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.area}
+                      onChange={(e) =>
+                        setFormData({ ...formData, area: e.target.value })
+                      }
+                      required
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
+                      Proyecto *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.proyecto}
+                      onChange={(e) =>
+                        setFormData({ ...formData, proyecto: e.target.value })
+                      }
+                      required
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
+                      Responsable *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.responsable}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          responsable: e.target.value,
+                        })
+                      }
+                      required
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
+                      Cantidad *
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={formData.cantidad}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          cantidad: parseInt(e.target.value) || 1,
+                        })
+                      }
+                      required
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
+                      Costo U. *
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.costoUnitario}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          costoUnitario: parseFloat(e.target.value) || 0,
+                        })
+                      }
+                      required
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 mt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddForm(false);
+                      setEditingProduct(null);
+                    }}
+                    className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-orange-500 rounded hover:bg-orange-600"
+                  >
+                    <Save className="inline w-4 h-4 mr-1" />
+                    Guardar
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="overflow-hidden border border-gray-200 rounded-lg dark:border-slate-700">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+                  <thead className="bg-gray-50 dark:bg-slate-800">
+                    <tr>
+                      <th className="w-12 py-3 text-xs text-center select-none">
+                        <input
+                          type="checkbox"
+                          checked={areAllVisibleSelected(products)}
+                          onChange={() => toggleAll(products)}
+                          aria-label="Seleccionar todos los productos"
+                          className="w-4 h-4 text-orange-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-orange-500 dark:border-slate-600 dark:bg-slate-800"
+                        />
+                      </th>
+                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                        Fecha
+                      </th>
+                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                        Código
+                      </th>
+                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                        Nombre
+                      </th>
+                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                        Área
+                      </th>
+                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                        Proyecto
+                      </th>
+                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                        Responsable
+                      </th>
+                      <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                        Cantidad
+                      </th>
+                      <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                        Costo U.
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200 dark:bg-slate-900 dark:divide-slate-800">
+                    {loading ? (
+                      <tr>
+                        <td
+                          colSpan={9}
+                          className="py-8 text-sm text-center text-gray-500"
                         >
-                          <td
-                            className="px-3 py-2 text-xs text-center select-none"
-                            onMouseDown={(e) => {
-                              if (e.button === 0) {
-                                e.stopPropagation();
-                                handleMouseDown(product.id, isSelected);
+                          Cargando productos...
+                        </td>
+                      </tr>
+                    ) : products.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={9}
+                          className="py-8 text-sm text-center text-gray-500"
+                        >
+                          No hay productos agregados
+                        </td>
+                      </tr>
+                    ) : (
+                      products.map((product) => {
+                        const isSelected = selectedIds.has(product.id);
+
+                        return (
+                          <tr
+                            key={product.id}
+                            onClick={(e) => {
+                              // Verificar si el click fue en el checkbox o su contenedor
+                              const target = e.target as HTMLElement;
+                              const isCheckbox =
+                                target.tagName === "INPUT" &&
+                                (target as HTMLInputElement).type ===
+                                  "checkbox";
+                              const isCheckboxCell = target
+                                .closest("td")
+                                ?.classList.contains("select-none");
+
+                              if (!isCheckbox && !isCheckboxCell) {
+                                handleEditProduct(product);
                               }
                             }}
+                            onMouseEnter={() => handleMouseEnter(product.id)}
+                            className="transition-colors cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800"
                           >
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={(e) => {
-                                e.stopPropagation();
-                                toggleSelection(product.id);
+                            <td
+                              className="px-3 py-2 text-xs text-center select-none"
+                              onMouseDown={(e) => {
+                                if (e.button === 0) {
+                                  e.stopPropagation();
+                                  handleMouseDown(product.id, isSelected);
+                                }
                               }}
-                              onClick={(e) => e.stopPropagation()}
-                              aria-label={`Seleccionar producto ${product.codigo}`}
-                              className="w-4 h-4 text-orange-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-orange-500 dark:border-slate-600 dark:bg-slate-800"
-                            />
-                          </td>
-                          <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
-                            {product.fecha}
-                          </td>
-                          <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
-                            {product.codigo}
-                          </td>
-                          <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
-                            {product.nombre}
-                          </td>
-                          <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
-                            {product.area}
-                          </td>
-                          <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
-                            {product.proyecto}
-                          </td>
-                          <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
-                            {product.responsable}
-                          </td>
-                          <td className="px-3 py-2 text-xs text-right text-gray-900 select-text dark:text-slate-100">
-                            {product.cantidad}
-                          </td>
-                          <td className="px-3 py-2 text-xs text-right text-gray-700 select-text dark:text-slate-300">
-                            S/ {product.costoUnitario.toFixed(2)}
-                          </td>
-                        </tr>
-                      );
-                    })
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  toggleSelection(product.id);
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                                aria-label={`Seleccionar producto ${product.codigo}`}
+                                className="w-4 h-4 text-orange-600 border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-orange-500 dark:border-slate-600 dark:bg-slate-800"
+                              />
+                            </td>
+                            <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
+                              {product.fecha}
+                            </td>
+                            <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
+                              {product.codigo}
+                            </td>
+                            <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
+                              {product.nombre}
+                            </td>
+                            <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
+                              {product.area}
+                            </td>
+                            <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
+                              {product.proyecto}
+                            </td>
+                            <td className="px-3 py-2 text-xs text-gray-700 select-text dark:text-slate-300">
+                              {product.responsable}
+                            </td>
+                            <td className="px-3 py-2 text-xs text-right text-gray-900 select-text dark:text-slate-100">
+                              {product.cantidad}
+                            </td>
+                            <td className="px-3 py-2 text-xs text-right text-gray-700 select-text dark:text-slate-300">
+                              S/ {product.costoUnitario.toFixed(2)}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                  {products.length > 0 && (
+                    <tfoot className="bg-gray-50 dark:bg-slate-800">
+                      <tr>
+                        <td
+                          colSpan={7}
+                          className="px-3 py-2 text-xs font-semibold text-right text-gray-900 dark:text-slate-100"
+                        >
+                          TOTALES:
+                        </td>
+                        <td className="px-3 py-2 text-xs font-bold text-right text-gray-900 dark:text-slate-100">
+                          {totalCantidad}
+                        </td>
+                        <td className="px-3 py-2 text-xs font-bold text-right text-gray-900 dark:text-slate-100">
+                          S/ {totalCosto.toFixed(2)}
+                        </td>
+                      </tr>
+                    </tfoot>
                   )}
-                </tbody>
-                {products.length > 0 && (
-                  <tfoot className="bg-gray-50 dark:bg-slate-800">
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className="px-3 py-2 text-xs font-semibold text-right text-gray-900 dark:text-slate-100"
-                      >
-                        TOTALES:
-                      </td>
-                      <td className="px-3 py-2 text-xs font-bold text-right text-gray-900 dark:text-slate-100">
-                        {totalCantidad}
-                      </td>
-                      <td className="px-3 py-2 text-xs font-bold text-right text-gray-900 dark:text-slate-100">
-                        S/ {totalCosto.toFixed(2)}
-                      </td>
-                    </tr>
-                  </tfoot>
-                )}
-              </table>
+                </table>
+              </div>
             </div>
           </div>
-          
-          </div>
-          
+
           {/* Footer fijo */}
-          <div className="border-t border-gray-200 dark:border-slate-800 px-6 py-4 bg-white dark:bg-slate-900">
+          <div className="px-6 py-4 bg-white border-t border-gray-200 dark:border-slate-800 dark:bg-slate-900">
             <div className="flex justify-end">
               <button
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-white transition-colors bg-gray-600 rounded-lg hover:bg-gray-700"
+                onClick={handleBack}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-colors bg-gray-600 rounded-lg hover:bg-gray-700"
               >
-                Cerrar
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver
               </button>
             </div>
           </div>

@@ -3,7 +3,7 @@ export interface PurchaseOrder {
   codigo: string;
   fecha: string;
   proveedor?: string;
-  estado: 'borrador' | 'enviada' | 'recibida' | 'cancelada';
+  estado: "BORRADOR" | "ENVIADA" | "RECIBIDA" | "CANCELADA";
   cantidad: number; // Suma de cantidades de productos
   costo: number; // Suma de costos de productos
   observaciones?: string;

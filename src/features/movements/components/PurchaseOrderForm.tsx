@@ -8,7 +8,9 @@ import { PurchaseOrder } from "../types/purchases.ts";
 
 interface PurchaseOrderFormProps {
   order?: PurchaseOrder;
-  onSubmit: (data: CreatePurchaseOrderData | UpdatePurchaseOrderData) => Promise<void>;
+  onSubmit: (
+    data: CreatePurchaseOrderData | UpdatePurchaseOrderData,
+  ) => Promise<void>;
   onCancel: () => void;
   onDelete?: () => void;
 }
@@ -49,12 +51,16 @@ export const PurchaseOrderForm = ({
       const [year, month, day] = fecha.split("-");
       const formattedDate = `${day}/${month}/${year}`;
 
-      const data = {
-        fecha: formattedDate,
-        codigo: codigo.trim(),
-        // Estado por defecto para nuevas órdenes
-        estado: 'borrador' as const,
-      };
+      const data: CreatePurchaseOrderData | UpdatePurchaseOrderData = isEdit
+        ? {
+            fecha: formattedDate,
+            // No incluir código en actualizaciones
+          }
+        : {
+            fecha: formattedDate,
+            // No incluir código - se genera automáticamente en el backend
+            estado: "BORRADOR" as const,
+          };
 
       await onSubmit(data);
     } catch (error) {
@@ -84,7 +90,8 @@ export const PurchaseOrderForm = ({
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">
-              Fecha <span className="text-orange-500 dark:text-orange-400">*</span>
+              Fecha{" "}
+              <span className="text-orange-500 dark:text-orange-400">*</span>
             </label>
             <input
               type="date"
@@ -97,7 +104,8 @@ export const PurchaseOrderForm = ({
 
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">
-              Orden de Compra <span className="text-orange-500 dark:text-orange-400">*</span>
+              Orden de Compra{" "}
+              <span className="text-orange-500 dark:text-orange-400">*</span>
             </label>
             <input
               type="text"

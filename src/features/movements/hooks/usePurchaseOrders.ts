@@ -22,20 +22,22 @@ export const usePurchaseOrders = () => {
     try {
       setLoading(true);
       setError(null);
-      // TODO: Pasar parámetros cuando backend esté listo
-      // const result = await purchaseOrdersService.getAllPurchaseOrders(
-      //   startDate,
-      //   endDate,
-      //   currentPage,
-      //   itemsPerPage,
-      //   searchTerm
-      // );
-      const result = await purchaseOrdersService.getAllPurchaseOrders();
+      const result = await purchaseOrdersService.getAllPurchaseOrders(
+        startDate,
+        endDate,
+        currentPage,
+        itemsPerPage,
+        searchTerm,
+      );
       setPurchaseOrders(result.data);
       setTotalPages(result.pagination.totalPages);
       setTotalItems(result.pagination.total);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar órdenes de compra");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Error al cargar órdenes de compra",
+      );
       console.error("Error fetching purchase orders:", err);
     } finally {
       setLoading(false);
@@ -49,20 +51,29 @@ export const usePurchaseOrders = () => {
       await fetchPurchaseOrders();
       return newOrder;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al crear orden de compra");
+      setError(
+        err instanceof Error ? err.message : "Error al crear orden de compra",
+      );
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  const updatePurchaseOrder = async (id: number, data: UpdatePurchaseOrderData) => {
+  const updatePurchaseOrder = async (
+    id: number,
+    data: UpdatePurchaseOrderData,
+  ) => {
     try {
       setLoading(true);
       await purchaseOrdersService.updatePurchaseOrder(id, data);
       await fetchPurchaseOrders();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al actualizar orden de compra");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Error al actualizar orden de compra",
+      );
       throw err;
     } finally {
       setLoading(false);
@@ -75,7 +86,11 @@ export const usePurchaseOrders = () => {
       await purchaseOrdersService.deletePurchaseOrder(id);
       await fetchPurchaseOrders();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al eliminar orden de compra");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Error al eliminar orden de compra",
+      );
       throw err;
     } finally {
       setLoading(false);
