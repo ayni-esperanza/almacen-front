@@ -58,7 +58,7 @@ export const PurchaseOrderForm = ({
           }
         : {
             fecha: formattedDate,
-            // No incluir código - se genera automáticamente en el backend
+            codigo: codigo.trim() || undefined, // Enviar el código si se especifica
           };
 
       await onSubmit(data);
@@ -71,7 +71,7 @@ export const PurchaseOrderForm = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-md rounded-lg shadow-2xl bg-white dark:bg-slate-900 overflow-hidden">
+      <div className="relative w-full max-w-md overflow-hidden bg-white rounded-lg shadow-2xl dark:bg-slate-900">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 border-orange-400/20">
           <h2 className="text-lg font-bold text-white">
@@ -97,7 +97,7 @@ export const PurchaseOrderForm = ({
               value={fecha}
               onChange={(e) => setFecha(e.target.value)}
               required
-              className="w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-400 dark:placeholder-slate-500"
+              className="w-full px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:placeholder-slate-500"
             />
           </div>
 
@@ -113,7 +113,7 @@ export const PurchaseOrderForm = ({
               placeholder="OC-001"
               required
               disabled={isEdit}
-              className="w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -123,7 +123,7 @@ export const PurchaseOrderForm = ({
               <button
                 type="button"
                 onClick={onDelete}
-                className="px-4 py-2 text-sm font-medium text-red-600 transition-colors border rounded-lg bg-transparent border-red-500/50 hover:bg-red-500/10 dark:text-red-400 dark:border-red-400/50 dark:hover:bg-red-400/10"
+                className="px-4 py-2 text-sm font-medium text-red-600 transition-colors bg-transparent border rounded-lg border-red-500/50 hover:bg-red-500/10 dark:text-red-400 dark:border-red-400/50 dark:hover:bg-red-400/10"
               >
                 Eliminar
               </button>
@@ -132,7 +132,7 @@ export const PurchaseOrderForm = ({
               type="button"
               onClick={onCancel}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium transition-colors border rounded-lg text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700"
+              className="px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-white border border-gray-300 rounded-lg dark:text-slate-300 dark:bg-slate-800 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700"
             >
               Cancelar
             </button>

@@ -4,6 +4,7 @@ import { PurchaseOrder, PurchaseOrderProduct } from "../types/purchases.ts";
 
 export interface CreatePurchaseOrderData {
   fecha: string;
+  codigo?: string;
 }
 
 export interface UpdatePurchaseOrderData {
