@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { TrendingUp, TrendingDown, ShoppingCart } from "lucide-react";
 import { MovementTable } from "../features/movements/components/MovementTable.tsx";
 import { AddMovementForm } from "../features/movements/components/AddMovementForm.tsx";
 import { useMovements } from "../features/movements/hooks/useMovements.ts";
 import {
+  movementsService,
   CreateEntryData,
   CreateExitData,
   UpdateEntryData,
@@ -55,24 +56,12 @@ export const MovementsPage = () => {
     useState<PurchaseOrder | null>(null);
   const purchaseOrdersData = usePurchaseOrders();
 
-  // Almacena los datos filtrados/ordenados que vienen de la tabla
-  const [visibleData, setVisibleData] = useState<
-    (MovementEntry | MovementExit)[]
-  >([]);
   const { user } = useAuth();
 
-  // Limpiar/Reiniciar visibleData cuando se cambie de pestaña
+  // Limpiar cuando se cambie de pestaña
   useEffect(() => {
     setSelectedEntry(null);
     setSelectedExit(null);
-    // Reiniciamos con todos los datos para evitar que se quede pegada data de la tab anterior momentáneamente
-    if (activeSubTab !== "compras") {
-      setVisibleData(
-        activeSubTab === "entradas"
-          ? movementsData.entries
-          : movementsData.exits,
-      );
-    }
     if (!movementsData.loading) {
       setHasLoaded(true);
     }
@@ -86,14 +75,6 @@ export const MovementsPage = () => {
     movementsData.exits,
     movementsData.loading,
   ]);
-
-  // Usamos useCallback para evitar re-renders infinitos en la tabla
-  const handleDataFiltered = useCallback(
-    (data: (MovementEntry | MovementExit)[]) => {
-      setVisibleData(data);
-    },
-    [],
-  );
 
   const handleAddMovement = async (data: CreateEntryData | CreateExitData) => {
     try {
@@ -187,20 +168,60 @@ export const MovementsPage = () => {
           ? `${user.firstName} ${user.lastName}`
           : user?.username || "Usuario";
 
-      // Usamos 'visibleData' en lugar de 'movementsData.entries/exits'
-      const dataToExport = visibleData;
+      // Recopilar filtros activos para mostrar en el PDF
+      const activeFilters: string[] = [];
+      if (movementsData.filterEPP) activeFilters.push("EPP");
+      if (movementsData.filterArea)
+        activeFilters.push(`Área: ${movementsData.filterArea}`);
+      if (movementsData.filterProyecto && activeSubTab === "salidas")
+        activeFilters.push(`Proyecto: ${movementsData.filterProyecto}`);
+      if (movementsData.filterResponsable && activeSubTab === "salidas")
+        activeFilters.push(`Responsable: ${movementsData.filterResponsable}`);
+      if (movementsData.startDate)
+        activeFilters.push(`Desde: ${movementsData.startDate}`);
+      if (movementsData.endDate)
+        activeFilters.push(`Hasta: ${movementsData.endDate}`);
+
+      // Obtener TODOS los datos filtrados (sin paginación) para el PDF
+      let dataToExport: MovementEntry[] | MovementExit[];
+
+      if (activeSubTab === "entradas") {
+        const response = await movementsService.getAllEntries(
+          movementsData.startDate || undefined,
+          movementsData.endDate || undefined,
+          1,
+          10000,
+          movementsData.filterEPP ? "epp" : undefined,
+          movementsData.searchTermEntries || undefined,
+          movementsData.filterArea || undefined,
+          undefined,
+        );
+        dataToExport = response.data;
+      } else {
+        const response = await movementsService.getAllExits(
+          movementsData.startDate || undefined,
+          movementsData.endDate || undefined,
+          1,
+          10000,
+          movementsData.filterEPP ? "epp" : undefined,
+          movementsData.searchTermExits || undefined,
+          movementsData.filterArea || undefined,
+          movementsData.filterProyecto || undefined,
+          movementsData.filterResponsable || undefined,
+        );
+        dataToExport = response.data;
+      }
 
       if (!dataToExport || dataToExport.length === 0) {
-        // Fallback por seguridad o mostrar alerta
-        console.warn("No hay datos visibles para exportar");
-        alert("No hay datos en la tabla para exportar.");
+        alert("No hay datos con los filtros aplicados para exportar.");
         return;
       }
 
       await movementsPDFService.exportMovements({
         type: activeSubTab === "entradas" ? "entradas" : "salidas",
-        data: dataToExport as MovementEntry[] | MovementExit[],
+        data: dataToExport,
         userName,
+        activeFilters: activeFilters.length > 0 ? activeFilters : undefined,
       });
     } catch (error) {
       console.error("Error al exportar PDF:", error);
@@ -329,7 +350,6 @@ export const MovementsPage = () => {
             onEditEntry={setSelectedEntry}
             onExportPdf={handleExportPdf}
             onAddMovement={() => setShowAddForm(true)}
-            onDataFiltered={handleDataFiltered}
             startDate={movementsData.startDate}
             endDate={movementsData.endDate}
             onStartDateChange={movementsData.setStartDate}
@@ -365,7 +385,6 @@ export const MovementsPage = () => {
             onEditExit={setSelectedExit}
             onExportPdf={handleExportPdf}
             onAddMovement={() => setShowAddForm(true)}
-            onDataFiltered={handleDataFiltered}
             startDate={movementsData.startDate}
             endDate={movementsData.endDate}
             onStartDateChange={movementsData.setStartDate}

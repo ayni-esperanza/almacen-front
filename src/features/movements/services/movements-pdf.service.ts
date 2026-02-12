@@ -6,6 +6,7 @@ interface MovementsPDFOptions {
   type: "entradas" | "salidas";
   data: MovementEntry[] | MovementExit[];
   userName: string;
+  activeFilters?: string[];
 }
 
 class MovementsPDFService {
@@ -39,7 +40,7 @@ class MovementsPDFService {
   }
 
   async exportMovements(options: MovementsPDFOptions): Promise<void> {
-    const { type, data, userName } = options;
+    const { type, data, userName, activeFilters } = options;
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight(); // Obtenemos el alto de la página
@@ -61,9 +62,22 @@ class MovementsPDFService {
     pdf.text(
       `Fecha de generación: ${this.getCurrentDateTime()}`,
       20,
-      yPosition
+      yPosition,
     );
-    yPosition += 10;
+    yPosition += 6;
+
+    // Mostrar filtros activos si existen
+    if (activeFilters && activeFilters.length > 0) {
+      pdf.setFontSize(9);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Filtros aplicados:", 20, yPosition);
+      pdf.setFont("helvetica", "normal");
+      const filtersText = activeFilters.join("  |  ");
+      pdf.text(filtersText, 58, yPosition);
+      yPosition += 6;
+    }
+
+    yPosition += 4;
 
     // Línea separadora
     pdf.setDrawColor(200, 200, 200);
@@ -132,7 +146,7 @@ class MovementsPDFService {
             `Página ${currentPage} de ${pageCount}`,
             pageWidth / 2,
             pageHeight - 10,
-            { align: "center" }
+            { align: "center" },
           );
         },
       });
@@ -140,11 +154,11 @@ class MovementsPDFService {
       // Calcular totales
       const totalCantidad = (data as MovementEntry[]).reduce(
         (sum, entry) => sum + entry.cantidad,
-        0
+        0,
       );
       const totalMonto = (data as MovementEntry[]).reduce(
         (sum, entry) => sum + entry.cantidad * entry.precioUnitario,
-        0
+        0,
       );
 
       // Obtenemos donde terminó la tabla
@@ -163,7 +177,7 @@ class MovementsPDFService {
       pdf.text(
         `Monto total: ${this.formatCurrency(totalMonto)}`,
         20,
-        finalY + 12
+        finalY + 12,
       );
     } else {
       // Salidas
@@ -230,7 +244,7 @@ class MovementsPDFService {
             `Página ${currentPage} de ${pageCount}`,
             pageWidth / 2,
             pageHeight - 10,
-            { align: "center" }
+            { align: "center" },
           );
         },
       });
@@ -238,11 +252,11 @@ class MovementsPDFService {
       // Calcular totales para Salidas
       const totalCantidad = (data as MovementExit[]).reduce(
         (sum, exit) => sum + exit.cantidad,
-        0
+        0,
       );
       const totalMonto = (data as MovementExit[]).reduce(
         (sum, exit) => sum + exit.cantidad * exit.precioUnitario,
-        0
+        0,
       );
 
       let finalY = (pdf as any).lastAutoTable.finalY + 10;
@@ -259,7 +273,7 @@ class MovementsPDFService {
       pdf.text(
         `Monto total: ${this.formatCurrency(totalMonto)}`,
         20,
-        finalY + 12
+        finalY + 12,
       );
     }
 
