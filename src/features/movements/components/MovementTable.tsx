@@ -434,7 +434,6 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                     type="button"
                     onClick={() => {
                       setShowDateFilters((prev) => !prev);
-                      if (!showDateFilters) setShowAdvancedFilters(false);
                     }}
                     aria-pressed={showDateFilters}
                     aria-label="Mostrar u ocultar filtros de fecha"
@@ -446,7 +445,6 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                     type="button"
                     onClick={() => {
                       setShowAdvancedFilters((prev) => !prev);
-                      if (!showAdvancedFilters) setShowDateFilters(false);
                     }}
                     aria-pressed={showAdvancedFilters}
                     aria-label="Mostrar u ocultar filtros avanzados"
