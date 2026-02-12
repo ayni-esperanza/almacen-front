@@ -40,6 +40,7 @@ export const MovementsPage = () => {
   const [selectedExit, setSelectedExit] = useState<MovementExit | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [confirmState, setConfirmState] = useState<{
     open: boolean;
     type: "entry" | "exit" | null;
@@ -162,6 +163,8 @@ export const MovementsPage = () => {
   };
 
   const handleExportPdf = async () => {
+    if (isExportingPdf) return;
+    setIsExportingPdf(true);
     try {
       const userName =
         user?.firstName && user?.lastName
@@ -183,14 +186,35 @@ export const MovementsPage = () => {
         activeFilters.push(`Hasta: ${movementsData.endDate}`);
 
       // Obtener TODOS los datos filtrados (sin paginación) para el PDF
+      // Usamos el total real del servidor para no hardcodear un límite arbitrario
+      const totalForExport =
+        activeSubTab === "entradas"
+          ? movementsData.entriesTotalItems
+          : movementsData.exitsTotalItems;
+
+      if (!totalForExport || totalForExport === 0) {
+        alert("No hay datos con los filtros aplicados para exportar.");
+        return;
+      }
+
+      // Límite de seguridad: avisar si hay muchos registros
+      const MAX_EXPORT = 50000;
+      if (totalForExport > MAX_EXPORT) {
+        const proceed = confirm(
+          `Se exportarán ${totalForExport.toLocaleString()} registros. Esto puede tardar. ¿Desea continuar?`,
+        );
+        if (!proceed) return;
+      }
+
       let dataToExport: MovementEntry[] | MovementExit[];
+      const exportLimit = Math.min(totalForExport, MAX_EXPORT);
 
       if (activeSubTab === "entradas") {
         const response = await movementsService.getAllEntries(
           movementsData.startDate || undefined,
           movementsData.endDate || undefined,
           1,
-          10000,
+          exportLimit,
           movementsData.filterEPP ? "epp" : undefined,
           movementsData.searchTermEntries || undefined,
           movementsData.filterArea || undefined,
@@ -202,7 +226,7 @@ export const MovementsPage = () => {
           movementsData.startDate || undefined,
           movementsData.endDate || undefined,
           1,
-          10000,
+          exportLimit,
           movementsData.filterEPP ? "epp" : undefined,
           movementsData.searchTermExits || undefined,
           movementsData.filterArea || undefined,
@@ -225,6 +249,8 @@ export const MovementsPage = () => {
       });
     } catch (error) {
       console.error("Error al exportar PDF:", error);
+    } finally {
+      setIsExportingPdf(false);
     }
   };
 
@@ -349,6 +375,7 @@ export const MovementsPage = () => {
             type="entrada"
             onEditEntry={setSelectedEntry}
             onExportPdf={handleExportPdf}
+            isExportingPdf={isExportingPdf}
             onAddMovement={() => setShowAddForm(true)}
             startDate={movementsData.startDate}
             endDate={movementsData.endDate}
@@ -384,6 +411,7 @@ export const MovementsPage = () => {
             type="salida"
             onEditExit={setSelectedExit}
             onExportPdf={handleExportPdf}
+            isExportingPdf={isExportingPdf}
             onAddMovement={() => setShowAddForm(true)}
             startDate={movementsData.startDate}
             endDate={movementsData.endDate}

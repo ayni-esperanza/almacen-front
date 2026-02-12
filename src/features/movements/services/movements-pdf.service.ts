@@ -2,6 +2,10 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { MovementEntry, MovementExit } from "../types";
 
+interface JsPDFWithAutoTable extends jsPDF {
+  lastAutoTable: { finalY: number };
+}
+
 interface MovementsPDFOptions {
   type: "entradas" | "salidas";
   data: MovementEntry[] | MovementExit[];
@@ -135,10 +139,9 @@ class MovementsPDFService {
           7: { cellWidth: "auto" },
         },
         margin: { left: 15, right: 15 },
-        didDrawPage: (data) => {
-          const pageCount = (pdf as any).internal.getNumberOfPages();
-          const currentPage = (pdf as any).internal.getCurrentPageInfo()
-            .pageNumber;
+        didDrawPage: () => {
+          const pageCount = pdf.getNumberOfPages();
+          const currentPage = pdf.getCurrentPageInfo().pageNumber;
 
           pdf.setFontSize(8);
           pdf.setFont("helvetica", "normal");
@@ -162,7 +165,7 @@ class MovementsPDFService {
       );
 
       // Obtenemos donde terminó la tabla
-      let finalY = (pdf as any).lastAutoTable.finalY + 10;
+      let finalY = (pdf as JsPDFWithAutoTable).lastAutoTable.finalY + 10;
 
       // Si finalY + 30mm supera el alto de la página, creamos nueva página
       if (finalY + 30 > pageHeight) {
@@ -233,10 +236,9 @@ class MovementsPDFService {
           8: { cellWidth: "auto" },
         },
         margin: { left: 15, right: 15 },
-        didDrawPage: (data) => {
-          const pageCount = (pdf as any).internal.getNumberOfPages();
-          const currentPage = (pdf as any).internal.getCurrentPageInfo()
-            .pageNumber;
+        didDrawPage: () => {
+          const pageCount = pdf.getNumberOfPages();
+          const currentPage = pdf.getCurrentPageInfo().pageNumber;
 
           pdf.setFontSize(8);
           pdf.setFont("helvetica", "normal");
@@ -259,7 +261,7 @@ class MovementsPDFService {
         0,
       );
 
-      let finalY = (pdf as any).lastAutoTable.finalY + 10;
+      let finalY = (pdf as JsPDFWithAutoTable).lastAutoTable.finalY + 10;
 
       if (finalY + 30 > pageHeight) {
         pdf.addPage();
