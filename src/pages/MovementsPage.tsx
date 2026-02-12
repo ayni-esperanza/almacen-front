@@ -29,9 +29,9 @@ import {
 } from "../features/movements/services/purchase-orders.service.ts";
 
 export const MovementsPage = () => {
-  const [activeSubTab, setActiveSubTab] = useState<"entradas" | "salidas" | "compras">(
-    "entradas",
-  );
+  const [activeSubTab, setActiveSubTab] = useState<
+    "entradas" | "salidas" | "compras"
+  >("entradas");
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<MovementEntry | null>(
     null,
@@ -45,14 +45,16 @@ export const MovementsPage = () => {
     target: MovementEntry | MovementExit | null;
   }>({ open: false, type: null, target: null });
   const movementsData = useMovements();
-  
+
   // Estados para Purchase Orders
   const [showPurchaseOrderForm, setShowPurchaseOrderForm] = useState(false);
-  const [selectedPurchaseOrder, setSelectedPurchaseOrder] = useState<PurchaseOrder | null>(null);
+  const [selectedPurchaseOrder, setSelectedPurchaseOrder] =
+    useState<PurchaseOrder | null>(null);
   const [showPurchaseOrderDetail, setShowPurchaseOrderDetail] = useState(false);
-  const [editingPurchaseOrder, setEditingPurchaseOrder] = useState<PurchaseOrder | null>(null);
+  const [editingPurchaseOrder, setEditingPurchaseOrder] =
+    useState<PurchaseOrder | null>(null);
   const purchaseOrdersData = usePurchaseOrders();
-  
+
   // Almacena los datos filtrados/ordenados que vienen de la tabla
   const [visibleData, setVisibleData] = useState<
     (MovementEntry | MovementExit)[]
@@ -66,7 +68,9 @@ export const MovementsPage = () => {
     // Reiniciamos con todos los datos para evitar que se quede pegada data de la tab anterior momentáneamente
     if (activeSubTab !== "compras") {
       setVisibleData(
-        activeSubTab === "entradas" ? movementsData.entries : movementsData.exits,
+        activeSubTab === "entradas"
+          ? movementsData.entries
+          : movementsData.exits,
       );
     }
     if (!movementsData.loading) {
@@ -220,16 +224,18 @@ export const MovementsPage = () => {
   };
 
   const handleSubmitPurchaseOrder = async (
-    data: CreatePurchaseOrderData | UpdatePurchaseOrderData
+    data: CreatePurchaseOrderData | UpdatePurchaseOrderData,
   ) => {
     try {
       if (editingPurchaseOrder) {
         await purchaseOrdersData.updatePurchaseOrder(
           editingPurchaseOrder.id,
-          data as UpdatePurchaseOrderData
+          data as UpdatePurchaseOrderData,
         );
       } else {
-        await purchaseOrdersData.createPurchaseOrder(data as CreatePurchaseOrderData);
+        await purchaseOrdersData.createPurchaseOrder(
+          data as CreatePurchaseOrderData,
+        );
       }
       setShowPurchaseOrderForm(false);
       setEditingPurchaseOrder(null);
@@ -332,6 +338,12 @@ export const MovementsPage = () => {
             setFilterEPP={movementsData.setFilterEPP}
             searchTerm={movementsData.searchTermEntries}
             setSearchTerm={movementsData.setSearchTermEntries}
+            filterArea={movementsData.filterArea}
+            setFilterArea={movementsData.setFilterArea}
+            filterProyecto={movementsData.filterProyecto}
+            setFilterProyecto={movementsData.setFilterProyecto}
+            filterResponsable={movementsData.filterResponsable}
+            setFilterResponsable={movementsData.setFilterResponsable}
             deleteMovement={deleteMovement}
             refetchMovements={() => movementsData.refetchEntries()}
             currentPage={movementsData.entriesPage}
@@ -362,6 +374,12 @@ export const MovementsPage = () => {
             setFilterEPP={movementsData.setFilterEPP}
             searchTerm={movementsData.searchTermExits}
             setSearchTerm={movementsData.setSearchTermExits}
+            filterArea={movementsData.filterArea}
+            setFilterArea={movementsData.setFilterArea}
+            filterProyecto={movementsData.filterProyecto}
+            setFilterProyecto={movementsData.setFilterProyecto}
+            filterResponsable={movementsData.filterResponsable}
+            setFilterResponsable={movementsData.setFilterResponsable}
             deleteMovement={deleteMovement}
             refetchMovements={() => movementsData.refetchExits()}
             currentPage={movementsData.exitsPage}
@@ -434,7 +452,9 @@ export const MovementsPage = () => {
             setShowPurchaseOrderForm(false);
             setEditingPurchaseOrder(null);
           }}
-          onDelete={editingPurchaseOrder ? handleDeletePurchaseOrder : undefined}
+          onDelete={
+            editingPurchaseOrder ? handleDeletePurchaseOrder : undefined
+          }
         />
       )}
 

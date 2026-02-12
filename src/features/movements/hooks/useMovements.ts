@@ -29,6 +29,13 @@ export interface UseMovementsReturn {
   setSearchTermEntries: (term: string) => void;
   searchTermExits: string;
   setSearchTermExits: (term: string) => void;
+  // Filter states
+  filterArea: string;
+  setFilterArea: (area: string) => void;
+  filterProyecto: string;
+  setFilterProyecto: (proyecto: string) => void;
+  filterResponsable: string;
+  setFilterResponsable: (responsable: string) => void;
   refetchEntries: (options?: RefetchOptions) => Promise<void>;
   refetchExits: (options?: RefetchOptions) => Promise<void>;
   createEntry: (entryData: CreateEntryData) => Promise<MovementEntry | null>;
@@ -74,6 +81,11 @@ export const useMovements = (): UseMovementsReturn => {
   const [searchTermEntries, setSearchTermEntries] = useState("");
   const [searchTermExits, setSearchTermExits] = useState("");
 
+  // Filter states
+  const [filterArea, setFilterArea] = useState("");
+  const [filterProyecto, setFilterProyecto] = useState("");
+  const [filterResponsable, setFilterResponsable] = useState("");
+
   // Pagination states for entries
   const [entriesPage, setEntriesPage] = useState(1);
   const [entriesLimit, setEntriesLimit] = useState(100);
@@ -106,6 +118,8 @@ export const useMovements = (): UseMovementsReturn => {
         entriesLimit,
         filterEPP ? "epp" : undefined,
         searchTermEntriesRef.current || undefined,
+        filterArea || undefined,
+        filterResponsable || undefined,
       );
       setEntries(response.data);
       setEntriesTotalPages(response.pagination.totalPages);
@@ -115,7 +129,15 @@ export const useMovements = (): UseMovementsReturn => {
         setError(err.message);
       }
     }
-  }, [startDate, endDate, entriesPage, entriesLimit, filterEPP]);
+  }, [
+    startDate,
+    endDate,
+    entriesPage,
+    entriesLimit,
+    filterEPP,
+    filterArea,
+    filterResponsable,
+  ]);
 
   const fetchExits = useCallback(async () => {
     try {
@@ -126,6 +148,9 @@ export const useMovements = (): UseMovementsReturn => {
         exitsLimit,
         filterEPP ? "epp" : undefined,
         searchTermExitsRef.current || undefined,
+        filterArea || undefined,
+        filterProyecto || undefined,
+        filterResponsable || undefined,
       );
       setExits(response.data);
       setExitsTotalPages(response.pagination.totalPages);
@@ -135,7 +160,16 @@ export const useMovements = (): UseMovementsReturn => {
         setError(err.message);
       }
     }
-  }, [startDate, endDate, exitsPage, exitsLimit, filterEPP]);
+  }, [
+    startDate,
+    endDate,
+    exitsPage,
+    exitsLimit,
+    filterEPP,
+    filterArea,
+    filterProyecto,
+    filterResponsable,
+  ]);
 
   const fetchBoth = useCallback(
     async (options?: RefetchOptions) => {
@@ -435,6 +469,13 @@ export const useMovements = (): UseMovementsReturn => {
     setSearchTermEntries,
     searchTermExits,
     setSearchTermExits,
+    // Filter returns
+    filterArea,
+    setFilterArea,
+    filterProyecto,
+    setFilterProyecto,
+    filterResponsable,
+    setFilterResponsable,
     refetchEntries,
     refetchExits,
     createEntry,

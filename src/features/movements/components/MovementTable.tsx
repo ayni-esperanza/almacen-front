@@ -5,6 +5,7 @@ import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowCli
 import { useBulkSelection } from "../../../shared/hooks/useBulkSelection";
 import { useSort, SortColumnConfig } from "../../../shared/hooks/useSort";
 import { ConfirmModal } from "../../../shared/components/ConfirmModal";
+import { movementsService } from "../../../shared/services/movements.service.ts";
 import {
   TrendingUp,
   TrendingDown,
@@ -18,6 +19,7 @@ import {
   Trash2,
   Filter,
   RefreshCw,
+  X,
 } from "lucide-react";
 
 interface MovementTableProps {
@@ -38,6 +40,13 @@ interface MovementTableProps {
   setSearchTerm: (term: string) => void;
   deleteMovement: (id: number, type: "entrada" | "salida") => Promise<boolean>;
   refetchMovements?: () => Promise<void>;
+  // Filter states
+  filterArea: string;
+  setFilterArea: (area: string) => void;
+  filterProyecto: string;
+  setFilterProyecto: (proyecto: string) => void;
+  filterResponsable: string;
+  setFilterResponsable: (responsable: string) => void;
   // Server-side pagination
   currentPage: number;
   itemsPerPage: number;
@@ -195,6 +204,13 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   setFilterEPP,
   deleteMovement,
   refetchMovements,
+  // Filter props
+  filterArea,
+  setFilterArea,
+  filterProyecto,
+  setFilterProyecto,
+  filterResponsable,
+  setFilterResponsable,
   // Server-side pagination props
   currentPage,
   itemsPerPage,
@@ -206,6 +222,28 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   setSearchTerm,
 }) => {
   const [showDateFilters, setShowDateFilters] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [filterOptions, setFilterOptions] = useState<{
+    areas: string[];
+    proyectos: string[];
+    responsables: string[];
+  }>({ areas: [], proyectos: [], responsables: [] });
+
+  // Fetch filter options when advanced filters are opened
+  useEffect(() => {
+    if (showAdvancedFilters) {
+      const fetchOptions = async () => {
+        if (type === "entrada") {
+          const opts = await movementsService.getEntryFilterOptions();
+          setFilterOptions({ ...opts, proyectos: [] });
+        } else {
+          const opts = await movementsService.getExitFilterOptions();
+          setFilterOptions(opts);
+        }
+      };
+      fetchOptions();
+    }
+  }, [showAdvancedFilters, type]);
 
   const movementSortColumns = useMemo<
     Record<SortKey, SortColumnConfig<MovementEntry | MovementExit>>
@@ -335,12 +373,45 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setShowDateFilters((prev) => !prev)}
+                    onClick={() => {
+                      setShowDateFilters((prev) => !prev);
+                      if (!showDateFilters) setShowAdvancedFilters(false);
+                    }}
                     aria-pressed={showDateFilters}
                     aria-label="Mostrar u ocultar filtros de fecha"
                     className="p-2 text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 h-[38px]"
                   >
+                    <Calendar className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAdvancedFilters((prev) => !prev);
+                      if (!showAdvancedFilters) setShowDateFilters(false);
+                    }}
+                    aria-pressed={showAdvancedFilters}
+                    aria-label="Mostrar u ocultar filtros avanzados"
+                    className={`relative p-2 transition-colors border rounded-lg h-[38px] ${
+                      showAdvancedFilters ||
+                      filterArea ||
+                      filterProyecto ||
+                      filterResponsable
+                        ? "bg-green-500 text-white border-green-500 hover:bg-green-600"
+                        : "text-gray-600 border-gray-300 hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
+                    }`}
+                  >
                     <Filter className="w-4 h-4" />
+                    {(filterArea || filterProyecto || filterResponsable) && (
+                      <span className="absolute flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full -top-1 -right-1">
+                        {
+                          [
+                            filterArea,
+                            filterProyecto,
+                            filterResponsable,
+                          ].filter(Boolean).length
+                        }
+                      </span>
+                    )}
                   </button>
 
                   <div
@@ -446,6 +517,87 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                 )}
               </div>
             </div>
+
+            {/* Filtros avanzados desplegables */}
+            {showAdvancedFilters && (
+              <div className="flex flex-wrap items-end gap-3 pt-3 mt-1 border-t border-gray-200/50 dark:border-slate-700/50">
+                <div className="flex flex-col gap-1 min-w-[150px]">
+                  <label className="text-xs font-medium text-gray-600 dark:text-slate-400">
+                    Área
+                  </label>
+                  <select
+                    value={filterArea}
+                    onChange={(e) => setFilterArea(e.target.value)}
+                    title="Filtrar por área"
+                    className="py-2 pl-3 pr-8 text-sm text-gray-700 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                  >
+                    <option value="">Todas las áreas</option>
+                    {filterOptions.areas.map((area) => (
+                      <option key={area} value={area}>
+                        {area}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {!isEntry && (
+                  <div className="flex flex-col gap-1 min-w-[150px]">
+                    <label className="text-xs font-medium text-gray-600 dark:text-slate-400">
+                      Proyecto
+                    </label>
+                    <select
+                      value={filterProyecto}
+                      onChange={(e) => setFilterProyecto(e.target.value)}
+                      title="Filtrar por proyecto"
+                      className="py-2 pl-3 pr-8 text-sm text-gray-700 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                    >
+                      <option value="">Todos los proyectos</option>
+                      {filterOptions.proyectos.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {!isEntry && (
+                  <div className="flex flex-col gap-1 min-w-[150px]">
+                    <label className="text-xs font-medium text-gray-600 dark:text-slate-400">
+                      Responsable
+                    </label>
+                    <select
+                      value={filterResponsable}
+                      onChange={(e) => setFilterResponsable(e.target.value)}
+                      title="Filtrar por responsable"
+                      className="py-2 pl-3 pr-8 text-sm text-gray-700 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                    >
+                      <option value="">Todos los responsables</option>
+                      {filterOptions.responsables.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {(filterArea || filterProyecto || filterResponsable) && (
+                  <button
+                    onClick={() => {
+                      setFilterArea("");
+                      setFilterProyecto("");
+                      setFilterResponsable("");
+                    }}
+                    className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-red-600 transition-colors border border-red-300 rounded-lg hover:bg-red-50 dark:text-red-400 dark:border-red-700 dark:hover:bg-red-900/20"
+                    aria-label="Limpiar filtros avanzados"
+                  >
+                    <X className="w-3 h-3" />
+                    <span>Limpiar</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

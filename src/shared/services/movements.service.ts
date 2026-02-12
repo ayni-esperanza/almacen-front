@@ -65,6 +65,8 @@ class MovementsService {
     limit: number = 100,
     categoria?: string,
     search?: string,
+    area?: string,
+    responsable?: string,
   ): Promise<{
     data: MovementEntry[];
     pagination: {
@@ -79,6 +81,8 @@ class MovementsService {
     if (endDate) params.append("endDate", endDate);
     if (categoria) params.append("categoria", categoria);
     if (search) params.append("q", search);
+    if (area) params.append("area", area);
+    if (responsable) params.append("responsable", responsable);
     params.append("page", page.toString());
     params.append("limit", limit.toString());
 
@@ -194,6 +198,9 @@ class MovementsService {
     limit: number = 100,
     categoria?: string,
     search?: string,
+    area?: string,
+    proyecto?: string,
+    responsable?: string,
   ): Promise<{
     data: MovementExit[];
     pagination: {
@@ -208,6 +215,9 @@ class MovementsService {
     if (endDate) params.append("endDate", endDate);
     if (categoria) params.append("categoria", categoria);
     if (search) params.append("q", search);
+    if (area) params.append("area", area);
+    if (proyecto) params.append("proyecto", proyecto);
+    if (responsable) params.append("responsable", responsable);
     params.append("page", page.toString());
     params.append("limit", limit.toString());
 
@@ -380,6 +390,42 @@ class MovementsService {
     }
 
     return response.data?.nombre || null;
+  }
+
+  async getEntryFilterOptions(): Promise<{
+    areas: string[];
+    responsables: string[];
+  }> {
+    const response = await apiClient.get<{
+      areas: string[];
+      responsables: string[];
+    }>("/movements/entries/filter-options");
+
+    if (response.error) {
+      console.error("Error fetching entry filter options:", response.error);
+      return { areas: [], responsables: [] };
+    }
+
+    return response.data || { areas: [], responsables: [] };
+  }
+
+  async getExitFilterOptions(): Promise<{
+    areas: string[];
+    proyectos: string[];
+    responsables: string[];
+  }> {
+    const response = await apiClient.get<{
+      areas: string[];
+      proyectos: string[];
+      responsables: string[];
+    }>("/movements/exits/filter-options");
+
+    if (response.error) {
+      console.error("Error fetching exit filter options:", response.error);
+      return { areas: [], proyectos: [], responsables: [] };
+    }
+
+    return response.data || { areas: [], proyectos: [], responsables: [] };
   }
 }
 
