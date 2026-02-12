@@ -366,10 +366,7 @@ export const MovementsPage = () => {
           <p className="text-sm font-medium">Cargando movimientos...</p>
         </div>
       ) : activeSubTab === "entradas" ? (
-        <div
-          key={`entradas-${movementsData.startDate}-${movementsData.endDate}-${movementsData.entries.length}`}
-          className="fade-section"
-        >
+        <div key="entradas" className="fade-section">
           <MovementTable
             movements={movementsData.entries}
             type="entrada"
@@ -402,10 +399,7 @@ export const MovementsPage = () => {
           />
         </div>
       ) : activeSubTab === "salidas" ? (
-        <div
-          key={`salidas-${movementsData.startDate}-${movementsData.endDate}-${movementsData.exits.length}`}
-          className="fade-section"
-        >
+        <div key="salidas" className="fade-section">
           <MovementTable
             movements={movementsData.exits}
             type="salida"

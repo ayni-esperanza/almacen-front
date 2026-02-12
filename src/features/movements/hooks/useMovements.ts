@@ -106,14 +106,25 @@ export const useMovements = (): UseMovementsReturn => {
   const searchExitsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
+  const dateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchTermEntriesRef = useRef(searchTermEntries);
   const searchTermExitsRef = useRef(searchTermExits);
+
+  // Refs para fechas — evita que fetchEntries/fetchExits se recreen al cambiar fechas
+  const startDateRef = useRef(startDate);
+  const endDateRef = useRef(endDate);
+  useEffect(() => {
+    startDateRef.current = startDate;
+  }, [startDate]);
+  useEffect(() => {
+    endDateRef.current = endDate;
+  }, [endDate]);
 
   const fetchEntries = useCallback(async () => {
     try {
       const response = await movementsService.getAllEntries(
-        startDate || undefined,
-        endDate || undefined,
+        startDateRef.current || undefined,
+        endDateRef.current || undefined,
         entriesPage,
         entriesLimit,
         filterEPP ? "epp" : undefined,
@@ -129,21 +140,13 @@ export const useMovements = (): UseMovementsReturn => {
         setError(err.message);
       }
     }
-  }, [
-    startDate,
-    endDate,
-    entriesPage,
-    entriesLimit,
-    filterEPP,
-    filterArea,
-    filterResponsable,
-  ]);
+  }, [entriesPage, entriesLimit, filterEPP, filterArea, filterResponsable]);
 
   const fetchExits = useCallback(async () => {
     try {
       const response = await movementsService.getAllExits(
-        startDate || undefined,
-        endDate || undefined,
+        startDateRef.current || undefined,
+        endDateRef.current || undefined,
         exitsPage,
         exitsLimit,
         filterEPP ? "epp" : undefined,
@@ -161,8 +164,6 @@ export const useMovements = (): UseMovementsReturn => {
       }
     }
   }, [
-    startDate,
-    endDate,
     exitsPage,
     exitsLimit,
     filterEPP,
@@ -366,20 +367,32 @@ export const useMovements = (): UseMovementsReturn => {
     fetchBoth();
   }, [fetchBoth]);
 
-  // Refetch when date filters change (skip initial mount)
+  // Refetch when date filters change (skip initial mount) — debounce 700ms
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
 
-    // Debounce: esperar 300ms antes de hacer la petición
-    const timeoutId = setTimeout(() => {
-      fetchBoth();
-    }, 300);
+    // Limpiar timeout anterior
+    if (dateTimerRef.current) {
+      clearTimeout(dateTimerRef.current);
+    }
 
-    return () => clearTimeout(timeoutId);
-  }, [startDate, endDate, fetchBoth]);
+    // Debounce: esperar 700ms antes de hacer la petición
+    dateTimerRef.current = setTimeout(() => {
+      setRefreshing(true);
+      Promise.all([fetchEntries(), fetchExits()]).finally(() =>
+        setRefreshing(false),
+      );
+    }, 700);
+
+    return () => {
+      if (dateTimerRef.current) {
+        clearTimeout(dateTimerRef.current);
+      }
+    };
+  }, [startDate, endDate, fetchEntries, fetchExits]);
 
   // Debounce para búsqueda de entradas
   useEffect(() => {
