@@ -412,175 +412,251 @@ export const MovementTable: React.FC<MovementTableProps> = ({
         <div className="sticky top-[163px] z-20 p-3 bg-white border-b border-gray-200/70 sm:p-4 dark:border-slate-800/70 dark:bg-slate-900 shadow-sm">
           <div className="flex flex-col gap-3">
             {/* Fila de búsqueda y filtros */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              {/* Búsqueda y botones de filtro */}
-              <div className="flex items-center flex-1 w-full gap-2 sm:gap-3">
-                <div className="relative flex-1 sm:max-w-md">
-                  <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
-                  <input
-                    type="text"
-                    placeholder="Buscar por código, descripción o responsable..."
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
-                  />
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                {/* Búsqueda y botones de filtro */}
+                <div className="flex items-center flex-1 w-full gap-2 sm:gap-3">
+                  <div className="relative flex-1 sm:flex-initial sm:w-[280px] md:w-[340px] lg:w-[380px]">
+                    <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
+                    <input
+                      type="text"
+                      placeholder="Buscar por código, descripción o responsable..."
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                      className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                    <button
+                      onClick={() => setFilterEPP(!filterEPP)}
+                      className={`flex items-center flex-shrink-0 px-4 py-2 font-medium transition-all rounded-lg shadow-md whitespace-nowrap ${
+                        filterEPP
+                          ? "bg-green-500 text-white hover:bg-green-600"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <span>EPP</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowDateFilters((prev) => !prev);
+                      }}
+                      aria-pressed={showDateFilters}
+                      aria-label="Mostrar u ocultar filtros de fecha"
+                      className="p-2 text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 h-[38px]"
+                    >
+                      <Calendar className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAdvancedFilters((prev) => !prev);
+                      }}
+                      aria-pressed={showAdvancedFilters}
+                      aria-label="Mostrar u ocultar filtros avanzados"
+                      title="Filtros avanzados"
+                      className={`relative p-2 transition-all duration-200 border rounded-lg h-[38px] ${
+                        showAdvancedFilters || activeFilterCount > 0
+                          ? "bg-green-500 text-white border-green-500 hover:bg-green-600 shadow-md shadow-green-500/20"
+                          : "text-gray-600 border-gray-300 hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <Filter className="w-4 h-4" />
+                      {activeFilterCount > 0 && (
+                        <span className="absolute flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full -top-1.5 -right-1.5 ring-2 ring-white dark:ring-slate-900 animate-in">
+                          {activeFilterCount}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Filtros de fecha con animación - inline solo en desktop */}
+                    <div
+                      className={`hidden sm:flex items-center gap-2 overflow-hidden transition-all duration-300 ease-in-out ${
+                        showDateFilters
+                          ? "max-w-full opacity-100"
+                          : "max-w-0 opacity-0"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        <label className="text-sm font-medium text-gray-700 dark:text-slate-300 flex-shrink-0">
+                          Desde:
+                        </label>
+                        <div className="relative w-[160px]">
+                          <Calendar
+                            className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                            onClick={() => {
+                              const input = document.getElementById(
+                                "startDateInput",
+                              ) as HTMLInputElement;
+                              input?.showPicker?.();
+                            }}
+                          />
+                          <input
+                            id="startDateInput"
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => onStartDateChange?.(e.target.value)}
+                            aria-label="Fecha de inicio del filtro"
+                            className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        <label className="text-sm font-medium text-gray-700 dark:text-slate-300 flex-shrink-0">
+                          Hasta:
+                        </label>
+                        <div className="relative w-[160px]">
+                          <Calendar
+                            className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                            onClick={() => {
+                              const input = document.getElementById(
+                                "endDateInput",
+                              ) as HTMLInputElement;
+                              input?.showPicker?.();
+                            }}
+                          />
+                          <input
+                            id="endDateInput"
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => onEndDateChange?.(e.target.value)}
+                            aria-label="Fecha de fin del filtro"
+                            className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                          />
+                        </div>
+                      </div>
+
+                      {(startDate || endDate) && (
+                        <button
+                          onClick={() => {
+                            onStartDateChange?.("");
+                            onEndDateChange?.("");
+                          }}
+                          className="p-2 text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 flex-shrink-0"
+                          aria-label="Limpiar fechas"
+                          title="Limpiar fechas"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
+
+                {/* Botones de acciones */}
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <button
-                    onClick={() => setFilterEPP(!filterEPP)}
-                    className={`flex items-center flex-shrink-0 px-4 py-2 font-medium transition-all rounded-lg shadow-md whitespace-nowrap ${
-                      filterEPP
-                        ? "bg-green-500 text-white hover:bg-green-600"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                    }`}
-                  >
-                    <span>EPP</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowDateFilters((prev) => !prev);
-                    }}
-                    aria-pressed={showDateFilters}
-                    aria-label="Mostrar u ocultar filtros de fecha"
-                    className="p-2 text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 h-[38px]"
-                  >
-                    <Calendar className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAdvancedFilters((prev) => !prev);
-                    }}
-                    aria-pressed={showAdvancedFilters}
-                    aria-label="Mostrar u ocultar filtros avanzados"
-                    title="Filtros avanzados"
-                    className={`relative p-2 transition-all duration-200 border rounded-lg h-[38px] ${
-                      showAdvancedFilters || activeFilterCount > 0
-                        ? "bg-green-500 text-white border-green-500 hover:bg-green-600 shadow-md shadow-green-500/20"
-                        : "text-gray-600 border-gray-300 hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    <Filter className="w-4 h-4" />
-                    {activeFilterCount > 0 && (
-                      <span className="absolute flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full -top-1.5 -right-1.5 ring-2 ring-white dark:ring-slate-900 animate-in">
-                        {activeFilterCount}
-                      </span>
-                    )}
-                  </button>
+                  {onExportPdf && (
+                    <button
+                      onClick={onExportPdf}
+                      disabled={isExportingPdf}
+                      aria-label="Descargar PDF"
+                      title="Exportar a PDF"
+                      className={`flex items-center justify-center p-2 text-sm font-medium text-white transition-all rounded-lg shadow-md sm:px-3 sm:py-2 h-[38px] ${
+                        isExportingPdf
+                          ? "bg-green-400 cursor-not-allowed opacity-70"
+                          : "bg-green-500 hover:bg-green-600 hover:shadow-lg"
+                      }`}
+                    >
+                      {isExportingPdf ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                    </button>
+                  )}
+                  {selectedIds.size > 0 && (
+                    <button
+                      onClick={requestBulkDelete}
+                      className="flex items-center justify-center px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-red-500 rounded-lg shadow-md sm:px-4 hover:bg-red-600 whitespace-nowrap"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Eliminar ({selectedIds.size})</span>
+                    </button>
+                  )}
+                  {onAddMovement && (
+                    <button
+                      onClick={onAddMovement}
+                      className={`flex items-center justify-center px-3 py-2 space-x-2 text-sm font-medium text-center text-white transition-colors rounded-lg shadow-md sm:px-6 whitespace-nowrap ${buttonColor}`}
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Agregar</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Botones de acciones */}
-              <div className="flex items-center gap-2 sm:gap-3">
-                {onExportPdf && (
-                  <button
-                    onClick={onExportPdf}
-                    disabled={isExportingPdf}
-                    aria-label="Descargar PDF"
-                    title="Exportar a PDF"
-                    className={`flex items-center justify-center p-2 text-sm font-medium text-white transition-all rounded-lg shadow-md sm:px-3 sm:py-2 h-[38px] ${
-                      isExportingPdf
-                        ? "bg-green-400 cursor-not-allowed opacity-70"
-                        : "bg-green-500 hover:bg-green-600 hover:shadow-lg"
-                    }`}
-                  >
-                    {isExportingPdf ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Download className="w-4 h-4" />
-                    )}
-                  </button>
-                )}
-                {selectedIds.size > 0 && (
-                  <button
-                    onClick={requestBulkDelete}
-                    className="flex items-center justify-center px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-red-500 rounded-lg shadow-md sm:px-4 hover:bg-red-600 whitespace-nowrap"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>Eliminar ({selectedIds.size})</span>
-                  </button>
-                )}
-                {onAddMovement && (
-                  <button
-                    onClick={onAddMovement}
-                    className={`flex items-center justify-center px-3 py-2 space-x-2 text-sm font-medium text-center text-white transition-colors rounded-lg shadow-md sm:px-6 whitespace-nowrap ${buttonColor}`}
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Agregar</span>
-                  </button>
-                )}
-              </div>
+              {/* Filtros de fecha para móviles - en fila separada */}
+              {showDateFilters && (
+                <div className="flex flex-col gap-2 sm:hidden">
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap flex-shrink-0">
+                      Desde:
+                    </label>
+                    <div className="relative flex-1">
+                      <Calendar
+                        className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                        onClick={() => {
+                          const input = document.getElementById(
+                            "startDateInputMobile",
+                          ) as HTMLInputElement;
+                          input?.showPicker?.();
+                        }}
+                      />
+                      <input
+                        id="startDateInputMobile"
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => onStartDateChange?.(e.target.value)}
+                        aria-label="Fecha de inicio del filtro"
+                        className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap flex-shrink-0">
+                      Hasta:
+                    </label>
+                    <div className="relative flex-1">
+                      <Calendar
+                        className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                        onClick={() => {
+                          const input = document.getElementById(
+                            "endDateInputMobile",
+                          ) as HTMLInputElement;
+                          input?.showPicker?.();
+                        }}
+                      />
+                      <input
+                        id="endDateInputMobile"
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => onEndDateChange?.(e.target.value)}
+                        aria-label="Fecha de fin del filtro"
+                        className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                      />
+                    </div>
+                  </div>
+
+                  {(startDate || endDate) && (
+                    <button
+                      onClick={() => {
+                        onStartDateChange?.("");
+                        onEndDateChange?.("");
+                      }}
+                      className="flex items-center justify-center gap-2 p-2 text-sm font-medium text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
+                      aria-label="Limpiar fechas"
+                      title="Limpiar fechas"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      <span>Limpiar fechas</span>
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
-
-            {/* Filtros de fecha - Sección separada para mejor manejo responsive */}
-            {showDateFilters && (
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap flex-shrink-0">
-                    Desde:
-                  </label>
-                  <div className="relative w-full sm:w-[160px]">
-                    <Calendar
-                      className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
-                      onClick={() => {
-                        const input = document.getElementById(
-                          "startDateInput",
-                        ) as HTMLInputElement;
-                        input?.showPicker?.();
-                      }}
-                    />
-                    <input
-                      id="startDateInput"
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => onStartDateChange?.(e.target.value)}
-                      aria-label="Fecha de inicio del filtro"
-                      className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap flex-shrink-0">
-                    Hasta:
-                  </label>
-                  <div className="relative w-full sm:w-[160px]">
-                    <Calendar
-                      className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
-                      onClick={() => {
-                        const input = document.getElementById(
-                          "endDateInput",
-                        ) as HTMLInputElement;
-                        input?.showPicker?.();
-                      }}
-                    />
-                    <input
-                      id="endDateInput"
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => onEndDateChange?.(e.target.value)}
-                      aria-label="Fecha de fin del filtro"
-                      className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
-                    />
-                  </div>
-                </div>
-
-                {(startDate || endDate) && (
-                  <button
-                    onClick={() => {
-                      onStartDateChange?.("");
-                      onEndDateChange?.("");
-                    }}
-                    className="p-2 text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 flex-shrink-0 self-start sm:self-center"
-                    aria-label="Limpiar fechas"
-                    title="Limpiar fechas"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            )}
 
             {/* Filtros avanzados desplegables con animación */}
             <div
