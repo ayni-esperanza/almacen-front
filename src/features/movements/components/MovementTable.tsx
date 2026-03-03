@@ -515,56 +515,54 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
             {/* Filtros de fecha - Sección separada para mejor manejo responsive */}
             {showDateFilters && (
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-1">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap flex-shrink-0">
-                      Desde:
-                    </label>
-                    <div className="relative flex-1 min-w-[140px] max-w-[200px]">
-                      <Calendar
-                        className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
-                        onClick={() => {
-                          const input = document.getElementById(
-                            "startDateInput",
-                          ) as HTMLInputElement;
-                          input?.showPicker?.();
-                        }}
-                      />
-                      <input
-                        id="startDateInput"
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => onStartDateChange?.(e.target.value)}
-                        aria-label="Fecha de inicio del filtro"
-                        className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
-                      />
-                    </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap flex-shrink-0">
+                    Desde:
+                  </label>
+                  <div className="relative w-full sm:w-[160px]">
+                    <Calendar
+                      className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                      onClick={() => {
+                        const input = document.getElementById(
+                          "startDateInput",
+                        ) as HTMLInputElement;
+                        input?.showPicker?.();
+                      }}
+                    />
+                    <input
+                      id="startDateInput"
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => onStartDateChange?.(e.target.value)}
+                      aria-label="Fecha de inicio del filtro"
+                      className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                    />
                   </div>
+                </div>
 
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap flex-shrink-0">
-                      Hasta:
-                    </label>
-                    <div className="relative flex-1 min-w-[140px] max-w-[200px]">
-                      <Calendar
-                        className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
-                        onClick={() => {
-                          const input = document.getElementById(
-                            "endDateInput",
-                          ) as HTMLInputElement;
-                          input?.showPicker?.();
-                        }}
-                      />
-                      <input
-                        id="endDateInput"
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => onEndDateChange?.(e.target.value)}
-                        aria-label="Fecha de fin del filtro"
-                        className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
-                      />
-                    </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap flex-shrink-0">
+                    Hasta:
+                  </label>
+                  <div className="relative w-full sm:w-[160px]">
+                    <Calendar
+                      className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                      onClick={() => {
+                        const input = document.getElementById(
+                          "endDateInput",
+                        ) as HTMLInputElement;
+                        input?.showPicker?.();
+                      }}
+                    />
+                    <input
+                      id="endDateInput"
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => onEndDateChange?.(e.target.value)}
+                      aria-label="Fecha de fin del filtro"
+                      className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                    />
                   </div>
                 </div>
 
