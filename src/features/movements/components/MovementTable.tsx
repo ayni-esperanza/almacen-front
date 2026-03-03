@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { MovementEntry, MovementExit } from "../types/index.ts";
 import { Pagination } from "../../../shared/components/Pagination";
 import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowClick";
@@ -237,41 +231,52 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     proyectos: string[];
     responsables: string[];
   }>({ areas: [], proyectos: [], responsables: [] });
-  const filterOptionsLoaded = useRef(false);
   const filterPanelRef = useRef<HTMLDivElement>(null);
 
-  // Fetch filter options once (cache until type changes)
-  const loadFilterOptions = useCallback(async () => {
-    if (filterOptionsLoaded.current) return;
-    setLoadingFilterOptions(true);
-    try {
-      if (type === "entrada") {
-        const opts = await movementsService.getEntryFilterOptions();
-        setFilterOptions({ ...opts, proyectos: [] });
-      } else {
-        const opts = await movementsService.getExitFilterOptions();
-        setFilterOptions(opts);
-      }
-      filterOptionsLoaded.current = true;
-    } catch (error) {
-      console.error("Error al cargar opciones de filtro:", error);
-    } finally {
-      setLoadingFilterOptions(false);
-    }
-  }, [type]);
-
-  // Reset cache when type changes
+  // Limpia las opciones cuando cambia el tipo (entrada/salida)
   useEffect(() => {
-    filterOptionsLoaded.current = false;
     setFilterOptions({ areas: [], proyectos: [], responsables: [] });
   }, [type]);
 
-  // Load options when panel opens
   useEffect(() => {
-    if (showAdvancedFilters) {
-      loadFilterOptions();
-    }
-  }, [showAdvancedFilters, loadFilterOptions]);
+    if (!showAdvancedFilters) return;
+
+    let cancelled = false;
+    const load = async () => {
+      setLoadingFilterOptions(true);
+      try {
+        if (type === "entrada") {
+          const opts = await movementsService.getEntryFilterOptions(
+            filterArea || undefined,
+          );
+          if (!cancelled) {
+            setFilterOptions({
+              areas: opts.areas,
+              proyectos: [],
+              responsables: opts.responsables,
+            });
+          }
+        } else {
+          const opts = await movementsService.getExitFilterOptions(
+            filterArea || undefined,
+            filterProyecto || undefined,
+          );
+          if (!cancelled) {
+            setFilterOptions(opts);
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar opciones de filtro:", error);
+      } finally {
+        if (!cancelled) setLoadingFilterOptions(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [showAdvancedFilters, type, filterArea, filterProyecto]);
 
   // Count active advanced filters
   const activeFilterCount = useMemo(() => {
@@ -602,7 +607,11 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         <div className="relative">
                           <select
                             value={filterArea}
-                            onChange={(e) => setFilterArea(e.target.value)}
+                            onChange={(e) => {
+                              setFilterArea(e.target.value);
+                              setFilterProyecto("");
+                              setFilterResponsable("");
+                            }}
                             title="Filtrar por área"
                             className="w-full py-2 pl-3 text-sm text-gray-700 transition-colors bg-white border border-gray-300 rounded-lg appearance-none cursor-pointer pr-9 focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 hover:border-gray-400 dark:hover:border-slate-600"
                           >
@@ -625,9 +634,10 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                           <div className="relative">
                             <select
                               value={filterProyecto}
-                              onChange={(e) =>
-                                setFilterProyecto(e.target.value)
-                              }
+                              onChange={(e) => {
+                                setFilterProyecto(e.target.value);
+                                setFilterResponsable("");
+                              }}
                               title="Filtrar por proyecto"
                               className="w-full py-2 pl-3 text-sm text-gray-700 transition-colors bg-white border border-gray-300 rounded-lg appearance-none cursor-pointer pr-9 focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 hover:border-gray-400 dark:hover:border-slate-600"
                             >
