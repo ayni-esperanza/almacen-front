@@ -392,14 +392,17 @@ class MovementsService {
     return response.data?.nombre || null;
   }
 
-  async getEntryFilterOptions(): Promise<{
+  async getEntryFilterOptions(area?: string): Promise<{
     areas: string[];
     responsables: string[];
   }> {
+    const params = new URLSearchParams();
+    if (area) params.set("area", area);
+    const query = params.toString() ? `?${params.toString()}` : "";
     const response = await apiClient.get<{
       areas: string[];
       responsables: string[];
-    }>("/movements/entries/filter-options");
+    }>(`/movements/entries/filter-options${query}`);
 
     if (response.error) {
       console.error("Error fetching entry filter options:", response.error);
@@ -409,16 +412,23 @@ class MovementsService {
     return response.data || { areas: [], responsables: [] };
   }
 
-  async getExitFilterOptions(): Promise<{
+  async getExitFilterOptions(
+    area?: string,
+    proyecto?: string,
+  ): Promise<{
     areas: string[];
     proyectos: string[];
     responsables: string[];
   }> {
+    const params = new URLSearchParams();
+    if (area) params.set("area", area);
+    if (proyecto) params.set("proyecto", proyecto);
+    const query = params.toString() ? `?${params.toString()}` : "";
     const response = await apiClient.get<{
       areas: string[];
       proyectos: string[];
       responsables: string[];
-    }>("/movements/exits/filter-options");
+    }>(`/movements/exits/filter-options${query}`);
 
     if (response.error) {
       console.error("Error fetching exit filter options:", response.error);

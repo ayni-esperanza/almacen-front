@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { MovementEntry, MovementExit } from "../types/index.ts";
 import { Pagination } from "../../../shared/components/Pagination";
 import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowClick";
@@ -26,9 +20,9 @@ import {
   Filter,
   RefreshCw,
   X,
-  ChevronDown,
   Loader2,
 } from "lucide-react";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
 interface MovementTableProps {
   movements: (MovementEntry | MovementExit)[];
@@ -237,41 +231,52 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     proyectos: string[];
     responsables: string[];
   }>({ areas: [], proyectos: [], responsables: [] });
-  const filterOptionsLoaded = useRef(false);
   const filterPanelRef = useRef<HTMLDivElement>(null);
 
-  // Fetch filter options once (cache until type changes)
-  const loadFilterOptions = useCallback(async () => {
-    if (filterOptionsLoaded.current) return;
-    setLoadingFilterOptions(true);
-    try {
-      if (type === "entrada") {
-        const opts = await movementsService.getEntryFilterOptions();
-        setFilterOptions({ ...opts, proyectos: [] });
-      } else {
-        const opts = await movementsService.getExitFilterOptions();
-        setFilterOptions(opts);
-      }
-      filterOptionsLoaded.current = true;
-    } catch (error) {
-      console.error("Error al cargar opciones de filtro:", error);
-    } finally {
-      setLoadingFilterOptions(false);
-    }
-  }, [type]);
-
-  // Reset cache when type changes
+  // Limpia las opciones cuando cambia el tipo (entrada/salida)
   useEffect(() => {
-    filterOptionsLoaded.current = false;
     setFilterOptions({ areas: [], proyectos: [], responsables: [] });
   }, [type]);
 
-  // Load options when panel opens
   useEffect(() => {
-    if (showAdvancedFilters) {
-      loadFilterOptions();
-    }
-  }, [showAdvancedFilters, loadFilterOptions]);
+    if (!showAdvancedFilters) return;
+
+    let cancelled = false;
+    const load = async () => {
+      setLoadingFilterOptions(true);
+      try {
+        if (type === "entrada") {
+          const opts = await movementsService.getEntryFilterOptions(
+            filterArea || undefined,
+          );
+          if (!cancelled) {
+            setFilterOptions({
+              areas: opts.areas,
+              proyectos: [],
+              responsables: opts.responsables,
+            });
+          }
+        } else {
+          const opts = await movementsService.getExitFilterOptions(
+            filterArea || undefined,
+            filterProyecto || undefined,
+          );
+          if (!cancelled) {
+            setFilterOptions(opts);
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar opciones de filtro:", error);
+      } finally {
+        if (!cancelled) setLoadingFilterOptions(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [showAdvancedFilters, type, filterArea, filterProyecto]);
 
   // Count active advanced filters
   const activeFilterCount = useMemo(() => {
@@ -597,77 +602,44 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                     </div>
                   ) : (
                     <>
-                      <div className="flex flex-col gap-1 min-w-[180px]">
-                        <label className="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-slate-400">
-                          Área
-                        </label>
-                        <div className="relative">
-                          <select
-                            value={filterArea}
-                            onChange={(e) => setFilterArea(e.target.value)}
-                            title="Filtrar por área"
-                            className="w-full py-2 pl-3 text-sm text-gray-700 transition-colors bg-white border border-gray-300 rounded-lg appearance-none cursor-pointer pr-9 focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 hover:border-gray-400 dark:hover:border-slate-600"
-                          >
-                            <option value="">Todas las áreas</option>
-                            {filterOptions.areas.map((area) => (
-                              <option key={area} value={area}>
-                                {area}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-2.5 top-1/2 dark:text-slate-500" />
-                        </div>
+                      <div className="min-w-[180px]">
+                        <SearchableSelect
+                          label="ÁREA"
+                          value={filterArea}
+                          onChange={(val) => {
+                            setFilterArea(val);
+                            setFilterProyecto("");
+                            setFilterResponsable("");
+                          }}
+                          options={filterOptions.areas}
+                          placeholder="Todas las áreas"
+                        />
                       </div>
 
                       {!isEntry && (
-                        <div className="flex flex-col gap-1 min-w-[180px]">
-                          <label className="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-slate-400">
-                            Proyecto
-                          </label>
-                          <div className="relative">
-                            <select
-                              value={filterProyecto}
-                              onChange={(e) =>
-                                setFilterProyecto(e.target.value)
-                              }
-                              title="Filtrar por proyecto"
-                              className="w-full py-2 pl-3 text-sm text-gray-700 transition-colors bg-white border border-gray-300 rounded-lg appearance-none cursor-pointer pr-9 focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 hover:border-gray-400 dark:hover:border-slate-600"
-                            >
-                              <option value="">Todos los proyectos</option>
-                              {filterOptions.proyectos.map((p) => (
-                                <option key={p} value={p}>
-                                  {p}
-                                </option>
-                              ))}
-                            </select>
-                            <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-2.5 top-1/2 dark:text-slate-500" />
-                          </div>
+                        <div className="min-w-[180px]">
+                          <SearchableSelect
+                            label="PROYECTO"
+                            value={filterProyecto}
+                            onChange={(val) => {
+                              setFilterProyecto(val);
+                              setFilterResponsable("");
+                            }}
+                            options={filterOptions.proyectos}
+                            placeholder="Todos los proyectos"
+                          />
                         </div>
                       )}
 
                       {!isEntry && (
-                        <div className="flex flex-col gap-1 min-w-[180px]">
-                          <label className="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-slate-400">
-                            Responsable
-                          </label>
-                          <div className="relative">
-                            <select
-                              value={filterResponsable}
-                              onChange={(e) =>
-                                setFilterResponsable(e.target.value)
-                              }
-                              title="Filtrar por responsable"
-                              className="w-full py-2 pl-3 text-sm text-gray-700 transition-colors bg-white border border-gray-300 rounded-lg appearance-none cursor-pointer pr-9 focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 hover:border-gray-400 dark:hover:border-slate-600"
-                            >
-                              <option value="">Todos los responsables</option>
-                              {filterOptions.responsables.map((r) => (
-                                <option key={r} value={r}>
-                                  {r}
-                                </option>
-                              ))}
-                            </select>
-                            <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-2.5 top-1/2 dark:text-slate-500" />
-                          </div>
+                        <div className="min-w-[180px]">
+                          <SearchableSelect
+                            label="RESPONSABLE"
+                            value={filterResponsable}
+                            onChange={setFilterResponsable}
+                            options={filterOptions.responsables}
+                            placeholder="Todos los responsables"
+                          />
                         </div>
                       )}
 
