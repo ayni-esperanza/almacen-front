@@ -1,13 +1,15 @@
 import React, { useEffect } from "react";
-import { BarChart3, AlertTriangle, LayoutDashboard } from "lucide-react";
+import { BarChart3, AlertTriangle, LayoutDashboard, GitCompare } from "lucide-react";
 import { ExpenseReportPage } from "../features/reports/components/ExpenseReportPage";
 import { StockAlertPage } from "../features/reports/components/StockAlertPage";
 import { StockDashboardPage } from "../features/reports/components/StockDashboardPage";
+import { ComparisonReportPage } from "../features/reports/components/ComparisonReportPage";
 import { useSearchParams } from "react-router-dom";
 
 type ReportType =
   | "stock-dashboard"
   | "expenses"
+  | "comparison"
   | "stock-alerts"
   | "inventory"
   | "movements";
@@ -34,6 +36,13 @@ const REPORTS: ReportDefinition[] = [
     description: "Análisis de gastos por área y proyecto",
     icon: BarChart3,
     component: ExpenseReportPage,
+  },
+  {
+    id: "comparison",
+    title: "Comparar Gastos",
+    description: "Comparación entre áreas, proyectos y períodos",
+    icon: GitCompare,
+    component: ComparisonReportPage,
   },
   {
     id: "stock-alerts",

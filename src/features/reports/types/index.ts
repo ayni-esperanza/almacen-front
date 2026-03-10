@@ -104,3 +104,33 @@ export interface StockDashboard {
   productoMasMovido?: MostMovedProduct;
   periodoAnalisisDias: number;
 }
+
+// Tipos para Comparación de Reportes
+export type ComparisonType = "area" | "proyecto";
+
+export interface ComparisonItem {
+  id: string;
+  type: ComparisonType;
+  label: string;
+  area?: string;
+  proyecto?: string;
+  fechaInicio: string;
+  fechaFin: string;
+  color: string;
+}
+
+export interface ComparisonData {
+  id: string;
+  label: string;
+  totalGasto: number;
+  cantidadMovimientos: number;
+  monthlyData: MonthlyComparisonData[];
+  color: string;
+}
+
+export interface MonthlyComparisonData {
+  mes: string;
+  rawMes?: string;
+  totalGasto: number;
+  cantidadMovimientos: number;
+}
