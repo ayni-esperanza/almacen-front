@@ -24,6 +24,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
   onBarOrientationChange,
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoveredPoint, setHoveredPoint] = useState<{ comparisonId: string; monthIndex: number } | null>(null);
 
   const containerClasses =
     "rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-900";
@@ -108,8 +109,35 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
                 {data.map((item, index) => {
                   const height = (item.totalGasto / maxGasto) * chartHeight;
                   const isHovered = hoveredIndex === index;
+                  const promedio = item.cantidadMovimientos > 0 ? item.totalGasto / item.cantidadMovimientos : 0;
                   return (
-                    <div key={item.id} className="flex flex-col items-center gap-2">
+                    <div key={item.id} className="flex flex-col items-center gap-2 relative">
+                      {/* Tooltip detallado */}
+                      {isHovered && (
+                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-10 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg dark:bg-slate-800 whitespace-nowrap">
+                          <div className="space-y-1">
+                            <div className="font-semibold">{item.label}</div>
+                            <div className="flex justify-between space-x-4">
+                              <span className="text-gray-300">Gasto:</span>
+                              <span className="font-semibold text-emerald-300">
+                                {formatCurrency(item.totalGasto)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between space-x-4">
+                              <span className="text-gray-300">Movimientos:</span>
+                              <span className="font-semibold text-sky-300">
+                                {item.cantidadMovimientos}
+                              </span>
+                            </div>
+                            <div className="flex justify-between space-x-4">
+                              <span className="text-gray-300">Promedio:</span>
+                              <span className="font-semibold text-amber-300">
+                                {formatCurrency(promedio)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       <div
                         className="flex-1 flex items-end"
                         style={{ height: chartHeight }}
@@ -125,7 +153,6 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
                           onMouseEnter={() => setHoveredIndex(index)}
                           onMouseLeave={() => setHoveredIndex(null)}
                           onClick={() => onSelectItem?.(item.id)}
-                          title={`${item.label}: ${formatCurrency(item.totalGasto)} (${item.cantidadMovimientos} mov.)`}
                         />
                       </div>
                       <div className="w-full text-center text-xs text-gray-700 dark:text-slate-300">
@@ -147,6 +174,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
         {data.map((item, index) => {
           const percentage = (item.totalGasto / maxGasto) * 100;
           const isHovered = hoveredIndex === index;
+          const promedio = item.cantidadMovimientos > 0 ? item.totalGasto / item.cantidadMovimientos : 0;
 
           return (
             <div
@@ -175,6 +203,33 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
                 </div>
               </div>
 
+              {/* Tooltip detallado */}
+              {isHovered && (
+                <div className="absolute top-0 right-0 z-10 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg dark:bg-slate-800">
+                  <div className="space-y-1">
+                    <div className="font-semibold">{item.label}</div>
+                    <div className="flex justify-between space-x-4">
+                      <span className="text-gray-300">Gasto Total:</span>
+                      <span className="font-semibold text-emerald-300">
+                        {formatCurrency(item.totalGasto)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between space-x-4">
+                      <span className="text-gray-300">Movimientos:</span>
+                      <span className="font-semibold text-sky-300">
+                        {item.cantidadMovimientos}
+                      </span>
+                    </div>
+                    <div className="flex justify-between space-x-4">
+                      <span className="text-gray-300">Promedio:</span>
+                      <span className="font-semibold text-amber-300">
+                        {formatCurrency(promedio)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="relative h-8 bg-gray-200 rounded-full dark:bg-slate-800 overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-300 cursor-pointer"
@@ -184,7 +239,6 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
                     opacity: isHovered ? 1 : 0.8,
                   }}
                   onClick={() => onSelectItem?.(item.id)}
-                  title={`${item.label}: ${formatCurrency(item.totalGasto)} (${item.cantidadMovimientos} mov.)`}
                 />
               </div>
             </div>
@@ -276,6 +330,56 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
 
         {/* Gráfico de líneas */}
         <div className="relative" style={{ height: "320px" }}>
+          {/* Tooltip para el punto específico bajo el cursor */}
+          {hoveredPoint && (() => {
+            const item = data.find(d => d.id === hoveredPoint.comparisonId);
+            if (!item) return null;
+            
+            const monthData = item.monthlyData.find((m) => m.mes === sortedMonths[hoveredPoint.monthIndex]);
+            if (!monthData) return null;
+            
+            const promedio = monthData.cantidadMovimientos > 0 
+              ? monthData.totalGasto / monthData.cantidadMovimientos 
+              : 0;
+            
+            const x = 120 + (hoveredPoint.monthIndex * (840 / Math.max(1, sortedMonths.length - 1)));
+            const y = 300 - (monthData.totalGasto / maxValue) * 280 + 10;
+            
+            return (
+              <div
+                className="absolute z-20 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg dark:bg-slate-800 whitespace-nowrap pointer-events-none"
+                style={{
+                  left: `${(x / 1000) * 100}%`,
+                  top: `${(y / 340) * 100}%`,
+                  transform: 'translate(-50%, -120%)',
+                }}
+              >
+                <div className="space-y-1">
+                  <div className="font-semibold">{item.label}</div>
+                  <div className="text-gray-300">{sortedMonths[hoveredPoint.monthIndex]}</div>
+                  <div className="flex justify-between space-x-4">
+                    <span className="text-gray-300">Gasto:</span>
+                    <span className="font-semibold text-emerald-300">
+                      {formatCurrency(monthData.totalGasto)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between space-x-4">
+                    <span className="text-gray-300">Movimientos:</span>
+                    <span className="font-semibold text-sky-300">
+                      {monthData.cantidadMovimientos}
+                    </span>
+                  </div>
+                  <div className="flex justify-between space-x-4">
+                    <span className="text-gray-300">Promedio:</span>
+                    <span className="font-semibold text-amber-300">
+                      {formatCurrency(promedio)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+          
           <svg viewBox="0 0 1000 340" preserveAspectRatio="xMidYMid meet" className="overflow-visible w-full h-full">
             {/* Líneas de grid horizontal */}
             {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
@@ -326,23 +430,22 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
                   />
 
                   {/* Puntos */}
-                  {points.map((point, i) => (
-                    <circle
-                      key={i}
-                      cx={point.x}
-                      cy={point.y}
-                      r="5"
-                      fill={item.color}
-                      className="cursor-pointer hover:r-6 transition-all"
-                      onMouseEnter={() => setHoveredIndex(i)}
-                      onMouseLeave={() => setHoveredIndex(null)}
-                      onClick={() => onSelectItem?.(item.id, { rawMonth: point.rawMonth })}
-                    >
-                      <title>
-                        {item.label} - {point.month}: {formatCurrency(point.value)}
-                      </title>
-                    </circle>
-                  ))}
+                  {points.map((point, i) => {
+                    const isHovered = hoveredPoint?.comparisonId === item.id && hoveredPoint?.monthIndex === i;
+                    return (
+                      <circle
+                        key={i}
+                        cx={point.x}
+                        cy={point.y}
+                        r={isHovered ? "7" : "5"}
+                        fill={item.color}
+                        className="cursor-pointer transition-all"
+                        onMouseEnter={() => setHoveredPoint({ comparisonId: item.id, monthIndex: i })}
+                        onMouseLeave={() => setHoveredPoint(null)}
+                        onClick={() => onSelectItem?.(item.id, { rawMonth: point.rawMonth })}
+                      />
+                    );
+                  })}
                 </g>
               );
             })}
@@ -388,6 +491,44 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
         </div>
 
         <div className="relative" style={{ height: "320px" }}>
+          {/* Tooltip para gráfico combo */}
+          {hoveredIndex !== null && data[hoveredIndex] && (
+            <div
+              className="absolute z-20 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg dark:bg-slate-800 whitespace-nowrap pointer-events-none"
+              style={{
+                left: `${((120 + (hoveredIndex * (840 / Math.max(1, data.length - 1)))) / 1000) * 100}%`,
+                top: '10%',
+                transform: 'translateX(-50%)',
+              }}
+            >
+              <div className="space-y-1">
+                <div className="font-semibold">{data[hoveredIndex].label}</div>
+                <div className="flex justify-between space-x-4">
+                  <span className="text-gray-300">Gasto Total:</span>
+                  <span className="font-semibold text-emerald-300">
+                    {formatCurrency(data[hoveredIndex].totalGasto)}
+                  </span>
+                </div>
+                <div className="flex justify-between space-x-4">
+                  <span className="text-gray-300">Movimientos:</span>
+                  <span className="font-semibold text-sky-300">
+                    {data[hoveredIndex].cantidadMovimientos}
+                  </span>
+                </div>
+                <div className="flex justify-between space-x-4">
+                  <span className="text-gray-300">Promedio:</span>
+                  <span className="font-semibold text-amber-300">
+                    {formatCurrency(
+                      data[hoveredIndex].cantidadMovimientos > 0
+                        ? data[hoveredIndex].totalGasto / data[hoveredIndex].cantidadMovimientos
+                        : 0
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <svg viewBox="0 0 1000 340" preserveAspectRatio="xMidYMid meet" className="overflow-visible w-full h-full">
             {/* Grid horizontal */}
             {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
@@ -409,6 +550,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
               const barHeight = (item.totalGasto / maxGasto) * 260;
               const yBar = 300 - barHeight + 10;
               const yLine = 300 - (item.cantidadMovimientos / maxMov) * 260 + 10;
+              const isHovered = hoveredIndex === idx;
 
               return (
                 <g key={item.id}>
@@ -419,19 +561,23 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
                     width={28}
                     height={barHeight}
                     fill={item.color}
-                    opacity={0.85}
-                    className="cursor-pointer"
+                    opacity={isHovered ? 1 : 0.85}
+                    className="cursor-pointer transition-all"
+                    onMouseEnter={() => setHoveredIndex(idx)}
+                    onMouseLeave={() => setHoveredIndex(null)}
                     onClick={() => onSelectItem?.(item.id)}
                   />
                   {/* Línea de movs */}
                   <circle
                     cx={x}
                     cy={yLine}
-                    r={6}
+                    r={isHovered ? 8 : 6}
                     fill="transparent"
                     stroke={item.color}
                     strokeWidth={2}
-                    className="cursor-pointer"
+                    className="cursor-pointer transition-all"
+                    onMouseEnter={() => setHoveredIndex(idx)}
+                    onMouseLeave={() => setHoveredIndex(null)}
                     onClick={() => onSelectItem?.(item.id)}
                   />
                 </g>
