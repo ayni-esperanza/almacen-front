@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { Plus, X } from "lucide-react";
-import { ComparisonItem, ComparisonType } from "../types";
+import { Plus, X, BarChart3, TrendingUp } from "lucide-react";
+import { ComparisonItem, ComparisonType, VisualizationType } from "../types";
 
 interface ComparisonSelectorProps {
   areas: string[];
   proyectos: string[];
   onAddComparison: (item: Omit<ComparisonItem, "id" | "color">) => void;
-  comparisons: Array<{ id: string; label: string; color: string }>;
+  comparisons: ComparisonItem[];
   onRemoveComparison: (id: string) => void;
+  onUpdateVisualizationType?: (id: string, visualizationType: VisualizationType) => void;
   isCollapsed?: boolean;
 }
 
@@ -23,6 +24,7 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
   onAddComparison,
   comparisons,
   onRemoveComparison,
+  onUpdateVisualizationType,
   isCollapsed = false,
 }) => {
   const [comparisonType, setComparisonType] = useState<ComparisonType>("area");
@@ -65,6 +67,7 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
       fechaFin,
       area: comparisonType === "area" ? selectedArea : undefined,
       proyecto: comparisonType === "proyecto" ? selectedProyecto : undefined,
+      visualizationType: "bar", // Por defecto siempre barra
     };
 
     onAddComparison(newComparison);
@@ -218,9 +221,38 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
                 }}
               >
                 <span>{comp.label}</span>
+                
+                {/* Toggle de visualización */}
+                {onUpdateVisualizationType && (
+                  <div className="flex gap-1 ml-2 border-l pl-2" style={{ borderColor: comp.color }}>
+                    <button
+                      onClick={() => onUpdateVisualizationType(comp.id, "bar")}
+                      className={`p-1 rounded transition ${
+                        comp.visualizationType === "bar" || !comp.visualizationType
+                          ? "bg-black/20 dark:bg-white/20"
+                          : "hover:bg-black/10 dark:hover:bg-white/10 opacity-50"
+                      }`}
+                      title="Mostrar como barra"
+                    >
+                      <BarChart3 className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => onUpdateVisualizationType(comp.id, "line")}
+                      className={`p-1 rounded transition ${
+                        comp.visualizationType === "line"
+                          ? "bg-black/20 dark:bg-white/20"
+                          : "hover:bg-black/10 dark:hover:bg-white/10 opacity-50"
+                      }`}
+                      title="Mostrar como línea"
+                    >
+                      <TrendingUp className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+                
                 <button
                   onClick={() => onRemoveComparison(comp.id)}
-                  className="rounded p-0.5 hover:bg-black/10 dark:hover:bg-white/10"
+                  className="rounded p-0.5 hover:bg-black/10 dark:hover:bg-white/10 ml-1"
                 >
                   <X className="h-4 w-4" />
                 </button>

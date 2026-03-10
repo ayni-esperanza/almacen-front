@@ -107,6 +107,7 @@ export interface StockDashboard {
 
 // Tipos para Comparación de Reportes
 export type ComparisonType = "area" | "proyecto";
+export type VisualizationType = "bar" | "line";
 
 export interface ComparisonItem {
   id: string;
@@ -117,6 +118,7 @@ export interface ComparisonItem {
   fechaInicio: string;
   fechaFin: string;
   color: string;
+  visualizationType?: VisualizationType; // Para gráfico combo
 }
 
 export interface ComparisonData {
@@ -126,6 +128,7 @@ export interface ComparisonData {
   cantidadMovimientos: number;
   monthlyData: MonthlyComparisonData[];
   color: string;
+  visualizationType?: VisualizationType; // Para gráfico combo
 }
 
 export interface MonthlyComparisonData {

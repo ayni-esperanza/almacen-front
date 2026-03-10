@@ -38,6 +38,7 @@ export const ComparisonReportPage: React.FC = () => {
     error,
     addComparison,
     removeComparison,
+    updateVisualizationType,
   } = useComparisonReport();
 
   const {
@@ -361,6 +362,7 @@ export const ComparisonReportPage: React.FC = () => {
             onAddComparison={addComparison}
             comparisons={comparisons}
             onRemoveComparison={removeComparison}
+            onUpdateVisualizationType={updateVisualizationType}
             isCollapsed={isCollapsed}
           />
         </div>
@@ -406,42 +408,42 @@ export const ComparisonReportPage: React.FC = () => {
             </button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-slate-700">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-slate-200">
+            <table className="min-w-[600px] w-full text-xs text-gray-700 dark:text-slate-200">
+              <thead className="bg-gray-50 dark:bg-slate-900">
+                <tr className="border-b border-gray-200 dark:border-slate-800">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Mes
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Total Gasto
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Movimientos
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Gasto Promedio
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
                 {detailData!.rows.map((row, idx) => (
                   <tr
                     key={`${row.mes}-${idx}`}
                     className="border-b border-gray-100 dark:border-slate-800 last:border-0"
                   >
-                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-slate-100">
+                    <td className="px-3 py-2 text-xs text-gray-900 dark:text-slate-100">
                       {row.mes}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-semibold" style={{ color: detailData!.comparison.color }}>
+                    <td className="px-3 py-2 text-xs text-right font-medium" style={{ color: detailData!.comparison.color }}>
                       {new Intl.NumberFormat("es-PE", {
                         style: "currency",
                         currency: "PEN",
                       }).format(row.totalGasto)}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-600 dark:text-slate-400">
+                    <td className="px-3 py-2 text-xs text-right text-gray-600 dark:text-slate-400">
                       {row.cantidadMovimientos}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-600 dark:text-slate-400">
+                    <td className="px-3 py-2 text-xs text-right text-gray-600 dark:text-slate-400">
                       {row.cantidadMovimientos > 0
                         ? new Intl.NumberFormat("es-PE", {
                             style: "currency",
@@ -485,17 +487,17 @@ export const ComparisonReportPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-gray-200 dark:border-slate-700">
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-slate-200">Código</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-slate-200">Descripción</th>
-                      <th className="px-4 py-3 text-right font-semibold text-gray-700 dark:text-slate-200">Cantidad</th>
-                      <th className="px-4 py-3 text-right font-semibold text-gray-700 dark:text-slate-200">Costo total</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-slate-200">Responsable</th>
+                <table className="min-w-[800px] w-full text-xs text-gray-700 dark:text-slate-200">
+                  <thead className="bg-gray-50 dark:bg-slate-900">
+                    <tr className="border-b border-gray-200 dark:border-slate-800">
+                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Código</th>
+                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Descripción</th>
+                      <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Cantidad</th>
+                      <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Costo total</th>
+                      <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">Responsable</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
                     {(() => {
                       const filteredItems = productDetail.items.filter((item) => {
                         if (!searchTerm.trim()) return true;
@@ -509,7 +511,7 @@ export const ComparisonReportPage: React.FC = () => {
                       if (filteredItems.length === 0 && searchTerm.trim()) {
                         return (
                           <tr>
-                            <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-slate-400">
+                            <td colSpan={5} className="px-3 py-8 text-center text-xs text-gray-500 dark:text-slate-400">
                               No se encontraron productos con "{searchTerm}"
                             </td>
                           </tr>
@@ -518,13 +520,13 @@ export const ComparisonReportPage: React.FC = () => {
 
                       return filteredItems.map((item) => (
                         <tr key={item.id} className="border-b border-gray-100 dark:border-slate-800 last:border-0">
-                          <td className="px-4 py-3 text-gray-900 dark:text-slate-100">{item.codigoProducto}</td>
-                          <td className="px-4 py-3 text-gray-900 dark:text-slate-100">{item.descripcion}</td>
-                          <td className="px-4 py-3 text-right text-gray-700 dark:text-slate-300">{item.cantidad}</td>
-                          <td className="px-4 py-3 text-right font-semibold" style={{ color: detailData!.comparison.color }}>
+                          <td className="px-3 py-2 text-xs text-gray-900 dark:text-slate-100">{item.codigoProducto}</td>
+                          <td className="px-3 py-2 text-xs text-gray-900 dark:text-slate-100">{item.descripcion}</td>
+                          <td className="px-3 py-2 text-xs text-right text-gray-700 dark:text-slate-300">{item.cantidad}</td>
+                          <td className="px-3 py-2 text-xs text-right font-medium" style={{ color: detailData!.comparison.color }}>
                             {new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(item.costoTotal)}
                           </td>
-                          <td className="px-4 py-3 text-gray-700 dark:text-slate-300">{item.responsable || "-"}</td>
+                          <td className="px-3 py-2 text-xs text-gray-700 dark:text-slate-300">{item.responsable || "-"}</td>
                         </tr>
                       ));
                     })()}
@@ -544,43 +546,43 @@ export const ComparisonReportPage: React.FC = () => {
             Resumen de Comparaciones
           </h3>
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-slate-700">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-slate-200">
+            <table className="min-w-[600px] w-full text-xs text-gray-700 dark:text-slate-200">
+              <thead className="bg-gray-50 dark:bg-slate-900">
+                <tr className="border-b border-gray-200 dark:border-slate-800">
+                  <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Comparación
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Total Gasto
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Movimientos
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  <th className="px-3 py-3 text-xs font-semibold text-right text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                     Gasto Promedio
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">
                 {comparisonData.map((item) => (
                   <tr
                     key={item.id}
                     className="border-b border-gray-100 dark:border-slate-800 last:border-0"
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2">
                       <div className="flex items-center gap-2">
                         <div
                           className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: item.color }}
                         />
-                        <span className="text-sm text-gray-900 dark:text-slate-100">
+                        <span className="text-xs text-gray-900 dark:text-slate-100">
                           {item.label}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-3 py-2 text-right">
                       <span
-                        className="text-sm font-semibold"
+                        className="text-xs font-medium"
                         style={{ color: item.color }}
                       >
                         {new Intl.NumberFormat("es-PE", {
@@ -589,10 +591,10 @@ export const ComparisonReportPage: React.FC = () => {
                         }).format(item.totalGasto)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-600 dark:text-slate-400">
+                    <td className="px-3 py-2 text-xs text-right text-gray-600 dark:text-slate-400">
                       {item.cantidadMovimientos}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-600 dark:text-slate-400">
+                    <td className="px-3 py-2 text-xs text-right text-gray-600 dark:text-slate-400">
                       {item.cantidadMovimientos > 0
                         ? new Intl.NumberFormat("es-PE", {
                             style: "currency",

@@ -69,6 +69,12 @@ export const useComparisonReport = () => {
     setComparisons((prev) => prev.filter((c) => c.id !== id));
   }, []);
 
+  const updateVisualizationType = useCallback((id: string, visualizationType: "bar" | "line") => {
+    setComparisons((prev) => 
+      prev.map((c) => c.id === id ? { ...c, visualizationType } : c)
+    );
+  }, []);
+
   const clearComparisons = useCallback(() => {
     setComparisons([]);
     setComparisonData([]);
@@ -138,6 +144,7 @@ export const useComparisonReport = () => {
               cantidadMovimientos,
               monthlyData: monthlyComparisonData,
               color: comparison.color,
+              visualizationType: comparison.visualizationType,
             } as ComparisonData;
           })
         );
@@ -162,6 +169,7 @@ export const useComparisonReport = () => {
     error,
     addComparison,
     removeComparison,
+    updateVisualizationType,
     clearComparisons,
   };
 };
