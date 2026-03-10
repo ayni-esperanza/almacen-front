@@ -222,18 +222,17 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
                       x1="40"
                       y1={y}
                     x2={viewBoxWidth - 40}
-                    >
-                      {percent}%
-                    </text>
-                  </g>
-                );
-              })}
-
-              {/* Barras */}
-              {data.map((item, index) => {
-                const totalBarsWidth = data.length * barWidth + (data.length - 1) * spacing;
-                const startX = (viewBoxWidth - totalBarsWidth) / 2;
-                const x = startX + index * (barWidth + spacing);
+                    y2={y}
+                    stroke="currentColor"
+                    className="text-gray-200 dark:text-slate-700"
+                    strokeWidth="1"
+                    strokeDasharray="4 4"
+                  />
+                  <text
+                    x="35"
+                    y={y + 4}
+                    textAnchor="end"
+                    className="text-[10px] fill-gray-500 dark:fill-slate-400"
                 const gastoHeight = (item.gasto / maxGasto) * chartHeight;
                 const y = chartHeight + 20 - gastoHeight;
                 const isHovered = hoveredIndex === index;
