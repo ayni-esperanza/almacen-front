@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ChartData } from "../types";
-import { BarChart3, PieChart, TrendingUp } from "lucide-react";
+import { BarChart3, PieChart, TrendingUp, MoveHorizontal, MoveVertical } from "lucide-react";
 
 export type ChartType = "bar" | "pie" | "line";
 
@@ -10,6 +10,8 @@ interface ExpenseReportChartProps {
   loading?: boolean;
   chartType?: ChartType;
   onChartTypeChange?: (type: ChartType) => void;
+  barOrientation?: "horizontal" | "vertical";
+  onBarOrientationChange?: (orientation: "horizontal" | "vertical") => void;
 }
 
 // Paleta de colores extendida para evitar repeticiones
@@ -30,7 +32,7 @@ const CHART_COLORS = [
 
 // Optimización: Memoizar componente
 export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
-  ({ data, title, loading = false, chartType = "bar", onChartTypeChange }) => {
+  ({ data, title, loading = false, chartType = "bar", onChartTypeChange, barOrientation = "horizontal", onBarOrientationChange }) => {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     const handleChartTypeChange = (type: ChartType) => {
@@ -82,7 +84,14 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
     const maxGasto = Math.max(...data.map((item) => item.gasto));
     const maxMovimientos = Math.max(...data.map((item) => item.movimientos));
 
-    const renderBarChart = () => (
+    const renderBarChart = () => {
+      if (barOrientation === "vertical") {
+        return renderVerticalBarChart();
+      }
+      return renderHorizontalBarChart();
+    };
+
+    const renderHorizontalBarChart = () => (
       <div className="space-y-6">
         {data.map((item, index) => {
           const gastoPercentage = (item.gasto / maxGasto) * 100;
@@ -185,6 +194,133 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
         })}
       </div>
     );
+
+    const renderVerticalBarChart = () => {
+      const chartHeight = 300;
+      // Usar viewBox para evitar desbordamiento con muchos items
+      const viewBoxWidth = 1000;
+      const chartAreaWidth = viewBoxWidth - 80; // Márgenes
+      const spacing = Math.min(20, chartAreaWidth / (data.length * 3)); // Spacing adaptativo
+      const barWidth = Math.min(60, (chartAreaWidth - spacing * (data.length - 1)) / data.length);
+
+      return (
+        <div className="relative w-full" style={{ height: `${chartHeight + 80}px` }}>
+          <svg 
+            viewBox={`0 0 ${viewBoxWidth} ${chartHeight + 80}`}
+            preserveAspectRatio="xMidYMid meet"
+            className="w-full h-full"
+          >
+              {/* Eje Y */}
+              <line x1="40" y1="20" x2="40" y2={chartHeight + 20} stroke="currentColor" className="text-gray-300 dark:text-slate-600" strokeWidth="1" />
+              
+              {/* Líneas de guía horizontales */}
+              {[0, 25, 50, 75, 100].map((percent) => {
+                const y = chartHeight + 20 - (percent / 100) * chartHeight;
+                return (
+                  <g key={percent}>
+                    <line
+                      x1="40"
+                      y1={y}
+                    x2={viewBoxWidth - 40}
+                    >
+                      {percent}%
+                    </text>
+                  </g>
+                );
+              })}
+
+              {/* Barras */}
+              {data.map((item, index) => {
+                const totalBarsWidth = data.length * barWidth + (data.length - 1) * spacing;
+                const startX = (viewBoxWidth - totalBarsWidth) / 2;
+                const x = startX + index * (barWidth + spacing);
+                const gastoHeight = (item.gasto / maxGasto) * chartHeight;
+                const y = chartHeight + 20 - gastoHeight;
+                const isHovered = hoveredIndex === index;
+                const color = CHART_COLORS[index % CHART_COLORS.length];
+
+                return (
+                  <g
+                    key={index}
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    className="cursor-pointer"
+                  >
+                    {/* Barra */}
+                    <rect
+                      x={x}
+                      y={y}
+                      width={barWidth}
+                      height={gastoHeight}
+                      fill={color.hex}
+                      className="transition-all duration-300"
+                      opacity={isHovered ? 0.9 : 0.8}
+                    />
+
+                    {/* Etiqueta del área/proyecto (rotada) */}
+                    <text
+                      x={x + barWidth / 2}
+                      y={chartHeight + 35}
+                      textAnchor="end"
+                      className="text-[9px] fill-gray-700 dark:fill-slate-300 font-medium"
+                      transform={`rotate(-45, ${x + barWidth / 2}, ${chartHeight + 35})`}
+                    >
+                      {item.name.length > 15 ? item.name.substring(0, 15) + '...' : item.name}
+                    </text>
+                  </g>
+                );
+              })}
+          </svg>
+
+          {/* Tooltip HTML flotante */}
+          {hoveredIndex !== null && (() => {
+            const totalBarsWidth = data.length * barWidth + (data.length - 1) * spacing;
+            const startX = (viewBoxWidth - totalBarsWidth) / 2;
+            const barX = startX + hoveredIndex * (barWidth + spacing) + barWidth / 2;
+            const barY = chartHeight + 20 - (data[hoveredIndex].gasto / maxGasto) * chartHeight;
+            
+            // Convertir coordenadas viewBox a porcentajes
+            const tooltipLeftPercent = (barX / viewBoxWidth) * 100;
+            const tooltipTopPercent = ((barY - 90) / (chartHeight + 80)) * 100;
+            
+            return (
+              <div
+                className="absolute z-10 px-3 py-2 text-xs bg-gray-900 rounded-lg shadow-xl pointer-events-none dark:bg-slate-800 border border-gray-700 dark:border-slate-600"
+                style={{
+                  left: `${tooltipLeftPercent}%`,
+                  top: `${tooltipTopPercent}%`,
+                  transform: 'translateX(-50%)',
+                }}
+              >
+                <div className="space-y-1 whitespace-nowrap">
+                  <div className="font-semibold text-white">
+                    {data[hoveredIndex].name}
+                  </div>
+                  <div className="flex justify-between space-x-4">
+                    <span className="text-gray-300">Gasto:</span>
+                    <span className="font-semibold text-emerald-300">
+                      {formatCurrency(data[hoveredIndex].gasto)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between space-x-4">
+                    <span className="text-gray-300">Movimientos:</span>
+                    <span className="font-semibold text-sky-300">
+                      {data[hoveredIndex].movimientos}
+                    </span>
+                  </div>
+                  <div className="flex justify-between space-x-4">
+                    <span className="text-gray-300">Promedio:</span>
+                    <span className="font-semibold text-amber-300">
+                      {formatCurrency(data[hoveredIndex].gasto / data[hoveredIndex].movimientos)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      );
+    };
 
   const renderPieChart = () => {
     const total = data.reduce((sum, item) => sum + item.gasto, 0);
@@ -630,8 +766,37 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
         <div className="flex items-center justify-between mb-4">
           <h3 className={headingClasses}>{title}</h3>
 
-          {/* Selector de tipo de gráfico */}
-          <div className="flex space-x-2">
+          <div className="flex items-center gap-4">
+            {/* Selector de orientación de barras */}
+            {chartType === "bar" && onBarOrientationChange && (
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => onBarOrientationChange("horizontal")}
+                  className={`p-2 rounded-lg transition-colors ${
+                    barOrientation === "horizontal"
+                      ? "bg-green-100 text-green-600 dark:bg-emerald-500/20 dark:text-emerald-300"
+                      : "text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300"
+                  }`}
+                  title="Barras horizontales"
+                >
+                  <MoveHorizontal className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => onBarOrientationChange("vertical")}
+                  className={`p-2 rounded-lg transition-colors ${
+                    barOrientation === "vertical"
+                      ? "bg-green-100 text-green-600 dark:bg-emerald-500/20 dark:text-emerald-300"
+                      : "text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300"
+                  }`}
+                  title="Barras verticales"
+                >
+                  <MoveVertical className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+
+            {/* Selector de tipo de gráfico */}
+            <div className="flex space-x-2">
             <button
               onClick={() => handleChartTypeChange("bar")}
               className={`p-2 rounded-lg transition-colors ${
@@ -665,6 +830,7 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
             >
               <TrendingUp className="w-5 h-5" />
             </button>
+          </div>
           </div>
         </div>
 

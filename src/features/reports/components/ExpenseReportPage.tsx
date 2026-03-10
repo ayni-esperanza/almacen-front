@@ -63,6 +63,7 @@ export const ExpenseReportPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"chart" | "table">("chart");
   const [mainChartType, setMainChartType] = useState<ChartType>("bar");
   const [monthlyChartType, setMonthlyChartType] = useState<ChartType>("bar");
+  const [barOrientation, setBarOrientation] = useState<"horizontal" | "vertical">("horizontal");
   const [chartLayout, setChartLayout] = useState<"vertical" | "horizontal">(() => {
     const saved = localStorage.getItem("expenseReportChartLayout");
     return (saved === "horizontal" || saved === "vertical") ? saved : "vertical";
@@ -499,14 +500,17 @@ export const ExpenseReportPage: React.FC = () => {
                         loading={loading}
                         chartType={mainChartType}
                         onChartTypeChange={setMainChartType}
+                        barOrientation={barOrientation}
+                        onBarOrientationChange={setBarOrientation}
                       />
-
                       <ExpenseReportChart
                         data={getMonthlyChartData}
                         title={getMonthlyChartTitle()}
                         loading={loading}
                         chartType={monthlyChartType}
                         onChartTypeChange={setMonthlyChartType}
+                        barOrientation={barOrientation}
+                        onBarOrientationChange={setBarOrientation}
                       />
                     </div>
                   ) : (

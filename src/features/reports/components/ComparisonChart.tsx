@@ -670,9 +670,12 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
               ? monthData.totalGasto / monthData.cantidadMovimientos 
               : 0;
             
-            const barWidth = Math.min(40, Math.max(8, 700 / Math.max(1, sortedMonths.length)));
-            const groupWidth = barWidth * data.filter(d => d.visualizationType !== "line").length;
             const barItems = data.filter(d => d.visualizationType !== "line");
+            const monthSpacing = sortedMonths.length > 1 ? 840 / (sortedMonths.length - 1) : 840;
+            const maxGroupWidth = monthSpacing * 0.8;
+            const calculatedBarWidth = barItems.length > 0 ? maxGroupWidth / barItems.length : 40;
+            const barWidth = Math.min(40, Math.max(8, calculatedBarWidth));
+            const groupWidth = barWidth * barItems.length;
             const barIndex = barItems.findIndex(d => d.id === item.id);
             const baseX = 120 + (hoveredPoint.monthIndex * (840 / Math.max(1, sortedMonths.length - 1)));
             
@@ -745,7 +748,13 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
             {/* Renderizar barras */}
             {(() => {
               const barItems = data.filter(item => item.visualizationType !== "line");
-              const barWidth = Math.min(40, Math.max(8, 700 / Math.max(1, sortedMonths.length)));
+              // Calcular espaciado entre meses
+              const monthSpacing = sortedMonths.length > 1 ? 840 / (sortedMonths.length - 1) : 840;
+              // Calcular ancho máximo de grupo para no superponer con el siguiente mes
+              const maxGroupWidth = monthSpacing * 0.8; // 80% del espacio disponible
+              // Calcular ancho de barra para que el grupo no exceda maxGroupWidth
+              const calculatedBarWidth = barItems.length > 0 ? maxGroupWidth / barItems.length : 40;
+              const barWidth = Math.min(40, Math.max(8, calculatedBarWidth));
               const groupWidth = barWidth * barItems.length;
 
               return sortedMonths.map((month, monthIndex) => {

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Search, ChevronUp, ChevronDown, Info } from "lucide-react";
+import { Search, ChevronUp, ChevronDown, Info, LayoutGrid, Grid2X2 } from "lucide-react";
 import { useComparisonReport } from "../hooks/useComparisonReport";
 import { useReports } from "../hooks/useReports";
 import { ComparisonSelector } from "./ComparisonSelector";
@@ -64,6 +64,8 @@ export const ComparisonReportPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [chartLayout, setChartLayout] = useState<"stacked" | "side-by-side">("stacked");
+  const [individualChartTypes, setIndividualChartTypes] = useState<Record<string, ComparisonChartType>>({});
 
   // Cerrar popover de info al colapsar
   useEffect(() => {
@@ -294,100 +296,50 @@ export const ComparisonReportPage: React.FC = () => {
   const cardClasses =
     "rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-900";
 
-  return (
-    <div className="space-y-6">
-      {/* Selector de Comparaciones */}
-      {reportsLoading || projectsLoading ? (
-        <div className={cardClasses}>
-          <div className="flex items-center justify-center h-24 gap-3">
-            <div className="w-6 h-6 border-b-2 border-green-500 rounded-full animate-spin"></div>
-            <span className="text-sm text-gray-500 dark:text-slate-400">
-              Cargando áreas y proyectos...
-            </span>
-          </div>
-        </div>
-      ) : (
-        <div className={cardClasses}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-100">
-                Agregar Comparación
-              </h3>
-              {!isCollapsed && (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowInfo(!showInfo)}
-                    className="rounded-full p-1 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition"
-                    title="Cómo usar"
-                  >
-                    <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  </button>
-                  {showInfo && (
-                    <div className="absolute left-0 top-8 z-10 w-72 rounded-lg border border-blue-200 bg-white p-3 text-sm shadow-lg dark:border-slate-700 dark:bg-slate-900">
-                      <div className="flex justify-between items-start gap-2">
-                        <span className="font-semibold text-blue-700 dark:text-blue-300">Guía rápida</span>
-                        <button
-                          onClick={() => setShowInfo(false)}
-                          className="text-xs text-gray-500 hover:text-gray-800 dark:text-slate-400 dark:hover:text-slate-100"
-                        >
-                          Cerrar
-                        </button>
-                      </div>
-                      <ul className="mt-2 space-y-1 text-blue-700 dark:text-blue-200">
-                        <li>• Compara áreas o proyectos cambiando el selector.</li>
-                        <li>• Ajusta el rango de fechas para ver períodos distintos.</li>
-                        <li>• Haz clic en barras o puntos para ver el detalle del mes.</li>
-                        <li>• Personaliza la etiqueta si lo deseas.</li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-2 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition"
-              title={isCollapsed ? "Expandir" : "Compactar"}
-            >
-              {isCollapsed ? (
-                <ChevronDown className="h-5 w-5" />
-              ) : (
-                <ChevronUp className="h-5 w-5" />
-              )}
-            </button>
-          </div>
-          <ComparisonSelector
-            areas={areas}
-            proyectos={mergedProjects}
-            onAddComparison={addComparison}
-            comparisons={comparisons}
-            onRemoveComparison={removeComparison}
-            onUpdateVisualizationType={updateVisualizationType}
-            isCollapsed={isCollapsed}
-          />
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-950/30">
-          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
-        </div>
-      )}
-
+  // Componentes de gráficos - reorganizado para soportar múltiples gráficos
+  const chartsSection = (
+    <>
       {/* Gráficos de Comparación */}
       {comparisons.length > 0 && (
-        <ComparisonChart
-          data={comparisonData}
-          chartType={chartType}
-          onChartTypeChange={setChartType}
-          loading={loading}
-          onSelectItem={(id, opts) => setDetailSelection({ comparisonId: id, rawMonth: opts?.rawMonth })}
-          barOrientation={barOrientation}
-          onBarOrientationChange={setBarOrientation}
-        />
+        <>
+          {chartLayout === "side-by-side" ? (
+            // Mostrar gráficos individuales lado a lado (todos)
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {comparisonData.map((comparison) => (
+                <ComparisonChart
+                  key={comparison.id}
+                  data={[comparison]}
+                  chartType={individualChartTypes[comparison.id] || chartType}
+                  onChartTypeChange={(type) => {
+                    setIndividualChartTypes(prev => ({ ...prev, [comparison.id]: type }));
+                  }}
+                  loading={loading}
+                  onSelectItem={(id, opts) => setDetailSelection({ comparisonId: id, rawMonth: opts?.rawMonth })}
+                  barOrientation={barOrientation}
+                  onBarOrientationChange={setBarOrientation}
+                />
+              ))}
+            </div>
+          ) : (
+            // Mostrar todos los gráficos en un solo contenedor (vista apilada)
+            <ComparisonChart
+              data={comparisonData}
+              chartType={chartType}
+              onChartTypeChange={setChartType}
+              loading={loading}
+              onSelectItem={(id, opts) => setDetailSelection({ comparisonId: id, rawMonth: opts?.rawMonth })}
+              barOrientation={barOrientation}
+              onBarOrientationChange={setBarOrientation}
+            />
+          )}
+        </>
       )}
+    </>
+  );
 
+  // Componentes de tablas
+  const tablesSection = (
+    <>
       {detailData && detailData.rows.length > 0 && (
         <div className={cardClasses}>
           <div className="flex items-center justify-between mb-4">
@@ -609,6 +561,120 @@ export const ComparisonReportPage: React.FC = () => {
           </div>
         </div>
       )}
+    </>
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Selector de Comparaciones */}
+      {reportsLoading || projectsLoading ? (
+        <div className={cardClasses}>
+          <div className="flex items-center justify-center h-24 gap-3">
+            <div className="w-6 h-6 border-b-2 border-green-500 rounded-full animate-spin"></div>
+            <span className="text-sm text-gray-500 dark:text-slate-400">
+              Cargando áreas y proyectos...
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className={cardClasses}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-100">
+                Agregar Comparación
+              </h3>
+              {!isCollapsed && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowInfo(!showInfo)}
+                    className="rounded-full p-1 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition"
+                    title="Cómo usar"
+                  >
+                    <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </button>
+                  {showInfo && (
+                    <div className="absolute left-0 top-8 z-10 w-72 rounded-lg border border-blue-200 bg-white p-3 text-sm shadow-lg dark:border-slate-700 dark:bg-slate-900">
+                      <div className="flex justify-between items-start gap-2">
+                        <span className="font-semibold text-blue-700 dark:text-blue-300">Guía rápida</span>
+                        <button
+                          onClick={() => setShowInfo(false)}
+                          className="text-xs text-gray-500 hover:text-gray-800 dark:text-slate-400 dark:hover:text-slate-100"
+                        >
+                          Cerrar
+                        </button>
+                      </div>
+                      <ul className="mt-2 space-y-1 text-blue-700 dark:text-blue-200">
+                        <li>• Compara áreas o proyectos cambiando el selector.</li>
+                        <li>• Ajusta el rango de fechas para ver períodos distintos.</li>
+                        <li>• Haz clic en barras o puntos para ver el detalle del mes.</li>
+                        <li>• Personaliza la etiqueta si lo deseas.</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-2 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition"
+              title={isCollapsed ? "Expandir" : "Compactar"}
+            >
+              {isCollapsed ? (
+                <ChevronDown className="h-5 w-5" />
+              ) : (
+                <ChevronUp className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+          <ComparisonSelector
+            areas={areas}
+            proyectos={mergedProjects}
+            onAddComparison={addComparison}
+            comparisons={comparisons}
+            onRemoveComparison={removeComparison}
+            onUpdateVisualizationType={updateVisualizationType}
+            isCollapsed={isCollapsed}
+          />
+        </div>
+      )}
+
+      {/* Botón de cambio de vista y mensaje de error */}
+      <div className="flex items-center justify-between gap-4">
+        {error && (
+          <div className="flex-1 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-950/30">
+            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+          </div>
+        )}
+        
+        {comparisons.length > 0 && (
+          <div className="flex gap-2">
+            {/* Botón de layout de gráficos */}
+            {comparisonData.length >= 2 && (
+              <button
+                onClick={() => setChartLayout(chartLayout === "stacked" ? "side-by-side" : "stacked")}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-700 transition-colors"
+                title={chartLayout === "stacked" ? "Gráficos lado a lado" : "Gráficos apilados"}
+              >
+                {chartLayout === "side-by-side" ? (
+                  <>
+                    <LayoutGrid className="h-4 w-4" />
+                    <span>Apilados</span>
+                  </>
+                ) : (
+                  <>
+                    <Grid2X2 className="h-4 w-4" />
+                    <span>Lado a lado</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Contenido */}
+      {chartsSection}
+      {tablesSection}
     </div>
   );
 };
