@@ -8,6 +8,13 @@ import {
   ChartData,
 } from "../types";
 
+interface UseReportsOptions {
+  includeExpenseReports?: boolean;
+  includeMonthlyData?: boolean;
+  includeAreaData?: boolean;
+  debounceMs?: number;
+}
+
 const formatMonthValue = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -44,7 +51,14 @@ const formatMonthLabel = (value: string) => {
   }).format(new Date(year, month - 1, 1));
 };
 
-export const useReports = () => {
+export const useReports = (options: UseReportsOptions = {}) => {
+  const {
+    includeExpenseReports = true,
+    includeMonthlyData = true,
+    includeAreaData = true,
+    debounceMs = 300,
+  } = options;
+
   const [expenseReports, setExpenseReports] = useState<ExpenseReport[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyExpenseData[]>([]);
   const [areaData, setAreaData] = useState<AreaExpenseData[]>([]);
@@ -66,17 +80,39 @@ export const useReports = () => {
       setLoading(true);
       setError(null);
 
-      // Ejecutar todas las peticiones en paralelo
-      const [reportsData, monthlyDataResult, areaDataResult] =
-        await Promise.all([
-          reportsService.getExpenseReports(filters),
-          reportsService.getMonthlyExpenseData(filters),
-          reportsService.getAreaExpenseData(filters),
-        ]);
+      const tasks: Promise<void>[] = [];
 
-      setExpenseReports(reportsData);
-      setMonthlyData(monthlyDataResult);
-      setAreaData(areaDataResult);
+      if (includeExpenseReports) {
+        tasks.push(
+          reportsService
+            .getExpenseReports(filters)
+            .then((reportsData) => setExpenseReports(reportsData))
+        );
+      } else {
+        setExpenseReports([]);
+      }
+
+      if (includeMonthlyData) {
+        tasks.push(
+          reportsService
+            .getMonthlyExpenseData(filters)
+            .then((monthlyDataResult) => setMonthlyData(monthlyDataResult))
+        );
+      } else {
+        setMonthlyData([]);
+      }
+
+      if (includeAreaData) {
+        tasks.push(
+          reportsService
+            .getAreaExpenseData(filters)
+            .then((areaDataResult) => setAreaData(areaDataResult))
+        );
+      } else {
+        setAreaData([]);
+      }
+
+      await Promise.all(tasks);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar reportes");
     } finally {
@@ -88,6 +124,9 @@ export const useReports = () => {
     filters.area,
     filters.proyecto,
     filters.tipoReporte,
+    includeExpenseReports,
+    includeMonthlyData,
+    includeAreaData,
   ]);
 
   const updateFilters = useCallback((newFilters: Partial<ReportFilters>) => {
@@ -183,10 +222,10 @@ export const useReports = () => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchAllData();
-    }, 300); // Debounce de 300ms
+    }, debounceMs);
 
     return () => clearTimeout(timeoutId);
-  }, [fetchAllData]);
+  }, [fetchAllData, debounceMs]);
 
   const refetch = useCallback(() => {
     fetchAllData();

@@ -74,9 +74,11 @@ export const ComparisonReportPage: React.FC = () => {
 
   const {
     areaData,
-    expenseReports,
     loading: reportsLoading,
-  } = useReports();
+  } = useReports({
+    includeExpenseReports: false,
+    includeMonthlyData: false,
+  });
 
   const [chartType, setChartType] = useState<ComparisonChartType>("bar");
   const [extraProjects, setExtraProjects] = useState<string[]>([]);
@@ -129,19 +131,6 @@ export const ComparisonReportPage: React.FC = () => {
       }
     });
 
-    expenseReports.forEach((report) => {
-      if (report.area) {
-        if (isProjectLabel(report.area)) {
-          uniqueProjects.add(report.area);
-        } else {
-          uniqueAreas.add(report.area);
-        }
-      }
-      if (report.proyecto) {
-        uniqueProjects.add(report.proyecto);
-      }
-    });
-
     const derivedAreas = Array.from(uniqueAreas).filter(Boolean);
     const derivedProjects = Array.from(uniqueProjects).filter(Boolean);
     const projectLookup = new Set(
@@ -172,7 +161,7 @@ export const ComparisonReportPage: React.FC = () => {
       areas: ordered,
       proyectos: sortedProjects,
     };
-  }, [areaData, expenseReports]);
+  }, [areaData]);
 
   // Fallback: si no llegaron proyectos aún, consulta explícita con tipoReporte "proyecto"
   useEffect(() => {
