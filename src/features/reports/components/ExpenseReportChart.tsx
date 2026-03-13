@@ -199,28 +199,51 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
       const chartHeight = 300;
       // Usar viewBox para evitar desbordamiento con muchos items
       const viewBoxWidth = 1000;
-      const chartAreaWidth = viewBoxWidth - 80; // Márgenes
-      const spacing = Math.min(20, chartAreaWidth / (data.length * 3)); // Spacing adaptativo
-      const barWidth = Math.min(60, (chartAreaWidth - spacing * (data.length - 1)) / data.length);
+      const chartAreaWidth = viewBoxWidth - 80;
+      const spacing = Math.min(20, chartAreaWidth / (data.length * 3));
+      const barWidth = Math.min(
+        60,
+        (chartAreaWidth - spacing * (data.length - 1)) / data.length
+      );
+      const totalBarsWidth = data.length * barWidth + (data.length - 1) * spacing;
+      const startX = (viewBoxWidth - totalBarsWidth) / 2;
+      const hoveredItem = hoveredIndex !== null ? data[hoveredIndex] : null;
 
       return (
         <div className="relative w-full" style={{ height: `${chartHeight + 80}px` }}>
-          <svg 
+          <svg
             viewBox={`0 0 ${viewBoxWidth} ${chartHeight + 80}`}
             preserveAspectRatio="xMidYMid meet"
             className="w-full h-full"
           >
-              {/* Eje Y */}
-              <line x1="40" y1="20" x2="40" y2={chartHeight + 20} stroke="currentColor" className="text-gray-300 dark:text-slate-600" strokeWidth="1" />
-              
-              {/* Líneas de guía horizontales */}
-              {[0, 25, 50, 75, 100].map((percent) => {
-                const y = chartHeight + 20 - (percent / 100) * chartHeight;
-                return (
-                  <g key={percent}>
-                    <line
-                      x1="40"
-                      y1={y}
+            {/* Ejes */}
+            <line
+              x1="40"
+              y1="20"
+              x2="40"
+              y2={chartHeight + 20}
+              stroke="currentColor"
+              className="text-gray-300 dark:text-slate-600"
+              strokeWidth="1"
+            />
+            <line
+              x1="40"
+              y1={chartHeight + 20}
+              x2={viewBoxWidth - 40}
+              y2={chartHeight + 20}
+              stroke="currentColor"
+              className="text-gray-300 dark:text-slate-600"
+              strokeWidth="1"
+            />
+
+            {/* Líneas de guía horizontales */}
+            {[0, 25, 50, 75, 100].map((percent) => {
+              const y = chartHeight + 20 - (percent / 100) * chartHeight;
+              return (
+                <g key={percent}>
+                  <line
+                    x1="40"
+                    y1={y}
                     x2={viewBoxWidth - 40}
                     y2={y}
                     stroke="currentColor"
@@ -233,84 +256,89 @@ export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
                     y={y + 4}
                     textAnchor="end"
                     className="text-[10px] fill-gray-500 dark:fill-slate-400"
-                const gastoHeight = (item.gasto / maxGasto) * chartHeight;
-                const y = chartHeight + 20 - gastoHeight;
-                const isHovered = hoveredIndex === index;
-                const color = CHART_COLORS[index % CHART_COLORS.length];
-
-                return (
-                  <g
-                    key={index}
-                    onMouseEnter={() => setHoveredIndex(index)}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                    className="cursor-pointer"
                   >
-                    {/* Barra */}
-                    <rect
-                      x={x}
-                      y={y}
-                      width={barWidth}
-                      height={gastoHeight}
-                      fill={color.hex}
-                      className="transition-all duration-300"
-                      opacity={isHovered ? 0.9 : 0.8}
-                    />
+                    {percent}%
+                  </text>
+                </g>
+              );
+            })}
 
-                    {/* Etiqueta del área/proyecto (rotada) */}
-                    <text
-                      x={x + barWidth / 2}
-                      y={chartHeight + 35}
-                      textAnchor="end"
-                      className="text-[9px] fill-gray-700 dark:fill-slate-300 font-medium"
-                      transform={`rotate(-45, ${x + barWidth / 2}, ${chartHeight + 35})`}
-                    >
-                      {item.name.length > 15 ? item.name.substring(0, 15) + '...' : item.name}
-                    </text>
-                  </g>
-                );
-              })}
+            {/* Barras */}
+            {data.map((item, index) => {
+              const x = startX + index * (barWidth + spacing);
+              const gastoHeight = (item.gasto / maxGasto) * chartHeight;
+              const y = chartHeight + 20 - gastoHeight;
+              const isHovered = hoveredIndex === index;
+              const color = CHART_COLORS[index % CHART_COLORS.length];
+
+              return (
+                <g
+                  key={index}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  className="cursor-pointer"
+                >
+                  <rect
+                    x={x}
+                    y={y}
+                    width={barWidth}
+                    height={gastoHeight}
+                    fill={color.hex}
+                    className="transition-all duration-300"
+                    opacity={isHovered ? 0.95 : 0.8}
+                  />
+                  <text
+                    x={x + barWidth / 2}
+                    y={chartHeight + 35}
+                    textAnchor="end"
+                    className="fill-gray-700 text-[9px] font-medium dark:fill-slate-300"
+                    transform={`rotate(-45, ${x + barWidth / 2}, ${chartHeight + 35})`}
+                  >
+                    {item.name.length > 15
+                      ? `${item.name.substring(0, 15)}...`
+                      : item.name}
+                  </text>
+                </g>
+              );
+            })}
           </svg>
 
           {/* Tooltip HTML flotante */}
-          {hoveredIndex !== null && (() => {
-            const totalBarsWidth = data.length * barWidth + (data.length - 1) * spacing;
-            const startX = (viewBoxWidth - totalBarsWidth) / 2;
+          {hoveredItem && hoveredIndex !== null && (() => {
             const barX = startX + hoveredIndex * (barWidth + spacing) + barWidth / 2;
-            const barY = chartHeight + 20 - (data[hoveredIndex].gasto / maxGasto) * chartHeight;
-            
+            const barY = chartHeight + 20 - (hoveredItem.gasto / maxGasto) * chartHeight;
+
             // Convertir coordenadas viewBox a porcentajes
             const tooltipLeftPercent = (barX / viewBoxWidth) * 100;
             const tooltipTopPercent = ((barY - 90) / (chartHeight + 80)) * 100;
-            
+
             return (
               <div
-                className="absolute z-10 px-3 py-2 text-xs bg-gray-900 rounded-lg shadow-xl pointer-events-none dark:bg-slate-800 border border-gray-700 dark:border-slate-600"
+                className="absolute z-10 border border-gray-700 bg-gray-900 px-3 py-2 text-xs text-white rounded-lg shadow-xl pointer-events-none dark:border-slate-600 dark:bg-slate-800"
                 style={{
                   left: `${tooltipLeftPercent}%`,
                   top: `${tooltipTopPercent}%`,
-                  transform: 'translateX(-50%)',
+                  transform: "translateX(-50%)",
                 }}
               >
                 <div className="space-y-1 whitespace-nowrap">
-                  <div className="font-semibold text-white">
-                    {data[hoveredIndex].name}
-                  </div>
+                  <div className="font-semibold">{hoveredItem.name}</div>
                   <div className="flex justify-between space-x-4">
                     <span className="text-gray-300">Gasto:</span>
                     <span className="font-semibold text-emerald-300">
-                      {formatCurrency(data[hoveredIndex].gasto)}
+                      {formatCurrency(hoveredItem.gasto)}
                     </span>
                   </div>
                   <div className="flex justify-between space-x-4">
                     <span className="text-gray-300">Movimientos:</span>
                     <span className="font-semibold text-sky-300">
-                      {data[hoveredIndex].movimientos}
+                      {hoveredItem.movimientos}
                     </span>
                   </div>
                   <div className="flex justify-between space-x-4">
                     <span className="text-gray-300">Promedio:</span>
                     <span className="font-semibold text-amber-300">
-                      {formatCurrency(data[hoveredIndex].gasto / data[hoveredIndex].movimientos)}
+                      {formatCurrency(hoveredItem.gasto / hoveredItem.movimientos)}
                     </span>
                   </div>
                 </div>
