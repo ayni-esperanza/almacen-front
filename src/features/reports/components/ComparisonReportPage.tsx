@@ -30,6 +30,37 @@ const isProjectLabel = (value?: string | null) => {
   return normalized.startsWith("proyecto") || normalized.startsWith("proy ");
 };
 
+const extractProjectsFromAreaPayload = (payload: any[]): string[] => {
+  const projects = new Set<string>();
+
+  payload.forEach((item: any) => {
+    if (!item) return;
+
+    if (typeof item.proyecto === "string" && item.proyecto.trim()) {
+      projects.add(item.proyecto.trim());
+    }
+
+    if (typeof item.area === "string" && isProjectLabel(item.area)) {
+      projects.add(item.area.trim());
+    }
+
+    if (Array.isArray(item.proyectos)) {
+      item.proyectos.forEach((projectItem: any) => {
+        if (!projectItem) return;
+        const value =
+          typeof projectItem === "string"
+            ? projectItem
+            : projectItem.proyecto || projectItem.area || projectItem.nombre;
+        if (typeof value === "string" && value.trim()) {
+          projects.add(value.trim());
+        }
+      });
+    }
+  });
+
+  return Array.from(projects).sort();
+};
+
 export const ComparisonReportPage: React.FC = () => {
   const {
     comparisons,
@@ -66,6 +97,7 @@ export const ComparisonReportPage: React.FC = () => {
   const [showInfo, setShowInfo] = useState(false);
   const [chartLayout, setChartLayout] = useState<"stacked" | "side-by-side">("stacked");
   const [individualChartTypes, setIndividualChartTypes] = useState<Record<string, ComparisonChartType>>({});
+  const [hasAttemptedProjectsFallback, setHasAttemptedProjectsFallback] = useState(false);
 
   // Cerrar popover de info al colapsar
   useEffect(() => {
@@ -147,6 +179,7 @@ export const ComparisonReportPage: React.FC = () => {
     const fetchProjects = async () => {
       try {
         setProjectsLoading(true);
+        setHasAttemptedProjectsFallback(true);
         const today = new Date();
         const startOfYear = new Date(today.getFullYear(), 0, 1);
         const formatMonthValue = (date: Date) => {
@@ -161,18 +194,7 @@ export const ComparisonReportPage: React.FC = () => {
           tipoReporte: "proyecto",
         });
 
-        const projectsSet = new Set<string>();
-        areaDataProjects.forEach((area: any) => {
-          if (Array.isArray(area.proyectos)) {
-            area.proyectos.forEach((p: any) => {
-              if (p?.proyecto) {
-                projectsSet.add(p.proyecto);
-              }
-            });
-          }
-        });
-
-        setExtraProjects(Array.from(projectsSet).filter(Boolean).sort());
+        setExtraProjects(extractProjectsFromAreaPayload(areaDataProjects));
       } catch (err) {
         console.error("Error cargando proyectos adicionales", err);
       } finally {
@@ -180,10 +202,22 @@ export const ComparisonReportPage: React.FC = () => {
       }
     };
 
-    if (proyectos.length === 0 && extraProjects.length === 0 && !projectsLoading) {
+    if (
+      !hasAttemptedProjectsFallback &&
+      !reportsLoading &&
+      proyectos.length === 0 &&
+      extraProjects.length === 0 &&
+      !projectsLoading
+    ) {
       fetchProjects();
     }
-  }, [proyectos.length, extraProjects.length, projectsLoading]);
+  }, [
+    proyectos.length,
+    extraProjects.length,
+    projectsLoading,
+    hasAttemptedProjectsFallback,
+    reportsLoading,
+  ]);
 
   const mergedProjects = useMemo(() => {
     const all = new Set<string>([...proyectos, ...extraProjects]);
@@ -567,7 +601,7 @@ export const ComparisonReportPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Selector de Comparaciones */}
-      {reportsLoading || projectsLoading ? (
+      {reportsLoading ? (
         <div className={cardClasses}>
           <div className="flex items-center justify-center h-24 gap-3">
             <div className="w-6 h-6 border-b-2 border-green-500 rounded-full animate-spin"></div>
@@ -583,6 +617,11 @@ export const ComparisonReportPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-100">
                 Agregar Comparación
               </h3>
+              {projectsLoading && (
+                <span className="text-xs text-gray-500 dark:text-slate-400">
+                  Actualizando lista de proyectos...
+                </span>
+              )}
               {!isCollapsed && (
                 <div className="relative">
                   <button

@@ -110,7 +110,29 @@ class ReportsService {
       return [];
     }
 
-    return response.data || [];
+    const rawData = (response.data || []) as any[];
+
+    return rawData.map((item) => {
+      const proyectos = Array.isArray(item?.proyectos)
+        ? item.proyectos
+            .map((project: any) => ({
+              proyecto:
+                project?.proyecto || project?.area || project?.nombre || "",
+              totalGasto: Number(project?.totalGasto ?? project?.gasto ?? 0) || 0,
+              cantidadMovimientos:
+                Number(project?.cantidadMovimientos ?? project?.movimientos ?? 0) || 0,
+            }))
+            .filter((project: any) => project.proyecto)
+        : [];
+
+      return {
+        area: item?.area || item?.proyecto || "",
+        totalGasto: Number(item?.totalGasto ?? item?.gasto ?? 0) || 0,
+        cantidadMovimientos:
+          Number(item?.cantidadMovimientos ?? item?.movimientos ?? 0) || 0,
+        proyectos,
+      } as AreaExpenseData;
+    });
   }
 
   async exportExpenseReport(filters: ReportFilters, tipo: 'chart' | 'table' = 'table', mainChartType: 'bar' | 'pie' | 'line' = 'bar', monthlyChartType: 'bar' | 'pie' | 'line' = 'bar'): Promise<Blob | null> {

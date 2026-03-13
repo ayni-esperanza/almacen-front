@@ -48,6 +48,13 @@ const formatMonthLabel = (value: string) => {
   }).format(new Date(year, month - 1, 1));
 };
 
+const normalizeText = (value?: string | null) => value?.trim().toLowerCase() ?? "";
+
+const toNumber = (value: unknown) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
 export const useComparisonReport = () => {
   const [comparisons, setComparisons] = useState<ComparisonItem[]>([]);
   const [comparisonData, setComparisonData] = useState<ComparisonData[]>([]);
@@ -109,31 +116,57 @@ export const useComparisonReport = () => {
 
             let totalGasto = 0;
             let cantidadMovimientos = 0;
+            const monthlyTotalGasto = monthlyData.reduce(
+              (sum, item: any) => sum + toNumber(item?.totalGasto ?? item?.gasto),
+              0
+            );
+            const monthlyMovimientos = monthlyData.reduce(
+              (sum, item: any) => sum + toNumber(item?.cantidadMovimientos ?? item?.movimientos),
+              0
+            );
 
             if (comparison.type === "area" && comparison.area) {
-              const areaResult = areaData.find((a) => a.area === comparison.area);
+              const targetArea = normalizeText(comparison.area);
+              const areaResult = areaData.find(
+                (a: any) => normalizeText(a?.area) === targetArea
+              );
               if (areaResult) {
-                totalGasto = areaResult.totalGasto;
-                cantidadMovimientos = areaResult.cantidadMovimientos;
+                totalGasto = toNumber((areaResult as any).totalGasto);
+                cantidadMovimientos = toNumber((areaResult as any).cantidadMovimientos);
               }
             } else if (comparison.type === "proyecto" && comparison.proyecto) {
-              areaData.forEach((area) => {
-                const proyectoResult = area.proyectos.find(
-                  (p) => p.proyecto === comparison.proyecto
+              const targetProject = normalizeText(comparison.proyecto);
+
+              areaData.forEach((area: any) => {
+                const areaAsProjectMatch = normalizeText(area?.proyecto || area?.area) === targetProject;
+                if (areaAsProjectMatch) {
+                  totalGasto += toNumber(area?.totalGasto);
+                  cantidadMovimientos += toNumber(area?.cantidadMovimientos);
+                }
+
+                const proyectos = Array.isArray(area?.proyectos) ? area.proyectos : [];
+                const proyectoResult = proyectos.find(
+                  (p: any) =>
+                    normalizeText(p?.proyecto || p?.area || p?.nombre) === targetProject
                 );
                 if (proyectoResult) {
-                  totalGasto += proyectoResult.totalGasto;
-                  cantidadMovimientos += proyectoResult.cantidadMovimientos;
+                  totalGasto += toNumber((proyectoResult as any).totalGasto);
+                  cantidadMovimientos += toNumber((proyectoResult as any).cantidadMovimientos);
                 }
               });
             }
 
+            if (totalGasto === 0 && cantidadMovimientos === 0) {
+              totalGasto = monthlyTotalGasto;
+              cantidadMovimientos = monthlyMovimientos;
+            }
+
             const monthlyComparisonData: MonthlyComparisonData[] = monthlyData.map(
-              (item) => ({
+              (item: any) => ({
                 mes: formatMonthLabel(item.mes),
                 rawMes: item.mes,
-                totalGasto: item.totalGasto,
-                cantidadMovimientos: item.cantidadMovimientos,
+                totalGasto: toNumber(item.totalGasto ?? item.gasto),
+                cantidadMovimientos: toNumber(item.cantidadMovimientos ?? item.movimientos),
               })
             );
 
