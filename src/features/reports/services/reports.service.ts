@@ -31,6 +31,15 @@ const normalizeDateValue = (
   return value;
 };
 
+const normalizeLabel = (value?: string | null): string =>
+  value?.trim().toLowerCase() ?? "";
+
+const isProjectLabel = (value?: string | null): boolean => {
+  const normalized = normalizeLabel(value);
+  if (!normalized) return false;
+  return normalized.startsWith("proyecto") || normalized.startsWith("proy ");
+};
+
 const buildParams = (filters: ReportFilters) => {
   const params = new URLSearchParams();
   const startDate = normalizeDateValue(filters.fechaInicio, "start");
@@ -58,10 +67,16 @@ class ReportsService {
 
     // Mapear la respuesta de la API al formato esperado
     const data = response.data || [];
-    return data.map(item => ({
+    const mapped = data.map(item => {
+      const derivedProject =
+        (typeof item.proyecto === "string" && item.proyecto.trim())
+          ? item.proyecto.trim()
+          : (isProjectLabel(item.area) ? item.area : "");
+
+      return ({
       id: item.id?.toString() || '',
       area: item.area || '',
-      proyecto: item.proyecto || '',
+      proyecto: derivedProject,
       fecha: item.fecha || '',
       codigoProducto: item.codigoProducto || '',
       descripcion: item.descripcion || '',
@@ -69,7 +84,14 @@ class ReportsService {
       cantidad: item.cantidad || 0,
       costoTotal: item.total || (item.precioUnitario * item.cantidad) || 0,
       responsable: item.responsable
-    }));
+      });
+    });
+
+    if (filters.tipoReporte === "proyecto") {
+      return mapped.filter((item) => Boolean(item.proyecto));
+    }
+
+    return mapped;
   }
 
   async getMonthlyExpenseData(

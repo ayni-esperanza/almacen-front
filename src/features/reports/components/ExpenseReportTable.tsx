@@ -68,6 +68,9 @@ export const ExpenseReportTable: React.FC<ExpenseReportTableProps> = React.memo(
       if (!project) {
         return area;
       }
+      if (!area || area.trim().toLowerCase() === project.trim().toLowerCase()) {
+        return project;
+      }
       return `${area} / ${project}`;
     };
 
