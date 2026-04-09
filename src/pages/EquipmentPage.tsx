@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { EquipmentTable } from '../features/equipment/components/EquipmentTable';
+import { FixedEquipmentTable } from '../features/equipment/components/FixedEquipmentTable';
 import { AddEquipmentForm } from '../features/equipment/components/AddEquipmentForm';
 import { EditEquipmentForm } from '../features/equipment/components/EditEquipmentForm';
 import { useEquipment } from '../features/equipment/hooks/useEquipment';
@@ -52,29 +53,60 @@ export const EquipmentPage = () => {
     setSelectedEquipment(null);
   };
 
+  const handleDeleteEquipment = async (equipment: EquipmentReport) => {
+    const success = await equipmentData.deleteEquipment(equipment.id);
+    if (!success) {
+      throw new Error('No se pudo eliminar el registro');
+    }
+    handleCloseEdit();
+  };
+
   return (
     <>
       <div className="bg-gray-50 border-b border-gray-200 dark:border-slate-700 dark:bg-slate-900 h-fit fade-section">
         <nav className="flex items-center px-2 overflow-x-auto sm:px-6 scrollbar-hide">
           <button
             onClick={() => setActiveSubTab('continua')}
-            className={`px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
               activeSubTab === 'continua'
                 ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                 : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600'
             }`}
           >
-            Continua
+            <svg
+              className="w-4 h-4 sm:w-5 sm:h-5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
+            </svg>
+            <span>Continua</span>
           </button>
           <button
             onClick={() => setActiveSubTab('fija')}
-            className={`px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
               activeSubTab === 'fija'
                 ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                 : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600'
             }`}
           >
-            Fija
+            <svg
+              className="w-4 h-4 sm:w-5 sm:h-5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 21h16M7 21V7.8a.8.8 0 0 1 .8-.8h8.4a.8.8 0 0 1 .8.8V21M10 11h4m-4 3h4" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 7V4.8a.8.8 0 0 1 .8-.8h4.4a.8.8 0 0 1 .8.8V7" />
+            </svg>
+            <span>Fija</span>
           </button>
         </nav>
       </div>
@@ -83,6 +115,7 @@ export const EquipmentPage = () => {
         <div key="continua" className="fade-section">
           <EquipmentTable
             equipments={filteredEquipment}
+            headerTitle="Trazabilidad Continua de Herramientas, Equipos y EPP"
             loading={equipmentData.loading}
             error={equipmentData.error}
             refetch={equipmentData.refetch}
@@ -120,12 +153,7 @@ export const EquipmentPage = () => {
         </div>
       ) : (
         <div key="fija" className="fade-section">
-          <div className="p-6 bg-white border shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-950">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-100">Sección Fija</h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-slate-300">
-              Esta sección está lista para implementar la lógica y componentes de equipos fijos.
-            </p>
-          </div>
+          <FixedEquipmentTable onAddEquipment={() => setShowAddForm(true)} />
         </div>
       )}
 
@@ -141,6 +169,7 @@ export const EquipmentPage = () => {
           equipment={selectedEquipment}
           onSubmit={handleUpdateEquipment}
           onSubmitReturn={handleUpdateReturn}
+          onDelete={handleDeleteEquipment}
           onCancel={handleCloseEdit}
         />
       )}

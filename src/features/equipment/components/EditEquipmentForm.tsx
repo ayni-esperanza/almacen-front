@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { ChevronDown, Wrench, X } from "lucide-react";
+import { ChevronDown, Wrench, X, Trash2 } from "lucide-react";
 import { EquipmentReport } from "../types";
 import {
   ReturnEquipmentData,
@@ -28,6 +28,7 @@ interface EditEquipmentFormProps {
   onSubmit: (data: UpdateEquipmentData) => Promise<void> | void;
   onCancel: () => void;
   onSubmitReturn?: (data: ReturnEquipmentData) => Promise<void> | void;
+  onDelete?: (equipment: EquipmentReport) => Promise<void> | void;
 }
 
 const EQUIPMENT_STATES: {
@@ -93,6 +94,7 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
   onSubmit,
   onCancel,
   onSubmitReturn,
+  onDelete,
 }) => {
   // Cerrar modal con tecla ESC
   useEscapeKey(onCancel);
@@ -116,6 +118,7 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
     responsableRetorno: equipment.responsableRetorno ?? "",
   }));
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -204,6 +207,30 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
       );
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!onDelete) return;
+
+    const confirmed = window.confirm(
+      `¿Eliminar definitivamente el registro "${equipment.equipo}" (${equipment.serieCodigo})?`
+    );
+
+    if (!confirmed) return;
+
+    setDeleting(true);
+    setErrorMessage(null);
+
+    try {
+      await onDelete(equipment);
+      onCancel();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "No se pudo eliminar el registro"
+      );
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -458,18 +485,29 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
             )}
 
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-200 dark:border-slate-800 sm:flex-row sm:justify-end">
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-1.5 text-sm font-semibold text-red-600 transition-colors border border-red-300 rounded-full hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-300 dark:border-red-500/50 dark:hover:bg-red-500/10"
+                  disabled={submitting || deleting}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {deleting ? "Eliminando..." : "Eliminar"}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={onCancel}
                 className="px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900/60"
-                disabled={submitting}
+                disabled={submitting || deleting}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 className="px-4 py-1.5 text-sm font-semibold text-white transition-colors bg-blue-600 rounded-full shadow-md hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-blue-500 dark:hover:bg-blue-400"
-                disabled={submitting}
+                disabled={submitting || deleting}
               >
                 {submitting ? "Guardando..." : "Guardar Cambios"}
               </button>
