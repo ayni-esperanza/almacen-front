@@ -21,6 +21,7 @@ import {
   RefreshCw,
   X,
   Loader2,
+  Settings2,
 } from "lucide-react";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
@@ -32,6 +33,7 @@ interface MovementTableProps {
   onExportPdf?: () => void;
   isExportingPdf?: boolean;
   onAddMovement?: () => void;
+  onOpenCatalogManager?: () => void;
   startDate?: string;
   endDate?: string;
   onStartDateChange?: (date: string) => void;
@@ -198,6 +200,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   onExportPdf,
   isExportingPdf = false,
   onAddMovement,
+  onOpenCatalogManager,
   startDate = "",
   endDate = "",
   onStartDateChange,
@@ -547,6 +550,16 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
                 {/* Botones de acciones */}
                 <div className="flex items-center gap-2 sm:gap-3">
+                  {onOpenCatalogManager && (
+                    <button
+                      onClick={onOpenCatalogManager}
+                      aria-label="Gestionar áreas, empresas y proyectos"
+                      title="Gestionar áreas, empresas y proyectos"
+                      className="flex items-center justify-center p-2 text-sm font-medium text-gray-700 transition-all bg-white border border-gray-300 rounded-lg shadow-sm sm:px-3 sm:py-2 h-[38px] hover:bg-gray-50 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-800"
+                    >
+                      <Settings2 className="w-4 h-4" />
+                    </button>
+                  )}
                   {onExportPdf && (
                     <button
                       onClick={onExportPdf}

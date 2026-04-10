@@ -163,7 +163,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="w-full max-w-3xl max-h-95vh overflow-hidden rounded-2xl sm:rounded-3xl border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950 flex flex-col"
+        className="w-full max-w-3xl max-h-95vh overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-2xl transition-colors dark:bg-slate-950 flex flex-col"
       >
         <div className="flex items-center justify-between rounded-t-2xl sm:rounded-t-3xl bg-gradient-to-r from-blue-500 to-blue-600 px-3 py-2 sm:px-4 text-white flex-shrink-0">
           <div className="flex items-center gap-2">

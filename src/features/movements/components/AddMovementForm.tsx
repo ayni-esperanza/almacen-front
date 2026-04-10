@@ -1,34 +1,33 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X, Check, Loader2, AlertCircle } from "lucide-react";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { useProductAutocomplete } from "../../../shared/hooks/useProductAutocomplete";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
-import { AddOptionModal } from "../../../shared/components/AddOptionModal";
-import { movementsService } from "../../../shared/services/movements.service.ts";
+import { ReferenceCatalogs } from "../../../shared/hooks/useReferenceCatalogs";
 
 interface AddMovementFormProps {
   type: "entrada" | "salida";
   onSubmit: (data: any) => void;
   onCancel: () => void;
+  catalogs: ReferenceCatalogs;
 }
 
 export const AddMovementForm: React.FC<AddMovementFormProps> = ({
   type,
   onSubmit,
   onCancel,
+  catalogs,
 }) => {
-  const [showAreaModal, setShowAreaModal] = useState(false);
-
   // Bloquear scroll de la ventana
   useModalScrollLock(true);
-  // Cerrar modal con tecla ESC solo si la modal de área no está abierta
-  useEscapeKey(onCancel, !showAreaModal);
+  // Cerrar modal con tecla ESC
+  useEscapeKey(onCancel, true);
   // Referencia para detectar clicks fuera de la modal
   const modalRef = useRef<HTMLDivElement>(null);
-  // Cerrar modal al hacer click fuera solo si la modal de área no está abierta
-  useClickOutside(modalRef, onCancel, !showAreaModal);
+  // Cerrar modal al hacer click fuera
+  useClickOutside(modalRef, onCancel, true);
 
   const isEntry = type === "entrada";
   const [formData, setFormData] = useState(() => ({
@@ -59,21 +58,6 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
     debounceMs: 400,
     minChars: 2,
   });
-
-  // Función para buscar áreas desde la API
-  const fetchAreas = useCallback(async (searchTerm: string) => {
-    const data = await movementsService.getAreas(searchTerm);
-    return data;
-  }, []);
-
-  // Función para crear nueva área
-  const handleCreateArea = async (name: string) => {
-    const result = await movementsService.createArea(name);
-    if (result) {
-      setFormData({ ...formData, area: result });
-      setShowAreaModal(false);
-    }
-  };
 
   // Efecto para autocompletar cuando se encuentre un producto
   useEffect(() => {
@@ -324,27 +308,17 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     />
                   </label>
 
-                  <div className="flex items-end gap-3">
-                    <div className="w-full">
-                      <SearchableSelect
-                        name="area"
-                        label="Área"
-                        value={formData.area}
-                        onChange={(value) =>
-                          setFormData({ ...formData, area: value })
-                        }
-                        fetchOptions={fetchAreas}
-                        placeholder="Selecciona un área"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowAreaModal(true)}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-green-500 to-green-600 text-white transition-colors hover:from-green-600 hover:to-green-700 dark:from-emerald-600 dark:to-emerald-500 dark:hover:from-emerald-500 dark:hover:to-emerald-400"
-                      title="Agregar nueva área"
-                    >
-                      <span className="text-lg font-bold leading-none">+</span>
-                    </button>
+                  <div className="w-full">
+                    <SearchableSelect
+                      name="area"
+                      label="Área"
+                      value={formData.area}
+                      onChange={(value) =>
+                        setFormData({ ...formData, area: value })
+                      }
+                      options={catalogs.areas}
+                      placeholder="Selecciona un área"
+                    />
                   </div>
                 </div>
               </>
@@ -455,41 +429,32 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                 )}
 
                 <div className="grid gap-3 md:grid-cols-3">
-                  <div className="flex items-end gap-3">
-                    <div className="w-full">
-                      <SearchableSelect
-                        name="area"
-                        label="Área *"
-                        value={formData.area}
-                        onChange={(value) =>
-                          setFormData({ ...formData, area: value })
-                        }
-                        fetchOptions={fetchAreas}
-                        placeholder="Selecciona un área"
-                        required
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowAreaModal(true)}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white transition-colors hover:from-red-600 hover:to-red-700 dark:from-rose-600 dark:to-rose-500 dark:hover:from-rose-500 dark:hover:to-rose-400"
-                      title="Agregar nueva área"
-                    >
-                      <span className="text-lg font-bold leading-none">+</span>
-                    </button>
+                  <div className="w-full">
+                    <SearchableSelect
+                      name="area"
+                      label="Área *"
+                      value={formData.area}
+                      onChange={(value) =>
+                        setFormData({ ...formData, area: value })
+                      }
+                      options={catalogs.areas}
+                      placeholder="Selecciona un área"
+                      required
+                    />
                   </div>
 
-                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
-                    <span>Proyecto</span>
-                    <input
-                      type="text"
+                  <div className="w-full">
+                    <SearchableSelect
                       name="proyecto"
+                      label="Proyecto"
                       value={formData.proyecto}
-                      onChange={handleChange}
-                      className={exitInputClasses}
+                      onChange={(value) =>
+                        setFormData({ ...formData, proyecto: value })
+                      }
+                      options={catalogs.proyectos}
                       placeholder="Proyecto asignado"
                     />
-                  </label>
+                  </div>
 
                   <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Responsable *</span>
@@ -531,16 +496,6 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
           </form>
         </div>
       </div>
-
-      {/* Modal para agregar nueva área */}
-      <AddOptionModal
-        isOpen={showAreaModal}
-        onClose={() => setShowAreaModal(false)}
-        onSubmit={handleCreateArea}
-        title="Nueva Área"
-        label="Área *"
-        color={isEntry ? "green" : "red"}
-      />
     </div>
   );
 };

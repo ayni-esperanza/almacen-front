@@ -28,6 +28,8 @@ import {
   CreatePurchaseOrderData,
   UpdatePurchaseOrderData,
 } from "../features/movements/services/purchase-orders.service.ts";
+import { useReferenceCatalogs } from "../shared/hooks/useReferenceCatalogs";
+import { ReferenceCatalogManagerModal } from "../shared/components/ReferenceCatalogManagerModal";
 
 export const MovementsPage = () => {
   const [activeSubTab, setActiveSubTab] = useState<
@@ -39,6 +41,7 @@ export const MovementsPage = () => {
   );
   const [selectedExit, setSelectedExit] = useState<MovementExit | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [showCatalogManager, setShowCatalogManager] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [confirmState, setConfirmState] = useState<{
@@ -47,6 +50,7 @@ export const MovementsPage = () => {
     target: MovementEntry | MovementExit | null;
   }>({ open: false, type: null, target: null });
   const movementsData = useMovements();
+  const catalogData = useReferenceCatalogs();
 
   // Estados para Purchase Orders
   const [showPurchaseOrderForm, setShowPurchaseOrderForm] = useState(false);
@@ -373,6 +377,7 @@ export const MovementsPage = () => {
             onEditEntry={setSelectedEntry}
             onExportPdf={handleExportPdf}
             isExportingPdf={isExportingPdf}
+            onOpenCatalogManager={() => setShowCatalogManager(true)}
             onAddMovement={() => setShowAddForm(true)}
             startDate={movementsData.startDate}
             endDate={movementsData.endDate}
@@ -406,6 +411,7 @@ export const MovementsPage = () => {
             onEditExit={setSelectedExit}
             onExportPdf={handleExportPdf}
             isExportingPdf={isExportingPdf}
+            onOpenCatalogManager={() => setShowCatalogManager(true)}
             onAddMovement={() => setShowAddForm(true)}
             startDate={movementsData.startDate}
             endDate={movementsData.endDate}
@@ -464,6 +470,7 @@ export const MovementsPage = () => {
           type={activeSubTab === "entradas" ? "entrada" : "salida"}
           onSubmit={handleAddMovement}
           onCancel={() => setShowAddForm(false)}
+          catalogs={catalogData.catalogs}
         />
       )}
 
@@ -482,6 +489,7 @@ export const MovementsPage = () => {
           onSubmit={handleUpdateExit}
           onCancel={() => setSelectedExit(null)}
           onDelete={handleDeleteExit}
+          catalogs={catalogData.catalogs}
         />
       )}
 
@@ -540,6 +548,15 @@ export const MovementsPage = () => {
         }
         isProcessing={isConfirming}
         destructive
+      />
+
+      <ReferenceCatalogManagerModal
+        isOpen={showCatalogManager}
+        onClose={() => setShowCatalogManager(false)}
+        catalogs={catalogData.catalogs}
+        onAddItem={catalogData.addItem}
+        onUpdateItem={catalogData.updateItem}
+        onDeleteItem={catalogData.deleteItem}
       />
     </>
   );
