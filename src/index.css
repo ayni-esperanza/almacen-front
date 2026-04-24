@@ -17,6 +17,23 @@ body.dark {
 	color: #e2e8f0;
 }
 
+/* Mantener tema oscuro cuando el navegador autocompleta inputs */
+body.dark input {
+	color-scheme: dark;
+}
+
+body.dark input:-webkit-autofill,
+body.dark input:-webkit-autofill:hover,
+body.dark input:-webkit-autofill:focus,
+body.dark input:-webkit-autofill:active {
+	-webkit-text-fill-color: #f1f5f9;
+	caret-color: #f1f5f9;
+	-webkit-box-shadow: 0 0 0 1000px #0f172a inset;
+	box-shadow: 0 0 0 1000px #0f172a inset;
+	border-color: #334155;
+	transition: background-color 9999s ease-in-out 0s;
+}
+
 /* Ocultar scrollbar pero mantener funcionalidad */
 .scrollbar-hide {
 	-ms-overflow-style: none;
