@@ -5,9 +5,14 @@ import { LoginCredentials } from '../types';
 interface LoginFormProps {
   onLogin: (credentials: LoginCredentials) => void;
   error?: string;
+  animationState?: "enter" | "exit";
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onLogin,
+  error,
+  animationState = "enter",
+}) => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
     username: '',
     password: ''
@@ -26,15 +31,21 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
     });
   };
 
+  const cardClassName = `login-card w-full max-w-sm p-6 bg-white border border-transparent shadow-2xl dark:bg-slate-950 rounded-2xl dark:border-slate-800 ${
+    animationState === "exit" ? "is-exiting" : ""
+  }`.trim();
+
   return (
-    <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="w-full max-w-sm p-6 bg-white border border-transparent shadow-2xl dark:bg-slate-950 rounded-2xl dark:border-slate-800">
+    <div className="login-page">
+      <div className={`${cardClassName} max-w-md px-7 py-6`}> 
         <div className="mb-6 text-center">
-          <div className="flex items-center justify-center w-14 h-14 mx-auto mb-3 bg-green-500 rounded-full dark:bg-green-600">
-            <Lock className="w-7 h-7 text-white" />
+          <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 bg-green-500 rounded-full shadow-sm dark:bg-green-600">
+            <Lock className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-xl font-bold text-gray-800 dark:text-slate-100">Sistema de Inventario</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-slate-300">Ingresa tus credenciales para continuar</p>
+          <h1 className="text-lg font-bold text-gray-800 dark:text-slate-100">Sistema de Inventario</h1>
+          <p className="mt-1 text-sm text-gray-600 dark:text-slate-300">
+            Ingresa tus credenciales para continuar
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -49,7 +60,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
                 name="username"
                 value={credentials.username}
                 onChange={handleChange}
-                className="w-full py-2.5 pl-10 pr-4 transition-all border border-gray-300 rounded-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
+                className="w-full py-2.5 pl-10 pr-4 text-sm transition-all border border-gray-300 rounded-xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
                 placeholder="Ingresa tu usuario"
                 required
               />
@@ -67,7 +78,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
                 name="password"
                 value={credentials.password}
                 onChange={handleChange}
-                className="w-full py-2.5 pl-10 pr-12 transition-all border border-gray-300 rounded-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
+                className="w-full py-2.5 pl-10 pr-12 text-sm transition-all border border-gray-300 rounded-xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
                 placeholder="Ingresa tu contraseña"
                 required
               />
@@ -89,7 +100,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, error }) => {
 
           <button
             type="submit"
-            className="w-full py-2.5 font-medium text-white transition-colors bg-green-500 rounded-lg dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+            className="w-full py-2.5 text-sm font-semibold text-white transition-colors bg-green-500 rounded-xl dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
           >
             Iniciar Sesión
           </button>

@@ -7,21 +7,31 @@ export const LoginPage = () => {
   const { user, login } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string>('');
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
-    if (user?.isAuthenticated) {
+    if (user?.isAuthenticated && !isExiting) {
       navigate('/dashboard', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, isExiting]);
 
   const handleLogin = async (credentials: { username: string; password: string }) => {
     const result = await login(credentials);
     if (result.success) {
-      navigate('/dashboard', { replace: true });
+      setIsExiting(true);
+      window.setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 320);
     } else {
       setError(result.error || 'Error al iniciar sesión');
     }
   };
 
-  return <LoginForm onLogin={handleLogin} error={error} />;
+  return (
+    <LoginForm
+      onLogin={handleLogin}
+      error={error}
+      animationState={isExiting ? 'exit' : 'enter'}
+    />
+  );
 };

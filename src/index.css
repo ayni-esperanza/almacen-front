@@ -296,3 +296,48 @@ body.dark .loading-screen-logo .logo-draw {
 body.dark .loading-screen-logo .logo-fill {
 	fill: #28d17c;
 }
+
+/* Login modal animations */
+.login-page {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	padding: 1rem;
+	background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+body.dark .login-page {
+	background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+}
+
+.login-card {
+	will-change: transform, opacity;
+	animation: loginIn 420ms ease-out both;
+}
+
+.login-card.is-exiting {
+	animation: loginOut 320ms ease-in both;
+}
+
+@keyframes loginIn {
+	0% {
+		opacity: 0;
+		transform: translateY(18px) scale(0.98);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes loginOut {
+	0% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+	100% {
+		opacity: 0;
+		transform: translateY(-10px) scale(0.98);
+	}
+}
