@@ -10,7 +10,7 @@ export const DashboardPage = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login", { replace: true });
+    navigate("/loading?source=logout&next=/login", { replace: true });
   };
 
   return (

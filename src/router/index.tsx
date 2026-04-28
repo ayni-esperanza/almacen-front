@@ -7,54 +7,66 @@ import { EquipmentPage } from "../pages/EquipmentPage";
 import { UsersPage } from "../pages/UsersPage";
 import { ReportsPage } from "../pages/ReportsPage";
 import ProvidersPage from "../pages/ProvidersPage";
+import { LoadingScreenPage } from "../pages/LoadingScreenPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { useAuth } from "../shared/hooks/useAuth";
+import { AppShell } from "./AppShell";
 
 const router = createBrowserRouter(
   [
     {
       path: "/",
-      element: <LoginPage />,
-    },
-    {
-      path: "/login",
-      element: <LoginPage />,
-    },
-    {
-      path: "/dashboard",
-      element: (
-        <ProtectedRoute>
-          <DashboardPage />
-        </ProtectedRoute>
-      ),
+      element: <AppShell />,
       children: [
         {
           index: true,
-          element: <InventoryPage />,
+          element: <LoginPage />,
         },
         {
-          path: "inventory",
-          element: <InventoryPage />,
+          path: "login",
+          element: <LoginPage />,
         },
         {
-          path: "movements",
-          element: <MovementsPage />,
+          path: "loading",
+          element: <LoadingScreenPage />,
         },
         {
-          path: "equipment",
-          element: <EquipmentPage />,
-        },
-        {
-          path: "users",
-          element: <UsersPage />,
-        },
-        {
-          path: "reports",
-          element: <ReportsPage />,
-        },
-        {
-          path: "providers",
-          element: <ProvidersPage />,
+          path: "dashboard",
+          element: (
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          ),
+          children: [
+            {
+              index: true,
+              element: <InventoryPage />,
+            },
+            {
+              path: "inventory",
+              element: <InventoryPage />,
+            },
+            {
+              path: "movements",
+              element: <MovementsPage />,
+            },
+            {
+              path: "equipment",
+              element: <EquipmentPage />,
+            },
+            {
+              path: "users",
+              element: <UsersPage />,
+            },
+            {
+              path: "reports",
+              element: <ReportsPage />,
+            },
+            {
+              path: "providers",
+              element: <ProvidersPage />,
+            },
+          ],
         },
       ],
     },

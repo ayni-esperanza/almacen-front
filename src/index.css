@@ -59,3 +59,240 @@ body.dark input:-webkit-autofill:active {
 		transform: translateY(0);
 	}
 }
+
+/* Loading overlay and logo */
+.loading-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(255, 255, 255, 0.85);
+	backdrop-filter: blur(2px);
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+body.dark .loading-overlay {
+	background: rgba(15, 23, 42, 0.85);
+}
+
+.loading-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+}
+
+/* Sizes */
+.size-sm .logo-wrapper {
+	width: 100px;
+}
+
+.size-md .logo-wrapper {
+	width: 180px;
+}
+
+.size-lg .logo-wrapper {
+	width: 280px;
+}
+
+.logo-wrapper {
+	position: relative;
+	overflow: visible;
+}
+
+.logo-svg {
+	width: 100%;
+	height: auto;
+}
+
+/* Animated stroke and fill */
+.logo-base {
+	opacity: 0.2;
+}
+
+.logo-draw {
+	stroke-dasharray: 100;
+	stroke-dashoffset: 100;
+	animation: logoDraw 2.2s ease-in-out infinite;
+}
+
+.logo-fill {
+	opacity: 0;
+	animation: logoFill 2.2s ease-in-out infinite;
+}
+
+.mode-stroke .logo-base,
+.mode-stroke .logo-fill {
+	display: none;
+}
+
+.mode-stroke .logo-draw {
+	animation: logoDrawOnly 2s ease-in-out infinite;
+}
+
+.mode-stroke-fill .logo-base,
+.mode-stroke-fill .logo-fill,
+.mode-stroke-fill .logo-draw {
+	display: initial;
+}
+
+@keyframes logoDraw {
+	0% {
+		stroke-dashoffset: 100;
+		opacity: 0.25;
+	}
+	20% {
+		opacity: 1;
+	}
+	70% {
+		stroke-dashoffset: 0;
+		opacity: 1;
+	}
+	100% {
+		stroke-dashoffset: 0;
+		opacity: 0;
+	}
+}
+
+@keyframes logoFill {
+	0%,
+	40% {
+		opacity: 0;
+	}
+	68% {
+		opacity: 0.95;
+	}
+	85% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.25;
+	}
+}
+
+@keyframes logoDrawOnly {
+	0% {
+		stroke-dashoffset: 100;
+		opacity: 0.2;
+	}
+	20% {
+		opacity: 1;
+	}
+	75% {
+		stroke-dashoffset: 0;
+		opacity: 1;
+	}
+	100% {
+		stroke-dashoffset: 0;
+		opacity: 0.35;
+	}
+}
+
+.loading-text {
+	color: #009d45;
+	font-size: 0.875rem;
+	font-weight: 500;
+	letter-spacing: 0.1em;
+	animation: textPulse 1.5s ease-in-out infinite;
+	margin: 0;
+}
+
+@keyframes textPulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+.loading-text::after {
+	content: '';
+	animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+	0% {
+		content: '';
+	}
+	25% {
+		content: '.';
+	}
+	50% {
+		content: '..';
+	}
+	75% {
+		content: '...';
+	}
+	100% {
+		content: '';
+	}
+}
+
+.size-sm .loading-text {
+	font-size: 0.75rem;
+}
+
+.size-md .loading-text {
+	font-size: 0.875rem;
+}
+
+.size-lg .loading-text {
+	font-size: 1rem;
+}
+
+/* Loading screen page */
+.loading-screen-page {
+	min-height: 100vh;
+	display: grid;
+	place-items: center;
+	background:
+		radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.75) 0%, transparent 40%),
+		linear-gradient(140deg, #eef5f0 0%, #dfe9e1 100%);
+	padding: 1.25rem;
+}
+
+body.dark .loading-screen-page {
+	background:
+		radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+		linear-gradient(145deg, #0f172a 0%, #111827 58%, #1f2937 100%);
+}
+
+.loading-screen-card {
+	width: min(420px, calc(100vw - 32px));
+	text-align: center;
+	padding: 1.35rem 1.2rem;
+	border-radius: 20px;
+	background: transparent;
+	box-shadow: none;
+	backdrop-filter: none;
+}
+
+.loading-screen-logo .logo-svg {
+	filter: drop-shadow(0 8px 12px rgba(0, 90, 40, 0.12));
+}
+
+.loading-screen-logo .loading-text {
+	margin-top: 0.95rem;
+	color: #009d45;
+	font-size: 0.84rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+body.dark .loading-screen-logo .loading-text {
+	color: #7ee0ad;
+}
+
+body.dark .loading-screen-logo .logo-base,
+body.dark .loading-screen-logo .logo-draw {
+	stroke: #28d17c;
+}
+
+body.dark .loading-screen-logo .logo-fill {
+	fill: #28d17c;
+}
