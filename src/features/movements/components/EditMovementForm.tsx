@@ -158,7 +158,7 @@ export const EditMovementForm: React.FC<EditMovementFormProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="flex flex-col w-full max-w-3xl overflow-hidden transition-colors bg-white border border-transparent shadow-2xl max-h-95vh rounded-3xl dark:border-slate-800 dark:bg-slate-950"
+        className="flex flex-col w-full max-w-3xl overflow-hidden transition-colors bg-white shadow-2xl max-h-95vh rounded-3xl dark:bg-slate-950"
       >
         <div className="flex items-center justify-between flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-green-500 to-green-600">
           <h2 className="text-base font-semibold">
