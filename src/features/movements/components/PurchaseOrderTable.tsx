@@ -14,7 +14,6 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  Filter,
   Trash2,
   X,
 } from "lucide-react";
@@ -267,7 +266,7 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                         : "text-gray-600 border-gray-300 hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
                     }`}
                   >
-                    <Filter className="w-4 h-4" />
+                    <Calendar className="w-4 h-4" />
                   </button>
 
                   <div
@@ -278,24 +277,57 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400 dark:text-slate-400" />
-                      <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => onStartDateChange?.(e.target.value)}
-                        placeholder="Desde"
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200"
-                      />
-                      <span className="text-sm text-gray-500 dark:text-slate-400">
-                        a
-                      </span>
-                      <input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => onEndDateChange?.(e.target.value)}
-                        placeholder="Hasta"
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200"
-                      />
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        <label className="text-sm font-medium text-gray-700 dark:text-slate-300 flex-shrink-0">
+                          Desde:
+                        </label>
+                        <div className="relative w-[135px]">
+                          <Calendar
+                            className="absolute w-4 h-4 text-orange-500 transition-colors transform -translate-y-1/2 cursor-pointer left-2 top-1/2 dark:text-orange-400 hover:text-orange-600 dark:hover:text-orange-300"
+                            onClick={() => {
+                              const input = document.getElementById(
+                                "purchaseStartDateInput",
+                              ) as HTMLInputElement;
+                              input?.showPicker?.();
+                            }}
+                          />
+                          <input
+                            id="purchaseStartDateInput"
+                            type="date"
+                            value={startDate}
+                            onChange={(e) =>
+                              onStartDateChange?.(e.target.value)
+                            }
+                            aria-label="Fecha de inicio del filtro"
+                            className="w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400 dark:focus:ring-orange-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        <label className="text-sm font-medium text-gray-700 dark:text-slate-300 flex-shrink-0">
+                          Hasta:
+                        </label>
+                        <div className="relative w-[135px]">
+                          <Calendar
+                            className="absolute w-4 h-4 text-orange-500 transition-colors transform -translate-y-1/2 cursor-pointer left-2 top-1/2 dark:text-orange-400 hover:text-orange-600 dark:hover:text-orange-300"
+                            onClick={() => {
+                              const input = document.getElementById(
+                                "purchaseEndDateInput",
+                              ) as HTMLInputElement;
+                              input?.showPicker?.();
+                            }}
+                          />
+                          <input
+                            id="purchaseEndDateInput"
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => onEndDateChange?.(e.target.value)}
+                            aria-label="Fecha de fin del filtro"
+                            className="w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400 dark:focus:ring-orange-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                          />
+                        </div>
+                      </div>
                       {(startDate || endDate) && (
                         <button
                           type="button"

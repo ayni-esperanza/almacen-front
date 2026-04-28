@@ -493,9 +493,13 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         <label className="text-sm font-medium text-gray-700 dark:text-slate-300 flex-shrink-0">
                           Desde:
                         </label>
-                        <div className="relative w-[160px]">
+                        <div className="relative w-[135px]">
                           <Calendar
-                            className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                            className={`absolute w-4 h-4 transition-colors transform -translate-y-1/2 cursor-pointer left-2 top-1/2 ${
+                              isEntry
+                                ? "text-green-500 hover:text-green-600 dark:text-emerald-400 dark:hover:text-emerald-300"
+                                : "text-red-500 hover:text-red-600 dark:text-rose-400 dark:hover:text-rose-300"
+                            }`}
                             onClick={() => {
                               const input = document.getElementById(
                                 "startDateInput",
@@ -509,7 +513,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                             value={startDate}
                             onChange={(e) => onStartDateChange?.(e.target.value)}
                             aria-label="Fecha de inicio del filtro"
-                            className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                            className="w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
                           />
                         </div>
                       </div>
@@ -518,9 +522,13 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         <label className="text-sm font-medium text-gray-700 dark:text-slate-300 flex-shrink-0">
                           Hasta:
                         </label>
-                        <div className="relative w-[160px]">
+                        <div className="relative w-[135px]">
                           <Calendar
-                            className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                            className={`absolute w-4 h-4 transition-colors transform -translate-y-1/2 cursor-pointer left-2 top-1/2 ${
+                              isEntry
+                                ? "text-green-500 hover:text-green-600 dark:text-emerald-400 dark:hover:text-emerald-300"
+                                : "text-red-500 hover:text-red-600 dark:text-rose-400 dark:hover:text-rose-300"
+                            }`}
                             onClick={() => {
                               const input = document.getElementById(
                                 "endDateInput",
@@ -534,7 +542,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                             value={endDate}
                             onChange={(e) => onEndDateChange?.(e.target.value)}
                             aria-label="Fecha de fin del filtro"
-                            className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                            className="w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
                           />
                         </div>
                       </div>
@@ -617,7 +625,11 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                     </label>
                     <div className="relative flex-1">
                       <Calendar
-                        className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                        className={`absolute w-4 h-4 transition-colors transform -translate-y-1/2 cursor-pointer left-2 top-1/2 ${
+                          isEntry
+                            ? "text-green-500 hover:text-green-600 dark:text-emerald-400 dark:hover:text-emerald-300"
+                            : "text-red-500 hover:text-red-600 dark:text-rose-400 dark:hover:text-rose-300"
+                        }`}
                         onClick={() => {
                           const input = document.getElementById(
                             "startDateInputMobile",
@@ -631,7 +643,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         value={startDate}
                         onChange={(e) => onStartDateChange?.(e.target.value)}
                         aria-label="Fecha de inicio del filtro"
-                        className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                        className="w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
                       />
                     </div>
                   </div>
@@ -642,7 +654,11 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                     </label>
                     <div className="relative flex-1">
                       <Calendar
-                        className="absolute w-4 h-4 text-green-500 transition-colors transform -translate-y-1/2 cursor-pointer left-3 top-1/2 dark:text-emerald-400 hover:text-green-600 dark:hover:text-emerald-300"
+                        className={`absolute w-4 h-4 transition-colors transform -translate-y-1/2 cursor-pointer left-2 top-1/2 ${
+                          isEntry
+                            ? "text-green-500 hover:text-green-600 dark:text-emerald-400 dark:hover:text-emerald-300"
+                            : "text-red-500 hover:text-red-600 dark:text-rose-400 dark:hover:text-rose-300"
+                        }`}
                         onClick={() => {
                           const input = document.getElementById(
                             "endDateInputMobile",
@@ -656,7 +672,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         value={endDate}
                         onChange={(e) => onEndDateChange?.(e.target.value)}
                         aria-label="Fecha de fin del filtro"
-                        className="w-full py-2 pl-10 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                        className="w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
                       />
                     </div>
                   </div>
