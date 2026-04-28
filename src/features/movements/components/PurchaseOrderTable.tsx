@@ -96,7 +96,11 @@ const PurchaseOrderRow: React.FC<PurchaseOrderRowProps> = ({
       onClick={handleRowClick}
       onContextMenu={handleContextMenu}
       onMouseEnter={onMouseEnterRow}
-      className="transition-colors border-b border-gray-100 cursor-pointer select-text dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800"
+      className={`transition-colors border-b border-gray-100 cursor-pointer select-text dark:border-slate-800 ${
+        isSelected
+          ? "bg-orange-100 dark:bg-orange-900/30"
+          : "bg-white hover:bg-orange-50 dark:bg-slate-950/40 dark:hover:bg-orange-900/20"
+      }`}
     >
       <td
         className="py-2 text-xs text-center select-none"

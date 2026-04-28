@@ -113,7 +113,15 @@ const MovementRow: React.FC<MovementRowProps> = ({
     <tr
       onClick={handleRowClick}
       onMouseEnter={onMouseEnterRow}
-      className="transition-colors border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 [&]:cursor-pointer [&]:select-text"
+      className={`transition-colors border-b border-gray-100 dark:border-slate-800 [&]:cursor-pointer [&]:select-text ${
+        isSelected
+          ? isEntry
+            ? "bg-green-100 dark:bg-green-900/30"
+            : "bg-red-100 dark:bg-rose-900/30"
+          : isEntry
+            ? "bg-white hover:bg-green-50 dark:bg-slate-950/40 dark:hover:bg-green-900/20"
+            : "bg-white hover:bg-red-50 dark:bg-slate-950/40 dark:hover:bg-rose-900/20"
+      }`}
       style={{
         cursor:
           (isEntry && onEditEntry) || (!isEntry && onEditExit)
