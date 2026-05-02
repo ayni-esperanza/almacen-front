@@ -1,5 +1,5 @@
 // Components
-export { Header } from "./components/Header";
+export { Navbar } from "./components/Navbar";
 export { DashboardTabs } from "./components/DashboardTabs";
 export { ProtectedComponent } from "./components/ProtectedComponent";
 export { Pagination } from "./components/Pagination";
