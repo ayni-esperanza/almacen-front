@@ -13,6 +13,7 @@ import {
   ArrowDown,
 } from "lucide-react";
 import { ConfirmModal } from "../../../shared/components/ConfirmModal";
+import { VideoTutorial } from "../../../shared";
 import { UpdateProductData } from "../../../shared/services/inventory.service";
 import { useBulkSelection } from "../../../shared/hooks/useBulkSelection";
 import { useSort, SortColumnConfig } from "../../../shared/hooks/useSort";
@@ -126,15 +127,22 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
   const searchInputClasses =
     "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
+  const videoUrl = "https://youtu.be/KVZD10s6A3g";
+  const renderHeader = (className: string) => (
+    <div className={className}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center space-x-3">
+          <Package className="w-6 h-6" />
+          <h2 className="text-xl font-bold">Inventario de Productos</h2>
+        </div>
+        <VideoTutorial youtubeUrl={videoUrl} />
+      </div>
+    </div>
+  );
   if (loading && !isRefreshing && !refreshing) {
     return (
       <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-900">
-        <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
-          <div className="flex items-center space-x-3">
-            <Package className="w-6 h-6" />
-            <h2 className="text-xl font-bold">Inventario de Productos</h2>
-          </div>
-        </div>
+        {renderHeader("px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600")}
         <div className="p-8 text-center">
           <div className="w-12 h-12 mx-auto border-b-2 border-green-600 rounded-full animate-spin"></div>
           <p className="mt-4 text-gray-600 dark:text-slate-300">
@@ -148,12 +156,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   if (error) {
     return (
       <div className="overflow-hidden bg-white border border-transparent shadow-lg rounded-xl dark:border-slate-800 dark:bg-slate-900">
-        <div className="px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600">
-          <div className="flex items-center space-x-3">
-            <Package className="w-6 h-6" />
-            <h2 className="text-xl font-bold">Inventario de Productos</h2>
-          </div>
-        </div>
+        {renderHeader("px-6 py-4 text-white bg-gradient-to-r from-green-500 to-green-600")}
         <div className="p-8 text-center">
           <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
           <p className="mb-4 text-red-600 dark:text-rose-300">{error}</p>
@@ -171,12 +174,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   return (
     <>
       {/* Header - sticky */}
-      <div className="px-6 py-4 text-white shadow-sm bg-gradient-to-r from-green-500 to-green-600">
-        <div className="flex items-center space-x-3">
-          <Package className="w-6 h-6" />
-          <h2 className="text-xl font-bold">Inventario de Productos</h2>
-        </div>
-      </div>
+      {renderHeader("px-6 py-4 text-white shadow-sm bg-gradient-to-r from-green-500 to-green-600")}
 
       {/* Filters + Table Container */}
       <div className="flex flex-col bg-white border border-transparent shadow-lg dark:border-slate-800 dark:bg-slate-950">
