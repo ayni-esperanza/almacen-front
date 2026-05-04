@@ -38,8 +38,7 @@ const ProvidersPage = () => {
       setHasLoaded(true);
     }
   }, [loading]);
-  const containerClasses =
-    "overflow-hidden rounded-xl border border-transparent bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900";
+
   const searchInputClasses =
     "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-purple-400 dark:focus:ring-purple-500/30";
 
@@ -71,47 +70,7 @@ const ProvidersPage = () => {
     handleItemsPerPageChange,
   } = usePagination({ data: filteredProviders, initialItemsPerPage: 100 });
 
-  if (loading && !hasLoaded) {
-    return (
-      <div className={containerClasses}>
-        <div className="px-6 py-4 text-white bg-gradient-to-r from-purple-500 to-purple-600">
-          <div className="flex items-center space-x-3">
-            <User className="w-6 h-6" />
-            <h2 className="text-xl font-bold">Gestión de Proveedores</h2>
-          </div>
-        </div>
-        <div className="p-8 text-center">
-          <div className="w-12 h-12 mx-auto border-b-2 border-purple-600 rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600 dark:text-slate-300">
-            Cargando proveedores...
-          </p>
-        </div>
-      </div>
-    );
-  }
 
-  if (error) {
-    return (
-      <div className={containerClasses}>
-        <div className="px-6 py-4 text-white bg-gradient-to-r from-purple-500 to-purple-600">
-          <div className="flex items-center space-x-3">
-            <User className="w-6 h-6" />
-            <h2 className="text-xl font-bold">Gestión de Proveedores</h2>
-          </div>
-        </div>
-        <div className="p-8 text-center">
-          <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
-          <p className="mb-4 text-red-600 dark:text-rose-300">{error}</p>
-          <button
-            onClick={refetch}
-            className="px-4 py-2 text-white transition-colors bg-purple-600 rounded-lg hover:bg-purple-700"
-          >
-            Reintentar
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // Función para abrir WhatsApp con el número
   const openWhatsApp = (phone: string) => {
@@ -209,10 +168,30 @@ const ProvidersPage = () => {
           <h2 className="text-xl font-bold">Gestión de Proveedores</h2>
         </div>
       </div>
-      {/* Filters + Table Container */}
+      {/* Content Container */}
       <div className="flex flex-col bg-white border border-transparent shadow-lg dark:border-slate-800 dark:bg-slate-950">
-        {/* FILTROS sticky */}
-        <div className="sticky top-[109px] z-20 p-4 border-b border-gray-200 bg-gray-50 dark:border-slate-800 dark:bg-slate-900 shadow-sm">
+        {loading && !hasLoaded ? (
+          <div className="p-8 text-center bg-white dark:bg-slate-950">
+            <div className="w-12 h-12 mx-auto border-b-2 border-purple-600 rounded-full animate-spin"></div>
+            <p className="mt-4 text-gray-600 dark:text-slate-300">
+              Cargando proveedores...
+            </p>
+          </div>
+        ) : error ? (
+          <div className="p-8 text-center bg-white dark:bg-slate-950">
+            <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
+            <p className="mb-4 text-red-600 dark:text-rose-300">{error}</p>
+            <button
+              onClick={refetch}
+              className="px-4 py-2 text-white transition-colors bg-purple-600 rounded-lg hover:bg-purple-700"
+            >
+              Reintentar
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* FILTROS sticky */}
+            <div className="sticky top-[109px] z-20 p-4 border-b border-gray-200 bg-gray-50 dark:border-slate-800 dark:bg-slate-900 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
@@ -357,6 +336,8 @@ const ProvidersPage = () => {
               onPageChange={handlePageChange}
               onItemsPerPageChange={handleItemsPerPageChange}
             />
+          </>
+        )}
           </>
         )}
       </div>
