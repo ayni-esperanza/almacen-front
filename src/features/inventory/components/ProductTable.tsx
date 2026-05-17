@@ -11,6 +11,7 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  Settings2,
 } from "lucide-react";
 import { ConfirmModal } from "../../../shared/components/ConfirmModal";
 import { VideoTutorial } from "../../../shared";
@@ -33,8 +34,7 @@ interface ProductTableProps {
     productData: UpdateProductData,
   ) => Promise<Product | null>;
   deleteProduct: (id: number) => Promise<boolean>;
-  createArea: (name: string) => Promise<void>;
-  createCategoria: (name: string) => Promise<void>;
+  onOpenCatalogManager?: () => void;
   onAddProduct?: () => void;
   // Pagination props
   page: number;
@@ -57,8 +57,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   refetch,
   updateProduct,
   deleteProduct,
-  createArea,
-  createCategoria,
+  onOpenCatalogManager,
   onAddProduct,
   page,
   limit,
@@ -204,6 +203,16 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               </button>
             </div>
             <div className="flex items-center gap-3">
+              {onOpenCatalogManager && (
+                <button
+                  onClick={onOpenCatalogManager}
+                  aria-label="Gestionar ubicaciones y categorías"
+                  title="Gestionar ubicaciones y categorías"
+                  className="flex items-center justify-center p-2 text-sm font-medium text-gray-700 transition-all bg-white border border-gray-300 rounded-lg shadow-sm h-[38px] hover:bg-gray-50 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-800"
+                >
+                  <Settings2 className="w-4 h-4" />
+                </button>
+              )}
               {selectedIds.size > 0 && (
                 <button
                   onClick={() => requestBulkDelete()}
@@ -296,8 +305,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                       product={product}
                       onEdit={updateProduct}
                       onDelete={(p) => requestSingleDelete(p)}
-                      onCreateArea={createArea}
-                      onCreateCategoria={createCategoria}
                       isSelected={selectedIds.has(product.id)}
                       onToggleSelect={() => toggleSelection(product.id)}
                       onMouseDown={() =>

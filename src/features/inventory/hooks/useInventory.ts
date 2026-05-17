@@ -29,7 +29,14 @@ export interface UseInventoryReturn {
   ) => Promise<Product | null>;
   deleteProduct: (id: number) => Promise<boolean>;
   createArea: (nombre: string) => Promise<string | null>;
+  updateArea: (previousName: string, nextName: string) => Promise<string | null>;
+  deleteArea: (nombre: string) => Promise<boolean>;
   createCategoria: (nombre: string) => Promise<string | null>;
+  updateCategoria: (
+    previousName: string,
+    nextName: string,
+  ) => Promise<string | null>;
+  deleteCategoria: (nombre: string) => Promise<boolean>;
   // Pagination states
   page: number;
   limit: number;
@@ -254,6 +261,79 @@ export const useInventory = (): UseInventoryReturn => {
     }
   };
 
+  const updateArea = async (
+    previousName: string,
+    nextName: string,
+  ): Promise<string | null> => {
+    try {
+      const updated = await inventoryService.updateArea(previousName, nextName);
+      if (updated) {
+        await fetchAreas();
+        await refetch({ silent: true });
+      }
+      return updated;
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Error al actualizar área";
+      setError(message);
+      throw err;
+    }
+  };
+
+  const deleteArea = async (nombre: string): Promise<boolean> => {
+    try {
+      const success = await inventoryService.deleteArea(nombre);
+      if (success) {
+        await fetchAreas();
+        await refetch({ silent: true });
+      }
+      return success;
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Error al eliminar área";
+      setError(message);
+      throw err;
+    }
+  };
+
+  const updateCategoria = async (
+    previousName: string,
+    nextName: string,
+  ): Promise<string | null> => {
+    try {
+      const updated = await inventoryService.updateCategoria(
+        previousName,
+        nextName,
+      );
+      if (updated) {
+        await fetchCategorias();
+        await refetch({ silent: true });
+      }
+      return updated;
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Error al actualizar categoría";
+      setError(message);
+      throw err;
+    }
+  };
+
+  const deleteCategoria = async (nombre: string): Promise<boolean> => {
+    try {
+      const success = await inventoryService.deleteCategoria(nombre);
+      if (success) {
+        await fetchCategorias();
+        await refetch({ silent: true });
+      }
+      return success;
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Error al eliminar categoría";
+      setError(message);
+      throw err;
+    }
+  };
+
   // Carga inicial de áreas y categorías
   useEffect(() => {
     const loadInitialData = async () => {
@@ -317,7 +397,11 @@ export const useInventory = (): UseInventoryReturn => {
     updateProduct,
     deleteProduct,
     createArea,
+    updateArea,
+    deleteArea,
     createCategoria,
+    updateCategoria,
+    deleteCategoria,
     page,
     limit,
     totalPages,

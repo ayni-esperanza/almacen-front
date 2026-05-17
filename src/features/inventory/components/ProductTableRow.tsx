@@ -10,8 +10,6 @@ interface ProductTableRowProps {
     id: number,
     productData: UpdateProductData,
   ) => Promise<Product | null>;
-  onCreateArea: (name: string) => Promise<void>;
-  onCreateCategoria: (name: string) => Promise<void>;
   onDelete: (product: Product) => Promise<void> | void;
   isSelected?: boolean;
   onToggleSelect?: () => void;
@@ -22,8 +20,6 @@ interface ProductTableRowProps {
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   product,
   onEdit,
-  onCreateArea,
-  onCreateCategoria,
   onDelete,
   isSelected = false,
   onToggleSelect,
@@ -174,8 +170,6 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           product={product}
           onEdit={handleEdit}
           onDelete={onDelete}
-          onCreateArea={onCreateArea}
-          onCreateCategoria={onCreateCategoria}
         />
       )}
     </>

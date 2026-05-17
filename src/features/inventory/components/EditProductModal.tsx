@@ -6,7 +6,6 @@ import { providersService } from "../../providers/services/providers.service";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
-import { AddOptionModal } from "../../../shared/components/AddOptionModal";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { inventoryService } from "../../../shared/services/inventory.service";
 import { ConfirmModal } from "../../../shared/components/ConfirmModal";
@@ -16,8 +15,6 @@ interface EditProductModalProps {
   onClose: () => void;
   product: Product | null;
   onEdit: (product: Product) => void;
-  onCreateArea: (name: string) => Promise<void>;
-  onCreateCategoria: (name: string) => Promise<void>;
   onDelete?: (product: Product) => void | Promise<void>;
 }
 
@@ -26,8 +23,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   onClose,
   product,
   onEdit,
-  onCreateArea,
-  onCreateCategoria,
   onDelete,
 }) => {
   // Bloquear scroll cuando la modal está abierta
@@ -41,10 +36,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
 
   // Opciones para los combos
   const [providers, setProviders] = useState<Provider[]>([]);
-  const [ubicaciones, setUbicaciones] = useState<string[]>([]);
-  const [categoriasData, setCategoriasData] = useState<string[]>([]);
-  const [showUbicacionModal, setShowUbicacionModal] = useState(false);
-  const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [nombre, setNombre] = useState(product?.nombre || "");
@@ -92,7 +83,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     const data = await inventoryService.getCategorias(searchTerm);
     return data;
   }, []);
-
   useEffect(() => {
     if (product) {
       setNombre(product.nombre);
@@ -240,14 +230,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                         required
                       />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowUbicacionModal(true)}
-                      className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
-                      title="Agregar nueva ubicación"
-                    >
-                      <span className="text-lg font-bold">+</span>
-                    </button>
                   </div>
                 </div>
                 {/* Columna derecha */}
@@ -319,14 +301,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                         required
                       />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowCategoriaModal(true)}
-                      className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
-                      title="Agregar nueva categoría"
-                    >
-                      <span className="text-lg font-bold">+</span>
-                    </button>
                   </div>
                 </div>
               </div>
@@ -354,32 +328,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
               </div>
             </form>
 
-            {/* Modales para agregar opciones */}
-            <AddOptionModal
-              isOpen={showUbicacionModal}
-              onClose={() => setShowUbicacionModal(false)}
-              onSubmit={async (name) => {
-                await onCreateArea(name);
-                setShowUbicacionModal(false);
-              }}
-              title="Nueva Ubicación"
-              label="Ubicación *"
-              itemType="Ubicacion"
-              existingOptions={ubicaciones}
-            />
-
-            <AddOptionModal
-              isOpen={showCategoriaModal}
-              onClose={() => setShowCategoriaModal(false)}
-              onSubmit={async (name) => {
-                await onCreateCategoria(name);
-                setShowCategoriaModal(false);
-              }}
-              title="Nueva Categoría"
-              label="Categoría *"
-              itemType="Categoria"
-              existingOptions={categoriasData}
-            />
           </div>
         </div>
       </div>

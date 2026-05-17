@@ -166,6 +166,36 @@ class InventoryService {
     return response.data?.nombre || null;
   }
 
+  async updateArea(
+    previousName: string,
+    nextName: string,
+  ): Promise<string | null> {
+    const response = await apiClient.patch<{ nombre: string }>(
+      `/inventory/areas/${encodeURIComponent(previousName)}`,
+      { nombre: nextName },
+    );
+
+    if (response.error) {
+      console.error("Error updating area:", response.error);
+      throw new Error(response.error);
+    }
+
+    return response.data?.nombre || null;
+  }
+
+  async deleteArea(nombre: string): Promise<boolean> {
+    const response = await apiClient.delete(
+      `/inventory/areas/${encodeURIComponent(nombre)}`,
+    );
+
+    if (response.error) {
+      console.error("Error deleting area:", response.error);
+      throw new Error(response.error);
+    }
+
+    return true;
+  }
+
   async getCategorias(search?: string): Promise<string[]> {
     const endpoint = search
       ? `/inventory/categorias?search=${encodeURIComponent(search)}`
@@ -192,6 +222,36 @@ class InventoryService {
     }
 
     return response.data?.nombre || null;
+  }
+
+  async updateCategoria(
+    previousName: string,
+    nextName: string,
+  ): Promise<string | null> {
+    const response = await apiClient.patch<{ nombre: string }>(
+      `/inventory/categorias/${encodeURIComponent(previousName)}`,
+      { nombre: nextName },
+    );
+
+    if (response.error) {
+      console.error("Error updating categoria:", response.error);
+      throw new Error(response.error);
+    }
+
+    return response.data?.nombre || null;
+  }
+
+  async deleteCategoria(nombre: string): Promise<boolean> {
+    const response = await apiClient.delete(
+      `/inventory/categorias/${encodeURIComponent(nombre)}`,
+    );
+
+    if (response.error) {
+      console.error("Error deleting categoria:", response.error);
+      throw new Error(response.error);
+    }
+
+    return true;
   }
 }
 

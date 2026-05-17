@@ -3,9 +3,11 @@ import { ProductTable } from "../features/inventory/components/ProductTable";
 import { AddProductForm } from "../features/inventory/components/AddProductForm";
 import { useInventory } from "../features/inventory/hooks/useInventory";
 import { CreateProductData } from "../shared/services/inventory.service";
+import { InventoryCatalogManagerModal } from "../features/inventory/components/InventoryCatalogManagerModal";
 
 export const InventoryPage = () => {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showCatalogManager, setShowCatalogManager] = useState(false);
   const inventoryData = useInventory();
 
   const handleAddProduct = async (data: CreateProductData) => {
@@ -18,11 +20,36 @@ export const InventoryPage = () => {
   };
 
   const handleCreateArea = async (name: string) => {
-    await inventoryData.createArea(name);
+    const created = await inventoryData.createArea(name);
+    if (!created) {
+      throw new Error("No se pudo agregar la ubicación.");
+    }
   };
 
   const handleCreateCategoria = async (name: string) => {
-    await inventoryData.createCategoria(name);
+    const created = await inventoryData.createCategoria(name);
+    if (!created) {
+      throw new Error("No se pudo agregar la categoría.");
+    }
+  };
+
+  const handleUpdateArea = async (previousName: string, nextName: string) => {
+    await inventoryData.updateArea(previousName, nextName);
+  };
+
+  const handleDeleteArea = async (name: string) => {
+    await inventoryData.deleteArea(name);
+  };
+
+  const handleUpdateCategoria = async (
+    previousName: string,
+    nextName: string,
+  ) => {
+    await inventoryData.updateCategoria(previousName, nextName);
+  };
+
+  const handleDeleteCategoria = async (name: string) => {
+    await inventoryData.deleteCategoria(name);
   };
 
   return (
@@ -31,6 +58,7 @@ export const InventoryPage = () => {
         {...inventoryData}
         createArea={handleCreateArea}
         createCategoria={handleCreateCategoria}
+        onOpenCatalogManager={() => setShowCatalogManager(true)}
         onAddProduct={() => setShowAddForm(true)}
       />
 
@@ -38,12 +66,21 @@ export const InventoryPage = () => {
         <AddProductForm
           onSubmit={handleAddProduct}
           onCancel={() => setShowAddForm(false)}
-          areas={inventoryData.areas}
-          categorias={inventoryData.categorias}
-          onCreateArea={handleCreateArea}
-          onCreateCategoria={handleCreateCategoria}
         />
       )}
+
+      <InventoryCatalogManagerModal
+        isOpen={showCatalogManager}
+        onClose={() => setShowCatalogManager(false)}
+        ubicaciones={inventoryData.areas}
+        categorias={inventoryData.categorias}
+        onAddUbicacion={handleCreateArea}
+        onUpdateUbicacion={handleUpdateArea}
+        onDeleteUbicacion={handleDeleteArea}
+        onAddCategoria={handleCreateCategoria}
+        onUpdateCategoria={handleUpdateCategoria}
+        onDeleteCategoria={handleDeleteCategoria}
+      />
     </>
   );
 };

@@ -10,24 +10,15 @@ import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
-import { AddOptionModal } from "../../../shared/components/AddOptionModal";
 
 interface AddProductFormProps {
   onSubmit: (data: CreateProductData) => void;
   onCancel: () => void;
-  areas: string[];
-  categorias?: string[];
-  onCreateArea: (name: string) => Promise<void>;
-  onCreateCategoria: (name: string) => Promise<void>;
 }
 
 export const AddProductForm: React.FC<AddProductFormProps> = ({
   onSubmit,
   onCancel,
-  areas,
-  categorias: categoriasFromProps,
-  onCreateArea,
-  onCreateCategoria,
 }) => {
   // Bloquear scroll de la ventana cuando está abierta la modal
   useModalScrollLock(true);
@@ -55,24 +46,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
 
   const [providers, setProviders] = useState<Provider[]>([]);
 
-  const [showUbicacionModal, setShowUbicacionModal] = useState(false);
-  const [showCategoriaModal, setShowCategoriaModal] = useState(false);
-  const [ubicaciones, setUbicaciones] = useState<string[]>(areas);
-  const [categorias, setCategorias] = useState<string[]>(
-    categoriasFromProps || [],
-  );
-
-  // Sincronizar ubicaciones cuando cambian las areas
-  useEffect(() => {
-    setUbicaciones(areas);
-  }, [areas]);
-
-  // Sincronizar categorías cuando cambian las props
-  useEffect(() => {
-    if (categoriasFromProps) {
-      setCategorias(categoriasFromProps);
-    }
-  }, [categoriasFromProps]);
 
   // Cargar proveedores al montar el componente
   useEffect(() => {
@@ -85,16 +58,12 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
 
   // Función para buscar ubicaciones desde la API
   const fetchUbicaciones = useCallback(async (searchTerm: string) => {
-    const data = await inventoryService.getAreas(searchTerm);
-    setUbicaciones(data);
-    return data;
+    return inventoryService.getAreas(searchTerm);
   }, []);
 
   // Función para buscar categorías desde la API
   const fetchCategorias = useCallback(async (searchTerm: string) => {
-    const data = await inventoryService.getCategorias(searchTerm);
-    setCategorias(data);
-    return data;
+    return inventoryService.getCategorias(searchTerm);
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -143,8 +112,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   const selectClasses =
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
   const dividerClasses = "border-t border-gray-200 pt-2 dark:border-slate-800";
-  const iconButtonClasses =
-    "flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-green-500 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
@@ -243,14 +210,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                     required
                   />
                 </div>
-                <button
-                  type="button"
-                  className={iconButtonClasses}
-                  onClick={() => setShowUbicacionModal(true)}
-                  title="Agregar nueva ubicación"
-                >
-                  <span className="text-lg font-bold">+</span>
-                </button>
               </div>
             </div>
 
@@ -325,14 +284,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                     required
                   />
                 </div>
-                <button
-                  type="button"
-                  className={iconButtonClasses}
-                  onClick={() => setShowCategoriaModal(true)}
-                  title="Agregar nueva categoría"
-                >
-                  <span className="text-lg font-bold">+</span>
-                </button>
               </div>
             </div>
           </div>
@@ -355,31 +306,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
             </button>
           </div>
         </form>
-        {/* Modales para agregar opción */}
-        <AddOptionModal
-          isOpen={showUbicacionModal}
-          onClose={() => setShowUbicacionModal(false)}
-          onSubmit={async (option: string) => {
-            await onCreateArea(option);
-            setShowUbicacionModal(false);
-          }}
-          title="Nueva Ubicación"
-          label="Ubicación *"
-          itemType="Ubicacion"
-          existingOptions={ubicaciones}
-        />
-        <AddOptionModal
-          isOpen={showCategoriaModal}
-          onClose={() => setShowCategoriaModal(false)}
-          onSubmit={async (option: string) => {
-            await onCreateCategoria(option);
-            setShowCategoriaModal(false);
-          }}
-          title="Nueva Categoría"
-          label="Categoría *"
-          itemType="Categoria"
-          existingOptions={categorias}
-        />
       </div>
     </div>
   );
