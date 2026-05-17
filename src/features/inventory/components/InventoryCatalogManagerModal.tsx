@@ -1,54 +1,62 @@
 import { useMemo, useRef, useState } from "react";
 import { Pencil, Plus, Trash2, X } from "lucide-react";
-import { CatalogType, ReferenceCatalogs } from "../hooks/useReferenceCatalogs";
-import { useEscapeKey } from "../hooks/useEscapeKey";
-import { useClickOutside } from "../hooks/useClickOutside";
-import { useModalScrollLock } from "../hooks/useModalScrollLock";
-import { ConfirmModal } from "./ConfirmModal";
+import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
+import { useClickOutside } from "../../../shared/hooks/useClickOutside";
+import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
+import { ConfirmModal } from "../../../shared/components/ConfirmModal";
 
-interface ReferenceCatalogManagerModalProps {
+type CatalogType = "ubicaciones" | "categorias";
+
+interface InventoryCatalogManagerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  catalogs: ReferenceCatalogs;
-  onAddItem: (type: CatalogType, name: string) => Promise<boolean>;
-  onUpdateItem: (
-    type: CatalogType,
-    previousName: string,
-    nextName: string,
-  ) => Promise<boolean>;
-  onDeleteItem: (type: CatalogType, name: string) => Promise<boolean>;
+  ubicaciones: string[];
+  categorias: string[];
+  onAddUbicacion: (name: string) => Promise<void>;
+  onUpdateUbicacion: (previousName: string, nextName: string) => Promise<void>;
+  onDeleteUbicacion: (name: string) => Promise<void>;
+  onAddCategoria: (name: string) => Promise<void>;
+  onUpdateCategoria: (previousName: string, nextName: string) => Promise<void>;
+  onDeleteCategoria: (name: string) => Promise<void>;
 }
 
 const TYPE_TABS: { type: CatalogType; label: string }[] = [
-  { type: "areas", label: "Áreas" },
-  { type: "empresas", label: "Empresas" },
-  { type: "proyectos", label: "Proyectos" },
+  { type: "ubicaciones", label: "Ubicaciones" },
+  { type: "categorias", label: "Categorías" },
 ];
 
-export const ReferenceCatalogManagerModal = ({
+export const InventoryCatalogManagerModal = ({
   isOpen,
   onClose,
-  catalogs,
-  onAddItem,
-  onUpdateItem,
-  onDeleteItem,
-}: ReferenceCatalogManagerModalProps) => {
+  ubicaciones,
+  categorias,
+  onAddUbicacion,
+  onUpdateUbicacion,
+  onDeleteUbicacion,
+  onAddCategoria,
+  onUpdateCategoria,
+  onDeleteCategoria,
+}: InventoryCatalogManagerModalProps) => {
   useModalScrollLock(isOpen);
   useEscapeKey(onClose, isOpen);
   const modalRef = useRef<HTMLDivElement>(null);
   useClickOutside(modalRef, onClose, isOpen);
 
-  const [activeType, setActiveType] = useState<CatalogType>("areas");
+  const [activeType, setActiveType] = useState<CatalogType>("ubicaciones");
   const [newItemValue, setNewItemValue] = useState("");
   const [editingValue, setEditingValue] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmState, setConfirmState] = useState<{
     open: boolean;
     value: string | null;
   }>({ open: false, value: null });
 
-  const currentItems = useMemo(() => catalogs[activeType] ?? [], [catalogs, activeType]);
+  const currentItems = useMemo(
+    () => (activeType === "ubicaciones" ? ubicaciones : categorias),
+    [activeType, ubicaciones, categorias],
+  );
 
   if (!isOpen) return null;
 
@@ -56,15 +64,29 @@ export const ReferenceCatalogManagerModal = ({
 
   const handleAdd = async () => {
     resetError();
-    setIsWorking(true);
-    const added = await onAddItem(activeType, newItemValue);
-    if (!added) {
-      setError("No se pudo agregar. Verifica que no exista ya el elemento.");
-      setIsWorking(false);
+    const trimmed = newItemValue.trim();
+    if (!trimmed) {
+      setError("Ingresa un valor válido.");
       return;
     }
-    setNewItemValue("");
-    setIsWorking(false);
+
+    try {
+      setIsSubmitting(true);
+      if (activeType === "ubicaciones") {
+        await onAddUbicacion(trimmed);
+      } else {
+        await onAddCategoria(trimmed);
+      }
+      setNewItemValue("");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "No se pudo agregar el elemento.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleStartEdit = (value: string) => {
@@ -76,35 +98,60 @@ export const ReferenceCatalogManagerModal = ({
   const handleSaveEdit = async () => {
     if (!editingValue) return;
     resetError();
-    setIsWorking(true);
-    const updated = await onUpdateItem(activeType, editingValue, editingDraft);
-    if (!updated) {
-      setError("No se pudo editar. El nuevo nombre puede estar duplicado.");
-      setIsWorking(false);
+    const trimmed = editingDraft.trim();
+    if (!trimmed) {
+      setError("Ingresa un valor válido.");
       return;
     }
-    setEditingValue(null);
-    setEditingDraft("");
-    setIsWorking(false);
+
+    try {
+      setIsSubmitting(true);
+      if (activeType === "ubicaciones") {
+        await onUpdateUbicacion(editingValue, trimmed);
+      } else {
+        await onUpdateCategoria(editingValue, trimmed);
+      }
+      setEditingValue(null);
+      setEditingDraft("");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "No se pudo actualizar el elemento.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDelete = async (value: string) => {
+  const handleDelete = (value: string) => {
     resetError();
     setConfirmState({ open: true, value });
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!confirmState.value) {
       setConfirmState({ open: false, value: null });
       return;
     }
 
-    const deleted = onDeleteItem(activeType, confirmState.value);
-    if (!deleted) {
-      setError("No se pudo eliminar el elemento seleccionado.");
+    try {
+      setIsSubmitting(true);
+      if (activeType === "ubicaciones") {
+        await onDeleteUbicacion(confirmState.value);
+      } else {
+        await onDeleteCategoria(confirmState.value);
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "No se pudo eliminar el elemento.",
+      );
+    } finally {
+      setIsSubmitting(false);
+      setConfirmState({ open: false, value: null });
     }
-
-    setConfirmState({ open: false, value: null });
   };
 
   return (
@@ -115,11 +162,14 @@ export const ReferenceCatalogManagerModal = ({
       >
         <div className="px-4 py-2 text-white bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold">Gestión de Áreas, Empresas y Proyectos</h2>
+            <h2 className="text-base font-bold">
+              Gestión de Ubicaciones y Categorías
+            </h2>
             <button
               type="button"
               onClick={onClose}
               className="p-1 rounded-full hover:bg-white/20"
+              disabled={isSubmitting}
             >
               <X className="w-5 h-5" />
             </button>
@@ -154,15 +204,18 @@ export const ReferenceCatalogManagerModal = ({
               type="text"
               value={newItemValue}
               onChange={(event) => setNewItemValue(event.target.value)}
-              placeholder={`Agregar nueva opción en ${TYPE_TABS.find((t) => t.type === activeType)?.label ?? "catálogo"}`}
+              placeholder={`Agregar nueva opción en ${
+                TYPE_TABS.find((t) => t.type === activeType)?.label ??
+                "catálogo"
+              }`}
               className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
-              disabled={isWorking}
+              disabled={isSubmitting}
             />
             <button
               type="button"
               onClick={handleAdd}
-              className="inline-flex items-center gap-1 rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-500 dark:hover:bg-emerald-400"
-              disabled={isWorking}
+              className="inline-flex items-center gap-1 rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 disabled:opacity-70"
+              disabled={isSubmitting}
             >
               <Plus className="w-4 h-4" />
               Agregar
@@ -179,14 +232,21 @@ export const ReferenceCatalogManagerModal = ({
             <table className="w-full text-sm">
               <thead className="bg-gray-50 dark:bg-slate-900">
                 <tr>
-                  <th className="px-3 py-2 text-left text-gray-700 dark:text-slate-300">Nombre</th>
-                  <th className="px-3 py-2 text-right text-gray-700 dark:text-slate-300">Acciones</th>
+                  <th className="px-3 py-2 text-left text-gray-700 dark:text-slate-300">
+                    Nombre
+                  </th>
+                  <th className="px-3 py-2 text-right text-gray-700 dark:text-slate-300">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {currentItems.length === 0 && (
                   <tr>
-                    <td colSpan={2} className="px-3 py-6 text-center text-gray-500 dark:text-slate-400">
+                    <td
+                      colSpan={2}
+                      className="px-3 py-6 text-center text-gray-500 dark:text-slate-400"
+                    >
                       No hay elementos registrados.
                     </td>
                   </tr>
@@ -194,15 +254,20 @@ export const ReferenceCatalogManagerModal = ({
                 {currentItems.map((item) => {
                   const isEditing = editingValue === item;
                   return (
-                    <tr key={item} className="border-t border-gray-100 dark:border-slate-800">
+                    <tr
+                      key={item}
+                      className="border-t border-gray-100 dark:border-slate-800"
+                    >
                       <td className="px-3 py-2 text-gray-700 dark:text-slate-200">
                         {isEditing ? (
                           <input
                             type="text"
                             value={editingDraft}
-                            onChange={(event) => setEditingDraft(event.target.value)}
-                                className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-                            disabled={isWorking}
+                            onChange={(event) =>
+                              setEditingDraft(event.target.value)
+                            }
+                            className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                            disabled={isSubmitting}
                           />
                         ) : (
                           item
@@ -218,16 +283,16 @@ export const ReferenceCatalogManagerModal = ({
                                   setEditingValue(null);
                                   setEditingDraft("");
                                 }}
-                                className="px-2 py-1 text-xs font-semibold text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-                                disabled={isWorking}
+                                className="px-2 py-1 text-xs font-semibold text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                disabled={isSubmitting}
                               >
                                 Cancelar
                               </button>
                               <button
                                 type="button"
                                 onClick={handleSaveEdit}
-                                className="px-2 py-1 text-xs font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-500 dark:hover:bg-emerald-400"
-                                disabled={isWorking}
+                                className="px-2 py-1 text-xs font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 disabled:opacity-70"
+                                disabled={isSubmitting}
                               >
                                 Guardar
                               </button>
@@ -237,8 +302,8 @@ export const ReferenceCatalogManagerModal = ({
                               <button
                                 type="button"
                                 onClick={() => handleStartEdit(item)}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-green-700 border border-green-200 rounded-lg hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
-                                disabled={isWorking}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-green-700 border border-green-200 rounded-lg hover:bg-green-50 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+                                disabled={isSubmitting}
                               >
                                 <Pencil className="w-3.5 h-3.5" />
                                 Editar
@@ -246,8 +311,8 @@ export const ReferenceCatalogManagerModal = ({
                               <button
                                 type="button"
                                 onClick={() => handleDelete(item)}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-red-700 border border-red-200 rounded-lg hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10"
-                                disabled={isWorking}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-red-700 border border-red-200 rounded-lg hover:bg-red-50 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10"
+                                disabled={isSubmitting}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 Eliminar
@@ -267,11 +332,16 @@ export const ReferenceCatalogManagerModal = ({
 
       <ConfirmModal
         isOpen={confirmState.open}
-        title={`Eliminar ${TYPE_TABS.find((tab) => tab.type === activeType)?.label ?? "elemento"}`}
+        title={
+          activeType === "ubicaciones"
+            ? "Eliminar ubicación"
+            : "Eliminar categoría"
+        }
         message={`¿Eliminar definitivamente "${confirmState.value ?? ""}"?`}
         confirmLabel="Eliminar"
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmState({ open: false, value: null })}
+        isProcessing={isSubmitting}
         destructive
       />
     </div>

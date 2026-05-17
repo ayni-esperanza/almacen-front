@@ -56,8 +56,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-900 dark:border dark:border-slate-700"
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <div className="px-5 py-4 border-b border-gray-200 dark:border-slate-700">
-          <h3 id="confirm-modal-title" className="text-lg font-semibold text-gray-900 dark:text-slate-100">{title}</h3>
+        <div className="px-5 py-4 border-b border-red-200 bg-gradient-to-r from-red-500 to-red-600 text-white dark:border-rose-500/40">
+          <h3 id="confirm-modal-title" className="text-lg font-semibold">{title}</h3>
         </div>
         <div id="confirm-modal-message" className="px-5 py-4 text-sm text-gray-700 dark:text-slate-200">
           {message}

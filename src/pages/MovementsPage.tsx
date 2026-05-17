@@ -44,6 +44,14 @@ export const MovementsPage = () => {
   const [showCatalogManager, setShowCatalogManager] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [exportConfirm, setExportConfirm] = useState({
+    open: false,
+    total: 0,
+  });
+  const [purchaseOrderConfirmOpen, setPurchaseOrderConfirmOpen] =
+    useState(false);
+  const [isDeletingPurchaseOrder, setIsDeletingPurchaseOrder] =
+    useState(false);
   const [confirmState, setConfirmState] = useState<{
     open: boolean;
     type: "entry" | "exit" | null;
@@ -166,9 +174,8 @@ export const MovementsPage = () => {
     }
   };
 
-  const handleExportPdf = async () => {
+  const handleExportPdf = async (skipConfirm = false) => {
     if (isExportingPdf) return;
-    setIsExportingPdf(true);
     try {
       const userName =
         user?.firstName && user?.lastName
@@ -205,12 +212,12 @@ export const MovementsPage = () => {
 
       // Límite de seguridad: avisar si hay muchos registros
       const MAX_EXPORT = 50000;
-      if (totalForExport > MAX_EXPORT) {
-        const proceed = confirm(
-          `Se exportarán ${totalForExport.toLocaleString()} registros. Esto puede tardar. ¿Desea continuar?`,
-        );
-        if (!proceed) return;
+      if (totalForExport > MAX_EXPORT && !skipConfirm) {
+        setExportConfirm({ open: true, total: totalForExport });
+        return;
       }
+
+      setIsExportingPdf(true);
 
       let dataToExport: MovementEntry[] | MovementExit[];
       const exportLimit = Math.min(totalForExport, MAX_EXPORT);
@@ -301,14 +308,25 @@ export const MovementsPage = () => {
 
   const handleDeletePurchaseOrder = async () => {
     if (!editingPurchaseOrder) return;
-    if (confirm(`¿Eliminar la orden ${editingPurchaseOrder.codigo}?`)) {
-      try {
-        await purchaseOrdersData.deletePurchaseOrder(editingPurchaseOrder.id);
-        setShowPurchaseOrderForm(false);
-        setEditingPurchaseOrder(null);
-      } catch (error) {
-        console.error("Error deleting purchase order:", error);
-      }
+    setPurchaseOrderConfirmOpen(true);
+  };
+
+  const handleConfirmDeletePurchaseOrder = async () => {
+    if (!editingPurchaseOrder) {
+      setPurchaseOrderConfirmOpen(false);
+      return;
+    }
+
+    try {
+      setIsDeletingPurchaseOrder(true);
+      await purchaseOrdersData.deletePurchaseOrder(editingPurchaseOrder.id);
+      setShowPurchaseOrderForm(false);
+      setEditingPurchaseOrder(null);
+    } catch (error) {
+      console.error("Error deleting purchase order:", error);
+    } finally {
+      setIsDeletingPurchaseOrder(false);
+      setPurchaseOrderConfirmOpen(false);
     }
   };
 
@@ -554,6 +572,29 @@ export const MovementsPage = () => {
           setConfirmState({ open: false, type: null, target: null })
         }
         isProcessing={isConfirming}
+        destructive
+      />
+
+      <ConfirmModal
+        isOpen={exportConfirm.open}
+        title="Exportar PDF"
+        message={`Se exportarán ${exportConfirm.total.toLocaleString()} registros. Esto puede tardar. ¿Desea continuar?`}
+        confirmLabel="Exportar"
+        onConfirm={() => {
+          setExportConfirm({ open: false, total: 0 });
+          handleExportPdf(true);
+        }}
+        onCancel={() => setExportConfirm({ open: false, total: 0 })}
+      />
+
+      <ConfirmModal
+        isOpen={purchaseOrderConfirmOpen}
+        title="Eliminar orden de compra"
+        message={`¿Eliminar la orden ${editingPurchaseOrder?.codigo ?? ""}?`}
+        confirmLabel="Eliminar"
+        onConfirm={handleConfirmDeletePurchaseOrder}
+        onCancel={() => setPurchaseOrderConfirmOpen(false)}
+        isProcessing={isDeletingPurchaseOrder}
         destructive
       />
 

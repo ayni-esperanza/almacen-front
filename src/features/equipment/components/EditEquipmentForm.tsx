@@ -8,9 +8,7 @@ import {
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
-import DatePicker from "react-datepicker";
-import { parseISO } from "date-fns";
-import { es } from "date-fns/locale";
+import { ConfirmModal } from "../../../shared/components/ConfirmModal";
 
 const AREAS_MOVIMIENTOS = [
   "Almacén",
@@ -123,6 +121,7 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   useEffect(() => {
     setFormData({
@@ -215,12 +214,14 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
 
   const handleDelete = async () => {
     if (!onDelete) return;
+    setConfirmDeleteOpen(true);
+  };
 
-    const confirmed = window.confirm(
-      `¿Eliminar definitivamente el registro "${equipment.equipo}" (${equipment.serieCodigo})?`
-    );
-
-    if (!confirmed) return;
+  const handleConfirmDelete = async () => {
+    if (!onDelete) {
+      setConfirmDeleteOpen(false);
+      return;
+    }
 
     setDeleting(true);
     setErrorMessage(null);
@@ -234,15 +235,17 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
       );
     } finally {
       setDeleting(false);
+      setConfirmDeleteOpen(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
-      <div
-        ref={modalRef}
-        className="w-full max-w-3xl max-h-95vh overflow-hidden rounded-3xl bg-white shadow-2xl transition-colors dark:bg-slate-950 flex flex-col"
-      >
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
+        <div
+          ref={modalRef}
+          className="w-full max-w-3xl max-h-95vh overflow-hidden rounded-3xl bg-white shadow-2xl transition-colors dark:bg-slate-950 flex flex-col"
+        >
         <div className="flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 text-white flex-shrink-0">
           <div className="flex items-center gap-2">
             <Wrench className="w-4 h-4" />
@@ -524,5 +527,17 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
         </div>
       </div>
     </div>
+
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title="Eliminar registro"
+        message={`¿Eliminar definitivamente el registro "${equipment.equipo}" (${equipment.serieCodigo})?`}
+        confirmLabel="Eliminar"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmDeleteOpen(false)}
+        isProcessing={deleting}
+        destructive
+      />
+    </>
   );
 };
