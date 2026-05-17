@@ -6,9 +6,12 @@ import { es } from "date-fns/locale";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
-import { useProductAutocomplete } from "../../../shared/hooks/useProductAutocomplete";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { ReferenceCatalogs } from "../../../shared/hooks/useReferenceCatalogs";
+import {
+  inventoryService,
+  Product,
+} from "../../../shared/services/inventory.service";
 
 interface AddMovementFormProps {
   type: "entrada" | "salida";
@@ -45,49 +48,87 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
   }));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAutofilled, setIsAutofilled] = useState(false);
-  const [empresa, setEmpresa] = useState("");
+  const [searchingProduct, setSearchingProduct] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [inventoryProducts, setInventoryProducts] = useState<Product[]>([]);
+  const [showProductList, setShowProductList] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [hasSelectedProduct, setHasSelectedProduct] = useState(false);
   const [stockWarning, setStockWarning] = useState<{
     type: "sin-stock" | "stock-bajo" | null;
     message: string | null;
   }>({ type: null, message: null });
 
-  // Hook de autocompletado
-  const {
-    product,
-    isLoading,
-    error: autocompleteError,
-    searchProduct,
-    reset,
-  } = useProductAutocomplete({
-    debounceMs: 400,
-    minChars: 2,
-  });
-
-  // Efecto para autocompletar cuando se encuentre un producto
+  // Buscar productos en inventario cuando se escribe el codigo
   useEffect(() => {
-    if (product && formData.codigoProducto === product.codigo) {
-      setFormData((prev) => ({
-        ...prev,
-        descripcion: product.nombre,
-        precioUnitario: product.costoUnitario.toString(),
-      }));
-      setIsAutofilled(true);
-      setErrorMessage(null);
-
-      // Verificar stock solo para salidas
-      if (!isEntry) {
-        checkStock(product.stockActual, parseInt(formData.cantidad) || 0);
-      }
+    const searchTerm = formData.codigoProducto.trim();
+    if (searchTerm.length < 2) {
+      setInventoryProducts([]);
+      setShowProductList(false);
+      setSearchError(null);
+      setSearchingProduct(false);
+      setSelectedProduct(null);
+      setIsAutofilled(false);
+      return;
     }
-  }, [product, formData.codigoProducto]);
+
+    const debounceTimer = setTimeout(async () => {
+      try {
+        setSearchingProduct(true);
+        const result = await inventoryService.getAllProducts(
+          searchTerm,
+          undefined,
+          1,
+          10,
+        );
+        setInventoryProducts(result.data);
+
+        const normalizedTerm = searchTerm.toLowerCase();
+        const exactMatch = result.data.find(
+          (item) => item.codigo.toLowerCase() === normalizedTerm,
+        );
+
+        if (exactMatch) {
+          setSelectedProduct(exactMatch);
+          setHasSelectedProduct(true);
+          setIsAutofilled(true);
+          setFormData((prev) => ({
+            ...prev,
+            descripcion: exactMatch.nombre,
+            precioUnitario: exactMatch.costoUnitario.toString(),
+          }));
+          setShowProductList(false);
+          setSearchError(null);
+        } else {
+          setSelectedProduct(null);
+          setIsAutofilled(false);
+          setShowProductList(!hasSelectedProduct && result.data.length > 0);
+          setSearchError(
+            result.data.length === 0 ? "Producto no encontrado" : null,
+          );
+        }
+      } catch (error) {
+        console.error("Error searching products:", error);
+        setSearchError("Error al buscar el producto");
+        setInventoryProducts([]);
+        setShowProductList(false);
+        setSelectedProduct(null);
+        setIsAutofilled(false);
+      } finally {
+        setSearchingProduct(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [formData.codigoProducto, hasSelectedProduct]);
 
   // Verificar stock cuando cambia la cantidad en salidas
   useEffect(() => {
-    if (!isEntry && product && isAutofilled) {
+    if (!isEntry && selectedProduct && isAutofilled) {
       const cantidad = parseInt(formData.cantidad) || 0;
-      checkStock(product.stockActual, cantidad);
+      checkStock(selectedProduct.stockActual, cantidad);
     }
-  }, [formData.cantidad, product, isEntry, isAutofilled]);
+  }, [formData.cantidad, selectedProduct, isEntry, isAutofilled]);
 
   const checkStock = (stockActual: number, cantidadSolicitada: number) => {
     if (stockActual === 0) {
@@ -130,17 +171,17 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
     }
 
     // Verificar stock para salidas
-    if (!isEntry && product) {
-      if (product.stockActual === 0) {
+    if (!isEntry && selectedProduct) {
+      if (selectedProduct.stockActual === 0) {
         setErrorMessage(
           "No se puede registrar la salida. El producto no tiene stock disponible."
         );
         return;
       }
 
-      if (parsedQuantity > product.stockActual) {
+      if (parsedQuantity > selectedProduct.stockActual) {
         setErrorMessage(
-          `No se puede registrar la salida. Stock insuficiente (disponible: ${product.stockActual}, solicitado: ${parsedQuantity}).`
+          `No se puede registrar la salida. Stock insuficiente (disponible: ${selectedProduct.stockActual}, solicitado: ${parsedQuantity}).`
         );
         return;
       }
@@ -166,6 +207,11 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
     let processedValue = value;
     if (name === "codigoProducto") {
       processedValue = value.toUpperCase().slice(0, 6);
+      setSelectedProduct(null);
+      setIsAutofilled(false);
+      setHasSelectedProduct(false);
+      setSearchError(null);
+      setStockWarning({ type: null, message: null });
     }
 
     setFormData((prev) => ({
@@ -173,15 +219,26 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
       [name]: processedValue,
     }));
 
-    // Si cambia el código del producto, buscar autocompletado
     if (name === "codigoProducto") {
-      setIsAutofilled(false);
-      setStockWarning({ type: null, message: null });
-      if (value.length >= 2) {
-        searchProduct(value);
-      } else {
-        reset();
-      }
+      setShowProductList(false);
+    }
+  };
+
+  const handleSelectProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setHasSelectedProduct(true);
+    setIsAutofilled(true);
+    setSearchError(null);
+    setShowProductList(false);
+    setFormData((prev) => ({
+      ...prev,
+      codigoProducto: product.codigo,
+      descripcion: product.nombre,
+      precioUnitario: product.costoUnitario.toString(),
+    }));
+
+    if (!isEntry) {
+      checkStock(product.stockActual, parseInt(formData.cantidad) || 0);
     }
   };
 
@@ -233,24 +290,51 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                       />
                       {/* Indicador de estado */}
                       <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                        {isLoading && (
+                        {searchingProduct && (
                           <Loader2 className="w-4 h-4 text-green-500 animate-spin" />
                         )}
-                        {!isLoading && isAutofilled && (
+                        {!searchingProduct && isAutofilled && (
                           <Check className="w-4 h-4 text-green-500" />
                         )}
-                        {!isLoading &&
-                          autocompleteError &&
+                        {!searchingProduct &&
+                          searchError &&
                           formData.codigoProducto.length >= 2 && (
                             <AlertCircle className="w-4 h-4 text-amber-500" />
                           )}
                       </div>
+                      {searchingProduct && (
+                        <div className="absolute left-0 top-full z-20 w-full mt-1 text-xs text-center bg-white border border-gray-300 rounded-md shadow-lg dark:bg-slate-800 dark:border-slate-700">
+                          <div className="px-3 py-2 text-gray-500 dark:text-slate-300">
+                            Buscando...
+                          </div>
+                        </div>
+                      )}
+                      {showProductList && inventoryProducts.length > 0 && (
+                        <div className="absolute left-0 top-full z-20 w-full mt-1 overflow-y-auto bg-white border border-gray-300 rounded-md shadow-lg max-h-48 dark:bg-slate-800 dark:border-slate-700">
+                          {inventoryProducts.map((product) => (
+                            <button
+                              key={product.id}
+                              type="button"
+                              onClick={() => handleSelectProduct(product)}
+                              className="flex flex-col w-full px-3 py-2 text-xs text-left hover:bg-gray-100 dark:hover:bg-slate-700"
+                            >
+                              <span className="font-medium text-gray-900 dark:text-slate-100">
+                                {product.codigo} - {product.nombre}
+                              </span>
+                              <span className="text-gray-600 dark:text-slate-400">
+                                Stock: {product.stockActual} | Costo: S/{" "}
+                                {product.costoUnitario.toFixed(2)}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    {!isLoading &&
-                      autocompleteError &&
+                    {!searchingProduct &&
+                      searchError &&
                       formData.codigoProducto.length >= 2 && (
                         <span className="text-xs text-amber-600 dark:text-amber-400">
-                          {autocompleteError}
+                          {searchError}
                         </span>
                       )}
                   </label>
@@ -376,24 +460,51 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                       />
                       {/* Indicador de estado */}
                       <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                        {isLoading && (
+                        {searchingProduct && (
                           <Loader2 className="w-4 h-4 text-red-500 animate-spin" />
                         )}
-                        {!isLoading && isAutofilled && (
+                        {!searchingProduct && isAutofilled && (
                           <Check className="w-4 h-4 text-red-500" />
                         )}
-                        {!isLoading &&
-                          autocompleteError &&
+                        {!searchingProduct &&
+                          searchError &&
                           formData.codigoProducto.length >= 2 && (
                             <AlertCircle className="w-4 h-4 text-amber-500" />
                           )}
                       </div>
+                      {searchingProduct && (
+                        <div className="absolute left-0 top-full z-20 w-full mt-1 text-xs text-center bg-white border border-gray-300 rounded-md shadow-lg dark:bg-slate-800 dark:border-slate-700">
+                          <div className="px-3 py-2 text-gray-500 dark:text-slate-300">
+                            Buscando...
+                          </div>
+                        </div>
+                      )}
+                      {showProductList && inventoryProducts.length > 0 && (
+                        <div className="absolute left-0 top-full z-20 w-full mt-1 overflow-y-auto bg-white border border-gray-300 rounded-md shadow-lg max-h-48 dark:bg-slate-800 dark:border-slate-700">
+                          {inventoryProducts.map((product) => (
+                            <button
+                              key={product.id}
+                              type="button"
+                              onClick={() => handleSelectProduct(product)}
+                              className="flex flex-col w-full px-3 py-2 text-xs text-left hover:bg-gray-100 dark:hover:bg-slate-700"
+                            >
+                              <span className="font-medium text-gray-900 dark:text-slate-100">
+                                {product.codigo} - {product.nombre}
+                              </span>
+                              <span className="text-gray-600 dark:text-slate-400">
+                                Stock: {product.stockActual} | Costo: S/{" "}
+                                {product.costoUnitario.toFixed(2)}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    {!isLoading &&
-                      autocompleteError &&
+                    {!searchingProduct &&
+                      searchError &&
                       formData.codigoProducto.length >= 2 && (
                         <span className="text-xs text-amber-600 dark:text-amber-400">
-                          {autocompleteError}
+                          {searchError}
                         </span>
                       )}
                   </label>
