@@ -22,7 +22,7 @@ export const DashboardPage = () => {
 
       <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="bg-white shadow-xl rounded-2xl dark:bg-slate-900 dark:border dark:border-slate-700">
-          {/* Tabs fijos */}
+          {/* adsa Tabs fijos */}
           <div className="sticky z-40 top-[64px] bg-gray-50 dark:bg-slate-900 rounded-t-2xl">
             <DashboardTabs currentPath={location.pathname} />
           </div>
