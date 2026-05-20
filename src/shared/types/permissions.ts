@@ -133,6 +133,10 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.EQUIPMENT_UPDATE,
     Permission.EQUIPMENT_DELETE,
     Permission.REPORTS_READ,
+    Permission.PROVIDERS_READ,
+    Permission.PROVIDERS_CREATE,
+    Permission.PROVIDERS_UPDATE,
+    Permission.PROVIDERS_DELETE,
     // No USERS permissions
     // No PROVIDERS permissions
   ],
