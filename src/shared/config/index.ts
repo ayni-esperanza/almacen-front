@@ -8,7 +8,7 @@ export const config = {
   apiUrl: import.meta.env.VITE_API_URL || "http://localhost:3001",
 
   // Nombre de la aplicación
-  appName: import.meta.env.VITE_APP_NAME || "AYNI Almacén",
+  appName: import.meta.env.VITE_APP_NAME || "AYNI Almacén test",
 
   // Entorno actual
   environment: import.meta.env.VITE_APP_ENV || "development",
