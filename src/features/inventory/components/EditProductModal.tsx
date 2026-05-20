@@ -41,6 +41,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
 
   // Opciones para los combos
   const [providers, setProviders] = useState<Provider[]>([]);
+  const [ubicaciones, setUbicaciones] = useState<string[]>([]);
+  const [categoriasData, setCategoriasData] = useState<string[]>([]);
   const [showUbicacionModal, setShowUbicacionModal] = useState(false);
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -67,7 +69,16 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       const data = await providersService.getAllProviders();
       setProviders(data);
     };
+    const loadUbicacionesYCategorias = async () => {
+      const [ubics, cats] = await Promise.all([
+        inventoryService.getAreas(),
+        inventoryService.getCategorias(),
+      ]);
+      setUbicaciones(ubics);
+      setCategoriasData(cats);
+    };
     loadProviders();
+    loadUbicacionesYCategorias();
   }, []);
 
   // Función para buscar ubicaciones desde la API
@@ -353,6 +364,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
               }}
               title="Nueva Ubicación"
               label="Ubicación *"
+              itemType="Ubicacion"
+              existingOptions={ubicaciones}
             />
 
             <AddOptionModal
@@ -364,6 +377,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
               }}
               title="Nueva Categoría"
               label="Categoría *"
+              itemType="Categoria"
+              existingOptions={categoriasData}
             />
           </div>
         </div>

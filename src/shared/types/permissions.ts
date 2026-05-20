@@ -116,6 +116,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_MOVEMENTS,
     Permission.VIEW_EQUIPMENT,
     Permission.VIEW_REPORTS,
+    // Allow view providers so assistant can access providers list in product form
+    Permission.VIEW_PROVIDERS,
 
     // Full access to allowed sections
     Permission.INVENTORY_READ,

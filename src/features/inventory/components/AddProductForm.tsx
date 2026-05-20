@@ -360,29 +360,25 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
           isOpen={showUbicacionModal}
           onClose={() => setShowUbicacionModal(false)}
           onSubmit={async (option: string) => {
-            if (option) {
-              await onCreateArea(option); // Guardar en BD
-              if (!ubicaciones.includes(option))
-                setUbicaciones([...ubicaciones, option]);
-            }
+            await onCreateArea(option);
             setShowUbicacionModal(false);
           }}
           title="Nueva Ubicación"
           label="Ubicación *"
+          itemType="Ubicacion"
+          existingOptions={ubicaciones}
         />
         <AddOptionModal
           isOpen={showCategoriaModal}
           onClose={() => setShowCategoriaModal(false)}
           onSubmit={async (option: string) => {
-            if (option) {
-              await onCreateCategoria(option); // Guardar en BD
-              if (!categorias.includes(option))
-                setCategorias([...categorias, option]);
-            }
+            await onCreateCategoria(option);
             setShowCategoriaModal(false);
           }}
           title="Nueva Categoría"
           label="Categoría *"
+          itemType="Categoria"
+          existingOptions={categorias}
         />
       </div>
     </div>

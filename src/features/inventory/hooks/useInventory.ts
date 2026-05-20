@@ -56,7 +56,8 @@ export const useInventory = (): UseInventoryReturn => {
   const [totalItems, setTotalItems] = useState(0);
 
   const fetchAbortController = useRef<AbortController | null>(null);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  //const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -201,27 +202,55 @@ export const useInventory = (): UseInventoryReturn => {
 
   const createArea = async (nombre: string): Promise<string | null> => {
     try {
-      const newArea = await inventoryService.createArea(nombre);
+      const trimmed = nombre?.trim();
+      if (!trimmed) {
+        throw new Error('El nombre del área es obligatorio');
+      }
+
+      // Validar duplicados case-insensitive antes de enviar
+      const isDuplicate = areas.some(
+        (area) => area.toLowerCase() === trimmed.toLowerCase()
+      );
+      if (isDuplicate) {
+        throw new Error(`El área "${trimmed}" ya existe`);
+      }
+
+      const newArea = await inventoryService.createArea(trimmed);
       if (newArea) {
         await fetchAreas();
       }
       return newArea;
     } catch (err) {
-      console.error("Error al crear área:", err);
-      return null;
+      const errorMessage = err instanceof Error ? err.message : 'Error al crear área';
+      console.error("Error al crear área:", errorMessage);
+      throw new Error(errorMessage);
     }
   };
 
   const createCategoria = async (nombre: string): Promise<string | null> => {
     try {
-      const newCategoria = await inventoryService.createCategoria(nombre);
+      const trimmed = nombre?.trim();
+      if (!trimmed) {
+        throw new Error('El nombre de la categoría es obligatorio');
+      }
+
+      // Validar duplicados case-insensitive antes de enviar
+      const isDuplicate = categorias.some(
+        (cat) => cat.toLowerCase() === trimmed.toLowerCase()
+      );
+      if (isDuplicate) {
+        throw new Error(`La categoría "${trimmed}" ya existe`);
+      }
+
+      const newCategoria = await inventoryService.createCategoria(trimmed);
       if (newCategoria) {
         await fetchCategorias();
       }
       return newCategoria;
     } catch (err) {
-      console.error("Error al crear categoría:", err);
-      return null;
+      const errorMessage = err instanceof Error ? err.message : 'Error al crear categoría';
+      console.error("Error al crear categoría:", errorMessage);
+      throw new Error(errorMessage);
     }
   };
 

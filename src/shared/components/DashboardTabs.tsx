@@ -9,12 +9,14 @@ import {
 } from "lucide-react";
 import { ProtectedComponent } from "./ProtectedComponent";
 import { Permission } from "../types/permissions";
+import { useAuth } from "../hooks/useAuth";
 
 interface DashboardTabsProps {
   currentPath: string;
 }
 
 export const DashboardTabs = ({ currentPath }: DashboardTabsProps) => {
+  const { user } = useAuth();
   const tabs = [
     {
       path: "/dashboard/inventory",
@@ -65,21 +67,32 @@ export const DashboardTabs = ({ currentPath }: DashboardTabsProps) => {
 
   return (
     <div className="sticky top-[63px] z-30 flex items-center px-2 overflow-x-auto overflow-y-hidden border-b border-gray-200 sm:px-6 bg-gray-50 dark:border-slate-700 dark:bg-slate-900 scrollbar-hide rounded-t-2xl">
-      {tabs.map(({ path, label, icon: Icon, permission }) => (
-        <ProtectedComponent key={path} permission={permission}>
-          <Link
-            to={path}
-            className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
-              isActive(path)
-                ? "border-[#16A34A] text-[#16A34A] dark:text-emerald-400"
-                : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600"
-            }`}
-          >
-            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="hidden sm:inline">{label}</span>
-          </Link>
-        </ProtectedComponent>
-      ))}
+      {tabs.map(({ path, label, icon: Icon, permission }) => {
+        // UX restriction: hide Reports and Users tabs for AYUDANTE and ASISTENTE
+        if (
+          (user?.role === "AYUDANTE" || user?.role === "ASISTENTE") &&
+          (permission === Permission.VIEW_REPORTS ||
+            permission === Permission.VIEW_USERS)
+        ) {
+          return null;
+        }
+
+        return (
+          <ProtectedComponent key={path} permission={permission}>
+            <Link
+              to={path}
+              className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
+                isActive(path)
+                  ? "border-[#16A34A] text-[#16A34A] dark:text-emerald-400"
+                  : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600"
+              }`}
+            >
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">{label}</span>
+            </Link>
+          </ProtectedComponent>
+        );
+      })}
     </div>
   );
 };
