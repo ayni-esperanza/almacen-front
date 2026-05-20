@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Plus, X, BarChart3, TrendingUp } from "lucide-react";
 import { ComparisonItem, ComparisonType, VisualizationType } from "../types";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
 interface ComparisonSelectorProps {
   areas: string[];
@@ -95,51 +96,45 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
         <div className="flex flex-wrap items-end gap-4">
           {/* Tipo de Comparación */}
           <div className="w-full md:w-auto md:min-w-[220px]">
-            <label className={labelClasses}>Tipo</label>
-            <select
-              value={comparisonType}
-              onChange={(e) => handleTypeChange(e.target.value as ComparisonType)}
-              className={inputClasses}
-            >
-              <option value="area">Área</option>
-              <option value="proyecto">Proyecto</option>
-            </select>
+            <label className={labelClasses}>Tipo de Reporte</label>
+            <SearchableSelect
+              name="comparisonType"
+              value={comparisonType === "area" ? "Por Área" : "Por Proyecto"}
+              onChange={(value) =>
+                handleTypeChange(value === "Por Proyecto" ? "proyecto" : "area")
+              }
+              options={["Por Área", "Por Proyecto"]}
+              placeholder="Por Área"
+              variant="report"
+            />
           </div>
 
           {/* Selección según tipo */}
           {comparisonType === "area" && (
             <div className="w-full md:w-auto md:min-w-[220px]">
               <label className={labelClasses}>Área</label>
-              <select
+              <SearchableSelect
+                name="comparisonArea"
                 value={selectedArea}
-                onChange={(e) => setSelectedArea(e.target.value)}
-                className={inputClasses}
-              >
-                <option value="">Seleccionar área</option>
-                {areas.map((area) => (
-                  <option key={area} value={area}>
-                    {area}
-                  </option>
-                ))}
-              </select>
+                onChange={setSelectedArea}
+                options={areas}
+                placeholder="Seleccionar área"
+                variant="report"
+              />
             </div>
           )}
 
           {comparisonType === "proyecto" && (
             <div className="w-full md:w-auto md:min-w-[220px]">
               <label className={labelClasses}>Proyecto</label>
-              <select
+              <SearchableSelect
+                name="comparisonProyecto"
                 value={selectedProyecto}
-                onChange={(e) => setSelectedProyecto(e.target.value)}
-                className={inputClasses}
-              >
-                <option value="">Seleccionar proyecto</option>
-                {proyectos.map((proyecto) => (
-                  <option key={proyecto} value={proyecto}>
-                    {proyecto}
-                  </option>
-                ))}
-              </select>
+                onChange={setSelectedProyecto}
+                options={proyectos}
+                placeholder="Seleccionar proyecto"
+                variant="report"
+              />
             </div>
           )}
 

@@ -1,4 +1,5 @@
 import React from "react";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { ReportFilters as ReportFiltersType } from "../types";
 
 interface ReportFiltersProps {
@@ -31,19 +32,21 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
           {/* Tipo de Reporte */}
           <div>
             <label className={labelClasses}>Tipo de Reporte</label>
-            <select
-              value={filters.tipoReporte}
-              onChange={(e) =>
+            <SearchableSelect
+              name="tipoReporte"
+              value={
+                filters.tipoReporte === "area" ? "Por Área" : "Por Proyecto"
+              }
+              onChange={(value) =>
                 handleChange(
                   "tipoReporte",
-                  e.target.value as "area" | "proyecto"
+                  value === "Por Proyecto" ? "proyecto" : "area"
                 )
               }
-              className={inputClasses}
-            >
-              <option value="area">Por Área</option>
-              <option value="proyecto">Por Proyecto</option>
-            </select>
+              options={["Por Área", "Por Proyecto"]}
+              placeholder="Por Área"
+              variant="report"
+            />
           </div>
 
           {/* Fecha Inicio */}
@@ -72,20 +75,19 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
           {filters.tipoReporte === "area" && (
             <div>
               <label className={labelClasses}>Área (Opcional)</label>
-              <select
+              <SearchableSelect
+                name="area"
                 value={filters.area || ""}
-                onChange={(e) =>
-                  handleChange("area", e.target.value || undefined)
+                onChange={(value) =>
+                  handleChange(
+                    "area",
+                    value === "Todas las áreas" ? undefined : value
+                  )
                 }
-                className={inputClasses}
-              >
-                <option value="">Todas las áreas</option>
-                {areas.map((area) => (
-                  <option key={area} value={area}>
-                    {area}
-                  </option>
-                ))}
-              </select>
+                options={["Todas las áreas", ...areas]}
+                placeholder="Todas las áreas"
+                variant="report"
+              />
             </div>
           )}
 
@@ -93,20 +95,19 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
           {filters.tipoReporte === "proyecto" && (
             <div>
               <label className={labelClasses}>Proyecto (Opcional)</label>
-              <select
+              <SearchableSelect
+                name="proyecto"
                 value={filters.proyecto || ""}
-                onChange={(e) =>
-                  handleChange("proyecto", e.target.value || undefined)
+                onChange={(value) =>
+                  handleChange(
+                    "proyecto",
+                    value === "Todos los proyectos" ? undefined : value
+                  )
                 }
-                className={inputClasses}
-              >
-                <option value="">Todos los proyectos</option>
-                {proyectos.map((proyecto) => (
-                  <option key={proyecto} value={proyecto}>
-                    {proyecto}
-                  </option>
-                ))}
-              </select>
+                options={["Todos los proyectos", ...proyectos]}
+                placeholder="Todos los proyectos"
+                variant="report"
+              />
             </div>
           )}
         </div>

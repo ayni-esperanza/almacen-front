@@ -10,6 +10,7 @@ interface SearchableSelectProps {
   label?: string;
   required?: boolean;
   name?: string;
+  variant?: "compact" | "report";
   // Props para modo async
   fetchOptions?: (searchTerm: string) => Promise<string[]>;
   debounceMs?: number;
@@ -23,6 +24,7 @@ export const SearchableSelect = ({
   label,
   required = false,
   name,
+  variant = "compact",
   fetchOptions,
   debounceMs = 500,
 }: SearchableSelectProps) => {
@@ -259,9 +261,9 @@ export const SearchableSelect = ({
           onClick={() => setIsOpen(!isOpen)}
           onKeyDown={handleKeyDown}
           className={`
-            w-full h-9 px-3 py-1.5 text-left text-sm
+            w-full text-left text-sm
             bg-white dark:bg-slate-900
-            border rounded-xl
+            border
             transition-all duration-200
             ${
               isOpen
@@ -276,9 +278,20 @@ export const SearchableSelect = ({
             flex items-center justify-between gap-2
             focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100
             dark:focus:border-blue-400 dark:focus:ring-blue-500/30
+            ${
+              variant === "report"
+                ? "rounded-lg px-4 py-3 min-h-[44px]"
+                : "h-9 rounded-xl px-3 py-1.5"
+            }
           `}
         >
-          <span className="truncate leading-tight">{displayValue || placeholder}</span>
+          <span
+            className={
+              variant === "report" ? "truncate" : "truncate leading-tight"
+            }
+          >
+            {displayValue || placeholder}
+          </span>
           <ChevronDown
             className={`w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform duration-200 flex-shrink-0 ${
               isOpen ? "rotate-180" : ""
