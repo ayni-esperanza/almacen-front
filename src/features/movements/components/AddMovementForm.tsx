@@ -42,6 +42,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
   }));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAutofilled, setIsAutofilled] = useState(false);
+  const [empresa, setEmpresa] = useState("");
   const [stockWarning, setStockWarning] = useState<{
     type: "sin-stock" | "stock-bajo" | null;
     message: string | null;
@@ -374,7 +375,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                   </label>
                 </div>
 
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-3 md:grid-cols-3">
                   <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Nombre *</span>
                     <input
@@ -398,6 +399,19 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                       className={exitInputClasses}
                       placeholder="Ingresa la cantidad"
                       min={1}
+                      required
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
+                    <span>Responsable *</span>
+                    <input
+                      type="text"
+                      name="responsable"
+                      value={formData.responsable}
+                      onChange={handleChange}
+                      className={exitInputClasses}
+                      placeholder="Nombre del responsable"
                       required
                     />
                   </label>
@@ -456,18 +470,16 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     />
                   </div>
 
-                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
-                    <span>Responsable *</span>
-                    <input
-                      type="text"
-                      name="responsable"
-                      value={formData.responsable}
-                      onChange={handleChange}
-                      className={exitInputClasses}
-                      placeholder="Nombre del responsable"
-                      required
+                  <div className="w-full">
+                    <SearchableSelect
+                      name="empresa"
+                      label="Empresa"
+                      value={empresa}
+                      onChange={setEmpresa}
+                      options={catalogs.empresas}
+                      placeholder="Selecciona una empresa"
                     />
-                  </label>
+                  </div>
                 </div>
               </>
             )}

@@ -67,11 +67,13 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
   const [formData, setFormData] = useState(initialState);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [empresa, setEmpresa] = useState("");
   const mountedRef = useRef(false);
 
   useEffect(() => {
     setFormData(initialState);
     setErrorMessage(null);
+    setEmpresa("");
   }, [initialState]);
 
   useEffect(() => {
@@ -200,7 +202,7 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
               </label>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-3">
               <label className={labelClasses}>
                 <span>Nombre *</span>
                 <input
@@ -225,6 +227,20 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
                   className={inputClasses}
                   placeholder="Ingresa la cantidad"
                   min={1}
+                  required
+                  disabled={submitting}
+                />
+              </label>
+
+              <label className={labelClasses}>
+                <span>Responsable *</span>
+                <input
+                  type="text"
+                  name="responsable"
+                  value={formData.responsable}
+                  onChange={handleChange}
+                  className={inputClasses}
+                  placeholder="Nombre del responsable"
                   required
                   disabled={submitting}
                 />
@@ -259,19 +275,17 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
                 />
               </div>
 
-              <label className={labelClasses}>
-                <span>Responsable *</span>
-                <input
-                  type="text"
-                  name="responsable"
-                  value={formData.responsable}
-                  onChange={handleChange}
-                  className={inputClasses}
-                  placeholder="Nombre del responsable"
-                  required
+              <div className="w-full">
+                <SearchableSelect
+                  name="empresa"
+                  label="Empresa"
+                  value={empresa}
+                  onChange={setEmpresa}
+                  options={catalogs.empresas}
+                  placeholder="Selecciona una empresa"
                   disabled={submitting}
                 />
-              </label>
+              </div>
             </div>
 
             {errorMessage && (
