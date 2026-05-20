@@ -150,7 +150,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl border border-transparent bg-white shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-950"
+        className="w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl bg-white shadow-2xl transition-colors dark:bg-slate-950"
       >
         <div className="px-4 py-2 text-white bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center justify-between">
