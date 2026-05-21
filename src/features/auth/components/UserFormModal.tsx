@@ -36,6 +36,7 @@ interface UserFormModalProps {
   onClose: () => void;
   onSubmit: (data: UserFormSubmitInput) => void | Promise<void>;
   onDelete?: () => void | Promise<void>;
+  onPermanentDelete?: () => void | Promise<void>;
 }
 
 const DEFAULT_ROLE = UserRole.ASISTENTE;
@@ -51,6 +52,7 @@ export const UserFormModal = ({
   onClose,
   onSubmit,
   onDelete,
+  onPermanentDelete,
 }: UserFormModalProps) => {
   // Bloquear scroll
   useModalScrollLock(isOpen);
@@ -74,6 +76,8 @@ export const UserFormModal = ({
   const [avatarData, setAvatarData] = useState<string | null>(null);
   const [confirmToggleOpen, setConfirmToggleOpen] = useState(false);
   const [isConfirmingToggle, setIsConfirmingToggle] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const emailInputRef = useRef<HTMLInputElement | null>(null);
   const inputClasses =
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-300 dark:focus:ring-blue-500/30";
@@ -180,6 +184,8 @@ export const UserFormModal = ({
   };
 
   const showDeleteAction = mode === "edit" && canDelete && onDelete;
+  const showPermanentDeleteAction =
+    mode === "edit" && canDelete && onPermanentDelete;
   const deleteButtonText = initialUser?.isActive
     ? "Desactivar Usuario"
     : "Activar Usuario";
@@ -391,20 +397,32 @@ export const UserFormModal = ({
                 showDeleteAction ? "sm:justify-between" : "sm:justify-end"
               }`}
             >
-              {showDeleteAction && (
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  className={`px-4 py-1.5 text-xs font-semibold transition-colors border rounded-full ${
-                    initialUser?.isActive
-                      ? "text-red-600 border-red-200 hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/10"
-                      : "text-green-600 border-green-200 hover:bg-green-50 dark:border-emerald-500/30 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
-                  }`}
-                  disabled={isSubmitting}
-                >
-                  {deleteButtonText}
-                </button>
-              )}
+              <div className="flex flex-wrap gap-2">
+                {showDeleteAction && (
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className={`px-4 py-1.5 text-xs font-semibold transition-colors border rounded-full ${
+                      initialUser?.isActive
+                        ? "text-red-600 border-red-200 hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/10"
+                        : "text-green-600 border-green-200 hover:bg-green-50 dark:border-emerald-500/30 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+                    }`}
+                    disabled={isSubmitting}
+                  >
+                    {deleteButtonText}
+                  </button>
+                )}
+                {showPermanentDeleteAction && (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDeleteOpen(true)}
+                    className="px-4 py-1.5 text-xs font-semibold text-red-600 transition-colors border border-red-200 rounded-full hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/10"
+                    disabled={isSubmitting}
+                  >
+                    Eliminar Usuario
+                  </button>
+                )}
+              </div>
               <div className="flex flex-col self-end gap-2 sm:flex-row sm:justify-end">
                 <button
                   type="button"
@@ -437,6 +455,25 @@ export const UserFormModal = ({
         onCancel={() => setConfirmToggleOpen(false)}
         isProcessing={isConfirmingToggle}
         destructive={isActiveUser}
+      />
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title="Eliminar usuario"
+        message="¿Eliminar definitivamente este usuario? Esta acción no se puede deshacer."
+        confirmLabel="Eliminar"
+        onConfirm={async () => {
+          if (!onPermanentDelete) return;
+          try {
+            setIsConfirmingDelete(true);
+            await onPermanentDelete();
+          } finally {
+            setIsConfirmingDelete(false);
+            setConfirmDeleteOpen(false);
+          }
+        }}
+        onCancel={() => setConfirmDeleteOpen(false)}
+        isProcessing={isConfirmingDelete}
+        destructive
       />
     </>
   );

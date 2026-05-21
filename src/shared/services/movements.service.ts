@@ -392,6 +392,154 @@ class MovementsService {
     return response.data?.nombre || null;
   }
 
+  async updateArea(
+    nombre: string,
+    nuevoNombre: string,
+  ): Promise<string | null> {
+    const response = await apiClient.patch<{ nombre: string }>(
+      `/movements/areas/${encodeURIComponent(nombre)}`,
+      { nombre: nuevoNombre },
+    );
+
+    if (response.error) {
+      console.error("Error updating area:", response.error);
+      return null;
+    }
+
+    return response.data?.nombre || null;
+  }
+
+  async deleteArea(nombre: string): Promise<boolean> {
+    const response = await apiClient.delete(
+      `/movements/areas/${encodeURIComponent(nombre)}`,
+    );
+
+    if (response.error) {
+      console.error("Error deleting area:", response.error);
+      return false;
+    }
+
+    return true;
+  }
+
+  // === EMPRESAS ===
+  async getEmpresas(search?: string): Promise<string[]> {
+    const endpoint = search
+      ? `/movements/empresas?search=${encodeURIComponent(search)}`
+      : "/movements/empresas";
+    const response = await apiClient.get<{ nombre: string }[]>(endpoint);
+
+    if (response.error) {
+      console.error("Error fetching empresas:", response.error);
+      return [];
+    }
+
+    return response.data?.map((empresa) => empresa.nombre) || [];
+  }
+
+  async createEmpresa(nombre: string): Promise<string | null> {
+    const response = await apiClient.post<{ nombre: string }>(
+      "/movements/empresas",
+      { nombre },
+    );
+
+    if (response.error) {
+      console.error("Error creating empresa:", response.error);
+      return null;
+    }
+
+    return response.data?.nombre || null;
+  }
+
+  async updateEmpresa(
+    nombre: string,
+    nuevoNombre: string,
+  ): Promise<string | null> {
+    const response = await apiClient.patch<{ nombre: string }>(
+      `/movements/empresas/${encodeURIComponent(nombre)}`,
+      { nombre: nuevoNombre },
+    );
+
+    if (response.error) {
+      console.error("Error updating empresa:", response.error);
+      return null;
+    }
+
+    return response.data?.nombre || null;
+  }
+
+  async deleteEmpresa(nombre: string): Promise<boolean> {
+    const response = await apiClient.delete(
+      `/movements/empresas/${encodeURIComponent(nombre)}`,
+    );
+
+    if (response.error) {
+      console.error("Error deleting empresa:", response.error);
+      return false;
+    }
+
+    return true;
+  }
+
+  // === PROYECTOS ===
+  async getProyectos(search?: string): Promise<string[]> {
+    const endpoint = search
+      ? `/movements/proyectos?search=${encodeURIComponent(search)}`
+      : "/movements/proyectos";
+    const response = await apiClient.get<{ nombre: string }[]>(endpoint);
+
+    if (response.error) {
+      console.error("Error fetching proyectos:", response.error);
+      return [];
+    }
+
+    return response.data?.map((proyecto) => proyecto.nombre) || [];
+  }
+
+  async createProyecto(nombre: string): Promise<string | null> {
+    const response = await apiClient.post<{ nombre: string }>(
+      "/movements/proyectos",
+      { nombre },
+    );
+
+    if (response.error) {
+      console.error("Error creating proyecto:", response.error);
+      return null;
+    }
+
+    return response.data?.nombre || null;
+  }
+
+  async updateProyecto(
+    nombre: string,
+    nuevoNombre: string,
+  ): Promise<string | null> {
+    const response = await apiClient.patch<{ nombre: string }>(
+      `/movements/proyectos/${encodeURIComponent(nombre)}`,
+      { nombre: nuevoNombre },
+    );
+
+    if (response.error) {
+      console.error("Error updating proyecto:", response.error);
+      return null;
+    }
+
+    return response.data?.nombre || null;
+  }
+
+  async deleteProyecto(nombre: string): Promise<boolean> {
+    const response = await apiClient.delete(
+      `/movements/proyectos/${encodeURIComponent(nombre)}`,
+    );
+
+    if (response.error) {
+      console.error("Error deleting proyecto:", response.error);
+      return false;
+    }
+
+    return true;
+  }
+
   async getEntryFilterOptions(area?: string): Promise<{
     areas: string[];
     responsables: string[];

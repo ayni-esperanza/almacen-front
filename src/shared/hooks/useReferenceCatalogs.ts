@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { movementsService } from "../services/movements.service";
 
 export type CatalogType = "areas" | "empresas" | "proyectos";
 
@@ -8,22 +9,8 @@ export interface ReferenceCatalogs {
   proyectos: string[];
 }
 
-const STORAGE_KEY = "ayni.referenceCatalogs.v1";
-
 const DEFAULT_CATALOGS: ReferenceCatalogs = {
-  areas: [
-    "Almacén",
-    "Contabilidad",
-    "Electricidad",
-    "Extrusora",
-    "Fibra",
-    "Líneas de vida",
-    "Mecánica",
-    "Metalmecánica",
-    "Oficina",
-    "Pozos",
-    "Torres de Enfriamiento",
-  ],
+  areas: [],
   empresas: [],
   proyectos: [],
 };
@@ -41,113 +28,128 @@ const sortUnique = (values: string[]) => {
   return Array.from(unique.values()).sort((a, b) => a.localeCompare(b));
 };
 
-const readCatalogs = (): ReferenceCatalogs => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_CATALOGS;
-    const parsed = JSON.parse(raw) as Partial<ReferenceCatalogs>;
-
-    return {
-      areas: sortUnique(parsed.areas ?? DEFAULT_CATALOGS.areas),
-      empresas: sortUnique(parsed.empresas ?? DEFAULT_CATALOGS.empresas),
-      proyectos: sortUnique(parsed.proyectos ?? DEFAULT_CATALOGS.proyectos),
-    };
-  } catch (error) {
-    console.error("Error reading reference catalogs:", error);
-    return DEFAULT_CATALOGS;
-  }
-};
-
-const writeCatalogs = (catalogs: ReferenceCatalogs) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(catalogs));
-};
-
 export const useReferenceCatalogs = () => {
-  const [catalogs, setCatalogs] = useState<ReferenceCatalogs>(readCatalogs);
+  const [catalogs, setCatalogs] = useState<ReferenceCatalogs>(
+    DEFAULT_CATALOGS,
+  );
+  const [isLoading, setIsLoading] = useState(false);
 
-  const persist = useCallback((updater: (prev: ReferenceCatalogs) => ReferenceCatalogs) => {
-    setCatalogs((prev) => {
-      const next = updater(prev);
-      writeCatalogs(next);
-      return next;
-    });
+  const loadCatalogs = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [areas, empresas, proyectos] = await Promise.all([
+        movementsService.getAreas(),
+        movementsService.getEmpresas(),
+        movementsService.getProyectos(),
+      ]);
+
+      setCatalogs({
+        areas: sortUnique(areas),
+        empresas: sortUnique(empresas),
+        proyectos: sortUnique(proyectos),
+      });
+    } catch (error) {
+      console.error("Error loading reference catalogs:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    loadCatalogs();
+  }, [loadCatalogs]);
+
   const addItem = useCallback(
-    (type: CatalogType, name: string) => {
+    async (type: CatalogType, name: string) => {
       const trimmed = name.trim();
       if (!trimmed) return false;
 
-      let added = false;
-      persist((prev) => {
-        const exists = prev[type].some((item) => normalize(item) === normalize(trimmed));
-        if (exists) return prev;
-        added = true;
-        return {
-          ...prev,
-          [type]: sortUnique([...prev[type], trimmed]),
-        };
-      });
-      return added;
+      const exists = catalogs[type].some(
+        (item) => normalize(item) === normalize(trimmed),
+      );
+      if (exists) return false;
+
+      let created: string | null = null;
+      if (type === "areas") created = await movementsService.createArea(trimmed);
+      if (type === "empresas") created = await movementsService.createEmpresa(trimmed);
+      if (type === "proyectos") created = await movementsService.createProyecto(trimmed);
+
+      if (!created) return false;
+
+      setCatalogs((prev) => ({
+        ...prev,
+        [type]: sortUnique([...prev[type], created]),
+      }));
+
+      return true;
     },
-    [persist],
+    [catalogs],
   );
 
   const updateItem = useCallback(
-    (type: CatalogType, previousName: string, nextName: string) => {
+    async (type: CatalogType, previousName: string, nextName: string) => {
       const prevTrimmed = previousName.trim();
       const nextTrimmed = nextName.trim();
       if (!prevTrimmed || !nextTrimmed) return false;
 
-      let updated = false;
-      persist((prev) => {
-        const itemExists = prev[type].some(
-          (item) => normalize(item) === normalize(prevTrimmed),
-        );
-        if (!itemExists) return prev;
+      const duplicate = catalogs[type].some(
+        (item) =>
+          normalize(item) === normalize(nextTrimmed) &&
+          normalize(item) !== normalize(prevTrimmed),
+      );
+      if (duplicate) return false;
 
-        const duplicate = prev[type].some(
-          (item) =>
-            normalize(item) === normalize(nextTrimmed) &&
-            normalize(item) !== normalize(prevTrimmed),
-        );
-        if (duplicate) return prev;
+      let updated: string | null = null;
+      if (type === "areas") {
+        updated = await movementsService.updateArea(prevTrimmed, nextTrimmed);
+      }
+      if (type === "empresas") {
+        updated = await movementsService.updateEmpresa(prevTrimmed, nextTrimmed);
+      }
+      if (type === "proyectos") {
+        updated = await movementsService.updateProyecto(prevTrimmed, nextTrimmed);
+      }
 
-        updated = true;
-        return {
-          ...prev,
-          [type]: sortUnique(
-            prev[type].map((item) =>
-              normalize(item) === normalize(prevTrimmed) ? nextTrimmed : item,
-            ),
+      if (!updated) return false;
+
+      setCatalogs((prev) => ({
+        ...prev,
+        [type]: sortUnique(
+          prev[type].map((item) =>
+            normalize(item) === normalize(prevTrimmed) ? updated : item,
           ),
-        };
-      });
-      return updated;
+        ),
+      }));
+
+      return true;
     },
-    [persist],
+    [catalogs],
   );
 
   const deleteItem = useCallback(
-    (type: CatalogType, name: string) => {
+    async (type: CatalogType, name: string) => {
       const trimmed = name.trim();
       if (!trimmed) return false;
 
       let deleted = false;
-      persist((prev) => {
-        const nextItems = prev[type].filter(
+      if (type === "areas") deleted = await movementsService.deleteArea(trimmed);
+      if (type === "empresas")
+        deleted = await movementsService.deleteEmpresa(trimmed);
+      if (type === "proyectos")
+        deleted = await movementsService.deleteProyecto(trimmed);
+
+      if (!deleted) return false;
+
+      setCatalogs((prev) => ({
+        ...prev,
+        [type]: prev[type].filter(
           (item) => normalize(item) !== normalize(trimmed),
-        );
-        if (nextItems.length === prev[type].length) return prev;
-        deleted = true;
-        return {
-          ...prev,
-          [type]: nextItems,
-        };
-      });
-      return deleted;
+        ),
+      }));
+
+      return true;
     },
-    [persist],
+    [],
   );
 
   const typeLabels = useMemo(
@@ -165,5 +167,7 @@ export const useReferenceCatalogs = () => {
     updateItem,
     deleteItem,
     typeLabels,
+    isLoading,
+    reload: loadCatalogs,
   };
 };

@@ -205,6 +205,35 @@ export const UsersPage = () => {
     }
   };
 
+  const handlePermanentDeleteSelectedUser = async () => {
+    if (!selectedUser) return;
+
+    if (currentUser && currentUser.id === selectedUser.id) {
+      setModalError("No puedes eliminar tu propia cuenta");
+      return;
+    }
+
+    try {
+      setModalError(null);
+      setModalSubmitting(true);
+      const deleted = await usersService.deleteUser(selectedUser.id);
+      if (!deleted) {
+        throw new Error("No se pudo eliminar el usuario");
+      }
+      setUsers((prevUsers) =>
+        prevUsers.filter((u) => u.id !== selectedUser.id),
+      );
+      closeModal();
+    } catch (err) {
+      setModalError(
+        err instanceof Error ? err.message : "No se pudo eliminar el usuario",
+      );
+    } finally {
+      setModalSubmitting(false);
+    }
+  };
+
+
   const handleToggleUserStatus = async (
     user: User,
     event: React.MouseEvent
@@ -405,6 +434,7 @@ export const UsersPage = () => {
           onClose={closeModal}
           onSubmit={handleSubmitModal}
           onDelete={handleDeleteSelectedUser}
+          onPermanentDelete={handlePermanentDeleteSelectedUser}
         />
       )}
     </>

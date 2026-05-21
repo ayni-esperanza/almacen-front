@@ -23,8 +23,6 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onCancel,
   destructive = true,
 }) => {
-  if (!isOpen) return null;
-
   const dialogRef = useRef<HTMLDivElement>(null);
 
   // Close on ESC
@@ -41,6 +39,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onCancel]);
+
+  if (!isOpen) return null;
 
   return (
     <div

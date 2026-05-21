@@ -104,12 +104,8 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({
               ? "rounded-full bg-green-100 text-green-800 dark:bg-emerald-500/15 dark:text-emerald-200"
               : "rounded-full bg-red-100 text-red-800 dark:bg-rose-500/15 dark:text-rose-200"
           } ${
-            canUpdateUsers
-              ? "cursor-pointer hover:opacity-75"
-              : "cursor-default"
-          } ${
-            togglingStatusId === user.id ? "opacity-50 cursor-wait" : ""
-          }`}
+            canUpdateUsers ? "cursor-pointer hover:opacity-75" : "cursor-default"
+          } ${togglingStatusId === user.id ? "opacity-50 cursor-wait" : ""}`}
           title={
             canUpdateUsers
               ? "Click para cambiar estado"

@@ -9,9 +9,13 @@ interface ReferenceCatalogManagerModalProps {
   isOpen: boolean;
   onClose: () => void;
   catalogs: ReferenceCatalogs;
-  onAddItem: (type: CatalogType, name: string) => boolean;
-  onUpdateItem: (type: CatalogType, previousName: string, nextName: string) => boolean;
-  onDeleteItem: (type: CatalogType, name: string) => boolean;
+  onAddItem: (type: CatalogType, name: string) => Promise<boolean>;
+  onUpdateItem: (
+    type: CatalogType,
+    previousName: string,
+    nextName: string,
+  ) => Promise<boolean>;
+  onDeleteItem: (type: CatalogType, name: string) => Promise<boolean>;
 }
 
 const TYPE_TABS: { type: CatalogType; label: string }[] = [
@@ -38,6 +42,7 @@ export const ReferenceCatalogManagerModal = ({
   const [editingValue, setEditingValue] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isWorking, setIsWorking] = useState(false);
 
   const currentItems = useMemo(() => catalogs[activeType] ?? [], [catalogs, activeType]);
 
@@ -45,14 +50,17 @@ export const ReferenceCatalogManagerModal = ({
 
   const resetError = () => setError(null);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     resetError();
-    const added = onAddItem(activeType, newItemValue);
+    setIsWorking(true);
+    const added = await onAddItem(activeType, newItemValue);
     if (!added) {
       setError("No se pudo agregar. Verifica que no exista ya el elemento.");
+      setIsWorking(false);
       return;
     }
     setNewItemValue("");
+    setIsWorking(false);
   };
 
   const handleStartEdit = (value: string) => {
@@ -61,26 +69,31 @@ export const ReferenceCatalogManagerModal = ({
     setEditingDraft(value);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingValue) return;
     resetError();
-    const updated = onUpdateItem(activeType, editingValue, editingDraft);
+    setIsWorking(true);
+    const updated = await onUpdateItem(activeType, editingValue, editingDraft);
     if (!updated) {
       setError("No se pudo editar. El nuevo nombre puede estar duplicado.");
+      setIsWorking(false);
       return;
     }
     setEditingValue(null);
     setEditingDraft("");
+    setIsWorking(false);
   };
 
-  const handleDelete = (value: string) => {
+  const handleDelete = async (value: string) => {
     resetError();
     const confirmed = window.confirm(`¿Eliminar \"${value}\"?`);
     if (!confirmed) return;
-    const deleted = onDeleteItem(activeType, value);
+    setIsWorking(true);
+    const deleted = await onDeleteItem(activeType, value);
     if (!deleted) {
       setError("No se pudo eliminar el elemento seleccionado.");
     }
+    setIsWorking(false);
   };
 
   return (
@@ -132,11 +145,13 @@ export const ReferenceCatalogManagerModal = ({
               onChange={(event) => setNewItemValue(event.target.value)}
               placeholder={`Agregar nueva opción en ${TYPE_TABS.find((t) => t.type === activeType)?.label ?? "catálogo"}`}
               className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+              disabled={isWorking}
             />
             <button
               type="button"
               onClick={handleAdd}
-              className="inline-flex items-center gap-1 rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+              className="inline-flex items-center gap-1 rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+              disabled={isWorking}
             >
               <Plus className="w-4 h-4" />
               Agregar
@@ -176,6 +191,7 @@ export const ReferenceCatalogManagerModal = ({
                             value={editingDraft}
                             onChange={(event) => setEditingDraft(event.target.value)}
                                 className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                            disabled={isWorking}
                           />
                         ) : (
                           item
@@ -191,14 +207,16 @@ export const ReferenceCatalogManagerModal = ({
                                   setEditingValue(null);
                                   setEditingDraft("");
                                 }}
-                                className="px-2 py-1 text-xs font-semibold text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                className="px-2 py-1 text-xs font-semibold text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                disabled={isWorking}
                               >
                                 Cancelar
                               </button>
                               <button
                                 type="button"
                                 onClick={handleSaveEdit}
-                                className="px-2 py-1 text-xs font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+                                className="px-2 py-1 text-xs font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+                                disabled={isWorking}
                               >
                                 Guardar
                               </button>
@@ -208,7 +226,8 @@ export const ReferenceCatalogManagerModal = ({
                               <button
                                 type="button"
                                 onClick={() => handleStartEdit(item)}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-green-700 border border-green-200 rounded-lg hover:bg-green-50 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-green-700 border border-green-200 rounded-lg hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+                                disabled={isWorking}
                               >
                                 <Pencil className="w-3.5 h-3.5" />
                                 Editar
@@ -216,7 +235,8 @@ export const ReferenceCatalogManagerModal = ({
                               <button
                                 type="button"
                                 onClick={() => handleDelete(item)}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-red-700 border border-red-200 rounded-lg hover:bg-red-50 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10"
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-red-700 border border-red-200 rounded-lg hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10"
+                                disabled={isWorking}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 Eliminar
