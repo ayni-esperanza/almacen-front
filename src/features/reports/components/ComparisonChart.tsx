@@ -136,8 +136,17 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
             ))}
           </div>
 
-          <div className="relative overflow-x-auto">
-            <div className="relative pl-16" style={{ height: chartHeight + 80, minWidth: Math.max(900, sortedMonths.length * 120) }}>
+          <div className="relative overflow-x-auto" data-pdf-fit>
+            <div
+              className="relative pl-16"
+              style={{
+                height: chartHeight + 80,
+                minWidth: Math.max(
+                  520,
+                  sortedMonths.length * (Math.max(48, data.length * 24) + 32)
+                ),
+              }}
+            >
               {/* Grid horizontal */}
               {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
                 <div
@@ -862,7 +871,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
   return (
     <div className={containerClasses}>
       {/* Header con controles */}
-      <div className="flex items-center gap-3 mb-6 flex-wrap">
+      <div className="flex items-center gap-3 mb-6 flex-wrap" data-pdf-ignore>
         <div className="flex-1 flex justify-center">
           {chartType === "bar" && (
             <div className="flex gap-2">
