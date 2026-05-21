@@ -202,7 +202,7 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
                 placeholder="Buscar por equipo, serie, responsable o área..."
                 value={searchTerm}
                 onChange={event => setSearchTerm(event.target.value)}
-                className="w-full py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400 dark:focus:ring-blue-500/30"
+                className="w-full py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg outline-none focus:outline-none focus:border-blue-500 text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400"
               />
             </div>
             <div className="flex flex-col items-start w-full gap-3 sm:flex-row sm:items-center sm:w-auto">

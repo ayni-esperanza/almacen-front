@@ -106,7 +106,7 @@ export const PurchaseOrderForm = ({
               required
               portalId="root"
               fixedHeight
-              className="w-full px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:placeholder-slate-500"
+                className="w-full px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 outline-none focus:border-orange-500 dark:focus:border-orange-400"
             />
           </div>
 

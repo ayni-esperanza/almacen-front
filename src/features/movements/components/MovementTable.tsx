@@ -437,10 +437,10 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                       placeholder="Buscar por código, descripción o responsable..."
                       value={searchTerm}
                       onChange={handleSearchChange}
-                      className={`w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                      className={`w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
                         isEntry 
-                          ? "focus:ring-green-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
-                          : "focus:ring-red-500 dark:focus:border-rose-400 dark:focus:ring-rose-500/30"
+                          ? "focus:border-green-500 dark:focus:border-emerald-400"
+                          : "focus:border-red-500 dark:focus:border-rose-400"
                       }`}
                     />
                   </div>
@@ -525,10 +525,10 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                             isClearable={false}
                             fixedHeight
                             portalId="root"
-                            className={`w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                            className={`w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
                               isEntry
-                                ? "focus:ring-green-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
-                                : "focus:ring-red-500 dark:focus:border-rose-400 dark:focus:ring-rose-500/30"
+                                ? "focus:border-green-500 dark:focus:border-emerald-400"
+                                : "focus:border-red-500 dark:focus:border-rose-400"
                             }`}
                           />
                         </div>
@@ -555,10 +555,10 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                             isClearable={false}
                             fixedHeight
                             portalId="root"
-                            className={`w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                            className={`w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
                               isEntry
-                                ? "focus:ring-green-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
-                                : "focus:ring-red-500 dark:focus:border-rose-400 dark:focus:ring-rose-500/30"
+                                ? "focus:border-green-500 dark:focus:border-emerald-400"
+                                : "focus:border-red-500 dark:focus:border-rose-400"
                             }`}
                           />
                         </div>
@@ -657,10 +657,10 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         isClearable={false}
                         fixedHeight
                         portalId="root"
-                        className={`w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                        className={`w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
                           isEntry
-                            ? "focus:ring-green-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
-                            : "focus:ring-red-500 dark:focus:border-rose-400 dark:focus:ring-rose-500/30"
+                            ? "focus:border-green-500 dark:focus:border-emerald-400"
+                            : "focus:border-red-500 dark:focus:border-rose-400"
                         }`}
                       />
                     </div>
@@ -687,10 +687,10 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         isClearable={false}
                         fixedHeight
                         portalId="root"
-                        className={`w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                        className={`w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
                           isEntry
-                            ? "focus:ring-green-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
-                            : "focus:ring-red-500 dark:focus:border-rose-400 dark:focus:ring-rose-500/30"
+                            ? "focus:border-green-500 dark:focus:border-emerald-400"
+                            : "focus:border-red-500 dark:focus:border-rose-400"
                         }`}
                       />
                     </div>

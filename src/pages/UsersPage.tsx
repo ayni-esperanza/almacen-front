@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Users, AlertCircle } from "lucide-react";
+import { Plus, Users, AlertCircle, Search } from "lucide-react";
 import { User, UserRole } from "../features/auth/types";
 import { usersService } from "../shared/services/users.service";
 import { ProtectedComponent } from "../shared/components/ProtectedComponent";
@@ -32,7 +32,7 @@ export const UsersPage = () => {
   const canDeleteUsers = checkPermission(Permission.USERS_DELETE);
   const [togglingStatusId, setTogglingStatusId] = useState<number | null>(null);
   const searchInputClasses =
-    "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400 dark:focus:ring-blue-500/40";
+    "w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400 dark:focus:ring-blue-500/40";
 
   const filteredUsers = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -304,6 +304,7 @@ export const UsersPage = () => {
         <div className="sticky top-[109px] z-20 p-4 border-b bg-gray-50 dark:border-slate-800 dark:bg-slate-900 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div className="relative flex-1 max-w-md">
+                <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
                 <input
                   type="text"
                   value={searchTerm}
