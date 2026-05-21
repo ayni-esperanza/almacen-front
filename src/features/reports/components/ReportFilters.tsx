@@ -1,6 +1,7 @@
 import React from "react";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import DatePicker from "react-datepicker";
+import { Calendar } from "lucide-react";
 import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
 import { ReportFilters as ReportFiltersType } from "../types";
@@ -28,6 +29,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
       "block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2";
     const inputClasses =
       "w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30 [color-scheme:light] dark:[color-scheme:dark] cursor-pointer";
+    const dateInputClasses = `${inputClasses} pl-10 relative z-0 border-gray-300 !focus:border-blue-500 !focus:ring-blue-100 !dark:focus:border-blue-400 !dark:focus:ring-blue-500/30`;
 
     const monthToDate = (value?: string) =>
       value ? parse(value, "yyyy-MM", new Date()) : null;
@@ -52,42 +54,6 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
               options={["Por Área", "Por Proyecto"]}
               placeholder="Por Área"
               variant="report"
-            />
-          </div>
-
-          {/* Fecha Inicio */}
-          <div>
-            <label className={labelClasses}>Fecha Inicio</label>
-            <DatePicker
-              selected={monthToDate(filters.fechaInicio)}
-              onChange={(date: Date | null) =>
-                handleChange("fechaInicio", date ? format(date, "yyyy-MM") : undefined)
-              }
-              dateFormat="MM/yyyy"
-              showMonthYearPicker
-              className={inputClasses}
-              wrapperClassName="w-full"
-              locale={es}
-              portalId="root"
-              placeholderText="Selecciona mes"
-            />
-          </div>
-
-          {/* Fecha Fin */}
-          <div>
-            <label className={labelClasses}>Fecha Fin</label>
-            <DatePicker
-              selected={monthToDate(filters.fechaFin)}
-              onChange={(date: Date | null) =>
-                handleChange("fechaFin", date ? format(date, "yyyy-MM") : undefined)
-              }
-              dateFormat="MM/yyyy"
-              showMonthYearPicker
-              className={inputClasses}
-              wrapperClassName="w-full"
-              locale={es}
-              portalId="root"
-              placeholderText="Selecciona mes"
             />
           </div>
 
@@ -130,6 +96,54 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
               />
             </div>
           )}
+
+          {/* Fecha Inicio */}
+          <div>
+            <label className={labelClasses}>Fecha Inicio</label>
+            <div className="relative">
+              <Calendar className="absolute w-4 h-4 text-green-500 pointer-events-none left-3 top-1/2 -translate-y-1/2 dark:text-emerald-400 z-10" />
+              <DatePicker
+                selected={monthToDate(filters.fechaInicio)}
+                onChange={(date: Date | null) =>
+                  handleChange(
+                    "fechaInicio",
+                    date ? format(date, "yyyy-MM") : undefined
+                  )
+                }
+                dateFormat="MM/yyyy"
+                showMonthYearPicker
+                className={dateInputClasses}
+                wrapperClassName="w-full"
+                locale={es}
+                portalId="root"
+                placeholderText="Selecciona mes"
+              />
+            </div>
+          </div>
+
+          {/* Fecha Fin */}
+          <div>
+            <label className={labelClasses}>Fecha Fin</label>
+            <div className="relative">
+              <Calendar className="absolute w-4 h-4 text-green-500 pointer-events-none left-3 top-1/2 -translate-y-1/2 dark:text-emerald-400 z-10" />
+              <DatePicker
+                selected={monthToDate(filters.fechaFin)}
+                onChange={(date: Date | null) =>
+                  handleChange(
+                    "fechaFin",
+                    date ? format(date, "yyyy-MM") : undefined
+                  )
+                }
+                dateFormat="MM/yyyy"
+                showMonthYearPicker
+                className={dateInputClasses}
+                wrapperClassName="w-full"
+                locale={es}
+                portalId="root"
+                placeholderText="Selecciona mes"
+              />
+            </div>
+          </div>
         </div>
       </div>
     );

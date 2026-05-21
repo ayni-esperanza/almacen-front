@@ -1,5 +1,8 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { Search, ChevronUp, ChevronDown, Info, LayoutGrid, Grid2X2 } from "lucide-react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { Search, ChevronUp, ChevronDown, Info, LayoutGrid, Grid2X2, Download } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { useComparisonReport } from "../hooks/useComparisonReport";
 import { useReports } from "../hooks/useReports";
 import { ComparisonSelector } from "./ComparisonSelector";
@@ -84,7 +87,7 @@ export const ComparisonReportPage: React.FC = () => {
   const [extraProjects, setExtraProjects] = useState<string[]>([]);
   const [projectsLoading, setProjectsLoading] = useState(false);
   const [barOrientation, setBarOrientation] = useState<"horizontal" | "vertical">(
-    "horizontal"
+    "vertical"
   );
   const [detailSelection, setDetailSelection] = useState<
     { comparisonId: string; rawMonth?: string } | null
@@ -100,6 +103,9 @@ export const ComparisonReportPage: React.FC = () => {
   const [chartLayout, setChartLayout] = useState<"stacked" | "side-by-side">("stacked");
   const [individualChartTypes, setIndividualChartTypes] = useState<Record<string, ComparisonChartType>>({});
   const [hasAttemptedProjectsFallback, setHasAttemptedProjectsFallback] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const chartsRef = useRef<HTMLDivElement | null>(null);
+  const tablesRef = useRef<HTMLDivElement | null>(null);
 
   // Cerrar popover de info al colapsar
   useEffect(() => {
@@ -587,6 +593,214 @@ export const ComparisonReportPage: React.FC = () => {
     </>
   );
 
+  const hasCharts = comparisons.length > 0 && !loading;
+  const hasTables =
+    (detailData && detailData.rows.length > 0) ||
+    (comparisonData.length > 0 && !loading);
+
+  const renderSectionToPdf = async (
+    pdf: jsPDF,
+    section: HTMLElement,
+    addNewPage: boolean
+  ) => {
+    const canvas = await html2canvas(section, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+      useCORS: true,
+      ignoreElements: (element) =>
+        element instanceof HTMLElement && element.hasAttribute("data-pdf-ignore"),
+      onclone: (clonedDoc) => {
+        clonedDoc
+          .querySelectorAll<HTMLElement>("[data-pdf-fit]")
+          .forEach((element) => {
+            element.style.overflow = "visible";
+            element.style.width = `${element.scrollWidth}px`;
+          });
+      },
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 8;
+    const targetWidth = pageWidth - margin * 2;
+    const scale = targetWidth / canvas.width;
+    const pageHeightPx = (pageHeight - margin * 2) / scale;
+    let renderedHeight = 0;
+
+    while (renderedHeight < canvas.height) {
+      const sliceHeight = Math.min(pageHeightPx, canvas.height - renderedHeight);
+      const pageCanvas = document.createElement("canvas");
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = sliceHeight;
+
+      const ctx = pageCanvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(
+          canvas,
+          0,
+          renderedHeight,
+          canvas.width,
+          sliceHeight,
+          0,
+          0,
+          canvas.width,
+          sliceHeight
+        );
+      }
+
+      const imgData = pageCanvas.toDataURL("image/png");
+      if (addNewPage || renderedHeight > 0) {
+        pdf.addPage();
+      }
+      const imgHeight = (pageCanvas.height * targetWidth) / pageCanvas.width;
+      pdf.addImage(imgData, "PNG", margin, margin, targetWidth, imgHeight);
+      renderedHeight += sliceHeight;
+    }
+  };
+
+  const handleExportPDF = async () => {
+    if (isExporting) return;
+    const sections: HTMLElement[] = [];
+    if (hasCharts && chartsRef.current) sections.push(chartsRef.current);
+    if (hasTables && tablesRef.current) sections.push(tablesRef.current);
+    if (sections.length === 0) return;
+
+    setIsExporting(true);
+    const root = document.documentElement;
+    const hadDarkMode = root.classList.contains("dark");
+    try {
+      if (hadDarkMode) {
+        root.classList.remove("dark");
+      }
+
+      const pdf = new jsPDF("p", "mm", "a4");
+      let hasContent = false;
+
+      if (hasCharts && chartsRef.current) {
+        await renderSectionToPdf(pdf, chartsRef.current, false);
+        hasContent = true;
+      }
+
+      if (hasTables) {
+        if (hasContent) {
+          pdf.addPage();
+        }
+
+        pdf.setFontSize(16);
+        pdf.setTextColor(16, 24, 40);
+        pdf.text("Comparacion de Gastos - Tablas", 14, 16);
+
+        let cursorY = 24;
+
+        if (detailData && detailData.rows.length > 0) {
+          const detailRows = detailData.rows.map((row) => [
+            row.mes,
+            new Intl.NumberFormat("es-PE", {
+              style: "currency",
+              currency: "PEN",
+            }).format(row.totalGasto),
+            row.cantidadMovimientos.toString(),
+            row.cantidadMovimientos > 0
+              ? new Intl.NumberFormat("es-PE", {
+                  style: "currency",
+                  currency: "PEN",
+                }).format(row.totalGasto / row.cantidadMovimientos)
+              : "S/. 0.00",
+          ]);
+
+          pdf.setFontSize(12);
+          pdf.text(`Detalle seleccionado: ${detailData.comparison.label}`, 14, cursorY);
+          cursorY += 6;
+
+          autoTable(pdf, {
+            head: [["Mes", "Total Gasto", "Movimientos", "Gasto Promedio"]],
+            body: detailRows,
+            startY: cursorY,
+            styles: { fontSize: 9 },
+            headStyles: { fillColor: [243, 244, 246] },
+          });
+
+          cursorY = (pdf as any).lastAutoTable.finalY + 8;
+        }
+
+        if (productDetail.items.length > 0) {
+          const filteredItems = productDetail.items.filter((item) => {
+            if (!searchTerm.trim()) return true;
+            const search = searchTerm.toLowerCase();
+            return (
+              item.codigoProducto?.toLowerCase().includes(search) ||
+              item.descripcion?.toLowerCase().includes(search)
+            );
+          });
+
+          if (filteredItems.length > 0) {
+            pdf.setFontSize(12);
+            pdf.text("Productos del mes seleccionado", 14, cursorY);
+            cursorY += 6;
+
+            autoTable(pdf, {
+              head: [["Codigo", "Descripcion", "Cantidad", "Costo total", "Responsable"]],
+              body: filteredItems.map((item) => [
+                item.codigoProducto || "-",
+                item.descripcion || "-",
+                item.cantidad?.toString() || "0",
+                new Intl.NumberFormat("es-PE", {
+                  style: "currency",
+                  currency: "PEN",
+                }).format(item.costoTotal || 0),
+                item.responsable || "-",
+              ]),
+              startY: cursorY,
+              styles: { fontSize: 9 },
+              headStyles: { fillColor: [243, 244, 246] },
+            });
+
+            cursorY = (pdf as any).lastAutoTable.finalY + 8;
+          }
+        }
+
+        if (comparisonData.length > 0 && !loading) {
+          pdf.setFontSize(12);
+          pdf.text("Resumen de Comparaciones", 14, cursorY);
+          cursorY += 6;
+
+          autoTable(pdf, {
+            head: [["Comparacion", "Total Gasto", "Movimientos", "Gasto Promedio"]],
+            body: comparisonData.map((item) => [
+              item.label,
+              new Intl.NumberFormat("es-PE", {
+                style: "currency",
+                currency: "PEN",
+              }).format(item.totalGasto),
+              item.cantidadMovimientos.toString(),
+              item.cantidadMovimientos > 0
+                ? new Intl.NumberFormat("es-PE", {
+                    style: "currency",
+                    currency: "PEN",
+                  }).format(item.totalGasto / item.cantidadMovimientos)
+                : "S/. 0.00",
+            ]),
+            startY: cursorY,
+            styles: { fontSize: 9 },
+            headStyles: { fillColor: [243, 244, 246] },
+          });
+        }
+
+        hasContent = true;
+      }
+
+      const today = new Date().toISOString().split("T")[0];
+      pdf.save(`comparacion-gastos-${today}.pdf`);
+    } catch (err) {
+      console.error("Error exporting comparison PDF", err);
+    } finally {
+      if (hadDarkMode) {
+        root.classList.add("dark");
+      }
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Selector de Comparaciones */}
@@ -615,10 +829,10 @@ export const ComparisonReportPage: React.FC = () => {
                 <div className="relative">
                   <button
                     onClick={() => setShowInfo(!showInfo)}
-                    className="rounded-full p-1 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition"
+                    className="p-1 text-blue-700 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200 transition"
                     title="Cómo usar"
                   >
-                    <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <Info className="h-4 w-4" />
                   </button>
                   {showInfo && (
                     <div className="absolute left-0 top-8 z-10 w-72 rounded-lg border border-blue-200 bg-white p-3 text-sm shadow-lg dark:border-slate-700 dark:bg-slate-900">
@@ -696,13 +910,21 @@ export const ComparisonReportPage: React.FC = () => {
                 )}
               </button>
             )}
+            <button
+              onClick={handleExportPDF}
+              disabled={isExporting || !hasCharts}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/20 dark:hover:bg-emerald-500/20 transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              <span>{isExporting ? "Generando..." : "Descargar PDF"}</span>
+            </button>
           </div>
         )}
       </div>
 
       {/* Contenido */}
-      {chartsSection}
-      {tablesSection}
+      <div ref={chartsRef}>{hasCharts ? chartsSection : null}</div>
+      <div ref={tablesRef}>{hasTables ? tablesSection : null}</div>
     </div>
   );
 };

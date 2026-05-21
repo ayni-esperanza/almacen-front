@@ -6,6 +6,7 @@ interface VideoTutorialProps {
   youtubeUrl: string;
   tooltip?: string;
   title?: string;
+  className?: string;
 }
 
 interface DragState {
@@ -75,6 +76,7 @@ export const VideoTutorial: React.FC<VideoTutorialProps> = ({
   youtubeUrl,
   tooltip = "Ver video tutorial",
   title = "Video Tutorial",
+  className,
 }) => {
   const videoId = useMemo(() => getVideoId(youtubeUrl), [youtubeUrl]);
 
@@ -95,7 +97,7 @@ export const VideoTutorial: React.FC<VideoTutorialProps> = ({
       type="button"
       onClick={openModal}
       title={tooltip}
-      className={`vt-btn ${videoId ? "" : "vt-btn--disabled"}`}
+      className={`vt-btn ${className ?? ""} ${videoId ? "" : "vt-btn--disabled"}`}
       aria-disabled={!videoId}
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

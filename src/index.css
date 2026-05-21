@@ -220,6 +220,22 @@ body.dark .loading-overlay {
 	transform: scale(1.1);
 }
 
+.vt-btn--header {
+	color: rgba(255, 255, 255, 0.95);
+	background: transparent;
+	box-shadow: none;
+}
+
+.vt-btn--header:hover {
+	background: transparent;
+	color: #ffffff;
+	box-shadow: none;
+}
+
+.vt-btn.vt-btn--header:hover {
+	background: transparent;
+}
+
 /* Compact popup for react-tailwindcss-datepicker */
 .datepicker-compact {
 	width: 260px;
@@ -250,6 +266,18 @@ body.dark .loading-overlay {
 .dark .vt-btn:hover {
 	background: rgba(96, 165, 250, 0.15);
 	color: #60a5fa;
+}
+
+.dark .vt-btn--header {
+	color: rgba(255, 255, 255, 0.95);
+	background: transparent;
+	box-shadow: none;
+}
+
+.dark .vt-btn--header:hover {
+	background: transparent;
+	color: #ffffff;
+	box-shadow: none;
 }
 
 .vt-overlay {

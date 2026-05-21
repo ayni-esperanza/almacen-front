@@ -307,18 +307,18 @@ export const PurchaseOrderDetail = ({
                     <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
                       Fecha *
                     </label>
-                    <DatePicker
-                      selected={formData.fecha ? parseISO(formData.fecha) : null}
-                      onChange={(date: Date | null) =>
-                        setFormData({ ...formData, fecha: date ? date.toISOString().split("T")[0] : "" })
-                      }
-                      dateFormat="dd/MM/yyyy"
-                      locale={es}
-                      placeholderText="dd/mm/aaaa"
-                      required
-                      portalId="root"
-                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
-                    />
+                      <DatePicker
+                        selected={formData.fecha ? parseISO(formData.fecha) : null}
+                        onChange={(date: Date | null) =>
+                          setFormData({ ...formData, fecha: date ? date.toISOString().split("T")[0] : "" })
+                        }
+                        dateFormat="dd/MM/yyyy"
+                        locale={es}
+                        placeholderText="dd/mm/aaaa"
+                        required
+                        portalId="root"
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded outline-none focus:outline-none focus:border-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
+                      />
                   </div>
                   <div className="relative">
                     <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">

@@ -40,7 +40,7 @@ const ProvidersPage = () => {
   }, [loading]);
 
   const searchInputClasses =
-    "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-purple-400 dark:focus:ring-purple-500/30";
+    "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:border-purple-500 text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-purple-400";
 
   // Usar useMemo para filtrar Y ORDENAR
   const filteredProviders = React.useMemo(() => {
