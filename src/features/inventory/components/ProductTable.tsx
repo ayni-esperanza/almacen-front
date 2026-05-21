@@ -135,7 +135,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           <Package className="w-6 h-6" />
           <h2 className="text-xl font-bold">Inventario de Productos</h2>
         </div>
-        <VideoTutorial youtubeUrl={videoUrl} />
+        <VideoTutorial youtubeUrl={videoUrl} className="vt-btn--header" />
       </div>
     </div>
   );

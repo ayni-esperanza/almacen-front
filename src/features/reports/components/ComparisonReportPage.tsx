@@ -615,10 +615,10 @@ export const ComparisonReportPage: React.FC = () => {
                 <div className="relative">
                   <button
                     onClick={() => setShowInfo(!showInfo)}
-                    className="rounded-full p-1 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition"
+                    className="p-1 text-blue-700 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200 transition"
                     title="Cómo usar"
                   >
-                    <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <Info className="h-4 w-4" />
                   </button>
                   {showInfo && (
                     <div className="absolute left-0 top-8 z-10 w-72 rounded-lg border border-blue-200 bg-white p-3 text-sm shadow-lg dark:border-slate-700 dark:bg-slate-900">
