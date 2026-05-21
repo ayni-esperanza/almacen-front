@@ -271,7 +271,11 @@ export const SearchableSelect = ({
             transition-all duration-200
             ${
               isOpen
-                ? "border-blue-500 ring-2 ring-blue-100 dark:ring-blue-500/30"
+                ? variant === "report"
+                  ? "border-green-500 ring-2 ring-green-100 dark:ring-green-500/30"
+                  : "border-blue-500 ring-2 ring-blue-100 dark:ring-blue-500/30"
+                : variant === "report"
+                ? "border-gray-300 dark:border-slate-700 hover:border-green-500 dark:hover:border-slate-600"
                 : "border-gray-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-slate-600"
             }
             ${
@@ -280,8 +284,12 @@ export const SearchableSelect = ({
                 : "text-gray-500 dark:text-slate-400"
             }
             flex items-center justify-between gap-2
-            focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-            dark:focus:border-blue-400 dark:focus:ring-blue-500/30
+            focus:outline-none
+            ${
+              variant === "report"
+                ? "focus:border-green-500 focus:ring-2 focus:ring-green-100 dark:focus:border-green-400 dark:focus:ring-green-500/30"
+                : "focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:border-blue-400 dark:focus:ring-blue-500/30"
+            }
             disabled:cursor-not-allowed disabled:opacity-60
             ${
               variant === "report"
