@@ -158,6 +158,7 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
               dateFormat="MM/yyyy"
               showMonthYearPicker
               className={inputClasses}
+              wrapperClassName="w-full"
               locale={es}
               portalId="root"
               placeholderText="Selecciona mes"
@@ -174,6 +175,7 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
               dateFormat="MM/yyyy"
               showMonthYearPicker
               className={inputClasses}
+              wrapperClassName="w-full"
               locale={es}
               portalId="root"
               placeholderText="Selecciona mes"
