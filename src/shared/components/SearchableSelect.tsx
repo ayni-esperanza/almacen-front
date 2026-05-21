@@ -10,6 +10,7 @@ interface SearchableSelectProps {
   label?: string;
   required?: boolean;
   name?: string;
+  disabled?: boolean;
   variant?: "compact" | "report";
   // Props para modo async
   fetchOptions?: (searchTerm: string) => Promise<string[]>;
@@ -24,6 +25,7 @@ export const SearchableSelect = ({
   label,
   required = false,
   name,
+  disabled = false,
   variant = "compact",
   fetchOptions,
   debounceMs = 500,
@@ -251,6 +253,7 @@ export const SearchableSelect = ({
           value={value}
           onChange={() => {}}
           required={required}
+          disabled={disabled}
           className="absolute opacity-0 pointer-events-none"
           tabIndex={-1}
         />
@@ -260,6 +263,7 @@ export const SearchableSelect = ({
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           onKeyDown={handleKeyDown}
+          disabled={disabled}
           className={`
             w-full text-left text-sm
             bg-white dark:bg-slate-900
@@ -278,6 +282,7 @@ export const SearchableSelect = ({
             flex items-center justify-between gap-2
             focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100
             dark:focus:border-blue-400 dark:focus:ring-blue-500/30
+            disabled:cursor-not-allowed disabled:opacity-60
             ${
               variant === "report"
                 ? "rounded-lg px-4 py-3 min-h-[44px]"

@@ -1,5 +1,8 @@
 import React from "react";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
+import DatePicker from "react-datepicker";
+import { format, parse } from "date-fns";
+import { es } from "date-fns/locale";
 import { ReportFilters as ReportFiltersType } from "../types";
 
 interface ReportFiltersProps {
@@ -26,6 +29,9 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
     const inputClasses =
       "w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30 [color-scheme:light] dark:[color-scheme:dark] cursor-pointer";
 
+    const monthToDate = (value?: string) =>
+      value ? parse(value, "yyyy-MM", new Date()) : null;
+
     return (
       <div className={containerClasses}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -37,7 +43,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
               value={
                 filters.tipoReporte === "area" ? "Por Área" : "Por Proyecto"
               }
-              onChange={(value) =>
+              onChange={(value: string) =>
                 handleChange(
                   "tipoReporte",
                   value === "Por Proyecto" ? "proyecto" : "area"
@@ -52,22 +58,34 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
           {/* Fecha Inicio */}
           <div>
             <label className={labelClasses}>Fecha Inicio</label>
-            <input
-              type="month"
-              value={filters.fechaInicio}
-              onChange={(e) => handleChange("fechaInicio", e.target.value)}
+            <DatePicker
+              selected={monthToDate(filters.fechaInicio)}
+              onChange={(date: Date | null) =>
+                handleChange("fechaInicio", date ? format(date, "yyyy-MM") : undefined)
+              }
+              dateFormat="MM/yyyy"
+              showMonthYearPicker
               className={inputClasses}
+              locale={es}
+              portalId="root"
+              placeholderText="Selecciona mes"
             />
           </div>
 
           {/* Fecha Fin */}
           <div>
             <label className={labelClasses}>Fecha Fin</label>
-            <input
-              type="month"
-              value={filters.fechaFin}
-              onChange={(e) => handleChange("fechaFin", e.target.value)}
+            <DatePicker
+              selected={monthToDate(filters.fechaFin)}
+              onChange={(date: Date | null) =>
+                handleChange("fechaFin", date ? format(date, "yyyy-MM") : undefined)
+              }
+              dateFormat="MM/yyyy"
+              showMonthYearPicker
               className={inputClasses}
+              locale={es}
+              portalId="root"
+              placeholderText="Selecciona mes"
             />
           </div>
 
@@ -78,7 +96,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
               <SearchableSelect
                 name="area"
                 value={filters.area || ""}
-                onChange={(value) =>
+                onChange={(value: string) =>
                   handleChange(
                     "area",
                     value === "Todas las áreas" ? undefined : value
@@ -98,7 +116,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
               <SearchableSelect
                 name="proyecto"
                 value={filters.proyecto || ""}
-                onChange={(value) =>
+                onChange={(value: string) =>
                   handleChange(
                     "proyecto",
                     value === "Todos los proyectos" ? undefined : value

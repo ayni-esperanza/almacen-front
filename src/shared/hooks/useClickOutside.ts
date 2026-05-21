@@ -20,6 +20,11 @@ export const useClickOutside = <T extends HTMLElement = HTMLElement>(
         return;
       }
 
+      // Ignorar clics dentro de componentes renderizados en portales como el calendario
+      if ((event.target as Element).closest('.react-datepicker-popper')) {
+        return;
+      }
+
       // Ejecutar el handler (cerrar modal)
       handler();
     };

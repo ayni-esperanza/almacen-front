@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import DatePicker from "react-datepicker";
+import { format, parse } from "date-fns";
+import { es } from "date-fns/locale";
 import { Plus, X, BarChart3, TrendingUp } from "lucide-react";
 import { ComparisonItem, ComparisonType, VisualizationType } from "../types";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
@@ -88,6 +91,14 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
   const buttonClasses =
     "flex items-center gap-2 rounded-lg bg-green-500 px-4 py-3 text-sm font-medium text-white transition hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-500 dark:disabled:hover:bg-green-600";
 
+  const monthToDate = (value: string) => parse(value, "yyyy-MM", new Date());
+  const handleMonthChange = (
+    setter: React.Dispatch<React.SetStateAction<string>>,
+    value: Date | null
+  ) => {
+    if (value) setter(format(value, "yyyy-MM"));
+  };
+
   return (
     <div className="space-y-4">
       {/* Formulario para agregar comparación */}
@@ -141,22 +152,32 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
           {/* Fecha Inicio */}
           <div className="w-full md:w-auto md:min-w-[220px]">
             <label className={labelClasses}>Fecha Inicio</label>
-            <input
-              type="month"
-              value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
+            <DatePicker
+              selected={monthToDate(fechaInicio)}
+              onChange={(date: Date | null) => handleMonthChange(setFechaInicio, date)}
+              dateFormat="MM/yyyy"
+              showMonthYearPicker
               className={inputClasses}
+              locale={es}
+              portalId="root"
+              placeholderText="Selecciona mes"
+              id="comparison-start-date"
             />
           </div>
 
           {/* Fecha Fin */}
           <div className="w-full md:w-auto md:min-w-[220px]">
             <label className={labelClasses}>Fecha Fin</label>
-            <input
-              type="month"
-              value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
+            <DatePicker
+              selected={monthToDate(fechaFin)}
+              onChange={(date: Date | null) => handleMonthChange(setFechaFin, date)}
+              dateFormat="MM/yyyy"
+              showMonthYearPicker
               className={inputClasses}
+              locale={es}
+              portalId="root"
+              placeholderText="Selecciona mes"
+              id="comparison-end-date"
             />
           </div>
 

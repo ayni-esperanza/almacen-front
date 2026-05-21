@@ -220,6 +220,20 @@ body.dark .loading-overlay {
 	transform: scale(1.1);
 }
 
+/* Compact popup for react-tailwindcss-datepicker */
+.datepicker-compact {
+	width: 260px;
+	max-width: 260px;
+	transform: scale(0.9);
+	transform-origin: top left;
+}
+
+.datepicker-compact .md\:w-\[296px\],
+.datepicker-compact .md\:min-w-\[296px\] {
+	width: 240px;
+	min-width: 240px;
+}
+
 .vt-btn:active {
 	transform: scale(0.95);
 }
@@ -604,4 +618,9 @@ body.dark .login-page {
 		opacity: 0;
 		transform: translateY(-10px) scale(0.98);
 	}
+}
+
+/* Fix React Datepicker z-index issue on modals */
+.react-datepicker-popper {
+	z-index: 9999 !important;
 }

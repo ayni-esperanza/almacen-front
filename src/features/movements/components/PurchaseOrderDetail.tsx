@@ -17,6 +17,9 @@ import {
   Product,
 } from "../../../shared/services/inventory.service.ts";
 import { purchaseOrdersPDFService } from "../services/purchase-orders-pdf.service.ts";
+import DatePicker from "react-datepicker";
+import { parseISO } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface PurchaseOrderDetailProps {
   order: PurchaseOrder;
@@ -304,13 +307,16 @@ export const PurchaseOrderDetail = ({
                     <label className="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
                       Fecha *
                     </label>
-                    <input
-                      type="date"
-                      value={formData.fecha}
-                      onChange={(e) =>
-                        setFormData({ ...formData, fecha: e.target.value })
+                    <DatePicker
+                      selected={formData.fecha ? parseISO(formData.fecha) : null}
+                      onChange={(date: Date | null) =>
+                        setFormData({ ...formData, fecha: date ? date.toISOString().split("T")[0] : "" })
                       }
+                      dateFormat="dd/MM/yyyy"
+                      locale={es}
+                      placeholderText="dd/mm/aaaa"
                       required
+                      portalId="root"
                       className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
                     />
                   </div>

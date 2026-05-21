@@ -17,6 +17,9 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import DatePicker from "react-datepicker";
+import { format, isAfter, isBefore, parse } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface PurchaseOrderTableProps {
   purchaseOrders: PurchaseOrder[];
@@ -161,6 +164,33 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
 }) => {
   const [showDateFilters, setShowDateFilters] = useState(false);
 
+  const parseFilterDate = (value: string) =>
+    parse(value, "yyyy-MM-dd", new Date());
+
+  const handleStartDateChange = (date: Date | null) => {
+    const nextStart = date ? format(date, "yyyy-MM-dd") : "";
+    onStartDateChange?.(nextStart);
+
+    if (date && endDate) {
+      const currentEnd = parseFilterDate(endDate);
+      if (isBefore(currentEnd, date)) {
+        onEndDateChange?.(nextStart);
+      }
+    }
+  };
+
+  const handleEndDateChange = (date: Date | null) => {
+    const nextEnd = date ? format(date, "yyyy-MM-dd") : "";
+    onEndDateChange?.(nextEnd);
+
+    if (date && startDate) {
+      const currentStart = parseFilterDate(startDate);
+      if (isAfter(currentStart, date)) {
+        onStartDateChange?.(nextEnd);
+      }
+    }
+  };
+
   const orderSortColumns = useMemo<
     Record<SortKey, SortColumnConfig<PurchaseOrder>>
   >(
@@ -281,25 +311,22 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                         <label className="text-sm font-medium text-gray-700 dark:text-slate-300 flex-shrink-0">
                           Desde:
                         </label>
-                        <div className="relative w-[135px]">
+                        <div className="relative w-[130px]">
                           <Calendar
-                            className="absolute w-4 h-4 text-orange-500 transition-colors transform -translate-y-1/2 cursor-pointer left-2 top-1/2 dark:text-orange-400 hover:text-orange-600 dark:hover:text-orange-300"
-                            onClick={() => {
-                              const input = document.getElementById(
-                                "purchaseStartDateInput",
-                              ) as HTMLInputElement;
-                              input?.showPicker?.();
-                            }}
+                            className="absolute z-10 w-4 h-4 text-orange-500 transition-colors transform -translate-y-1/2 pointer-events-none left-2 top-1/2 dark:text-orange-400"
                           />
-                          <input
+                          <DatePicker
                             id="purchaseStartDateInput"
-                            type="date"
-                            value={startDate}
-                            onChange={(e) =>
-                              onStartDateChange?.(e.target.value)
-                            }
+                            selected={startDate ? parseFilterDate(startDate) : null}
+                            onChange={handleStartDateChange}
+                            dateFormat="dd/MM/yyyy"
+                            locale={es}
+                            placeholderText="dd/mm/aaaa"
                             aria-label="Fecha de inicio del filtro"
-                            className="w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400 dark:focus:ring-orange-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                            maxDate={endDate ? parseFilterDate(endDate) : undefined}
+                            fixedHeight
+                            portalId="root"
+                            className="w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400 dark:focus:ring-orange-500/30"
                           />
                         </div>
                       </div>
@@ -308,23 +335,22 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                         <label className="text-sm font-medium text-gray-700 dark:text-slate-300 flex-shrink-0">
                           Hasta:
                         </label>
-                        <div className="relative w-[135px]">
+                        <div className="relative w-[130px]">
                           <Calendar
-                            className="absolute w-4 h-4 text-orange-500 transition-colors transform -translate-y-1/2 cursor-pointer left-2 top-1/2 dark:text-orange-400 hover:text-orange-600 dark:hover:text-orange-300"
-                            onClick={() => {
-                              const input = document.getElementById(
-                                "purchaseEndDateInput",
-                              ) as HTMLInputElement;
-                              input?.showPicker?.();
-                            }}
+                            className="absolute z-10 w-4 h-4 text-orange-500 transition-colors transform -translate-y-1/2 pointer-events-none left-2 top-1/2 dark:text-orange-400"
                           />
-                          <input
+                          <DatePicker
                             id="purchaseEndDateInput"
-                            type="date"
-                            value={endDate}
-                            onChange={(e) => onEndDateChange?.(e.target.value)}
+                            selected={endDate ? parseFilterDate(endDate) : null}
+                            onChange={handleEndDateChange}
+                            dateFormat="dd/MM/yyyy"
+                            locale={es}
+                            placeholderText="dd/mm/aaaa"
                             aria-label="Fecha de fin del filtro"
-                            className="w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400 dark:focus:ring-orange-500/30 [&::-webkit-calendar-picker-indicator]:hidden"
+                            minDate={startDate ? parseFilterDate(startDate) : undefined}
+                            fixedHeight
+                            portalId="root"
+                            className="w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400 dark:focus:ring-orange-500/30"
                           />
                         </div>
                       </div>

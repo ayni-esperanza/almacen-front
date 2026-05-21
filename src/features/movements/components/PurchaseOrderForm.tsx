@@ -5,6 +5,9 @@ import {
   UpdatePurchaseOrderData,
 } from "../services/purchase-orders.service.ts";
 import { PurchaseOrder } from "../types/purchases.ts";
+import DatePicker from "react-datepicker";
+import { parseISO } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface PurchaseOrderFormProps {
   order?: PurchaseOrder;
@@ -92,11 +95,16 @@ export const PurchaseOrderForm = ({
               Fecha{" "}
               <span className="text-orange-500 dark:text-orange-400">*</span>
             </label>
-            <input
-              type="date"
-              value={fecha}
-              onChange={(e) => setFecha(e.target.value)}
+            <DatePicker
+              selected={fecha ? parseISO(fecha) : null}
+              onChange={(date: Date | null) =>
+                setFecha(date ? date.toISOString().split("T")[0] : "")
+              }
+              dateFormat="dd/MM/yyyy"
+              locale={es}
+              placeholderText="dd/mm/aaaa"
               required
+              portalId="root"
               className="w-full px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:placeholder-slate-500"
             />
           </div>

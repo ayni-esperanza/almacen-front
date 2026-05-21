@@ -8,6 +8,9 @@ import {
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
+import DatePicker from "react-datepicker";
+import { parseISO } from "date-fns";
+import { es } from "date-fns/locale";
 
 const AREAS_MOVIMIENTOS = [
   "Almacén",
@@ -346,14 +349,21 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
             <div className="grid gap-3 md:grid-cols-3">
               <label className={labelClasses}>
                 <span>Fecha de Salida *</span>
-                <input
-                  type="date"
-                  name="fechaSalida"
-                  value={formData.fechaSalida}
-                  onChange={handleChange}
+                <DatePicker
+                  selected={formData.fechaSalida ? parseISO(formData.fechaSalida) : null}
+                  onChange={(date: Date | null) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      fechaSalida: date ? date.toISOString().split("T")[0] : "",
+                    }))
+                  }
+                  dateFormat="dd/MM/yyyy"
+                  locale={es}
+                  placeholderText="dd/mm/aaaa"
                   className={inputClasses}
                   required
                   disabled={submitting}
+                  portalId="root"
                 />
               </label>
 
@@ -394,22 +404,20 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
               <div className="grid gap-3 md:grid-cols-2">
                 <label className={labelClasses}>
                   <span>Fecha de Retorno</span>
-                  <input
-                    type="date"
-                    name="fechaRetorno"
-                    value={formData.fechaRetorno}
-                    onChange={handleChange}
-                    onFocus={(e) => {
-                      if (!e.target.value) {
-                        const today = new Date().toISOString().split("T")[0];
-                        setFormData((prev) => ({
-                          ...prev,
-                          fechaRetorno: today,
-                        }));
-                      }
-                    }}
+                  <DatePicker
+                    selected={formData.fechaRetorno ? parseISO(formData.fechaRetorno) : null}
+                    onChange={(date: Date | null) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        fechaRetorno: date ? date.toISOString().split("T")[0] : "",
+                      }))
+                    }
+                    dateFormat="dd/MM/yyyy"
+                    locale={es}
+                    placeholderText="dd/mm/aaaa"
                     className={inputClasses}
                     disabled={submitting}
+                    portalId="root"
                   />
                 </label>
 

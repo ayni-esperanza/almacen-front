@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { X, Check, Loader2, AlertCircle } from "lucide-react";
+import DatePicker from "react-datepicker";
+import { format, parseISO } from "date-fns";
+import { es } from "date-fns/locale";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
@@ -193,7 +196,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="w-full max-w-3xl max-h-[95vh] overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-950 dark:border dark:border-slate-800 flex flex-col"
+        className="w-full max-w-3xl max-h-[95vh] overflow-visible rounded-3xl bg-white shadow-2xl dark:bg-slate-950 dark:border dark:border-slate-800 flex flex-col"
       >
         <div
           className={`flex items-center justify-between rounded-t-3xl bg-gradient-to-r ${gradientColor} px-4 py-2 text-white flex-shrink-0`}
@@ -210,7 +213,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-visible">
           <form onSubmit={handleSubmit} className="px-4 pt-4 pb-4 space-y-2">
             {isEntry ? (
               <>
@@ -268,12 +271,22 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                 <div className="grid gap-3 md:grid-cols-2">
                   <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span>Fecha *</span>
-                    <input
-                      type="date"
-                      name="fecha"
-                      value={formData.fecha}
-                      onChange={handleChange}
+                    <DatePicker
+                      id="add-movement-date-entry"
+                      selected={formData.fecha ? parseISO(formData.fecha) : null}
+                      onChange={(date: Date | null) =>
+                        handleChange({
+                          target: {
+                            name: "fecha",
+                            value: date ? format(date, "yyyy-MM-dd") : "",
+                          },
+                        } as any)
+                      }
                       className={entryInputClasses}
+                      dateFormat="dd/MM/yyyy"
+                      locale={es}
+                      portalId="root"
+                      fixedHeight
                       required
                     />
                   </label>
@@ -328,12 +341,22 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                 <div className="grid gap-3 md:grid-cols-2">
                   <label className="flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                     <span className="flex items-center gap-2">Fecha *</span>
-                    <input
-                      type="date"
-                      name="fecha"
-                      value={formData.fecha}
-                      onChange={handleChange}
+                    <DatePicker
+                      id="add-movement-date-exit"
+                      selected={formData.fecha ? parseISO(formData.fecha) : null}
+                      onChange={(date) =>
+                        handleChange({
+                          target: {
+                            name: "fecha",
+                            value: date ? format(date, "yyyy-MM-dd") : "",
+                          },
+                        } as any)
+                      }
                       className={exitInputClasses}
+                      dateFormat="dd/MM/yyyy"
+                      locale={es}
+                      portalId="root"
+                      fixedHeight
                       required
                     />
                   </label>

@@ -4,6 +4,9 @@ import React, {
   useRef,
   useState,
 } from "react";
+import DatePicker from "react-datepicker";
+import { format, parseISO } from "date-fns";
+import { es } from "date-fns/locale";
 import { X } from "lucide-react";
 import { MovementExit } from "../types/index.ts";
 import { UpdateExitData } from "../../../shared/services/movements.service.ts";
@@ -157,7 +160,7 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="flex flex-col w-full max-w-3xl overflow-hidden transition-colors bg-white shadow-2xl max-h-95vh rounded-3xl dark:bg-slate-950"
+        className="flex flex-col w-full max-w-3xl overflow-visible transition-colors bg-white shadow-2xl max-h-95vh rounded-3xl dark:bg-slate-950"
       >
         <div className="flex items-center justify-between flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-red-500 to-red-600">
           <h2 className="text-base font-semibold">Editar Salida de Producto</h2>
@@ -171,7 +174,7 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-visible">
           <form
             onSubmit={handleSubmit}
             className="px-4 pt-4 pb-4 space-y-2 transition-colors bg-white dark:bg-slate-950"
@@ -179,14 +182,24 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
             <div className="grid gap-3 md:grid-cols-2">
               <label className={labelClasses}>
                 <span className="flex items-center gap-2">Fecha *</span>
-                <input
-                  type="date"
-                  name="fecha"
-                  value={formData.fecha}
-                  onChange={handleChange}
+                <DatePicker
+                  id="edit-exit-movement-date"
+                  selected={formData.fecha ? parseISO(formData.fecha) : null}
+                  onChange={(date: Date | null) =>
+                    handleChange({
+                      target: {
+                        name: "fecha",
+                        value: date ? format(date, "yyyy-MM-dd") : "",
+                      },
+                    } as any)
+                  }
                   className={inputClasses}
-                  required
+                  dateFormat="dd/MM/yyyy"
+                  locale={es}
                   disabled={submitting}
+                  portalId="root"
+                  fixedHeight
+                  required
                 />
               </label>
 
