@@ -12,7 +12,7 @@ RUN npm ci
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-ENV VITE_API_URL="https://linea.aynisac.com/api"
+ENV VITE_API_URL="https://linea.aynisac.com/apitest"
 ENV VITE_APP_NAME="AYNI Almacén"
 ENV VITE_APP_ENV="production"
 

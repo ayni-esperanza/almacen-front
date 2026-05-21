@@ -72,7 +72,7 @@ const router = createBrowserRouter(
     },
   ],
   {
-    basename: "/almacen", // Base path para subdirectorio
+    basename: "/almacentest", // Base path para subdirectorio
   }
 );
 
