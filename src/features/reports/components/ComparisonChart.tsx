@@ -20,7 +20,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
   onChartTypeChange,
   loading = false,
   onSelectItem,
-  barOrientation = "horizontal",
+  barOrientation = "vertical",
   onBarOrientationChange,
 }) => {
   const [hoveredPoint, setHoveredPoint] = useState<{ comparisonId: string; monthIndex: number } | null>(null);

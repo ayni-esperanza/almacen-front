@@ -84,7 +84,7 @@ export const ComparisonReportPage: React.FC = () => {
   const [extraProjects, setExtraProjects] = useState<string[]>([]);
   const [projectsLoading, setProjectsLoading] = useState(false);
   const [barOrientation, setBarOrientation] = useState<"horizontal" | "vertical">(
-    "horizontal"
+    "vertical"
   );
   const [detailSelection, setDetailSelection] = useState<
     { comparisonId: string; rawMonth?: string } | null

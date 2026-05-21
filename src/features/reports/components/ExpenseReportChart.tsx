@@ -32,7 +32,7 @@ const CHART_COLORS = [
 
 // Optimización: Memoizar componente
 export const ExpenseReportChart: React.FC<ExpenseReportChartProps> = React.memo(
-  ({ data, title, loading = false, chartType = "bar", onChartTypeChange, barOrientation = "horizontal", onBarOrientationChange }) => {
+  ({ data, title, loading = false, chartType = "bar", onChartTypeChange, barOrientation = "vertical", onBarOrientationChange }) => {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     const handleChartTypeChange = (type: ChartType) => {
