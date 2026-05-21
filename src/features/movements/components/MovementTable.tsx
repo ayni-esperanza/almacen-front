@@ -437,7 +437,11 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                       placeholder="Buscar por código, descripción o responsable..."
                       value={searchTerm}
                       onChange={handleSearchChange}
-                      className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                      className={`w-full py-2 pl-10 pr-4 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                        isEntry 
+                          ? "focus:ring-green-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                          : "focus:ring-red-500 dark:focus:border-rose-400 dark:focus:ring-rose-500/30"
+                      }`}
                     />
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
@@ -458,7 +462,13 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                       }}
                       aria-pressed={showDateFilters}
                       aria-label="Mostrar u ocultar filtros de fecha"
-                      className="p-2 text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 h-[38px]"
+                      className={`p-2 transition-all duration-200 border rounded-lg h-[38px] ${
+                        showDateFilters
+                          ? isEntry
+                            ? "bg-green-500 text-white border-green-500 hover:bg-green-600 shadow-md shadow-green-500/20"
+                            : "bg-red-500 text-white border-red-500 hover:bg-red-600 shadow-md shadow-red-500/20"
+                          : "text-gray-600 border-gray-300 hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
+                      }`}
                     >
                       <Calendar className="w-4 h-4" />
                     </button>
@@ -472,7 +482,9 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                       title="Filtros avanzados"
                       className={`relative p-2 transition-all duration-200 border rounded-lg h-[38px] ${
                         showAdvancedFilters || activeFilterCount > 0
-                          ? "bg-green-500 text-white border-green-500 hover:bg-green-600 shadow-md shadow-green-500/20"
+                          ? isEntry
+                            ? "bg-green-500 text-white border-green-500 hover:bg-green-600 shadow-md shadow-green-500/20"
+                            : "bg-red-500 text-white border-red-500 hover:bg-red-600 shadow-md shadow-red-500/20"
                           : "text-gray-600 border-gray-300 hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
                       }`}
                     >
@@ -513,7 +525,11 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                             isClearable={false}
                             fixedHeight
                             portalId="root"
-                            className="w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                            className={`w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                              isEntry
+                                ? "focus:ring-green-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                                : "focus:ring-red-500 dark:focus:border-rose-400 dark:focus:ring-rose-500/30"
+                            }`}
                           />
                         </div>
                       </div>
@@ -539,7 +555,11 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                             isClearable={false}
                             fixedHeight
                             portalId="root"
-                            className="w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                            className={`w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                              isEntry
+                                ? "focus:ring-green-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                                : "focus:ring-red-500 dark:focus:border-rose-400 dark:focus:ring-rose-500/30"
+                            }`}
                           />
                         </div>
                       </div>
@@ -637,7 +657,11 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         isClearable={false}
                         fixedHeight
                         portalId="root"
-                        className="w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                        className={`w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                          isEntry
+                            ? "focus:ring-green-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                            : "focus:ring-red-500 dark:focus:border-rose-400 dark:focus:ring-rose-500/30"
+                        }`}
                       />
                     </div>
                   </div>
@@ -663,7 +687,11 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         isClearable={false}
                         fixedHeight
                         portalId="root"
-                        className="w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                        className={`w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                          isEntry
+                            ? "focus:ring-green-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30"
+                            : "focus:ring-red-500 dark:focus:border-rose-400 dark:focus:ring-rose-500/30"
+                        }`}
                       />
                     </div>
                   </div>
@@ -774,12 +802,20 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                 {activeFilterTags.map((tag) => (
                   <span
                     key={tag.key}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-full dark:text-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-800 transition-all"
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium border rounded-full transition-all ${
+                      isEntry
+                        ? "text-green-700 bg-green-50 border-green-200 dark:text-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-800"
+                        : "text-red-700 bg-red-50 border-red-200 dark:text-rose-300 dark:bg-rose-900/20 dark:border-rose-800"
+                    }`}
                   >
                     {tag.label}
                     <button
                       onClick={tag.onClear}
-                      className="ml-0.5 text-green-500 hover:text-green-700 dark:text-emerald-400 dark:hover:text-emerald-200 transition-colors"
+                      className={
+                        isEntry
+                          ? "ml-0.5 text-green-500 hover:text-green-700 dark:text-emerald-400 dark:hover:text-emerald-200 transition-colors"
+                          : "ml-0.5 text-red-500 hover:text-red-700 dark:text-rose-400 dark:hover:text-rose-200 transition-colors"
+                      }
                       aria-label={`Quitar filtro ${tag.label}`}
                     >
                       <X className="w-3 h-3" />

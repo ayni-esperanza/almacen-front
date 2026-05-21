@@ -344,7 +344,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     <DatePicker
                       id="add-movement-date-exit"
                       selected={formData.fecha ? parseISO(formData.fecha) : null}
-                      onChange={(date) =>
+                      onChange={(date: Date | null) =>
                         handleChange({
                           target: {
                             name: "fecha",

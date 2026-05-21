@@ -290,9 +290,9 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                     onClick={() => setShowDateFilters((prev) => !prev)}
                     aria-pressed={showDateFilters}
                     aria-label="Mostrar u ocultar filtros de fecha"
-                    className={`p-2 transition-colors border rounded-lg h-[38px] ${
-                      startDate || endDate
-                        ? "text-white bg-orange-500 border-orange-500 hover:bg-orange-600"
+                    className={`p-2 transition-all duration-200 border rounded-lg h-[38px] ${
+                      showDateFilters
+                        ? "bg-orange-500 text-white border-orange-500 hover:bg-orange-600 shadow-md shadow-orange-500/20"
                         : "text-gray-600 border-gray-300 hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
                     }`}
                   >
