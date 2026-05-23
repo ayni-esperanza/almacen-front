@@ -13,9 +13,10 @@ interface EquipmentTableProps {
   refetch?: () => Promise<void>;
   onReturn?: (id: number, returnData: ReturnEquipmentData) => Promise<EquipmentReport | null>;
   onEdit?: (equipment: EquipmentReport) => void;
-  onAddEquipment?: () => void;
+  onAddEquipment?: (area?: string) => void;
   showAllToggle?: React.ReactNode;
   headerTitle?: string;
+  initialViewMode?: 'table' | 'grid';
 }
 
 const STATUS_PRESETS: Record<string, { label: string; badgeClass: string; dotClass: string }> = {
@@ -129,9 +130,10 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
   onAddEquipment,
   showAllToggle,
   headerTitle = 'Trazabilidad de Salidas de Herramientas, Equipos y EPP',
+  initialViewMode = 'table',
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
-  const [viewMode, setViewMode] = React.useState<'table' | 'grid'>('table');
+  const [viewMode, setViewMode] = React.useState<'table' | 'grid'>(initialViewMode);
   const [selectedArea, setSelectedArea] = React.useState<string | null>(null);
   
   const filteredEquipments = equipments.filter(equipment => {
@@ -235,7 +237,7 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
               {showAllToggle}
               {onAddEquipment && (
                 <button
-                  onClick={onAddEquipment}
+                  onClick={() => onAddEquipment()}
                   className="flex items-center justify-center w-full px-3 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-lg shadow-md sm:w-auto sm:px-6 hover:bg-blue-600 whitespace-nowrap"
                 >
                   <Plus className="w-4 h-4" />
@@ -261,7 +263,7 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
                 <div className="flex items-center gap-2">
                   {onAddEquipment && (
                     <button
-                      onClick={onAddEquipment}
+                      onClick={() => onAddEquipment(selectedArea ?? undefined)}
                       className="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
                     >
                       Agregar en esta área

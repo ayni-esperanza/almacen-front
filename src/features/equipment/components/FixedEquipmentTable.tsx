@@ -3,7 +3,7 @@ import { EquipmentTable } from './EquipmentTable';
 import { EquipmentReport } from '../types';
 
 interface FixedEquipmentTableProps {
-  onAddEquipment?: () => void;
+  onAddEquipment?: (area?: string) => void;
   equipments: EquipmentReport[];
 }
 
@@ -23,6 +23,7 @@ export const FixedEquipmentTable: React.FC<FixedEquipmentTableProps> = ({ onAddE
     <EquipmentTable
       equipments={filteredEquipments}
       headerTitle="Trazabilidad Fija de Herramientas, Equipos y EPP"
+      initialViewMode="grid"
       onAddEquipment={onAddEquipment}
       showAllToggle={
         <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">

@@ -37,6 +37,7 @@ interface AddEquipmentFormProps {
   onSubmit: (data: CreateEquipmentData) => void;
   onCancel: () => void;
   tipoRegistro: "continua" | "fija";
+  initialArea?: string;
 }
 
 type EstadoEquipo = CreateEquipmentData["estadoEquipo"];
@@ -46,6 +47,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
   onSubmit,
   onCancel,
   tipoRegistro,
+  initialArea,
 }) => {
   // Cerrar modal con tecla ESC
   useEscapeKey(onCancel);
@@ -75,6 +77,17 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
   const [showProductList, setShowProductList] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [hasSelectedProduct, setHasSelectedProduct] = useState(false);
+
+  useEffect(() => {
+    if (!initialArea) {
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      areaProyecto: prev.areaProyecto || initialArea,
+    }));
+  }, [initialArea]);
 
   // Buscar productos en inventario cuando se escribe el codigo
   useEffect(() => {

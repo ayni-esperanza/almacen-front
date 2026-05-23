@@ -13,6 +13,7 @@ export const EquipmentPage = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<EquipmentReport | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [addFormArea, setAddFormArea] = useState<string>('');
   const equipmentData = useEquipment();
 
   // Filtrar equipos según el estado del toggle
@@ -33,9 +34,15 @@ export const EquipmentPage = () => {
     try {
       await equipmentData.createEquipmentReport(data);
       setShowAddForm(false);
+      setAddFormArea('');
     } catch (error) {
       console.error('Error adding equipment:', error);
     }
+  };
+
+  const handleOpenAddForm = (area?: string) => {
+    setAddFormArea(area ?? '');
+    setShowAddForm(true);
   };
 
   const handleOpenEdit = (equipment: EquipmentReport) => {
@@ -126,7 +133,7 @@ export const EquipmentPage = () => {
             refetch={equipmentData.refetch}
             onReturn={equipmentData.returnEquipment}
             onEdit={handleOpenEdit}
-            onAddEquipment={() => setShowAddForm(true)}
+            onAddEquipment={handleOpenAddForm}
             showAllToggle={
               <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -160,7 +167,7 @@ export const EquipmentPage = () => {
         <div key="fija" className="fade-section">
           <FixedEquipmentTable
             equipments={fixedEquipment}
-            onAddEquipment={() => setShowAddForm(true)}
+            onAddEquipment={handleOpenAddForm}
           />
         </div>
       )}
@@ -168,8 +175,12 @@ export const EquipmentPage = () => {
       {showAddForm && (
         <AddEquipmentForm
           onSubmit={handleAddEquipment}
-          onCancel={() => setShowAddForm(false)}
+          onCancel={() => {
+            setShowAddForm(false);
+            setAddFormArea('');
+          }}
           tipoRegistro={activeSubTab}
+          initialArea={addFormArea}
         />
       )}
 
