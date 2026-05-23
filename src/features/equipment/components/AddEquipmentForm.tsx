@@ -8,7 +8,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { CreateEquipmentData } from "../../../shared/services/equipment.service";
-import { useProductAutocomplete } from "../../../shared/hooks/useProductAutocomplete";
+import {
+  inventoryService,
+  Product,
+} from "../../../shared/services/inventory.service";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
@@ -66,29 +69,74 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
     responsableRetorno: "",
   });
   const [isAutofilled, setIsAutofilled] = useState(false);
+  const [searchingProduct, setSearchingProduct] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [inventoryProducts, setInventoryProducts] = useState<Product[]>([]);
+  const [showProductList, setShowProductList] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [hasSelectedProduct, setHasSelectedProduct] = useState(false);
 
-  // Hook de autocompletado de productos
-  const {
-    product,
-    isLoading,
-    error: autocompleteError,
-    searchProduct,
-    reset,
-  } = useProductAutocomplete({
-    debounceMs: 400,
-    minChars: 2,
-  });
-
-  // Efecto para autocompletar cuando se encuentre un producto
+  // Buscar productos en inventario cuando se escribe el codigo
   useEffect(() => {
-    if (product && formData.serieCodigo === product.codigo) {
-      setFormData((prev) => ({
-        ...prev,
-        equipo: product.nombre,
-      }));
-      setIsAutofilled(true);
+    const searchTerm = formData.serieCodigo.trim();
+    if (searchTerm.length < 2) {
+      setInventoryProducts([]);
+      setShowProductList(false);
+      setSearchError(null);
+      setSearchingProduct(false);
+      setSelectedProduct(null);
+      setIsAutofilled(false);
+      return;
     }
-  }, [product, formData.serieCodigo]);
+
+    const debounceTimer = setTimeout(async () => {
+      try {
+        setSearchingProduct(true);
+        const result = await inventoryService.getAllProducts(
+          searchTerm,
+          undefined,
+          1,
+          10
+        );
+        setInventoryProducts(result.data);
+
+        const normalizedTerm = searchTerm.toLowerCase();
+        const exactMatch = result.data.find(
+          (item) => item.codigo.toLowerCase() === normalizedTerm
+        );
+
+        if (exactMatch) {
+          setSelectedProduct(exactMatch);
+          setHasSelectedProduct(true);
+          setIsAutofilled(true);
+          setFormData((prev) => ({
+            ...prev,
+            equipo: exactMatch.nombre,
+          }));
+          setShowProductList(false);
+          setSearchError(null);
+        } else {
+          setSelectedProduct(null);
+          setIsAutofilled(false);
+          setShowProductList(!hasSelectedProduct && result.data.length > 0);
+          setSearchError(
+            result.data.length === 0 ? "Producto no encontrado" : null
+          );
+        }
+      } catch (error) {
+        console.error("Error searching products:", error);
+        setSearchError("Error al buscar el producto");
+        setInventoryProducts([]);
+        setShowProductList(false);
+        setSelectedProduct(null);
+        setIsAutofilled(false);
+      } finally {
+        setSearchingProduct(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [formData.serieCodigo, hasSelectedProduct]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,6 +186,10 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
     let processedValue = value;
     if (name === "serieCodigo") {
       processedValue = value.toUpperCase().slice(0, 6);
+      setSelectedProduct(null);
+      setIsAutofilled(false);
+      setHasSelectedProduct(false);
+      setSearchError(null);
     }
 
     setFormData((prev) => ({
@@ -145,15 +197,22 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
       [name]: processedValue,
     }));
 
-    // Si cambia el código del producto, buscar autocompletado
     if (name === "serieCodigo") {
-      setIsAutofilled(false);
-      if (value.length >= 2) {
-        searchProduct(value);
-      } else {
-        reset();
-      }
+      setShowProductList(false);
     }
+  };
+
+  const handleSelectProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setHasSelectedProduct(true);
+    setIsAutofilled(true);
+    setSearchError(null);
+    setShowProductList(false);
+    setFormData((prev) => ({
+      ...prev,
+      serieCodigo: product.codigo,
+      equipo: product.nombre,
+    }));
   };
 
   const labelClasses =
@@ -207,24 +266,51 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
                   />
                   {/* Indicador de estado */}
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                    {isLoading && (
+                    {searchingProduct && (
                       <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
                     )}
-                    {!isLoading && isAutofilled && (
+                    {!searchingProduct && isAutofilled && (
                       <Check className="w-4 h-4 text-blue-500" />
                     )}
-                    {!isLoading &&
-                      autocompleteError &&
+                    {!searchingProduct &&
+                      searchError &&
                       formData.serieCodigo.length >= 2 && (
                         <AlertCircle className="w-4 h-4 text-amber-500" />
                       )}
                   </div>
+                  {searchingProduct && (
+                    <div className="absolute left-0 top-full z-20 w-full mt-1 text-xs text-center bg-white border border-gray-300 rounded-md shadow-lg dark:bg-slate-800 dark:border-slate-700">
+                      <div className="px-3 py-2 text-gray-500 dark:text-slate-300">
+                        Buscando...
+                      </div>
+                    </div>
+                  )}
+                  {showProductList && inventoryProducts.length > 0 && (
+                    <div className="absolute left-0 top-full z-20 w-full mt-1 overflow-y-auto bg-white border border-gray-300 rounded-md shadow-lg max-h-48 dark:bg-slate-800 dark:border-slate-700">
+                      {inventoryProducts.map((product) => (
+                        <button
+                          key={product.id}
+                          type="button"
+                          onClick={() => handleSelectProduct(product)}
+                          className="flex flex-col w-full px-3 py-2 text-xs text-left hover:bg-gray-100 dark:hover:bg-slate-700"
+                        >
+                          <span className="font-medium text-gray-900 dark:text-slate-100">
+                            {product.codigo} - {product.nombre}
+                          </span>
+                          <span className="text-gray-600 dark:text-slate-400">
+                            Stock: {product.stockActual} | Costo: S/{" "}
+                            {product.costoUnitario.toFixed(2)}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                {!isLoading &&
-                  autocompleteError &&
+                {!searchingProduct &&
+                  searchError &&
                   formData.serieCodigo.length >= 2 && (
                     <span className="text-xs text-amber-600 dark:text-amber-400">
-                      {autocompleteError}
+                      {searchError}
                     </span>
                   )}
               </label>
