@@ -182,6 +182,8 @@ export const MovementsPage = () => {
         activeFilters.push(`Área: ${movementsData.filterArea}`);
       if (movementsData.filterProyecto && activeSubTab === "salidas")
         activeFilters.push(`Proyecto: ${movementsData.filterProyecto}`);
+      if (movementsData.filterEmpresa && activeSubTab === "salidas")
+        activeFilters.push(`Empresa: ${movementsData.filterEmpresa}`);
       if (movementsData.filterResponsable && activeSubTab === "salidas")
         activeFilters.push(`Responsable: ${movementsData.filterResponsable}`);
       if (movementsData.startDate)
@@ -235,6 +237,7 @@ export const MovementsPage = () => {
           movementsData.searchTermExits || undefined,
           movementsData.filterArea || undefined,
           movementsData.filterProyecto || undefined,
+          movementsData.filterEmpresa || undefined,
           movementsData.filterResponsable || undefined,
         );
         dataToExport = response.data;
@@ -391,6 +394,8 @@ export const MovementsPage = () => {
             setFilterArea={movementsData.setFilterArea}
             filterProyecto={movementsData.filterProyecto}
             setFilterProyecto={movementsData.setFilterProyecto}
+            filterEmpresa={movementsData.filterEmpresa}
+            setFilterEmpresa={movementsData.setFilterEmpresa}
             filterResponsable={movementsData.filterResponsable}
             setFilterResponsable={movementsData.setFilterResponsable}
             deleteMovement={deleteMovement}
@@ -425,6 +430,8 @@ export const MovementsPage = () => {
             setFilterArea={movementsData.setFilterArea}
             filterProyecto={movementsData.filterProyecto}
             setFilterProyecto={movementsData.setFilterProyecto}
+            filterEmpresa={movementsData.filterEmpresa}
+            setFilterEmpresa={movementsData.setFilterEmpresa}
             filterResponsable={movementsData.filterResponsable}
             setFilterResponsable={movementsData.setFilterResponsable}
             deleteMovement={deleteMovement}

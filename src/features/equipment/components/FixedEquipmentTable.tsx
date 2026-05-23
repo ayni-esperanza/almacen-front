@@ -2,26 +2,22 @@ import { useMemo, useState } from 'react';
 import { EquipmentTable } from './EquipmentTable';
 import { EquipmentReport } from '../types';
 
-interface FixedEquipmentRow extends EquipmentReport {
-  tipoRegistro: 'fija';
-}
-
 interface FixedEquipmentTableProps {
   onAddEquipment?: () => void;
+  equipments: EquipmentReport[];
 }
 
-const localFixedEquipments: FixedEquipmentRow[] = [];
-
-export const FixedEquipmentTable: React.FC<FixedEquipmentTableProps> = ({ onAddEquipment }) => {
+export const FixedEquipmentTable: React.FC<FixedEquipmentTableProps> = ({ onAddEquipment, equipments }) => {
   const [showAll, setShowAll] = useState(false);
 
   const filteredEquipments = useMemo(() => {
+    const fixedEquipments = equipments;
     if (showAll) {
-      return localFixedEquipments;
+      return fixedEquipments;
     }
 
-    return localFixedEquipments.filter(eq => !eq.fechaRetorno);
-  }, [showAll]);
+    return fixedEquipments.filter(eq => !eq.fechaRetorno);
+  }, [equipments, showAll]);
 
   return (
     <EquipmentTable

@@ -150,6 +150,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
 
     onSubmit({
       ...formData,
+      empresa: empresa || undefined,
       precioUnitario: Number.isFinite(parsedPrice) ? parsedPrice : 0,
       cantidad: parsedQuantity || 1,
       id: Date.now().toString(),

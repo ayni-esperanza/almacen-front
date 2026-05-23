@@ -34,6 +34,8 @@ export interface UseMovementsReturn {
   setFilterArea: (area: string) => void;
   filterProyecto: string;
   setFilterProyecto: (proyecto: string) => void;
+  filterEmpresa: string;
+  setFilterEmpresa: (empresa: string) => void;
   filterResponsable: string;
   setFilterResponsable: (responsable: string) => void;
   refetchEntries: (options?: RefetchOptions) => Promise<void>;
@@ -84,6 +86,7 @@ export const useMovements = (): UseMovementsReturn => {
   // Filter states
   const [filterArea, setFilterArea] = useState("");
   const [filterProyecto, setFilterProyecto] = useState("");
+  const [filterEmpresa, setFilterEmpresa] = useState("");
   const [filterResponsable, setFilterResponsable] = useState("");
 
   // Pagination states for entries
@@ -153,6 +156,7 @@ export const useMovements = (): UseMovementsReturn => {
         searchTermExitsRef.current || undefined,
         filterArea || undefined,
         filterProyecto || undefined,
+        filterEmpresa || undefined,
         filterResponsable || undefined,
       );
       setExits(response.data);
@@ -169,6 +173,7 @@ export const useMovements = (): UseMovementsReturn => {
     filterEPP,
     filterArea,
     filterProyecto,
+    filterEmpresa,
     filterResponsable,
   ]);
 
@@ -487,6 +492,8 @@ export const useMovements = (): UseMovementsReturn => {
     setFilterArea,
     filterProyecto,
     setFilterProyecto,
+    filterEmpresa,
+    setFilterEmpresa,
     filterResponsable,
     setFilterResponsable,
     refetchEntries,

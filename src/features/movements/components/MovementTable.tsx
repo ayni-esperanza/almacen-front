@@ -52,6 +52,8 @@ interface MovementTableProps {
   setFilterArea: (area: string) => void;
   filterProyecto: string;
   setFilterProyecto: (proyecto: string) => void;
+  filterEmpresa: string;
+  setFilterEmpresa: (empresa: string) => void;
   filterResponsable: string;
   setFilterResponsable: (responsable: string) => void;
   // Server-side pagination
@@ -192,6 +194,9 @@ const MovementRow: React.FC<MovementRowProps> = ({
             {"proyecto" in movement ? movement.proyecto || "-" : "-"}
           </td>
           <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
+            {"empresa" in movement ? movement.empresa || "-" : "-"}
+          </td>
+          <td className="px-3 py-2 text-xs text-gray-600 select-text dark:text-slate-400">
             {movement.responsable || "-"}
           </td>
           <td className="px-3 py-2 text-xs font-medium text-gray-900 select-text dark:text-slate-100">
@@ -225,6 +230,8 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   setFilterArea,
   filterProyecto,
   setFilterProyecto,
+  filterEmpresa,
+  setFilterEmpresa,
   filterResponsable,
   setFilterResponsable,
   // Server-side pagination props
@@ -243,13 +250,14 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   const [filterOptions, setFilterOptions] = useState<{
     areas: string[];
     proyectos: string[];
+    empresas: string[];
     responsables: string[];
-  }>({ areas: [], proyectos: [], responsables: [] });
+  }>({ areas: [], proyectos: [], empresas: [], responsables: [] });
   const filterPanelRef = useRef<HTMLDivElement>(null);
 
   // Limpia las opciones cuando cambia el tipo (entrada/salida)
   useEffect(() => {
-    setFilterOptions({ areas: [], proyectos: [], responsables: [] });
+    setFilterOptions({ areas: [], proyectos: [], empresas: [], responsables: [] });
   }, [type]);
 
   useEffect(() => {
@@ -267,6 +275,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
             setFilterOptions({
               areas: opts.areas,
               proyectos: [],
+              empresas: [],
               responsables: opts.responsables,
             });
           }
@@ -274,6 +283,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
           const opts = await movementsService.getExitFilterOptions(
             filterArea || undefined,
             filterProyecto || undefined,
+            filterEmpresa || undefined,
           );
           if (!cancelled) {
             setFilterOptions(opts);
@@ -290,13 +300,13 @@ export const MovementTable: React.FC<MovementTableProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [showAdvancedFilters, type, filterArea, filterProyecto]);
+  }, [showAdvancedFilters, type, filterArea, filterProyecto, filterEmpresa]);
 
   // Count active advanced filters
   const activeFilterCount = useMemo(() => {
-    return [filterArea, filterProyecto, filterResponsable].filter(Boolean)
+    return [filterArea, filterProyecto, filterEmpresa, filterResponsable].filter(Boolean)
       .length;
-  }, [filterArea, filterProyecto, filterResponsable]);
+  }, [filterArea, filterProyecto, filterEmpresa, filterResponsable]);
 
   // Build active filter tags for display
   const activeFilterTags = useMemo(() => {
@@ -312,6 +322,12 @@ export const MovementTable: React.FC<MovementTableProps> = ({
         label: `Proyecto: ${filterProyecto}`,
         key: "proyecto",
         onClear: () => setFilterProyecto(""),
+      });
+    if (filterEmpresa)
+      tags.push({
+        label: `Empresa: ${filterEmpresa}`,
+        key: "empresa",
+        onClear: () => setFilterEmpresa(""),
       });
     if (filterResponsable)
       tags.push({
@@ -739,6 +755,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                           onChange={(val) => {
                             setFilterArea(val);
                             setFilterProyecto("");
+                            setFilterEmpresa("");
                             setFilterResponsable("");
                           }}
                           options={filterOptions.areas}
@@ -764,6 +781,21 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                       {!isEntry && (
                         <div className="min-w-[180px]">
                           <SearchableSelect
+                            label="EMPRESA"
+                            value={filterEmpresa}
+                            onChange={(val) => {
+                              setFilterEmpresa(val);
+                              setFilterResponsable("");
+                            }}
+                            options={filterOptions.empresas}
+                            placeholder="Todas las empresas"
+                          />
+                        </div>
+                      )}
+
+                      {!isEntry && (
+                        <div className="min-w-[180px]">
+                          <SearchableSelect
                             label="RESPONSABLE"
                             value={filterResponsable}
                             onChange={setFilterResponsable}
@@ -778,6 +810,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                           onClick={() => {
                             setFilterArea("");
                             setFilterProyecto("");
+                            setFilterEmpresa("");
                             setFilterResponsable("");
                           }}
                           className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 transition-all border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/20 dark:hover:border-red-700"
@@ -826,6 +859,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                   onClick={() => {
                     setFilterArea("");
                     setFilterProyecto("");
+                    setFilterEmpresa("");
                     setFilterResponsable("");
                   }}
                   className="text-xs text-red-500 transition-colors hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
@@ -922,6 +956,9 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         </th>
                         <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                           Proyecto
+                        </th>
+                        <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
+                          Empresa
                         </th>
                         <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 dark:bg-slate-900 dark:text-slate-300">
                           Responsable

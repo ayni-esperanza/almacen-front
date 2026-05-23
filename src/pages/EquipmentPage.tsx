@@ -17,12 +17,17 @@ export const EquipmentPage = () => {
 
   // Filtrar equipos según el estado del toggle
   const filteredEquipment = useMemo(() => {
+    const continuaEquipment = equipmentData.equipment.filter(eq => eq.tipo === 'continua');
     if (showAll) {
-      return equipmentData.equipment;
+      return continuaEquipment;
     }
     // Mostrar solo equipos sin retorno (fechaRetorno es null o undefined)
-    return equipmentData.equipment.filter(eq => !eq.fechaRetorno);
+    return continuaEquipment.filter(eq => !eq.fechaRetorno);
   }, [equipmentData.equipment, showAll]);
+
+  const fixedEquipment = useMemo(() => {
+    return equipmentData.equipment.filter(eq => eq.tipo === 'fija');
+  }, [equipmentData.equipment]);
 
   const handleAddEquipment = async (data: CreateEquipmentData) => {
     try {
@@ -153,7 +158,10 @@ export const EquipmentPage = () => {
         </div>
       ) : (
         <div key="fija" className="fade-section">
-          <FixedEquipmentTable onAddEquipment={() => setShowAddForm(true)} />
+          <FixedEquipmentTable
+            equipments={fixedEquipment}
+            onAddEquipment={() => setShowAddForm(true)}
+          />
         </div>
       )}
 
@@ -161,6 +169,7 @@ export const EquipmentPage = () => {
         <AddEquipmentForm
           onSubmit={handleAddEquipment}
           onCancel={() => setShowAddForm(false)}
+          tipoRegistro={activeSubTab}
         />
       )}
 

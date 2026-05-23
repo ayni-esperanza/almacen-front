@@ -7,6 +7,7 @@ export interface CreateEquipmentData {
   cantidad: number;
   estadoEquipo: "Bueno" | "Regular" | "Malo" | "En_Reparacion" | "Danado";
   responsable: string;
+  tipo: "continua" | "fija";
   fechaSalida: string;
   horaSalida: string;
   areaProyecto: string;

@@ -33,6 +33,7 @@ const AREAS_MOVIMIENTOS = [
 interface AddEquipmentFormProps {
   onSubmit: (data: CreateEquipmentData) => void;
   onCancel: () => void;
+  tipoRegistro: "continua" | "fija";
 }
 
 type EstadoEquipo = CreateEquipmentData["estadoEquipo"];
@@ -41,6 +42,7 @@ type EstadoRetorno = "" | "Bueno" | "Regular" | "Malo" | "Danado";
 export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
   onSubmit,
   onCancel,
+  tipoRegistro,
 }) => {
   // Cerrar modal con tecla ESC
   useEscapeKey(onCancel);
@@ -107,6 +109,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
       cantidad: parseInt(formData.cantidad, 10) || 1,
       estadoEquipo: formData.estadoEquipo,
       responsable: formData.responsable,
+      tipo: tipoRegistro,
       fechaSalida: formData.fechaSalida,
       horaSalida: formData.horaSalida,
       areaProyecto: formData.areaProyecto,

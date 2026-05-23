@@ -21,6 +21,7 @@ export interface MovementExit {
   cantidad: number;
   responsable?: string;
   area?: string;
+  empresa?: string;
   proyecto?: string;
   categoria?: string;
   createdAt: Date;

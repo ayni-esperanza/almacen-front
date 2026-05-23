@@ -22,6 +22,7 @@ export interface CreateExitData {
   cantidad: number;
   responsable?: string;
   area?: string;
+  empresa?: string;
   proyecto?: string;
 }
 
@@ -45,6 +46,7 @@ export interface UpdateExitData {
   cantidad?: number;
   responsable?: string | null;
   area?: string | null;
+  empresa?: string | null;
   proyecto?: string | null;
 }
 
@@ -200,6 +202,7 @@ class MovementsService {
     search?: string,
     area?: string,
     proyecto?: string,
+    empresa?: string,
     responsable?: string,
   ): Promise<{
     data: MovementExit[];
@@ -217,6 +220,7 @@ class MovementsService {
     if (search) params.append("q", search);
     if (area) params.append("area", area);
     if (proyecto) params.append("proyecto", proyecto);
+    if (empresa) params.append("empresa", empresa);
     if (responsable) params.append("responsable", responsable);
     params.append("page", page.toString());
     params.append("limit", limit.toString());
@@ -264,6 +268,7 @@ class MovementsService {
           : exitData.cantidad,
       responsable: exitData.responsable?.trim() || undefined,
       area: exitData.area?.trim() || undefined,
+      empresa: exitData.empresa?.trim() || undefined,
       proyecto: exitData.proyecto?.trim() || undefined,
     };
 
@@ -323,6 +328,11 @@ class MovementsService {
     if (exitData.area !== undefined) {
       const trimmed = exitData.area?.trim() ?? "";
       payload.area = trimmed === "" ? null : trimmed;
+    }
+
+    if (exitData.empresa !== undefined) {
+      const trimmed = exitData.empresa?.trim() ?? "";
+      payload.empresa = trimmed === "" ? null : trimmed;
     }
 
     if (exitData.proyecto !== undefined) {
@@ -563,27 +573,33 @@ class MovementsService {
   async getExitFilterOptions(
     area?: string,
     proyecto?: string,
+    empresa?: string,
   ): Promise<{
     areas: string[];
     proyectos: string[];
+    empresas: string[];
     responsables: string[];
   }> {
     const params = new URLSearchParams();
     if (area) params.set("area", area);
     if (proyecto) params.set("proyecto", proyecto);
+    if (empresa) params.set("empresa", empresa);
     const query = params.toString() ? `?${params.toString()}` : "";
     const response = await apiClient.get<{
       areas: string[];
       proyectos: string[];
+      empresas: string[];
       responsables: string[];
     }>(`/movements/exits/filter-options${query}`);
 
     if (response.error) {
       console.error("Error fetching exit filter options:", response.error);
-      return { areas: [], proyectos: [], responsables: [] };
+      return { areas: [], proyectos: [], empresas: [], responsables: [] };
     }
 
-    return response.data || { areas: [], proyectos: [], responsables: [] };
+    return (
+      response.data || { areas: [], proyectos: [], empresas: [], responsables: [] }
+    );
   }
 }
 
