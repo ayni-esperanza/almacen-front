@@ -60,16 +60,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       const data = await providersService.getAllProviders();
       setProviders(data);
     };
-    const loadUbicacionesYCategorias = async () => {
-      const [ubics, cats] = await Promise.all([
-        inventoryService.getAreas(),
-        inventoryService.getCategorias(),
-      ]);
-      setUbicaciones(ubics);
-      setCategoriasData(cats);
-    };
     loadProviders();
-    loadUbicacionesYCategorias();
   }, []);
 
   // Función para buscar ubicaciones desde la API

@@ -45,6 +45,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
     responsable: "",
     area: "",
     proyecto: "",
+    empresa: "",
   }));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAutofilled, setIsAutofilled] = useState(false);
@@ -191,7 +192,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
 
     onSubmit({
       ...formData,
-      empresa: empresa || undefined,
+      empresa: formData.empresa || undefined,
       precioUnitario: Number.isFinite(parsedPrice) ? parsedPrice : 0,
       cantidad: parsedQuantity || 1,
       id: Date.now().toString(),
@@ -609,8 +610,10 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                     <SearchableSelect
                       name="empresa"
                       label="Empresa"
-                      value={empresa}
-                      onChange={setEmpresa}
+                      value={formData.empresa}
+                      onChange={(value) =>
+                        setFormData({ ...formData, empresa: value })
+                      }
                       options={catalogs.empresas}
                       placeholder="Selecciona una empresa"
                     />

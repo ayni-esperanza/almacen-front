@@ -43,6 +43,7 @@ export const ReferenceCatalogManagerModal = ({
   const [editingValue, setEditingValue] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isWorking, setIsWorking] = useState(false);
   const [confirmState, setConfirmState] = useState<{
     open: boolean;
     value: string | null;
@@ -93,18 +94,22 @@ export const ReferenceCatalogManagerModal = ({
     setConfirmState({ open: true, value });
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!confirmState.value) {
       setConfirmState({ open: false, value: null });
       return;
     }
 
-    const deleted = onDeleteItem(activeType, confirmState.value);
-    if (!deleted) {
-      setError("No se pudo eliminar el elemento seleccionado.");
+    setIsWorking(true);
+    try {
+      const deleted = await onDeleteItem(activeType, confirmState.value);
+      if (!deleted) {
+        setError("No se pudo eliminar el elemento seleccionado.");
+      }
+    } finally {
+      setIsWorking(false);
+      setConfirmState({ open: false, value: null });
     }
-
-    setConfirmState({ open: false, value: null });
   };
 
   return (
