@@ -349,7 +349,7 @@ export const UsersPage = () => {
                   onClick={openCreateModal}
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Nuevo Usuario</span>
+                  <span>Agregar Usuario</span>
                 </button>
               </ProtectedComponent>
             </div>
@@ -426,7 +426,7 @@ export const UsersPage = () => {
           isOpen={true}
           mode={modalMode}
           title={
-            modalMode === "create" ? "Crear Nuevo Usuario" : "Editar Usuario"
+            modalMode === "create" ? "Nuevo Usuario" : "Editar Usuario"
           }
           initialUser={modalMode === "edit" ? selectedUser : null}
           isSubmitting={modalSubmitting}
