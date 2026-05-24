@@ -3,7 +3,7 @@ import { ThemeProvider } from './shared/hooks/useTheme';
 import { ToastProvider } from './shared/hooks/useToast';
 import { ToastContainer } from './shared/components/ToastContainer';
 import { AppRouter } from './router';
-import { VideoTutorialModal } from './shared';
+import { VideoTutorialModal, VideoTutorialSelectorModal } from './shared';
 
 function App() {
   return (
@@ -12,6 +12,7 @@ function App() {
         <ToastProvider>
           <AppRouter />
           <ToastContainer />
+          <VideoTutorialSelectorModal />
           <VideoTutorialModal />
         </ToastProvider>
       </AuthProvider>

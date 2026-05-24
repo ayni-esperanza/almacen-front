@@ -4,6 +4,8 @@ import { useModalScrollLock } from "../hooks/useModalScrollLock";
 
 interface VideoTutorialProps {
   youtubeUrl: string;
+  uploadedAt?: string;
+  videos?: VideoTutorialItem[];
   tooltip?: string;
   title?: string;
   className?: string;
@@ -19,20 +21,30 @@ interface VideoTutorialState {
   isOpen: boolean;
   isMini: boolean;
   isActive: boolean;
+  isSelectorOpen: boolean;
   embedUrl: string | null;
   miniPosition: { x: number; y: number };
   videoUrl: string;
   title: string;
+  videos: VideoTutorialItem[];
+}
+
+interface VideoTutorialItem {
+  title: string;
+  youtubeUrl: string;
+  uploadedAt?: string;
 }
 
 const DEFAULT_STATE: VideoTutorialState = {
   isOpen: false,
   isMini: false,
   isActive: false,
+  isSelectorOpen: false,
   embedUrl: null,
   miniPosition: { x: 0, y: 0 },
   videoUrl: "",
   title: "Video Tutorial",
+  videos: [],
 };
 
 const listeners = new Set<() => void>();
@@ -74,21 +86,35 @@ const getVideoId = (url: string) => {
 
 export const VideoTutorial: React.FC<VideoTutorialProps> = ({
   youtubeUrl,
+  uploadedAt,
+  videos,
   tooltip = "Ver video tutorial",
   title = "Video Tutorial",
   className,
 }) => {
   const videoId = useMemo(() => getVideoId(youtubeUrl), [youtubeUrl]);
+  const hasValidVideo = Boolean(
+    videos?.length ? getVideoId(videos[0].youtubeUrl) : videoId
+  );
 
   const openModal = () => {
-    if (!videoId) return;
+    const videoList = videos?.length
+      ? videos
+      : [
+          {
+            title,
+            youtubeUrl,
+            uploadedAt,
+          },
+        ];
+
+    if (!videoList[0]?.youtubeUrl || !getVideoId(videoList[0].youtubeUrl)) {
+      return;
+    }
+
     setStoreState({
-      isOpen: true,
-      isMini: false,
-      isActive: false,
-      embedUrl: null,
-      videoUrl: youtubeUrl,
-      title,
+      isSelectorOpen: true,
+      videos: videoList,
     });
   };
 
@@ -97,8 +123,8 @@ export const VideoTutorial: React.FC<VideoTutorialProps> = ({
       type="button"
       onClick={openModal}
       title={tooltip}
-      className={`vt-btn ${className ?? ""} ${videoId ? "" : "vt-btn--disabled"}`}
-      aria-disabled={!videoId}
+      className={`vt-btn ${className ?? ""} ${hasValidVideo ? "" : "vt-btn--disabled"}`}
+      aria-disabled={!hasValidVideo}
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -375,5 +401,102 @@ export const VideoTutorialModal: React.FC = () => {
         </div>
       </div>
     </>
+  );
+};
+
+export const VideoTutorialSelectorModal: React.FC = () => {
+  const store = useVideoTutorialStore();
+
+  useEscapeKey(() => {
+    setStoreState({
+      isSelectorOpen: false,
+      videos: [],
+    });
+  }, store.isSelectorOpen);
+
+  useModalScrollLock(store.isSelectorOpen);
+
+  if (!store.isSelectorOpen) return null;
+
+  const closeModal = () => {
+    setStoreState({
+      isSelectorOpen: false,
+      videos: [],
+    });
+  };
+
+  const handleSelectVideo = (video: VideoTutorialItem) => {
+    setStoreState({
+      isSelectorOpen: false,
+      isOpen: true,
+      isMini: false,
+      isActive: false,
+      embedUrl: null,
+      videoUrl: video.youtubeUrl,
+      title: video.title,
+      videos: [],
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 py-8 backdrop-blur-sm">
+      <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl dark:bg-slate-950">
+        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-slate-800">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">
+            Selecciona un video tutorial
+          </h3>
+          <button
+            type="button"
+            onClick={closeModal}
+            className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-900"
+            aria-label="Cerrar"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="grid gap-4 p-5 sm:grid-cols-2">
+          {store.videos.map((video) => {
+            const videoId = getVideoId(video.youtubeUrl);
+            const thumbUrl = videoId
+              ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+              : "";
+            return (
+              <button
+                key={`${video.youtubeUrl}-${video.title}`}
+                type="button"
+                onClick={() => handleSelectVideo(video)}
+                className="group overflow-hidden rounded-xl border border-gray-200 bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+              >
+                <div className="aspect-video w-full bg-slate-900/10">
+                  {thumbUrl ? (
+                    <img
+                      src={thumbUrl}
+                      alt={`Miniatura de ${video.title}`}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs text-gray-500 dark:text-slate-400">
+                      Miniatura no disponible
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-1 px-4 py-3">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">
+                    {video.title}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-slate-400">
+                    {video.uploadedAt ? `Subido: ${video.uploadedAt}` : "Fecha no disponible"}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 };

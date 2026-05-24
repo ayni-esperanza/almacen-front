@@ -1,6 +1,10 @@
 // Components
 export { Navbar } from "./components/Navbar";
-export { VideoTutorial, VideoTutorialModal } from "./components/VideoTutorial";
+export {
+	VideoTutorial,
+	VideoTutorialModal,
+	VideoTutorialSelectorModal,
+} from "./components/VideoTutorial";
 export { DashboardTabs } from "./components/DashboardTabs";
 export { ProtectedComponent } from "./components/ProtectedComponent";
 export { Pagination } from "./components/Pagination";
