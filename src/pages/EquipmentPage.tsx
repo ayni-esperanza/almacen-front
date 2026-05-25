@@ -18,7 +18,7 @@ export const EquipmentPage = () => {
 
   // Filtrar equipos según el estado del toggle
   const filteredEquipment = useMemo(() => {
-    const continuaEquipment = equipmentData.equipment.filter(eq => eq.tipo === 'continua');
+    const continuaEquipment = equipmentData.equipment.filter(eq => (eq.tipo || 'continua') === 'continua');
     if (showAll) {
       return continuaEquipment;
     }
