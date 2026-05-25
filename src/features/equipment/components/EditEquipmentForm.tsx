@@ -1,4 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
+import DatePicker from "react-datepicker";
+import { parseISO } from "date-fns";
+import { es } from "date-fns/locale";
 import { ChevronDown, Wrench, X, Trash2 } from "lucide-react";
 import { EquipmentReport } from "../types";
 import {
