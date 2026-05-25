@@ -78,6 +78,7 @@ export const ComparisonReportPage: React.FC = () => {
 
   const {
     areaData,
+    activeEmpresas,
     loading: reportsLoading,
   } = useReports({
     includeExpenseReports: false,
@@ -303,6 +304,9 @@ export const ComparisonReportPage: React.FC = () => {
       if (source?.type === "proyecto" && source.proyecto) {
         filters.tipoReporte = "proyecto";
         filters.proyecto = source.proyecto;
+      } else if (source?.type === "empresa" && source.empresa) {
+        filters.tipoReporte = "empresa";
+        filters.empresa = source.empresa;
       } else if (source?.type === "area" && source.area) {
         filters.area = source.area;
       }
@@ -876,7 +880,7 @@ export const ComparisonReportPage: React.FC = () => {
           </div>
           <ComparisonSelector
             areas={areas}
-            empresas={catalogs.empresas}
+            empresas={activeEmpresas}
             proyectos={mergedProjects}
             onAddComparison={addComparison}
             comparisons={comparisons}

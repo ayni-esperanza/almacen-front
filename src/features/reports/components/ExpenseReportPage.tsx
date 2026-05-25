@@ -56,6 +56,7 @@ export const ExpenseReportPage: React.FC = () => {
     error,
     filters,
     updateFilters,
+    activeEmpresas,
     generateChartData,
     getMonthlyChartData,
     exportToPDF,
@@ -186,9 +187,11 @@ export const ExpenseReportPage: React.FC = () => {
 
   const getChartTitle = useCallback(() => {
     const baseTitle =
-      filters.tipoReporte !== "proyecto"
-        ? "Gastos por Área"
-        : "Gastos por Proyecto";
+      filters.tipoReporte === "proyecto"
+        ? "Gastos por Proyecto"
+        : filters.tipoReporte === "empresa"
+        ? "Gastos por Empresa"
+        : "Gastos por Área";
     const dateRange = `${filters.fechaInicio} - ${filters.fechaFin}`;
     return `${baseTitle} (${dateRange})`;
   }, [filters.tipoReporte, filters.fechaInicio, filters.fechaFin]);
@@ -249,6 +252,11 @@ export const ExpenseReportPage: React.FC = () => {
       ),
       totalMovimientos: expenseReports.length,
       areasInvolucradas: new Set(expenseReports.map((item) => item.area)).size,
+      empresasInvolucradas: new Set(
+        expenseReports
+          .filter((item) => item.empresa)
+          .map((item) => item.empresa!)
+      ).size,
       proyectosInvolucrados: new Set(
         expenseReports
           .filter((item) => item.proyecto)
@@ -380,10 +388,14 @@ export const ExpenseReportPage: React.FC = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  Áreas Involucradas
+                  {filters.tipoReporte === "empresa"
+                    ? "Empresas Involucradas"
+                    : "Áreas Involucradas"}
                 </p>
                 <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
-                  {statistics.areasInvolucradas}
+                  {filters.tipoReporte === "empresa"
+                    ? statistics.empresasInvolucradas
+                    : statistics.areasInvolucradas}
                 </p>
               </div>
             </div>
@@ -426,7 +438,7 @@ export const ExpenseReportPage: React.FC = () => {
               filters={filters}
               onFiltersChange={handleFiltersChange}
               areas={areas}
-              empresas={catalogs.empresas}
+              empresas={activeEmpresas}
               proyectos={proyectos}
             />
 

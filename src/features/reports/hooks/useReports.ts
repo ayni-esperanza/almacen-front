@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { reportsService } from "../services/reports.service";
+import { movementsService } from "../../../shared/services/movements.service";
 import {
   ExpenseReport,
   MonthlyExpenseData,
@@ -62,6 +63,7 @@ export const useReports = (options: UseReportsOptions = {}) => {
   const [expenseReports, setExpenseReports] = useState<ExpenseReport[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyExpenseData[]>([]);
   const [areaData, setAreaData] = useState<AreaExpenseData[]>([]);
+  const [activeEmpresas, setActiveEmpresas] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<ReportFilters>(() => {
@@ -134,41 +136,75 @@ export const useReports = (options: UseReportsOptions = {}) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
   }, []);
 
+  const loadActiveEmpresas = useCallback(async () => {
+    try {
+      const options = await movementsService.getExitFilterOptions();
+      setActiveEmpresas(options.empresas || []);
+    } catch (err) {
+      console.error("Error loading active empresas:", err);
+    }
+  }, []);
+
   // Optimización: Memoizar la generación de datos de gráficos
   const generateChartData = useMemo((): ChartData[] => {
+    if (filters.tipoReporte === "empresa") {
+      const empresaData = new Map<
+        string,
+        { gasto: number; movimientos: number }
+      >();
+
+      expenseReports.forEach((item) => {
+        const empresa = item.empresa?.trim() || "Sin empresa";
+        const existing = empresaData.get(empresa) || {
+          gasto: 0,
+          movimientos: 0,
+        };
+        empresaData.set(empresa, {
+          gasto: existing.gasto + item.costoTotal,
+          movimientos: existing.movimientos + 1,
+        });
+      });
+
+      return Array.from(empresaData.entries()).map(([empresa, data]) => ({
+        name: empresa,
+        gasto: data.gasto,
+        movimientos: data.movimientos,
+      }));
+    }
+
     if (filters.tipoReporte !== "proyecto") {
       return areaData.map((area) => ({
         name: area.area,
         gasto: area.totalGasto,
         movimientos: area.cantidadMovimientos,
       }));
-    } else {
-      // Para reportes por proyecto, agrupar por proyecto
-      const projectData = new Map<
-        string,
-        { gasto: number; movimientos: number }
-      >();
+    }
 
-      areaData.forEach((area) => {
-        area.proyectos.forEach((proyecto) => {
-          const existing = projectData.get(proyecto.proyecto) || {
-            gasto: 0,
-            movimientos: 0,
-          };
-          projectData.set(proyecto.proyecto, {
-            gasto: existing.gasto + proyecto.totalGasto,
-            movimientos: existing.movimientos + proyecto.cantidadMovimientos,
-          });
+    // Para reportes por proyecto, agrupar por proyecto
+    const projectData = new Map<
+      string,
+      { gasto: number; movimientos: number }
+    >();
+
+    areaData.forEach((area) => {
+      area.proyectos.forEach((proyecto) => {
+        const existing = projectData.get(proyecto.proyecto) || {
+          gasto: 0,
+          movimientos: 0,
+        };
+        projectData.set(proyecto.proyecto, {
+          gasto: existing.gasto + proyecto.totalGasto,
+          movimientos: existing.movimientos + proyecto.cantidadMovimientos,
         });
       });
+    });
 
-      return Array.from(projectData.entries()).map(([proyecto, data]) => ({
-        name: proyecto,
-        gasto: data.gasto,
-        movimientos: data.movimientos,
-      }));
-    }
-  }, [areaData, filters.tipoReporte]);
+    return Array.from(projectData.entries()).map(([proyecto, data]) => ({
+      name: proyecto,
+      gasto: data.gasto,
+      movimientos: data.movimientos,
+    }));
+  }, [areaData, expenseReports, filters.tipoReporte]);
 
   // Optimización: Memoizar datos mensuales para gráficos
   const getMonthlyChartData = useMemo((): ChartData[] => {
@@ -228,6 +264,10 @@ export const useReports = (options: UseReportsOptions = {}) => {
     return () => clearTimeout(timeoutId);
   }, [fetchAllData, debounceMs]);
 
+  useEffect(() => {
+    loadActiveEmpresas();
+  }, [loadActiveEmpresas]);
+
   const refetch = useCallback(() => {
     fetchAllData();
   }, [fetchAllData]);
@@ -240,6 +280,7 @@ export const useReports = (options: UseReportsOptions = {}) => {
     error,
     filters,
     updateFilters,
+    activeEmpresas,
     generateChartData,
     getMonthlyChartData,
     exportToPDF,

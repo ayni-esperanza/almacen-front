@@ -49,9 +49,7 @@ const buildParams = (filters: ReportFilters) => {
   if (filters.area) params.append("area", filters.area);
   if (filters.empresa) params.append("empresa", filters.empresa);
   if (filters.proyecto) params.append("proyecto", filters.proyecto);
-  const tipoReporteParam =
-    filters.tipoReporte === "empresa" ? "area" : filters.tipoReporte;
-  params.append("tipoReporte", tipoReporteParam);
+  params.append("tipoReporte", filters.tipoReporte);
   return params;
 };
 
@@ -70,7 +68,11 @@ class ReportsService {
 
     // Mapear la respuesta de la API al formato esperado
     const data = response.data || [];
-    const mapped = data.map(item => {
+    const filtered = data.filter(
+      (item) =>
+        !item?.deletedAt && !item?.deleteAt && !item?.deleteAT && !item?.deleted_at
+    );
+    const mapped = filtered.map(item => {
       const derivedProject =
         (typeof item.proyecto === "string" && item.proyecto.trim())
           ? item.proyecto.trim()

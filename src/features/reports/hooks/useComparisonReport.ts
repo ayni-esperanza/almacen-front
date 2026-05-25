@@ -104,7 +104,7 @@ export const useComparisonReport = () => {
             const filters: ReportFilters = {
               fechaInicio: comparison.fechaInicio,
               fechaFin: comparison.fechaFin,
-              tipoReporte: comparison.type === "proyecto" ? "proyecto" : "area",
+              tipoReporte: comparison.type,
               area: comparison.area,
               empresa: comparison.empresa,
               proyecto: comparison.proyecto,
@@ -134,6 +134,15 @@ export const useComparisonReport = () => {
               if (areaResult) {
                 totalGasto = toNumber((areaResult as any).totalGasto);
                 cantidadMovimientos = toNumber((areaResult as any).cantidadMovimientos);
+              }
+            } else if (comparison.type === "empresa" && comparison.empresa) {
+              const targetEmpresa = normalizeText(comparison.empresa);
+              const empresaResult = areaData.find(
+                (a: any) => normalizeText(a?.area) === targetEmpresa
+              );
+              if (empresaResult) {
+                totalGasto = toNumber((empresaResult as any).totalGasto);
+                cantidadMovimientos = toNumber((empresaResult as any).cantidadMovimientos);
               }
             } else if (comparison.type === "proyecto" && comparison.proyecto) {
               const targetProject = normalizeText(comparison.proyecto);

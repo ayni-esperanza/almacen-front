@@ -62,6 +62,7 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
       cantidad: exit.cantidad ? String(exit.cantidad) : "1",
       responsable: exit.responsable ?? "",
       area: exit.area ?? "",
+      empresa: exit.empresa ?? "",
       proyecto: exit.proyecto ?? "",
     }),
     [exit]
@@ -70,13 +71,11 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
   const [formData, setFormData] = useState(initialState);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [empresa, setEmpresa] = useState("");
   const mountedRef = useRef(false);
 
   useEffect(() => {
     setFormData(initialState);
     setErrorMessage(null);
-    setEmpresa("");
   }, [initialState]);
 
   useEffect(() => {
@@ -128,6 +127,7 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
         cantidad: parsedQuantity,
         responsable: formData.responsable.trim(),
         area: formData.area.trim(),
+        empresa: formData.empresa.trim(),
         proyecto: formData.proyecto.trim(),
       };
 
@@ -292,8 +292,10 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
                 <SearchableSelect
                   name="empresa"
                   label="Empresa"
-                  value={empresa}
-                  onChange={setEmpresa}
+                  value={formData.empresa}
+                  onChange={(value) =>
+                    setFormData({ ...formData, empresa: value })
+                  }
                   options={catalogs.empresas}
                   placeholder="Selecciona una empresa"
                   disabled={submitting}
