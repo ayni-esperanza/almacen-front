@@ -10,12 +10,13 @@ interface ReportFiltersProps {
   filters: ReportFiltersType;
   onFiltersChange: (filters: Partial<ReportFiltersType>) => void;
   areas: string[];
+  empresas: string[];
   proyectos: string[];
 }
 
 // Optimización: Memoizar componente para evitar re-renders innecesarios
 export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
-  ({ filters, onFiltersChange, areas, proyectos }) => {
+  ({ filters, onFiltersChange, areas, empresas, proyectos }) => {
     const handleChange = (
       field: keyof ReportFiltersType,
       value: string | undefined
@@ -43,15 +44,23 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
             <SearchableSelect
               name="tipoReporte"
               value={
-                filters.tipoReporte === "area" ? "Por Área" : "Por Proyecto"
+                filters.tipoReporte === "area"
+                  ? "Por Área"
+                  : filters.tipoReporte === "empresa"
+                  ? "Por Empresa"
+                  : "Por Proyecto"
               }
               onChange={(value: string) =>
                 handleChange(
                   "tipoReporte",
-                  value === "Por Proyecto" ? "proyecto" : "area"
+                  value === "Por Proyecto"
+                    ? "proyecto"
+                    : value === "Por Empresa"
+                    ? "empresa"
+                    : "area"
                 )
               }
-              options={["Por Área", "Por Proyecto"]}
+              options={["Por Área", "Por Proyecto", "Por Empresa"]}
               placeholder="Por Área"
               variant="report"
             />
@@ -72,6 +81,25 @@ export const ReportFilters: React.FC<ReportFiltersProps> = React.memo(
                 }
                 options={["Todas las áreas", ...areas]}
                 placeholder="Todas las áreas"
+                variant="report"
+              />
+            </div>
+          )}
+
+          {filters.tipoReporte === "empresa" && (
+            <div>
+              <label className={labelClasses}>Empresa (Opcional)</label>
+              <SearchableSelect
+                name="empresa"
+                value={filters.empresa || ""}
+                onChange={(value: string) =>
+                  handleChange(
+                    "empresa",
+                    value === "Todas las empresas" ? undefined : value
+                  )
+                }
+                options={["Todas las empresas", ...empresas]}
+                placeholder="Todas las empresas"
                 variant="report"
               />
             </div>

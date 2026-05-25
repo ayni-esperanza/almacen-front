@@ -9,6 +9,7 @@ import { ComparisonSelector } from "./ComparisonSelector";
 import { ComparisonChart, ComparisonChartType } from "./ComparisonChart";
 import { reportsService } from "../services/reports.service";
 import { ExpenseReport } from "../types";
+import { useReferenceCatalogs } from "../../../shared/hooks/useReferenceCatalogs";
 
 const DEFAULT_AREAS = [
   "ALMACEN",
@@ -82,6 +83,7 @@ export const ComparisonReportPage: React.FC = () => {
     includeExpenseReports: false,
     includeMonthlyData: false,
   });
+  const { catalogs } = useReferenceCatalogs();
 
   const [chartType, setChartType] = useState<ComparisonChartType>("bar");
   const [extraProjects, setExtraProjects] = useState<string[]>([]);
@@ -303,6 +305,10 @@ export const ComparisonReportPage: React.FC = () => {
         filters.proyecto = source.proyecto;
       } else if (source?.type === "area" && source.area) {
         filters.area = source.area;
+      }
+
+      if (source?.empresa) {
+        filters.empresa = source.empresa;
       }
     }
 
@@ -870,6 +876,7 @@ export const ComparisonReportPage: React.FC = () => {
           </div>
           <ComparisonSelector
             areas={areas}
+            empresas={catalogs.empresas}
             proyectos={mergedProjects}
             onAddComparison={addComparison}
             comparisons={comparisons}

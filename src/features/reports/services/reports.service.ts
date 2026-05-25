@@ -47,8 +47,11 @@ const buildParams = (filters: ReportFilters) => {
   params.append("fechaInicio", startDate);
   params.append("fechaFin", endDate);
   if (filters.area) params.append("area", filters.area);
+  if (filters.empresa) params.append("empresa", filters.empresa);
   if (filters.proyecto) params.append("proyecto", filters.proyecto);
-  params.append("tipoReporte", filters.tipoReporte);
+  const tipoReporteParam =
+    filters.tipoReporte === "empresa" ? "area" : filters.tipoReporte;
+  params.append("tipoReporte", tipoReporteParam);
   return params;
 };
 
@@ -76,6 +79,7 @@ class ReportsService {
       return ({
       id: item.id?.toString() || '',
       area: item.area || '',
+      empresa: item.empresa || '',
       proyecto: derivedProject,
       fecha: item.fecha || '',
       codigoProducto: item.codigoProducto || '',

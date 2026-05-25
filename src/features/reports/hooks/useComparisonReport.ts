@@ -106,6 +106,7 @@ export const useComparisonReport = () => {
               fechaFin: comparison.fechaFin,
               tipoReporte: comparison.type === "proyecto" ? "proyecto" : "area",
               area: comparison.area,
+              empresa: comparison.empresa,
               proyecto: comparison.proyecto,
             };
 

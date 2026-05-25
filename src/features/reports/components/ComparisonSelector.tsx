@@ -8,6 +8,7 @@ import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 
 interface ComparisonSelectorProps {
   areas: string[];
+  empresas: string[];
   proyectos: string[];
   onAddComparison: (item: Omit<ComparisonItem, "id" | "color">) => void;
   comparisons: ComparisonItem[];
@@ -24,6 +25,7 @@ const formatMonthValue = (date: Date) => {
 
 export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
   areas,
+  empresas,
   proyectos,
   onAddComparison,
   comparisons,
@@ -33,6 +35,7 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
 }) => {
   const [comparisonType, setComparisonType] = useState<ComparisonType>("area");
   const [selectedArea, setSelectedArea] = useState<string>("");
+  const [selectedEmpresa, setSelectedEmpresa] = useState<string>("");
   const [selectedProyecto, setSelectedProyecto] = useState<string>("");
   const [fechaInicio, setFechaInicio] = useState<string>(() => {
     const today = new Date();
@@ -46,6 +49,7 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
     setComparisonType(newType);
     // Limpiar selecciones anteriores al cambiar de tipo
     setSelectedArea("");
+    setSelectedEmpresa("");
     setSelectedProyecto("");
     setCustomLabel("");
   };
@@ -56,10 +60,12 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
     if (!label) {
       if (comparisonType === "area" && selectedArea) {
         label = `${selectedArea} (${fechaInicio} - ${fechaFin})`;
+      } else if (comparisonType === "empresa" && selectedEmpresa) {
+        label = `${selectedEmpresa} (${fechaInicio} - ${fechaFin})`;
       } else if (comparisonType === "proyecto" && selectedProyecto) {
         label = `${selectedProyecto} (${fechaInicio} - ${fechaFin})`;
       } else {
-        alert("Por favor selecciona un área o proyecto");
+        alert("Por favor selecciona un área, empresa o proyecto");
         return;
       }
     }
@@ -70,6 +76,7 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
       fechaInicio,
       fechaFin,
       area: comparisonType === "area" ? selectedArea : undefined,
+      empresa: comparisonType === "empresa" ? selectedEmpresa : undefined,
       proyecto: comparisonType === "proyecto" ? selectedProyecto : undefined,
       visualizationType: "bar", // Por defecto siempre barra
     };
@@ -79,6 +86,7 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
     // Resetear campos
     setCustomLabel("");
     setSelectedArea("");
+    setSelectedEmpresa("");
     setSelectedProyecto("");
   };
 
@@ -111,11 +119,23 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
             <label className={labelClasses}>Tipo de Reporte</label>
             <SearchableSelect
               name="comparisonType"
-              value={comparisonType === "area" ? "Por Área" : "Por Proyecto"}
-              onChange={(value) =>
-                handleTypeChange(value === "Por Proyecto" ? "proyecto" : "area")
+              value={
+                comparisonType === "area"
+                  ? "Por Área"
+                  : comparisonType === "empresa"
+                  ? "Por Empresa"
+                  : "Por Proyecto"
               }
-              options={["Por Área", "Por Proyecto"]}
+              onChange={(value) =>
+                handleTypeChange(
+                  value === "Por Proyecto"
+                    ? "proyecto"
+                    : value === "Por Empresa"
+                    ? "empresa"
+                    : "area"
+                )
+              }
+              options={["Por Área", "Por Proyecto", "Por Empresa"]}
               placeholder="Por Área"
               variant="report"
             />
@@ -131,6 +151,20 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
                 onChange={setSelectedArea}
                 options={areas}
                 placeholder="Seleccionar área"
+                variant="report"
+              />
+            </div>
+          )}
+
+          {comparisonType === "empresa" && (
+            <div className="w-full md:w-auto md:min-w-[220px]">
+              <label className={labelClasses}>Empresa</label>
+              <SearchableSelect
+                name="comparisonEmpresa"
+                value={selectedEmpresa}
+                onChange={setSelectedEmpresa}
+                options={empresas}
+                placeholder="Seleccionar empresa"
                 variant="report"
               />
             </div>
@@ -201,6 +235,7 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
               className={buttonClasses}
               disabled={
                 (comparisonType === "area" && !selectedArea) ||
+                (comparisonType === "empresa" && !selectedEmpresa) ||
                 (comparisonType === "proyecto" && !selectedProyecto)
               }
             >
@@ -222,6 +257,8 @@ export const ComparisonSelector: React.FC<ComparisonSelectorProps> = ({
             placeholder={
               comparisonType === "area" && selectedArea
                 ? `${selectedArea} (${fechaInicio} - ${fechaFin})`
+                : comparisonType === "empresa" && selectedEmpresa
+                ? `${selectedEmpresa} (${fechaInicio} - ${fechaFin})`
                 : comparisonType === "proyecto" && selectedProyecto
                 ? `${selectedProyecto} (${fechaInicio} - ${fechaFin})`
                 : "Deja en blanco para usar etiqueta automática"

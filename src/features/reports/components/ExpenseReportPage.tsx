@@ -11,6 +11,7 @@ import { useReports } from "../hooks/useReports";
 import { ReportFilters } from "./ReportFilters";
 import { ReportFilters as ReportFiltersType } from "../types";
 import { ChartType } from "./ExpenseReportChart";
+import { useReferenceCatalogs } from "../../../shared/hooks/useReferenceCatalogs";
 
 const ExpenseReportChart = React.lazy(() =>
   import("./ExpenseReportChart").then((module) => ({
@@ -59,6 +60,7 @@ export const ExpenseReportPage: React.FC = () => {
     getMonthlyChartData,
     exportToPDF,
   } = useReports();
+  const { catalogs } = useReferenceCatalogs();
 
   const [activeTab, setActiveTab] = useState<"chart" | "table">("chart");
   const [mainChartType, setMainChartType] = useState<ChartType>("bar");
@@ -184,7 +186,7 @@ export const ExpenseReportPage: React.FC = () => {
 
   const getChartTitle = useCallback(() => {
     const baseTitle =
-      filters.tipoReporte === "area"
+      filters.tipoReporte !== "proyecto"
         ? "Gastos por Área"
         : "Gastos por Proyecto";
     const dateRange = `${filters.fechaInicio} - ${filters.fechaFin}`;
@@ -208,17 +210,29 @@ export const ExpenseReportPage: React.FC = () => {
       if ("tipoReporte" in newFilters) {
         if (newFilters.tipoReporte === "area") {
           payload.proyecto = undefined;
+          payload.empresa = undefined;
         } else if (newFilters.tipoReporte === "proyecto") {
           payload.area = undefined;
+          payload.empresa = undefined;
+        } else if (newFilters.tipoReporte === "empresa") {
+          payload.area = undefined;
+          payload.proyecto = undefined;
         }
       }
 
       if ("area" in newFilters) {
         payload.proyecto = undefined;
+        payload.empresa = undefined;
       }
 
       if ("proyecto" in newFilters) {
         payload.area = undefined;
+        payload.empresa = undefined;
+      }
+
+      if ("empresa" in newFilters) {
+        payload.area = undefined;
+        payload.proyecto = undefined;
       }
 
       updateFilters(payload);
@@ -408,12 +422,13 @@ export const ExpenseReportPage: React.FC = () => {
       )}
 
       {/* Filtros */}
-      <ReportFilters
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-        areas={areas}
-        proyectos={proyectos}
-      />
+            <ReportFilters
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+              areas={areas}
+              empresas={catalogs.empresas}
+              proyectos={proyectos}
+            />
 
       <div ref={dashboardRef} className="min-h-[1px]">
         {!loading &&

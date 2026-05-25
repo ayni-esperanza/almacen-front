@@ -122,6 +122,7 @@ export const useReports = (options: UseReportsOptions = {}) => {
     filters.fechaInicio,
     filters.fechaFin,
     filters.area,
+    filters.empresa,
     filters.proyecto,
     filters.tipoReporte,
     includeExpenseReports,
@@ -135,7 +136,7 @@ export const useReports = (options: UseReportsOptions = {}) => {
 
   // Optimización: Memoizar la generación de datos de gráficos
   const generateChartData = useMemo((): ChartData[] => {
-    if (filters.tipoReporte === "area") {
+    if (filters.tipoReporte !== "proyecto") {
       return areaData.map((area) => ({
         name: area.area,
         gasto: area.totalGasto,

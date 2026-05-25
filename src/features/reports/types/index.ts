@@ -1,6 +1,7 @@
 export interface ExpenseReport {
   id: string;
   area: string;
+  empresa?: string;
   proyecto?: string;
   fecha: string;
   codigoProducto: string;
@@ -36,8 +37,9 @@ export interface ReportFilters {
   fechaInicio: string;
   fechaFin: string;
   area?: string;
+  empresa?: string;
   proyecto?: string;
-  tipoReporte: "area" | "proyecto";
+  tipoReporte: "area" | "proyecto" | "empresa";
 }
 
 export interface ChartData {
@@ -106,7 +108,7 @@ export interface StockDashboard {
 }
 
 // Tipos para Comparación de Reportes
-export type ComparisonType = "area" | "proyecto";
+export type ComparisonType = "area" | "proyecto" | "empresa";
 export type VisualizationType = "bar" | "line";
 
 export interface ComparisonItem {
@@ -114,6 +116,7 @@ export interface ComparisonItem {
   type: ComparisonType;
   label: string;
   area?: string;
+  empresa?: string;
   proyecto?: string;
   fechaInicio: string;
   fechaFin: string;
