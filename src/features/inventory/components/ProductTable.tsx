@@ -135,7 +135,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     },
     {
       title: "Inventario de Productos (Parte 2)",
-      youtubeUrl: "https://www.youtube.com/watch?v=H_C0tp0BeEc",
+      youtubeUrl: "",
       uploadedAt: "23/05/2026",
     },
   ];
