@@ -58,7 +58,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
 
   // Función para buscar ubicaciones desde la API
   const fetchUbicaciones = useCallback(async (searchTerm: string) => {
-    return inventoryService.getAreas(searchTerm);
+    return inventoryService.getUbicaciones(searchTerm);
   }, []);
 
   // Función para buscar categorías desde la API

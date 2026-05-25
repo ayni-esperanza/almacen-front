@@ -19,8 +19,8 @@ export const InventoryPage = () => {
     }
   };
 
-  const handleCreateArea = async (name: string) => {
-    const created = await inventoryData.createArea(name);
+  const handleCreateUbicacion = async (name: string) => {
+    const created = await inventoryData.createUbicacion(name);
     if (!created) {
       throw new Error("No se pudo agregar la ubicación.");
     }
@@ -33,12 +33,12 @@ export const InventoryPage = () => {
     }
   };
 
-  const handleUpdateArea = async (previousName: string, nextName: string) => {
-    await inventoryData.updateArea(previousName, nextName);
+  const handleUpdateUbicacion = async (previousName: string, nextName: string) => {
+    await inventoryData.updateUbicacion(previousName, nextName);
   };
 
-  const handleDeleteArea = async (name: string) => {
-    await inventoryData.deleteArea(name);
+  const handleDeleteUbicacion = async (name: string) => {
+    await inventoryData.deleteUbicacion(name);
   };
 
   const handleUpdateCategoria = async (
@@ -56,7 +56,7 @@ export const InventoryPage = () => {
     <>
       <ProductTable
         {...inventoryData}
-        createArea={handleCreateArea}
+        createUbicacion={handleCreateUbicacion}
         createCategoria={handleCreateCategoria}
         onOpenCatalogManager={() => setShowCatalogManager(true)}
         onAddProduct={() => setShowAddForm(true)}
@@ -72,11 +72,11 @@ export const InventoryPage = () => {
       <InventoryCatalogManagerModal
         isOpen={showCatalogManager}
         onClose={() => setShowCatalogManager(false)}
-        ubicaciones={inventoryData.areas}
+        ubicaciones={inventoryData.ubicaciones}
         categorias={inventoryData.categorias}
-        onAddUbicacion={handleCreateArea}
-        onUpdateUbicacion={handleUpdateArea}
-        onDeleteUbicacion={handleDeleteArea}
+        onAddUbicacion={handleCreateUbicacion}
+        onUpdateUbicacion={handleUpdateUbicacion}
+        onDeleteUbicacion={handleDeleteUbicacion}
         onAddCategoria={handleCreateCategoria}
         onUpdateCategoria={handleUpdateCategoria}
         onDeleteCategoria={handleDeleteCategoria}

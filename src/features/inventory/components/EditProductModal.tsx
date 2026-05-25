@@ -65,7 +65,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
 
   // Función para buscar ubicaciones desde la API
   const fetchUbicaciones = useCallback(async (searchTerm: string) => {
-    const data = await inventoryService.getAreas(searchTerm);
+    const data = await inventoryService.getUbicaciones(searchTerm);
     return data;
   }, []);
 

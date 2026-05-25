@@ -18,7 +18,7 @@ export interface UseInventoryReturn {
   searchTerm: string;
   filterEPP: boolean;
   setFilterEPP: (filter: boolean) => void;
-  areas: string[];
+  ubicaciones: string[];
   categorias: string[];
   setSearchTerm: (term: string) => void;
   refetch: (options?: RefetchOptions) => Promise<void>;
@@ -28,9 +28,9 @@ export interface UseInventoryReturn {
     productData: UpdateProductData,
   ) => Promise<Product | null>;
   deleteProduct: (id: number) => Promise<boolean>;
-  createArea: (nombre: string) => Promise<string | null>;
-  updateArea: (previousName: string, nextName: string) => Promise<string | null>;
-  deleteArea: (nombre: string) => Promise<boolean>;
+  createUbicacion: (nombre: string) => Promise<string | null>;
+  updateUbicacion: (previousName: string, nextName: string) => Promise<string | null>;
+  deleteUbicacion: (nombre: string) => Promise<boolean>;
   createCategoria: (nombre: string) => Promise<string | null>;
   updateCategoria: (
     previousName: string,
@@ -53,7 +53,7 @@ export const useInventory = (): UseInventoryReturn => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterEPP, setFilterEPP] = useState(false);
-  const [areas, setAreas] = useState<string[]>([]);
+  const [ubicaciones, setUbicaciones] = useState<string[]>([]);
   const [categorias, setCategorias] = useState<string[]>([]);
 
   // Pagination states
@@ -138,12 +138,12 @@ export const useInventory = (): UseInventoryReturn => {
     [fetchProducts],
   );
 
-  const fetchAreas = async () => {
+  const fetchUbicaciones = async () => {
     try {
-      const data = await inventoryService.getAreas();
-      setAreas(data);
+      const data = await inventoryService.getUbicaciones();
+      setUbicaciones(data);
     } catch (err) {
-      console.error("Error fetching areas:", err);
+      console.error("Error fetching ubicaciones:", err);
     }
   };
 
@@ -207,29 +207,29 @@ export const useInventory = (): UseInventoryReturn => {
     }
   };
 
-  const createArea = async (nombre: string): Promise<string | null> => {
+  const createUbicacion = async (nombre: string): Promise<string | null> => {
     try {
       const trimmed = nombre?.trim();
       if (!trimmed) {
-        throw new Error('El nombre del área es obligatorio');
+        throw new Error('El nombre de la ubicación es obligatorio');
       }
 
       // Validar duplicados case-insensitive antes de enviar
-      const isDuplicate = areas.some(
-        (area) => area.toLowerCase() === trimmed.toLowerCase()
+      const isDuplicate = ubicaciones.some(
+        (u) => u.toLowerCase() === trimmed.toLowerCase()
       );
       if (isDuplicate) {
-        throw new Error(`El área "${trimmed}" ya existe`);
+        throw new Error(`La ubicación "${trimmed}" ya existe`);
       }
 
-      const newArea = await inventoryService.createArea(trimmed);
-      if (newArea) {
-        await fetchAreas();
+      const newUbicacion = await inventoryService.createUbicacion(trimmed);
+      if (newUbicacion) {
+        await fetchUbicaciones();
       }
-      return newArea;
+      return newUbicacion;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error al crear área';
-      console.error("Error al crear área:", errorMessage);
+      const errorMessage = err instanceof Error ? err.message : 'Error al crear ubicación';
+      console.error("Error al crear ubicación:", errorMessage);
       throw new Error(errorMessage);
     }
   };
@@ -261,36 +261,36 @@ export const useInventory = (): UseInventoryReturn => {
     }
   };
 
-  const updateArea = async (
+  const updateUbicacion = async (
     previousName: string,
     nextName: string,
   ): Promise<string | null> => {
     try {
-      const updated = await inventoryService.updateArea(previousName, nextName);
+      const updated = await inventoryService.updateUbicacion(previousName, nextName);
       if (updated) {
-        await fetchAreas();
+        await fetchUbicaciones();
         await refetch({ silent: true });
       }
       return updated;
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Error al actualizar área";
+        err instanceof Error ? err.message : "Error al actualizar ubicación";
       setError(message);
       throw err;
     }
   };
 
-  const deleteArea = async (nombre: string): Promise<boolean> => {
+  const deleteUbicacion = async (nombre: string): Promise<boolean> => {
     try {
-      const success = await inventoryService.deleteArea(nombre);
+      const success = await inventoryService.deleteUbicacion(nombre);
       if (success) {
-        await fetchAreas();
+        await fetchUbicaciones();
         await refetch({ silent: true });
       }
       return success;
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Error al eliminar área";
+        err instanceof Error ? err.message : "Error al eliminar ubicación";
       setError(message);
       throw err;
     }
@@ -334,16 +334,16 @@ export const useInventory = (): UseInventoryReturn => {
     }
   };
 
-  // Carga inicial de áreas y categorías
+  // Carga inicial de ubicaciones y categorías
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        const [areasData, categoriasData] = await Promise.all([
-          inventoryService.getAreas(),
+        const [ubicacionesData, categoriasData] = await Promise.all([
+          inventoryService.getUbicaciones(),
           inventoryService.getCategorias(),
         ]);
 
-        setAreas(areasData);
+        setUbicaciones(ubicacionesData);
         setCategorias(categoriasData);
       } catch (err) {
         console.error("Error loading initial data:", err);
@@ -389,16 +389,16 @@ export const useInventory = (): UseInventoryReturn => {
     searchTerm,
     filterEPP,
     setFilterEPP,
-    areas,
+    ubicaciones,
     categorias,
     setSearchTerm,
     refetch,
     createProduct,
     updateProduct,
     deleteProduct,
-    createArea,
-    updateArea,
-    deleteArea,
+    createUbicacion,
+    updateUbicacion,
+    deleteUbicacion,
     createCategoria,
     updateCategoria,
     deleteCategoria,

@@ -138,58 +138,58 @@ class InventoryService {
     return true;
   }
 
-  async getAreas(search?: string): Promise<string[]> {
+  async getUbicaciones(search?: string): Promise<string[]> {
     const endpoint = search
-      ? `/inventory/areas?search=${encodeURIComponent(search)}`
-      : "/inventory/areas";
+      ? `/inventory/ubicaciones?search=${encodeURIComponent(search)}`
+      : "/inventory/ubicaciones";
     const response = await apiClient.get<{ nombre: string }[]>(endpoint);
 
     if (response.error) {
-      console.error("Error fetching areas:", response.error);
+      console.error("Error fetching ubicaciones:", response.error);
       return [];
     }
 
-    return response.data?.map((area) => area.nombre) || [];
+    return response.data?.map((u) => u.nombre) || [];
   }
 
-  async createArea(nombre: string): Promise<string | null> {
+  async createUbicacion(nombre: string): Promise<string | null> {
     const response = await apiClient.post<{ nombre: string }>(
-      "/inventory/areas",
+      "/inventory/ubicaciones",
       { nombre },
     );
 
     if (response.error) {
-      console.error("Error creating area:", response.error);
+      console.error("Error creating ubicacion:", response.error);
       return null;
     }
 
     return response.data?.nombre || null;
   }
 
-  async updateArea(
+  async updateUbicacion(
     previousName: string,
     nextName: string,
   ): Promise<string | null> {
     const response = await apiClient.patch<{ nombre: string }>(
-      `/inventory/areas/${encodeURIComponent(previousName)}`,
+      `/inventory/ubicaciones/${encodeURIComponent(previousName)}`,
       { nombre: nextName },
     );
 
     if (response.error) {
-      console.error("Error updating area:", response.error);
+      console.error("Error updating ubicacion:", response.error);
       throw new Error(response.error);
     }
 
     return response.data?.nombre || null;
   }
 
-  async deleteArea(nombre: string): Promise<boolean> {
+  async deleteUbicacion(nombre: string): Promise<boolean> {
     const response = await apiClient.delete(
-      `/inventory/areas/${encodeURIComponent(nombre)}`,
+      `/inventory/ubicaciones/${encodeURIComponent(nombre)}`,
     );
 
     if (response.error) {
-      console.error("Error deleting area:", response.error);
+      console.error("Error deleting ubicacion:", response.error);
       throw new Error(response.error);
     }
 
