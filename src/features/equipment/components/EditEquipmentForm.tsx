@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import DatePicker from "react-datepicker";
 import { parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -12,20 +12,7 @@ import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { ConfirmModal } from "../../../shared/components/ConfirmModal";
-
-const AREAS_MOVIMIENTOS = [
-  "Almacén",
-  "Contabilidad",
-  "Electricidad",
-  "Extrusora",
-  "Fibra",
-  "Líneas de vida",
-  "Mecánica",
-  "Metalmecánica",
-  "Oficina",
-  "Pozos",
-  "Torres de Enfriamiento",
-];
+import { ReferenceCatalogs } from "../../../shared/hooks/useReferenceCatalogs";
 
 interface EditEquipmentFormProps {
   equipment: EquipmentReport;
@@ -33,6 +20,7 @@ interface EditEquipmentFormProps {
   onCancel: () => void;
   onSubmitReturn?: (data: ReturnEquipmentData) => Promise<void> | void;
   onDelete?: (equipment: EquipmentReport) => Promise<void> | void;
+  catalogs: ReferenceCatalogs;
 }
 
 const EQUIPMENT_STATES: {
@@ -99,6 +87,7 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
   onCancel,
   onSubmitReturn,
   onDelete,
+  catalogs,
 }) => {
   // Cerrar modal con tecla ESC
   useEscapeKey(onCancel);
@@ -166,6 +155,18 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-70 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:opacity-60 dark:focus:border-blue-400 dark:focus:ring-blue-500/30 [color-scheme:light] dark:[color-scheme:dark] cursor-pointer";
   const dividerClasses =
     "space-y-2 border-t border-gray-200 pt-2 dark:border-slate-800";
+
+  const areaProyectoOptions = useMemo(() => {
+    const merged = [...catalogs.areas, ...catalogs.proyectos];
+    const unique = new Map<string, string>();
+    merged.forEach((item) => {
+      const trimmed = item.trim();
+      if (!trimmed) return;
+      const key = trimmed.toLowerCase();
+      if (!unique.has(key)) unique.set(key, trimmed);
+    });
+    return Array.from(unique.values()).sort((a, b) => a.localeCompare(b));
+  }, [catalogs.areas, catalogs.proyectos]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -386,7 +387,7 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
                   onChange={(value) =>
                     setFormData({ ...formData, areaProyecto: value })
                   }
-                  options={AREAS_MOVIMIENTOS}
+                  options={areaProyectoOptions}
                   placeholder="Selecciona un área"
                   required
                 />

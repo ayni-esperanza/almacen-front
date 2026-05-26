@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { Wrench, X, Check, Loader2, AlertCircle } from "lucide-react";
 import { CreateEquipmentData } from "../../../shared/services/equipment.service";
 import {
@@ -8,29 +8,17 @@ import {
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
+import { ReferenceCatalogs } from "../../../shared/hooks/useReferenceCatalogs";
 import DatePicker from "react-datepicker";
 import { parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-
-const AREAS_MOVIMIENTOS = [
-  "Almacén",
-  "Contabilidad",
-  "Electricidad",
-  "Extrusora",
-  "Fibra",
-  "Líneas de vida",
-  "Mecánica",
-  "Metalmecánica",
-  "Oficina",
-  "Pozos",
-  "Torres de Enfriamiento",
-];
 
 interface AddEquipmentFormProps {
   onSubmit: (data: CreateEquipmentData) => void;
   onCancel: () => void;
   tipoRegistro: "continua" | "fija";
   initialArea?: string;
+  catalogs: ReferenceCatalogs;
 }
 
 type EstadoEquipo = CreateEquipmentData["estadoEquipo"];
@@ -41,6 +29,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
   onCancel,
   tipoRegistro,
   initialArea,
+  catalogs,
 }) => {
   // Cerrar modal con tecla ESC
   useEscapeKey(onCancel);
@@ -82,6 +71,18 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
     { value: "Regular", label: "Bajo" },
     { value: "Malo", label: "Crítico" },
   ];
+
+  const areaProyectoOptions = useMemo(() => {
+    const merged = [...catalogs.areas, ...catalogs.proyectos];
+    const unique = new Map<string, string>();
+    merged.forEach((item) => {
+      const trimmed = item.trim();
+      if (!trimmed) return;
+      const key = trimmed.toLowerCase();
+      if (!unique.has(key)) unique.set(key, trimmed);
+    });
+    return Array.from(unique.values()).sort((a, b) => a.localeCompare(b));
+  }, [catalogs.areas, catalogs.proyectos]);
 
   useEffect(() => {
     if (!initialArea) {
@@ -428,7 +429,7 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
                   onChange={(value) =>
                     setFormData({ ...formData, areaProyecto: value })
                   }
-                  options={AREAS_MOVIMIENTOS}
+                  options={areaProyectoOptions}
                   placeholder="Selecciona un área"
                   required
                 />

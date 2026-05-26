@@ -6,6 +6,7 @@ import { EditEquipmentForm } from '../features/equipment/components/EditEquipmen
 import { useEquipment } from '../features/equipment/hooks/useEquipment';
 import { CreateEquipmentData, ReturnEquipmentData, UpdateEquipmentData } from '../shared/services/equipment.service';
 import { EquipmentReport } from '../features/equipment/types';
+import { useReferenceCatalogs } from '../shared/hooks/useReferenceCatalogs';
 
 export const EquipmentPage = () => {
   const [activeSubTab, setActiveSubTab] = useState<'continua' | 'fija'>('continua');
@@ -15,6 +16,7 @@ export const EquipmentPage = () => {
   const [showAll, setShowAll] = useState(false);
   const [addFormArea, setAddFormArea] = useState<string>('');
   const equipmentData = useEquipment();
+  const catalogData = useReferenceCatalogs();
 
   // Filtrar equipos según el estado del toggle
   const filteredEquipment = useMemo(() => {
@@ -181,6 +183,7 @@ export const EquipmentPage = () => {
           }}
           tipoRegistro={activeSubTab}
           initialArea={addFormArea}
+          catalogs={catalogData.catalogs}
         />
       )}
 
@@ -191,6 +194,7 @@ export const EquipmentPage = () => {
           onSubmitReturn={handleUpdateReturn}
           onDelete={handleDeleteEquipment}
           onCancel={handleCloseEdit}
+          catalogs={catalogData.catalogs}
         />
       )}
     </>
