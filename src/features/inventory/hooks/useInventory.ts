@@ -142,6 +142,11 @@ export const useInventory = (): UseInventoryReturn => {
     try {
       const data = await inventoryService.getUbicaciones();
       setUbicaciones(data);
+      window.dispatchEvent(
+        new CustomEvent("inventoryCatalogsUpdated", {
+          detail: { type: "ubicaciones" },
+        })
+      );
     } catch (err) {
       console.error("Error fetching ubicaciones:", err);
     }
@@ -151,6 +156,11 @@ export const useInventory = (): UseInventoryReturn => {
     try {
       const data = await inventoryService.getCategorias();
       setCategorias(data);
+      window.dispatchEvent(
+        new CustomEvent("inventoryCatalogsUpdated", {
+          detail: { type: "categorias" },
+        })
+      );
     } catch (err) {
       console.error("Error fetching categorias:", err);
     }

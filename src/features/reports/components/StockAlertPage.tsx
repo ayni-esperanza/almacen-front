@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { AlertTriangle, Package, Download } from "lucide-react";
 import { StockAlert, StockAlertFilters } from "../types";
 import { stockAlertsService } from "../services/stock-alerts.service";
+import { inventoryService } from "../../../shared/services/inventory.service";
 import { Pagination } from "../../../shared/components/Pagination";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect";
 import { usePagination } from "../../../shared/hooks/usePagination";
@@ -30,23 +31,37 @@ export const StockAlertPage: React.FC = () => {
   const cardClasses =
     "rounded-lg border border-transparent bg-white p-6 shadow-md dark:border-slate-800 dark:bg-slate-900";
 
+  const loadFiltersData = useCallback(async () => {
+    try {
+      const [categoriesData, locationsData] = await Promise.all([
+        inventoryService.getCategorias(),
+        inventoryService.getUbicaciones(),
+      ]);
+      setCategories(categoriesData);
+      setLocations(locationsData);
+    } catch (err) {
+      console.error("Error loading filters data:", err);
+    }
+  }, []);
+
   // Cargar categorías y ubicaciones al montar el componente
   useEffect(() => {
-    const loadFiltersData = async () => {
-      try {
-        const [categoriesData, locationsData] = await Promise.all([
-          stockAlertsService.getCategories(),
-          stockAlertsService.getLocations(),
-        ]);
-        setCategories(categoriesData);
-        setLocations(locationsData);
-      } catch (err) {
-        console.error("Error loading filters data:", err);
+    loadFiltersData();
+  }, [loadFiltersData]);
+
+  useEffect(() => {
+    const handleCatalogUpdate = (event: Event) => {
+      const detail = (event as CustomEvent<{ type?: string }>).detail;
+      if (!detail?.type || detail.type === "ubicaciones" || detail.type === "categorias") {
+        loadFiltersData();
       }
     };
 
-    loadFiltersData();
-  }, []);
+    window.addEventListener("inventoryCatalogsUpdated", handleCatalogUpdate);
+    return () => {
+      window.removeEventListener("inventoryCatalogsUpdated", handleCatalogUpdate);
+    };
+  }, [loadFiltersData]);
 
   useEffect(() => {
     const loadStockAlerts = async () => {
