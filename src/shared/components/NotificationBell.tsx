@@ -177,7 +177,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
             </div>
           </div>
 
-          <div className="max-h-64 space-y-2 overflow-y-auto bg-white px-3 py-2 dark:bg-slate-950">
+          <div className="alerts-scroll max-h-64 space-y-2 overflow-y-auto overflow-x-hidden bg-white px-3 py-2 dark:bg-slate-950">
             {alertsToDisplay.length === 0 ? (
               <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-3 py-4 text-center text-xs text-gray-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
                 No hay alertas registradas.

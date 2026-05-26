@@ -35,8 +35,8 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     costoUnitario: "",
     entradas: "0",
     salidas: "0",
-    stockActual: "0",
-    stockMinimo: "0",
+    stockActual: "",
+    stockMinimo: "",
     unidadMedida: "",
     marca: "",
     providerId: "",
@@ -174,6 +174,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   className={inputClasses}
                   min="0"
                   step="0.01"
+                  placeholder="12.50"
                   required
                 />
               </div>
@@ -187,6 +188,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   onFocus={(e) => e.target.select()}
                   className={inputClasses}
                   min="0"
+                  placeholder="0"
                   required
                 />
               </div>
@@ -232,6 +234,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   value={formData.nombre || ""}
                   onChange={handleChange}
                   className={inputClasses}
+                  placeholder="Taladro percutor"
                   required
                 />
               </div>
@@ -257,6 +260,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   onChange={handleChange}
                   className={inputClasses}
                   min="0"
+                  placeholder="0"
                   required
                 />
               </div>
@@ -268,6 +272,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   value={formData.marca || ""}
                   onChange={handleChange}
                   className={inputClasses}
+                  placeholder="Bosch"
                   required
                 />
               </div>
