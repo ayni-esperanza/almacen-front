@@ -131,12 +131,12 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     {
       title: "Inventario de Productos",
       youtubeUrl: videoUrl,
-      uploadedAt: "23/05/2026",
+      uploadedAt: "17/12/2025",
     },
     {
-      title: "Inventario de Productos (Parte 2)",
-      youtubeUrl: "",
-      uploadedAt: "23/05/2026",
+      title: "Nuevas Funcionalidades",
+      youtubeUrl: "https://youtu.be/ag0Nuk1TYtU",
+      uploadedAt: "26/05/2026",
     },
   ];
   const renderHeader = (className: string) => (
