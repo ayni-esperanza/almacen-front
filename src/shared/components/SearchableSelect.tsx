@@ -2,10 +2,17 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, Search, Loader2 } from "lucide-react";
 
+type SelectOption = {
+  label: string;
+  value: string;
+};
+
+type RawSelectOption = string | SelectOption;
+
 interface SearchableSelectProps {
   value: string;
   onChange: (value: string) => void;
-  options?: string[]; // Opcional para modo local
+  options?: RawSelectOption[]; // Opcional para modo local
   placeholder?: string;
   label?: string;
   required?: boolean;
@@ -33,7 +40,7 @@ export const SearchableSelect = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const [options, setOptions] = useState<string[]>(localOptions || []);
+  const [options, setOptions] = useState<SelectOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [dropdownStyles, setDropdownStyles] = useState<{ top?: number; left?: number; width?: number; bottom?: number }>({});
   const containerRef = useRef<HTMLDivElement>(null);
@@ -43,15 +50,20 @@ export const SearchableSelect = ({
 
   const isAsyncMode = !!fetchOptions;
 
+  const normalizeOptions = (rawOptions: RawSelectOption[]) =>
+    rawOptions.map((option) =>
+      typeof option === "string" ? { label: option, value: option } : option
+    );
+
   // Filtrar opciones localmente si no es modo async
   const filteredOptions = isAsyncMode
     ? options
     : options.filter((option) =>
-        option.toLowerCase().includes(searchTerm.toLowerCase())
+        option.label.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
   // Mostrar el valor actual aunque no esté en options (para modo async antes de cargar)
-  const displayValue = options.find((opt) => opt === value) || value;
+  const displayValue = options.find((opt) => opt.value === value)?.label || value;
 
   // Cargar opciones iniciales en modo async solo cuando se abre el dropdown
   useEffect(() => {
@@ -59,7 +71,7 @@ export const SearchableSelect = ({
       setIsLoading(true);
       fetchOptions("")
         .then((data) => {
-          setOptions(data);
+          setOptions(normalizeOptions(data));
           setIsLoading(false);
         })
         .catch((error) => {
@@ -73,7 +85,7 @@ export const SearchableSelect = ({
   // Actualizar opciones locales cuando cambien las props
   useEffect(() => {
     if (!isAsyncMode && localOptions) {
-      setOptions(localOptions);
+      setOptions(normalizeOptions(localOptions));
     }
   }, [localOptions, isAsyncMode]);
 
@@ -92,7 +104,7 @@ export const SearchableSelect = ({
         setIsLoading(true);
         fetchOptions(searchTerm)
           .then((data) => {
-            setOptions(data);
+            setOptions(normalizeOptions(data));
             setHighlightedIndex(searchTerm ? 0 : -1);
             setIsLoading(false);
           })
@@ -195,8 +207,8 @@ export const SearchableSelect = ({
     }
   }, [highlightedIndex]);
 
-  const handleSelect = (option: string) => {
-    onChange(option);
+  const handleSelect = (option: SelectOption) => {
+    onChange(option.value);
     setIsOpen(false);
     setSearchTerm("");
     setHighlightedIndex(-1);
@@ -342,7 +354,7 @@ export const SearchableSelect = ({
               ) : (
                 filteredOptions.map((option, index) => (
                   <button
-                    key={option}
+                    key={`${option.value}-${option.label}`}
                     type="button"
                     onClick={() => handleSelect(option)}
                     onMouseEnter={() => setHighlightedIndex(index)}
@@ -350,7 +362,7 @@ export const SearchableSelect = ({
                       w-full px-3 py-2 text-left text-sm
                       transition-colors duration-150
                       ${
-                        option === value
+                        option.value === value
                           ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-semibold"
                           : highlightedIndex === index
                           ? "bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white"
@@ -358,7 +370,7 @@ export const SearchableSelect = ({
                       }
                     `}
                   >
-                    {option}
+                    {option.label}
                   </button>
                 ))
               )}

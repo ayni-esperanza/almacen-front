@@ -50,6 +50,18 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const [providerId, setProviderId] = useState(product?.providerId || 0);
   const [marca, setMarca] = useState(product?.marca || "");
   const [categoria, setCategoria] = useState(product?.categoria || "");
+  const unidadMedidaOptions = [
+    { value: "und", label: "Unidad (und)" },
+    { value: "lt", label: "Litro (lt)" },
+    { value: "kg", label: "Kilogramo (kg)" },
+    { value: "m", label: "Metro (m)" },
+    { value: "m2", label: "Metro cuadrado (m²)" },
+    { value: "m3", label: "Metro cúbico (m³)" },
+    { value: "pza", label: "Pieza (pza)" },
+    { value: "caja", label: "Caja" },
+    { value: "rollo", label: "Rollo" },
+    { value: "par", label: "Par" },
+  ];
   const inputClasses =
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/30";
   const labelClasses =
@@ -195,19 +207,19 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                   </div>
                   <div>
                     <label className={labelClasses}>Proveedor *</label>
-                    <select
-                      value={providerId}
-                      onChange={(e) => setProviderId(parseInt(e.target.value))}
-                      className={`${inputClasses} appearance-none`}
+                    <SearchableSelect
+                      name="providerId"
+                      value={providerId ? String(providerId) : ""}
+                      onChange={(value) =>
+                        setProviderId(value ? parseInt(value) : 0)
+                      }
+                      options={providers.map((provider) => ({
+                        value: String(provider.id),
+                        label: provider.name,
+                      }))}
+                      placeholder="Selecciona un proveedor"
                       required
-                    >
-                      <option value="">Selecciona un Proveedor</option>
-                      {providers.map((provider) => (
-                        <option key={provider.id} value={provider.id}>
-                          {provider.name}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
                   <div className="flex items-end gap-3">
                     <div className="w-full">
@@ -239,24 +251,14 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                   </div>
                   <div>
                     <label className={labelClasses}>Unidad de medida *</label>
-                    <select
+                    <SearchableSelect
+                      name="unidadMedida"
                       value={unidadMedida}
-                      onChange={(e) => setUnidadMedida(e.target.value)}
-                      className={`${inputClasses} appearance-none`}
+                      onChange={(value) => setUnidadMedida(value)}
+                      options={unidadMedidaOptions}
+                      placeholder="Seleccionar unidad"
                       required
-                    >
-                      <option value="">Seleccionar unidad</option>
-                      <option value="und">Unidad (und)</option>
-                      <option value="lt">Litro (lt)</option>
-                      <option value="kg">Kilogramo (kg)</option>
-                      <option value="m">Metro (m)</option>
-                      <option value="m2">Metro cuadrado (m²)</option>
-                      <option value="m3">Metro cúbico (m³)</option>
-                      <option value="pza">Pieza (pza)</option>
-                      <option value="caja">Caja</option>
-                      <option value="rollo">Rollo</option>
-                      <option value="par">Par</option>
-                    </select>
+                    />
                   </div>
                   <div>
                     <label className={labelClasses}>Stock Mínimo *</label>

@@ -46,6 +46,19 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
 
   const [providers, setProviders] = useState<Provider[]>([]);
 
+  const unidadMedidaOptions = [
+    { value: "und", label: "Unidad (und)" },
+    { value: "lt", label: "Litro (lt)" },
+    { value: "kg", label: "Kilogramo (kg)" },
+    { value: "m", label: "Metro (m)" },
+    { value: "m2", label: "Metro cuadrado (m²)" },
+    { value: "m3", label: "Metro cúbico (m³)" },
+    { value: "pza", label: "Pieza (pza)" },
+    { value: "caja", label: "Caja" },
+    { value: "rollo", label: "Rollo" },
+    { value: "par", label: "Par" },
+  ];
+
 
   // Cargar proveedores al montar el componente
   useEffect(() => {
@@ -108,8 +121,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   const labelClasses =
     "block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1";
   const inputClasses =
-    "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
-  const selectClasses =
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-green-400 dark:focus:ring-green-500/30";
   const dividerClasses = "border-t border-gray-200 pt-2 dark:border-slate-800";
 
@@ -181,20 +192,19 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
               </div>
               <div>
                 <label className={labelClasses}>Proveedor *</label>
-                <select
+                <SearchableSelect
                   name="providerId"
                   value={formData.providerId}
-                  onChange={handleChange}
-                  className={selectClasses}
+                  onChange={(value) =>
+                    setFormData({ ...formData, providerId: value })
+                  }
+                  options={providers.map((provider) => ({
+                    value: String(provider.id),
+                    label: provider.name,
+                  }))}
+                  placeholder="Selecciona un proveedor"
                   required
-                >
-                  <option value="">Selecciona un proveedor</option>
-                  {providers.map((provider) => (
-                    <option key={provider.id} value={provider.id}>
-                      {provider.name}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
               <div className="flex items-end gap-3">
                 <div className="w-full">
@@ -227,25 +237,16 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
               </div>
               <div>
                 <label className={labelClasses}>Unidad de medida *</label>
-                <select
+                <SearchableSelect
                   name="unidadMedida"
                   value={formData.unidadMedida}
-                  onChange={handleChange}
-                  className={selectClasses}
+                  onChange={(value) =>
+                    setFormData({ ...formData, unidadMedida: value })
+                  }
+                  options={unidadMedidaOptions}
+                  placeholder="Seleccionar unidad"
                   required
-                >
-                  <option value="">Seleccionar unidad</option>
-                  <option value="und">Unidad (und)</option>
-                  <option value="lt">Litro (lt)</option>
-                  <option value="kg">Kilogramo (kg)</option>
-                  <option value="m">Metro (m)</option>
-                  <option value="m2">Metro cuadrado (m²)</option>
-                  <option value="m3">Metro cúbico (m³)</option>
-                  <option value="pza">Pieza (pza)</option>
-                  <option value="caja">Caja</option>
-                  <option value="rollo">Rollo</option>
-                  <option value="par">Par</option>
-                </select>
+                />
               </div>
               <div>
                 <label className={labelClasses}>Stock Mínimo *</label>
