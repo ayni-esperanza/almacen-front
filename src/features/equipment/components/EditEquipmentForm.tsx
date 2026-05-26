@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import DatePicker from "react-datepicker";
 import { parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { ChevronDown, Wrench, X, Trash2 } from "lucide-react";
+import { Wrench, X, Trash2 } from "lucide-react";
 import { EquipmentReport } from "../types";
 import {
   ReturnEquipmentData,
@@ -164,8 +164,6 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
     "flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200";
   const inputClasses =
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-70 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:opacity-60 dark:focus:border-blue-400 dark:focus:ring-blue-500/30 [color-scheme:light] dark:[color-scheme:dark] cursor-pointer";
-  const selectClasses =
-    "w-full appearance-none rounded-xl border border-gray-300 px-3 py-1.5 pr-10 text-sm text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-70 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:opacity-60 dark:focus:border-blue-400 dark:focus:ring-blue-500/30";
   const dividerClasses =
     "space-y-2 border-t border-gray-200 pt-2 dark:border-slate-800";
 
@@ -317,24 +315,17 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
             <div className="grid gap-3 md:grid-cols-2">
               <label className={labelClasses}>
                 <span>Estado del Equipo *</span>
-                <div className="relative">
-                  <select
-                    name="estadoEquipo"
-                    value={formData.estadoEquipo}
-                    onChange={handleChange}
-                    className={selectClasses}
-                    required
-                    disabled={submitting}
-                  >
-                    <option value="">Todos los estados</option>
-                    {EQUIPMENT_STATES.map((state) => (
-                      <option key={state.value} value={state.value}>
-                        {state.label}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
-                </div>
+                <SearchableSelect
+                  name="estadoEquipo"
+                  value={formData.estadoEquipo}
+                  onChange={(value) =>
+                    setFormData((prev) => ({ ...prev, estadoEquipo: value }))
+                  }
+                  options={EQUIPMENT_STATES}
+                  placeholder="Selecciona un estado"
+                  required
+                  disabled={submitting}
+                />
               </label>
 
               <label className={labelClasses}>
@@ -458,23 +449,19 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
               <div className="grid gap-3 md:grid-cols-2">
                 <label className={labelClasses}>
                   <span>Estado de Retorno</span>
-                  <div className="relative">
-                    <select
-                      name="estadoRetorno"
-                      value={formData.estadoRetorno}
-                      onChange={handleChange}
-                      className={selectClasses}
-                      disabled={submitting}
-                    >
-                      <option value="">Selecciona un estado</option>
-                      {RETURN_STATES.map((state) => (
-                        <option key={state.value} value={state.value}>
-                          {state.label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
-                  </div>
+                  <SearchableSelect
+                    name="estadoRetorno"
+                    value={formData.estadoRetorno}
+                    onChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        estadoRetorno: value as ReturnEquipmentData["estadoRetorno"],
+                      }))
+                    }
+                    options={RETURN_STATES}
+                    placeholder="Selecciona un estado"
+                    disabled={submitting}
+                  />
                 </label>
 
                 <label className={labelClasses}>

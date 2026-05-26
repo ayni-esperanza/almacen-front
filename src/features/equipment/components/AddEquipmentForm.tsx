@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  ChevronDown,
-  Wrench,
-  X,
-  Check,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
+import { Wrench, X, Check, Loader2, AlertCircle } from "lucide-react";
 import { CreateEquipmentData } from "../../../shared/services/equipment.service";
 import {
   inventoryService,
@@ -77,6 +70,18 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
   const [showProductList, setShowProductList] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [hasSelectedProduct, setHasSelectedProduct] = useState(false);
+
+  const estadoEquipoOptions = [
+    { value: "Bueno", label: "Normal" },
+    { value: "Regular", label: "Bajo" },
+    { value: "Malo", label: "Crítico" },
+  ];
+
+  const estadoRetornoOptions = [
+    { value: "Bueno", label: "Normal" },
+    { value: "Regular", label: "Bajo" },
+    { value: "Malo", label: "Crítico" },
+  ];
 
   useEffect(() => {
     if (!initialArea) {
@@ -232,8 +237,6 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
     "flex flex-col gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200";
   const inputClasses =
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-500/30 [color-scheme:light] dark:[color-scheme:dark] cursor-pointer";
-  const selectClasses =
-    "w-full appearance-none rounded-xl border border-gray-300 px-3 py-1.5 pr-10 text-sm text-gray-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-500/30";
   const dividerClasses =
     "space-y-2 border-t border-gray-200 pt-2 dark:border-slate-800";
 
@@ -358,21 +361,16 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
             <div className="grid gap-2 sm:gap-3 md:grid-cols-2">
               <label className={labelClasses}>
                 <span>Estado del Equipo *</span>
-                <div className="relative">
-                  <select
-                    name="estadoEquipo"
-                    value={formData.estadoEquipo}
-                    onChange={handleChange}
-                    className={selectClasses}
-                    required
-                  >
-                    <option value="">Todos los estados</option>
-                    <option value="Bueno">Normal</option>
-                    <option value="Regular">Bajo</option>
-                    <option value="Malo">Crítico</option>
-                  </select>
-                  <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
-                </div>
+                <SearchableSelect
+                  name="estadoEquipo"
+                  value={formData.estadoEquipo}
+                  onChange={(value) =>
+                    setFormData((prev) => ({ ...prev, estadoEquipo: value }))
+                  }
+                  options={estadoEquipoOptions}
+                  placeholder="Selecciona un estado"
+                  required
+                />
               </label>
 
               <label className={labelClasses}>
@@ -491,20 +489,18 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
               <div className="grid gap-2 sm:gap-3 md:grid-cols-2">
                 <label className={labelClasses}>
                   <span>Estado de Retorno</span>
-                  <div className="relative">
-                    <select
-                      name="estadoRetorno"
-                      value={formData.estadoRetorno}
-                      onChange={handleChange}
-                      className={selectClasses}
-                    >
-                      <option value="">Selecciona un estado</option>
-                      <option value="Bueno">Normal</option>
-                      <option value="Regular">Bajo</option>
-                      <option value="Malo">Crítico</option>
-                    </select>
-                    <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-slate-500" />
-                  </div>
+                  <SearchableSelect
+                    name="estadoRetorno"
+                    value={formData.estadoRetorno}
+                    onChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        estadoRetorno: value as EstadoRetorno,
+                      }))
+                    }
+                    options={estadoRetornoOptions}
+                    placeholder="Selecciona un estado"
+                  />
                 </label>
 
                 <label className={labelClasses}>
