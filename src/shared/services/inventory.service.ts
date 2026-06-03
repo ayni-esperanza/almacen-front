@@ -1,5 +1,9 @@
 import { apiClient } from "./api";
-import { Product } from "../../features/inventory/types";
+import {
+  PriceHistoryFilters,
+  PriceHistoryRecord,
+  Product,
+} from "../../features/inventory/types";
 
 export interface CreateProductData {
   codigo: string;
@@ -136,6 +140,52 @@ class InventoryService {
     }
 
     return true;
+  }
+
+  async getPriceHistory(
+    filters: PriceHistoryFilters = {},
+  ): Promise<PriceHistoryRecord[]> {
+    const params = new URLSearchParams();
+    if (filters.producto) params.append("producto", filters.producto);
+    if (filters.fechaInicio) params.append("fechaInicio", filters.fechaInicio);
+    if (filters.fechaFin) params.append("fechaFin", filters.fechaFin);
+
+    const queryString = params.toString();
+    const endpoint = queryString
+      ? `/inventory/price-history?${queryString}`
+      : "/inventory/price-history";
+
+    const response = await apiClient.get<PriceHistoryRecord[]>(endpoint);
+
+    if (response.error) {
+      console.error("Error fetching price history:", response.error);
+      throw new Error(response.error);
+    }
+
+    return response.data || [];
+  }
+
+  async getProductPriceHistory(
+    codigo: string,
+    filters: Omit<PriceHistoryFilters, "producto"> = {},
+  ): Promise<PriceHistoryRecord[]> {
+    const params = new URLSearchParams();
+    if (filters.fechaInicio) params.append("fechaInicio", filters.fechaInicio);
+    if (filters.fechaFin) params.append("fechaFin", filters.fechaFin);
+
+    const queryString = params.toString();
+    const endpoint = queryString
+      ? `/inventory/products/${encodeURIComponent(codigo)}/price-history?${queryString}`
+      : `/inventory/products/${encodeURIComponent(codigo)}/price-history`;
+
+    const response = await apiClient.get<PriceHistoryRecord[]>(endpoint);
+
+    if (response.error) {
+      console.error("Error fetching product price history:", response.error);
+      throw new Error(response.error);
+    }
+
+    return response.data || [];
   }
 
   async getUbicaciones(search?: string): Promise<string[]> {

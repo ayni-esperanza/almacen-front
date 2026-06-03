@@ -5,7 +5,12 @@ import {
   CreateProviderData,
   UpdateProviderData,
 } from "../services/providers.service";
-import { validateProviderForm, cleanPhones, ProviderFormData } from "../utils/validation";
+import {
+  validateProviderForm,
+  cleanPhones,
+  cleanBankAccounts,
+  ProviderFormData,
+} from "../utils/validation";
 
 export interface UseProvidersReturn {
   providers: Provider[];
@@ -62,9 +67,13 @@ export const useProviders = (): UseProvidersReturn => {
     try {
       // Validar datos antes de enviar
       const cleanedPhones = cleanPhones(providerData.phones);
+      const cleanedBankAccounts = providerData.bankAccounts
+        ? cleanBankAccounts(providerData.bankAccounts)
+        : undefined;
       const validationData: ProviderFormData = {
         ...providerData,
         phones: cleanedPhones,
+        bankAccounts: cleanedBankAccounts,
       };
       
       const validationError = validateProviderForm(validationData);
@@ -76,6 +85,7 @@ export const useProviders = (): UseProvidersReturn => {
       const dataToSend = {
         ...providerData,
         phones: cleanedPhones,
+        bankAccounts: cleanedBankAccounts,
       };
 
       const newProvider = await providersService.createProvider(dataToSend);
@@ -100,9 +110,13 @@ export const useProviders = (): UseProvidersReturn => {
       let dataToSend = providerData;
       if (providerData.phones) {
         const cleanedPhones = cleanPhones(providerData.phones);
+        const cleanedBankAccounts = providerData.bankAccounts
+          ? cleanBankAccounts(providerData.bankAccounts)
+          : undefined;
         dataToSend = {
           ...providerData,
           phones: cleanedPhones,
+          bankAccounts: cleanedBankAccounts,
         };
 
         // Validar datos
@@ -111,6 +125,11 @@ export const useProviders = (): UseProvidersReturn => {
           email: providerData.email || "",
           address: providerData.address || "",
           phones: cleanedPhones,
+          bankAccounts: cleanedBankAccounts,
+          ruc: providerData.ruc,
+          banco: providerData.banco,
+          cta: providerData.cta,
+          cci: providerData.cci,
           photoUrl: providerData.photoUrl,
         };
         

@@ -263,7 +263,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               key={`${sortConfig.key}-${sortConfig.direction}-${page}-${limit}-${searchTerm}`}
               className="overflow-x-auto md:overflow-visible fade-section"
             >
-              <table className="min-w-[960px] w-full text-xs text-gray-700 dark:text-slate-200">
+              <table className="min-w-[1040px] w-full text-xs text-gray-700 dark:text-slate-200">
                 {/* Header de tabla */}
                 <thead className="bg-gray-50 dark:bg-slate-900">
                   <tr className="border-b border-gray-200 dark:border-slate-800">
@@ -311,6 +311,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     </th>
                     <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       Costo U.
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Historial
                     </th>
                   </tr>
                 </thead>

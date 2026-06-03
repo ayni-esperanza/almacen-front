@@ -3,6 +3,8 @@ import { Product } from "../types";
 import { EditProductModal } from "./EditProductModal";
 import { UpdateProductData } from "../../../shared/services/inventory.service";
 import { useSelectableRowClick } from "../../../shared/hooks/useSelectableRowClick";
+import { History } from "lucide-react";
+import { PriceHistoryModal } from "./PriceHistoryModal";
 
 interface ProductTableRowProps {
   product: Product;
@@ -27,6 +29,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   onMouseEnter,
 }) => {
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showPriceHistory, setShowPriceHistory] = useState(false);
 
   // Hook para manejar click permitiendo selección de texto
   const handleRowClick = useSelectableRowClick(() => setShowEditModal(true));
@@ -162,6 +165,20 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         >
           S/ {product.costoUnitario?.toFixed(2) ?? "0.00"}
         </td>
+        <td className="px-3 py-2 text-center">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowPriceHistory(true);
+            }}
+            title="Ver historial de precios"
+            aria-label={`Ver historial de precios de ${product.nombre}`}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-emerald-600 text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:focus:ring-offset-slate-950"
+          >
+            <History className="h-4 w-4" />
+          </button>
+        </td>
       </tr>
       {showEditModal && (
         <EditProductModal
@@ -172,6 +189,12 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           onDelete={onDelete}
         />
       )}
+      <PriceHistoryModal
+        isOpen={showPriceHistory}
+        onClose={() => setShowPriceHistory(false)}
+        initialProductCode={product.codigo}
+        initialProductName={product.nombre}
+      />
     </>
   );
 };

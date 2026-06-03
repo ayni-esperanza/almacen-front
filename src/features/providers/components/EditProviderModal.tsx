@@ -1,13 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Image as ImageIcon, Minus, Plus } from "lucide-react";
-import { PhoneInput } from 'react-international-phone';
-import 'react-international-phone/style.css';
+import { PhoneInput } from "react-international-phone";
+import "react-international-phone/style.css";
 import { Provider } from "../types";
 import { useModalScrollLock } from "../../../shared/hooks/useModalScrollLock";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
 import { useToast } from "../../../shared/hooks/useToast";
-import { validateProviderForm, cleanPhones } from "../utils/validation";
+import {
+  ProviderBankAccountForm,
+  cleanBankAccounts,
+  cleanPhones,
+  validateProviderForm,
+} from "../utils/validation";
 import { usePhoneDropdown } from "../../../shared/hooks/usePhoneDropdown";
 
 interface EditProviderModalProps {
@@ -18,6 +23,12 @@ interface EditProviderModalProps {
   onDelete?: (provider: Provider) => void | Promise<void>;
 }
 
+const createEmptyBankAccount = (): ProviderBankAccountForm => ({
+  banco: "",
+  cta: "",
+  cci: "",
+});
+
 export const EditProviderModal: React.FC<EditProviderModalProps> = ({
   isOpen,
   onClose,
@@ -25,26 +36,63 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
   onEdit,
   onDelete,
 }) => {
-  // Bloquear scroll
   useModalScrollLock(isOpen);
-  // Cerrar modal con tecla ESC
   useEscapeKey(onClose, isOpen);
-  // Referencia para detectar clicks fuera de la modal
   const modalRef = useRef<HTMLDivElement>(null);
-  // Cerrar modal al hacer click fuera
   useClickOutside(modalRef, onClose, isOpen);
-  
-  // Hook de notificaciones
+
   const { addToast } = useToast();
+
+  const normalizePhone = (value: string): string => {
+    const trimmed = value?.trim() ?? "";
+    if (!trimmed) return "";
+    if (trimmed.startsWith("+")) return trimmed;
+    const digits = trimmed.replace(/\D/g, "");
+    if (!digits) return trimmed;
+    if (digits.startsWith("51")) {
+      return `+${digits}`;
+    }
+    return `+51${digits}`;
+  };
+
+  const normalizeBankAccounts = (
+    accounts?: Provider["bankAccounts"],
+    legacy?: Provider | null,
+  ): ProviderBankAccountForm[] => {
+    if (accounts && accounts.length > 0) {
+      return accounts.map((account) => ({
+        banco: account.banco || "",
+        cta: account.cta || "",
+        cci: account.cci || "",
+      }));
+    }
+
+    if (legacy?.banco || legacy?.cta || legacy?.cci) {
+      return [
+        {
+          banco: legacy.banco || "",
+          cta: legacy.cta || "",
+          cci: legacy.cci || "",
+        },
+      ];
+    }
+
+    return [createEmptyBankAccount()];
+  };
 
   const [name, setName] = useState(provider?.name || "");
   const [email, setEmail] = useState(provider?.email || "");
   const [address, setAddress] = useState(provider?.address || "");
   const [phones, setPhones] = useState<string[]>(
-    provider?.phones?.length ? provider.phones : [""]
+    provider?.phones?.length ? provider.phones.map(normalizePhone) : [""],
   );
+  const [bankAccounts, setBankAccounts] = useState<ProviderBankAccountForm[]>(
+    normalizeBankAccounts(provider?.bankAccounts, provider),
+  );
+  const [ruc, setRuc] = useState(provider?.ruc || "");
   const [photoUrl, setPhotoUrl] = useState<string>(provider?.photoUrl || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputClasses =
     "w-full rounded-xl border border-gray-300 px-3 py-1.5 text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-purple-300 dark:focus:ring-purple-500/30";
@@ -56,34 +104,14 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
     fieldCount: phones.length,
   });
 
-  // Normaliza teléfonos entrantes para que PhoneInput pueda mostrarlos
-  const normalizePhone = (value: string): string => {
-    const trimmed = value?.trim() ?? "";
-    if (!trimmed) return "";
-
-    // Preferir el valor si ya viene con "+"
-    if (trimmed.startsWith("+")) return trimmed;
-
-    // Extraer dígitos (manteniendo posibles 51 iniciales)
-    const digits = trimmed.replace(/\D/g, "");
-    if (!digits) return trimmed; // fallback al bruto si no hay dígitos
-
-    // Si ya incluye 51 al inicio, solo prepende "+"; si no, anteponer código PE
-    if (digits.startsWith("51")) {
-      return `+${digits}`;
-    }
-    return `+51${digits}`;
-  };
-
   useEffect(() => {
     if (!provider) return;
     setName(provider.name);
     setEmail(provider.email);
     setAddress(provider.address);
-    const normalized = provider.phones.length
-      ? provider.phones.map(normalizePhone)
-      : [""];
-    setPhones(normalized);
+    setPhones(provider.phones.length ? provider.phones.map(normalizePhone) : [""]);
+    setBankAccounts(normalizeBankAccounts(provider.bankAccounts, provider));
+    setRuc(provider.ruc || "");
     setPhotoUrl(provider.photoUrl || "");
   }, [provider]);
 
@@ -93,6 +121,19 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
 
   const handleRemovePhone = (index: number) => {
     setPhones((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleAddBankAccount = () => {
+    setBankAccounts((prev) => (prev.length >= 4 ? prev : [...prev, createEmptyBankAccount()]));
+  };
+
+  const handleRemoveBankAccount = (index: number) => {
+    setBankAccounts((prev) => {
+      if (prev.length <= 1) {
+        return [createEmptyBankAccount()];
+      }
+      return prev.filter((_, idx) => idx !== index);
+    });
   };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,52 +153,65 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
     event.preventDefault();
     if (!provider) return;
 
-    // Limpiar teléfonos vacíos
     const cleanedPhones = cleanPhones(phones);
+    const cleanedBankAccounts = cleanBankAccounts(bankAccounts);
+    const primaryBankAccount = cleanedBankAccounts[0];
 
-    // Validar datos
     const error = validateProviderForm({
       name,
       email,
       address,
       phones: cleanedPhones,
+      bankAccounts: cleanedBankAccounts,
+      ruc,
+      banco: primaryBankAccount?.banco ?? null,
+      cta: primaryBankAccount?.cta ?? null,
+      cci: primaryBankAccount?.cci ?? null,
       photoUrl,
     });
 
     if (error) {
-      addToast(error.message, 'error', 5000);
+      addToast(error.message, "error", 5000);
       return;
     }
 
-    // Si la validación pasó, proceder con la actualización
     setIsSubmitting(true);
     try {
-      onEdit({ ...provider, name, email, address, phones: cleanedPhones, photoUrl });
-      addToast('Proveedor actualizado exitosamente', 'success');
+      onEdit({
+        ...provider,
+        name,
+        email,
+        address,
+        phones: cleanedPhones,
+        bankAccounts: cleanedBankAccounts,
+        ruc: ruc.trim() || null,
+        banco: primaryBankAccount?.banco ?? null,
+        cta: primaryBankAccount?.cta ?? null,
+        cci: primaryBankAccount?.cci ?? null,
+        photoUrl,
+      });
+      addToast("Proveedor actualizado exitosamente", "success");
       onClose();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error al actualizar el proveedor';
-      addToast(errorMessage, 'error', 5000);
+      const errorMessage = err instanceof Error ? err.message : "Error al actualizar el proveedor";
+      addToast(errorMessage, "error", 5000);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const [isDeleting, setIsDeleting] = useState(false);
-
   const handleDelete = async () => {
     if (!provider || !onDelete) return;
 
     try {
-      setIsDeleting(true); // Bloquear botón
+      setIsDeleting(true);
       await onDelete(provider);
-      // El padre gestiona confirmación y toasts
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error al eliminar el proveedor';
+      const errorMessage = error instanceof Error ? error.message : "Error al eliminar el proveedor";
       console.error("Error al eliminar:", error);
-      addToast(errorMessage, 'error', 5000);
+      addToast(errorMessage, "error", 5000);
     } finally {
-      setIsDeleting(false); // Desbloquear para permitir reintentar si sigue abierto
+      setIsDeleting(false);
     }
   };
 
@@ -171,11 +225,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
       >
         <div className="flex items-center justify-between flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-purple-500 to-purple-600">
           <h3 className="text-base font-semibold">Editar Proveedor</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-2xl font-bold leading-none"
-          >
+          <button type="button" onClick={onClose} className="text-2xl font-bold leading-none">
             ×
           </button>
         </div>
@@ -229,7 +279,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                 </label>
 
                 <label>
-                  <span className={labelClasses}>Teléfono *</span>
+                  <span className={labelClasses}>Telefono *</span>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 relative" ref={registerField(0)}>
                       <PhoneInput
@@ -237,7 +287,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                         value={phones[0]}
                         onChange={(phone, meta) =>
                           handleChange(0, phone, meta?.country?.iso2, cleaned => {
-                            setPhones(prev => prev.map((p, i) => (i === 0 ? cleaned : p)));
+                            setPhones((prev) => prev.map((p, i) => (i === 0 ? cleaned : p)));
                           })
                         }
                         inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"
@@ -247,7 +297,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                             className: '!fixed !z-[9999] !bg-white dark:!bg-slate-900 !border !border-gray-300 dark:!border-slate-700 !shadow-xl !max-h-60 !overflow-auto !rounded-lg',
                             style: getDropdownStyle(0),
                             listItemClassName: '!cursor-pointer !px-3 !py-2 hover:!bg-gray-100 dark:hover:!bg-slate-800 dark:!text-slate-200',
-                          }
+                          },
                         }}
                         disableDialCodePrefill
                         forceDialCode
@@ -262,7 +312,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                           ? "cursor-not-allowed opacity-40 hover:bg-transparent dark:hover:bg-transparent"
                           : ""
                       }`}
-                      title="Agregar teléfono"
+                      title="Agregar telefono"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -283,20 +333,120 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                 </label>
 
                 <label className="md:col-span-2">
-                  <span className={labelClasses}>Dirección</span>
+                  <span className={labelClasses}>Direccion</span>
                   <input
                     type="text"
                     value={address}
                     onChange={(event) => setAddress(event.target.value)}
                     maxLength={80}
                     className={inputClasses}
-                    placeholder="Dirección comercial"
+                    placeholder="Direccion comercial"
                   />
                 </label>
 
+                <label>
+                  <span className={labelClasses}>RUC</span>
+                  <input
+                    type="text"
+                    value={ruc}
+                    onChange={(event) =>
+                      setRuc(event.target.value.replace(/\D/g, "").slice(0, 11))
+                    }
+                    maxLength={11}
+                    className={inputClasses}
+                    placeholder="20123456789"
+                  />
+                </label>
+
+                <div className="md:col-span-2 rounded-2xl border border-dashed border-purple-200 bg-purple-50/40 p-3 dark:border-purple-500/30 dark:bg-purple-500/10">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">Cuentas bancarias</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400">Agrega una o mas cuentas bancarias para este proveedor.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddBankAccount}
+                      disabled={bankAccounts.length >= 4}
+                      className={`inline-flex items-center gap-2 rounded-full bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white shadow-md transition-colors hover:bg-purple-700 ${
+                        bankAccounts.length >= 4 ? "cursor-not-allowed opacity-40 hover:bg-purple-600" : ""
+                      }`}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Agregar cuenta
+                    </button>
+                  </div>
+
+                  <div className="grid gap-3">
+                    {bankAccounts.map((account, index) => (
+                      <div key={index} className="rounded-2xl border border-purple-100 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                        <div className="mb-3 flex items-center justify-between">
+                          <span className="text-xs font-semibold uppercase tracking-wide text-purple-600 dark:text-purple-300">
+                            Cuenta {index + 1}
+                          </span>
+                          {bankAccounts.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveBankAccount(index)}
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-red-200 text-red-500 transition-colors hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/15"
+                              title="Eliminar cuenta"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="grid gap-3 md:grid-cols-3">
+                          <label>
+                            <span className={labelClasses}>Banco</span>
+                            <input
+                              type="text"
+                              value={account.banco}
+                              onChange={(event) => {
+                                const value = event.target.value;
+                                setBankAccounts((prev) => prev.map((item, idx) => (idx === index ? { ...item, banco: value } : item)));
+                              }}
+                              maxLength={80}
+                              className={inputClasses}
+                              placeholder="BCP, BBVA, Interbank..."
+                            />
+                          </label>
+                          <label>
+                            <span className={labelClasses}>Cuenta</span>
+                            <input
+                              type="text"
+                              value={account.cta}
+                              onChange={(event) => {
+                                const value = event.target.value;
+                                setBankAccounts((prev) => prev.map((item, idx) => (idx === index ? { ...item, cta: value } : item)));
+                              }}
+                              maxLength={80}
+                              className={inputClasses}
+                              placeholder="Numero de cuenta"
+                            />
+                          </label>
+                          <label>
+                            <span className={labelClasses}>CCI</span>
+                            <input
+                              type="text"
+                              value={account.cci}
+                              onChange={(event) => {
+                                const value = event.target.value;
+                                setBankAccounts((prev) => prev.map((item, idx) => (idx === index ? { ...item, cci: value } : item)));
+                              }}
+                              maxLength={80}
+                              className={inputClasses}
+                              placeholder="Codigo de cuenta interbancario"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 {phones.slice(1).map((phone, idx) => (
                   <label key={idx} className="md:col-span-2">
-                    <span className={labelClasses}>Teléfono adicional</span>
+                    <span className={labelClasses}>Telefono adicional</span>
                     <div className="flex items-center gap-2">
                       <div className="flex-1 relative" ref={registerField(idx + 1)}>
                         <PhoneInput
@@ -304,7 +454,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                           value={phone}
                           onChange={(phone, meta) =>
                             handleChange(idx + 1, phone, meta?.country?.iso2, cleaned => {
-                              setPhones(prev => prev.map((p, i) => (i === idx + 1 ? cleaned : p)));
+                              setPhones((prev) => prev.map((p, i) => (i === idx + 1 ? cleaned : p)));
                             })
                           }
                           inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"
@@ -314,7 +464,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                               className: '!fixed !z-[9999] !bg-white dark:!bg-slate-900 !border !border-gray-300 dark:!border-slate-700 !shadow-xl !max-h-60 !overflow-auto !rounded-lg',
                               style: getDropdownStyle(idx + 1),
                               listItemClassName: '!cursor-pointer !px-3 !py-2 hover:!bg-gray-100 dark:hover:!bg-slate-800 dark:!text-slate-200',
-                            }
+                            },
                           }}
                           disableDialCodePrefill
                           forceDialCode
@@ -324,7 +474,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                         type="button"
                         onClick={() => handleRemovePhone(idx + 1)}
                         className="flex items-center justify-center w-10 h-10 text-red-500 transition-colors border border-red-200 rounded-full hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/15"
-                        title="Eliminar teléfono"
+                        title="Eliminar telefono"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
@@ -358,7 +508,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
                 disabled={isSubmitting}
                 className="w-full rounded-full bg-purple-600 px-4 py-1.5 text-xs font-semibold text-white shadow-md transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-purple-500 dark:hover:bg-purple-400 sm:w-auto"
               >
-                {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
+                {isSubmitting ? "Guardando..." : "Guardar Cambios"}
               </button>
             </div>
           </form>

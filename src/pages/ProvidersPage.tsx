@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Plus, User, Phone, AlertCircle, Mail, Search } from "lucide-react";
+import {
+  Plus,
+  User,
+  Phone,
+  AlertCircle,
+  Mail,
+  Search,
+  Landmark,
+  CreditCard,
+} from "lucide-react";
 import { Provider } from "../features/providers/types";
 import { AddProviderModal } from "../features/providers/components/AddProviderModal";
 import { EditProviderModal } from "../features/providers/components/EditProviderModal";
@@ -49,7 +58,17 @@ const ProvidersPage = () => {
       (p) =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.address.toLowerCase().includes(searchTerm.toLowerCase())
+        p.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.ruc || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.banco || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.cta || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.cci || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.bankAccounts || []).some(
+          (account) =>
+            account.banco.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            account.cta.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            account.cci.toLowerCase().includes(searchTerm.toLowerCase())
+        )
     );
 
     // Ordenar por fecha de creación (createdAt) descendente
@@ -197,7 +216,7 @@ const ProvidersPage = () => {
               <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
               <input
                 type="text"
-                placeholder="Buscar por nombre, email o dirección..."
+                placeholder="Buscar por nombre, RUC, banco, cuenta o email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={searchInputClasses}
@@ -235,6 +254,9 @@ const ProvidersPage = () => {
                       Nombre
                     </th>
                     <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      RUC
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       Teléfonos
                     </th>
                     <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
@@ -242,6 +264,15 @@ const ProvidersPage = () => {
                     </th>
                     <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       Dirección
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Banco
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      Cuenta
+                    </th>
+                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                      CCI
                     </th>
                   </tr>
                 </thead>
@@ -276,6 +307,17 @@ const ProvidersPage = () => {
                         }}
                       >
                         {provider.name}
+                      </td>
+                      <td
+                        className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        <span className="font-mono text-xs">
+                          {provider.ruc || "N.A"}
+                        </span>
                       </td>
                       <td
                         className="px-3 py-3 cursor-pointer"
@@ -322,6 +364,86 @@ const ProvidersPage = () => {
                         }}
                       >
                         {provider.address}
+                      </td>
+                      <td
+                        className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        <div className="flex flex-col gap-1">
+                          {(provider.bankAccounts?.length
+                            ? provider.bankAccounts
+                            : provider.banco || provider.cta || provider.cci
+                              ? [
+                                  {
+                                    banco: provider.banco || "N.A",
+                                    cta: provider.cta || "N.A",
+                                    cci: provider.cci || "N.A",
+                                  },
+                                ]
+                              : []
+                          ).map((account, index) => (
+                            <span key={`${account.banco}-${index}`} className="inline-flex items-center gap-1.5">
+                              <Landmark className="w-4 h-4 text-purple-500" />
+                              <span className="font-medium">{account.banco || "N.A"}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td
+                        className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        <div className="flex flex-col gap-1">
+                          {(provider.bankAccounts?.length
+                            ? provider.bankAccounts
+                            : provider.banco || provider.cta || provider.cci
+                              ? [
+                                  {
+                                    banco: provider.banco || "N.A",
+                                    cta: provider.cta || "N.A",
+                                    cci: provider.cci || "N.A",
+                                  },
+                                ]
+                              : []
+                          ).map((account, index) => (
+                            <span key={`${account.cta}-${index}`} className="inline-flex items-center gap-1.5 font-mono text-xs">
+                              <CreditCard className="w-4 h-4 text-purple-500" />
+                              <span>{account.cta || "N.A"}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td
+                        className="px-3 py-3 text-gray-600 cursor-pointer dark:text-slate-300"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        <div className="flex flex-col gap-1">
+                          {(provider.bankAccounts?.length
+                            ? provider.bankAccounts
+                            : provider.banco || provider.cta || provider.cci
+                              ? [
+                                  {
+                                    banco: provider.banco || "N.A",
+                                    cta: provider.cta || "N.A",
+                                    cci: provider.cci || "N.A",
+                                  },
+                                ]
+                              : []
+                          ).map((account, index) => (
+                            <span key={`${account.cci}-${index}`} className="font-mono text-xs">
+                              {account.cci || "N.A"}
+                            </span>
+                          ))}
+                        </div>
                       </td>
                     </tr>
                   ))}

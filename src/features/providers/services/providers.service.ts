@@ -1,11 +1,16 @@
 import { apiClient } from "../../../shared/services/api";
-import { Provider } from "../types";
+import { Provider, ProviderBankAccount } from "../types";
 
 export interface CreateProviderData {
   name: string;
   email: string;
   address: string;
   phones: string[];
+  ruc?: string | null;
+  banco?: string | null;
+  cta?: string | null;
+  cci?: string | null;
+  bankAccounts?: ProviderBankAccount[];
   photoUrl?: string;
 }
 
