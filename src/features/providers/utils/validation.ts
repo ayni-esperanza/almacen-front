@@ -174,17 +174,31 @@ export const validateBankAccount = (
     };
   }
 
-  if (account.cta.length > 80) {
+  if (!/^\d+$/.test(account.cta.trim())) {
     return {
       field: `bank-account-${index}-cta`,
-      message: 'La cuenta no puede exceder 80 caracteres',
+      message: 'La cuenta solo puede contener digitos',
     };
   }
 
-  if (account.cci.length > 80) {
+  if (!/^\d+$/.test(account.cci.trim())) {
     return {
       field: `bank-account-${index}-cci`,
-      message: 'El CCI no puede exceder 80 caracteres',
+      message: 'El CCI solo puede contener digitos',
+    };
+  }
+
+  if (account.cta.length > 16) {
+    return {
+      field: `bank-account-${index}-cta`,
+      message: 'La cuenta no puede exceder 16 digitos',
+    };
+  }
+
+  if (account.cci.length > 20) {
+    return {
+      field: `bank-account-${index}-cci`,
+      message: 'El CCI no puede exceder 20 digitos',
     };
   }
 

@@ -14,6 +14,11 @@ import {
   validateProviderForm,
 } from "../utils/validation";
 import { usePhoneDropdown } from "../../../shared/hooks/usePhoneDropdown";
+import {
+  ProviderBankAccountsSection,
+  ProviderModalTab,
+  ProviderModalTabs,
+} from "./providerBanking";
 
 interface EditProviderModalProps {
   isOpen: boolean;
@@ -91,6 +96,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
   );
   const [ruc, setRuc] = useState(provider?.ruc || "");
   const [photoUrl, setPhotoUrl] = useState<string>(provider?.photoUrl || "");
+  const [activeTab, setActiveTab] = useState<ProviderModalTab>("general");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -103,6 +109,8 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
     isOpen,
     fieldCount: phones.length,
   });
+  const shouldScrollWholeModal =
+    activeTab === "general" ? phones.length > 2 : bankAccounts.length > 2;
 
   useEffect(() => {
     if (!provider) return;
@@ -113,6 +121,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
     setBankAccounts(normalizeBankAccounts(provider.bankAccounts, provider));
     setRuc(provider.ruc || "");
     setPhotoUrl(provider.photoUrl || "");
+    setActiveTab("general");
   }, [provider]);
 
   const handleAddPhone = () => {
@@ -221,7 +230,9 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="flex flex-col w-full max-w-3xl overflow-hidden bg-white shadow-2xl max-h-95vh rounded-3xl dark:border dark:border-slate-800 dark:bg-slate-950"
+        className={`flex w-full max-w-3xl flex-col overflow-hidden bg-white shadow-2xl rounded-3xl dark:border dark:border-slate-800 dark:bg-slate-950 ${
+          shouldScrollWholeModal ? "h-[min(92vh,820px)]" : "max-h-95vh"
+        }`}
       >
         <div className="flex items-center justify-between flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-purple-500 to-purple-600">
           <h3 className="text-base font-semibold">Editar Proveedor</h3>
@@ -230,8 +241,12 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="px-4 pt-4 pb-4">
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-col">
+            <div className="flex-shrink-0 px-4 pt-4">
+              <ProviderModalTabs activeTab={activeTab} onChange={setActiveTab} />
+            </div>
+            <div className="provider-modal-scroll min-h-0 flex-1 overflow-y-auto px-4">
             <div className="grid gap-4 md:grid-cols-[180px_minmax(0,1fr)]">
               <div className="flex flex-col items-center">
                 <span className="mb-2 text-xs font-semibold text-gray-600 dark:text-slate-300">
@@ -265,228 +280,157 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
-                <label className="md:col-span-2">
-                  <span className={labelClasses}>Nombre *</span>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    required
-                    maxLength={60}
-                    className={inputClasses}
-                    placeholder="Nombre del proveedor"
-                  />
-                </label>
-
-                <label>
-                  <span className={labelClasses}>Telefono *</span>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 relative" ref={registerField(0)}>
-                      <PhoneInput
-                        defaultCountry="pe"
-                        value={phones[0]}
-                        onChange={(phone, meta) =>
-                          handleChange(0, phone, meta?.country?.iso2, cleaned => {
-                            setPhones((prev) => prev.map((p, i) => (i === 0 ? cleaned : p)));
-                          })
-                        }
-                        inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"
-                        countrySelectorStyleProps={{
-                          buttonClassName: '!rounded-l-xl !border-gray-300 !px-2 hover:!bg-gray-50 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:hover:!bg-slate-800',
-                          dropdownStyleProps: {
-                            className: '!fixed !z-[9999] !bg-white dark:!bg-slate-900 !border !border-gray-300 dark:!border-slate-700 !shadow-xl !max-h-60 !overflow-auto !rounded-lg',
-                            style: getDropdownStyle(0),
-                            listItemClassName: '!cursor-pointer !px-3 !py-2 hover:!bg-gray-100 dark:hover:!bg-slate-800 dark:!text-slate-200',
-                          },
-                        }}
-                        disableDialCodePrefill
-                        forceDialCode
+                {activeTab === "general" ? (
+                  <>
+                    <label>
+                      <span className={labelClasses}>Nombre *</span>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                        required
+                        maxLength={60}
+                        className={inputClasses}
+                        placeholder="Nombre del proveedor"
                       />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleAddPhone}
-                      disabled={phones.length >= 4}
-                      className={`flex h-10 w-10 items-center justify-center rounded-full border border-purple-300 text-purple-600 transition-colors hover:bg-purple-50 dark:border-purple-400/50 dark:text-purple-200 dark:hover:bg-purple-500/15 ${
-                        phones.length >= 4
-                          ? "cursor-not-allowed opacity-40 hover:bg-transparent dark:hover:bg-transparent"
-                          : ""
-                      }`}
-                      title="Agregar telefono"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                </label>
+                    </label>
 
-                <label>
-                  <span className={labelClasses}>Email *</span>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    required
-                    maxLength={255}
-                    className={inputClasses}
-                    placeholder="correo@ejemplo.com"
-                  />
-                </label>
+                    <label>
+                      <span className={labelClasses}>RUC</span>
+                      <input
+                        type="text"
+                        value={ruc}
+                        onChange={(event) => setRuc(event.target.value.replace(/\D/g, "").slice(0, 11))}
+                        maxLength={11}
+                        className={inputClasses}
+                        placeholder="20123456789"
+                      />
+                    </label>
 
-                <label className="md:col-span-2">
-                  <span className={labelClasses}>Direccion</span>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(event) => setAddress(event.target.value)}
-                    maxLength={80}
-                    className={inputClasses}
-                    placeholder="Direccion comercial"
-                  />
-                </label>
-
-                <label>
-                  <span className={labelClasses}>RUC</span>
-                  <input
-                    type="text"
-                    value={ruc}
-                    onChange={(event) =>
-                      setRuc(event.target.value.replace(/\D/g, "").slice(0, 11))
-                    }
-                    maxLength={11}
-                    className={inputClasses}
-                    placeholder="20123456789"
-                  />
-                </label>
-
-                <div className="md:col-span-2 rounded-2xl border border-dashed border-purple-200 bg-purple-50/40 p-3 dark:border-purple-500/30 dark:bg-purple-500/10">
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">Cuentas bancarias</p>
-                      <p className="text-xs text-gray-500 dark:text-slate-400">Agrega una o mas cuentas bancarias para este proveedor.</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleAddBankAccount}
-                      disabled={bankAccounts.length >= 4}
-                      className={`inline-flex items-center gap-2 rounded-full bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white shadow-md transition-colors hover:bg-purple-700 ${
-                        bankAccounts.length >= 4 ? "cursor-not-allowed opacity-40 hover:bg-purple-600" : ""
-                      }`}
-                    >
-                      <Plus className="h-4 w-4" />
-                      Agregar cuenta
-                    </button>
-                  </div>
-
-                  <div className="grid gap-3">
-                    {bankAccounts.map((account, index) => (
-                      <div key={index} className="rounded-2xl border border-purple-100 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                        <div className="mb-3 flex items-center justify-between">
-                          <span className="text-xs font-semibold uppercase tracking-wide text-purple-600 dark:text-purple-300">
-                            Cuenta {index + 1}
-                          </span>
-                          {bankAccounts.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveBankAccount(index)}
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-red-200 text-red-500 transition-colors hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/15"
-                              title="Eliminar cuenta"
-                            >
-                              <Minus className="h-4 w-4" />
-                            </button>
-                          )}
+                    <label>
+                      <span className={labelClasses}>Telefono *</span>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 relative" ref={registerField(0)}>
+                          <PhoneInput
+                            defaultCountry="pe"
+                            value={phones[0]}
+                            onChange={(phone, meta) =>
+                              handleChange(0, phone, meta?.country?.iso2, cleaned => {
+                                setPhones((prev) => prev.map((p, i) => (i === 0 ? cleaned : p)));
+                              })
+                            }
+                            inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"
+                            countrySelectorStyleProps={{
+                              buttonClassName: '!rounded-l-xl !border-gray-300 !px-2 hover:!bg-gray-50 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:hover:!bg-slate-800',
+                              dropdownStyleProps: {
+                                className: '!fixed !z-[9999] !bg-white dark:!bg-slate-900 !border !border-gray-300 dark:!border-slate-700 !shadow-xl !max-h-60 !overflow-auto !rounded-lg',
+                                style: getDropdownStyle(0),
+                                listItemClassName: '!cursor-pointer !px-3 !py-2 hover:!bg-gray-100 dark:hover:!bg-slate-800 dark:!text-slate-200',
+                              },
+                            }}
+                            disableDialCodePrefill
+                            forceDialCode
+                          />
                         </div>
-                        <div className="grid gap-3 md:grid-cols-3">
-                          <label>
-                            <span className={labelClasses}>Banco</span>
-                            <input
-                              type="text"
-                              value={account.banco}
-                              onChange={(event) => {
-                                const value = event.target.value;
-                                setBankAccounts((prev) => prev.map((item, idx) => (idx === index ? { ...item, banco: value } : item)));
-                              }}
-                              maxLength={80}
-                              className={inputClasses}
-                              placeholder="BCP, BBVA, Interbank..."
-                            />
-                          </label>
-                          <label>
-                            <span className={labelClasses}>Cuenta</span>
-                            <input
-                              type="text"
-                              value={account.cta}
-                              onChange={(event) => {
-                                const value = event.target.value;
-                                setBankAccounts((prev) => prev.map((item, idx) => (idx === index ? { ...item, cta: value } : item)));
-                              }}
-                              maxLength={80}
-                              className={inputClasses}
-                              placeholder="Numero de cuenta"
-                            />
-                          </label>
-                          <label>
-                            <span className={labelClasses}>CCI</span>
-                            <input
-                              type="text"
-                              value={account.cci}
-                              onChange={(event) => {
-                                const value = event.target.value;
-                                setBankAccounts((prev) => prev.map((item, idx) => (idx === index ? { ...item, cci: value } : item)));
-                              }}
-                              maxLength={80}
-                              className={inputClasses}
-                              placeholder="Codigo de cuenta interbancario"
-                            />
-                          </label>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={handleAddPhone}
+                          disabled={phones.length >= 4}
+                          className={`flex h-10 w-10 items-center justify-center rounded-full border border-purple-300 text-purple-600 transition-colors hover:bg-purple-50 dark:border-purple-400/50 dark:text-purple-200 dark:hover:bg-purple-500/15 ${
+                            phones.length >= 4
+                              ? "cursor-not-allowed opacity-40 hover:bg-transparent dark:hover:bg-transparent"
+                              : ""
+                          }`}
+                          title="Agregar telefono"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
                       </div>
+                    </label>
+
+                    <label>
+                      <span className={labelClasses}>Email *</span>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        required
+                        maxLength={255}
+                        className={inputClasses}
+                        placeholder="correo@ejemplo.com"
+                      />
+                    </label>
+
+                    <label className="md:col-span-2">
+                      <span className={labelClasses}>Direccion</span>
+                      <input
+                        type="text"
+                        value={address}
+                        onChange={(event) => setAddress(event.target.value)}
+                        maxLength={80}
+                        className={inputClasses}
+                        placeholder="Direccion comercial"
+                      />
+                    </label>
+
+                    <div className="md:col-span-2 space-y-3">
+                    {phones.slice(1).map((phone, idx) => (
+                      <label key={idx} className="block">
+                        <span className={labelClasses}>Telefono adicional</span>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 relative" ref={registerField(idx + 1)}>
+                            <PhoneInput
+                              defaultCountry="pe"
+                              value={phone}
+                              onChange={(phone, meta) =>
+                                handleChange(idx + 1, phone, meta?.country?.iso2, cleaned => {
+                                  setPhones((prev) => prev.map((p, i) => (i === idx + 1 ? cleaned : p)));
+                                })
+                              }
+                              inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"
+                              countrySelectorStyleProps={{
+                                buttonClassName: '!rounded-l-xl !border-gray-300 !px-2 hover:!bg-gray-50 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:hover:!bg-slate-800',
+                                dropdownStyleProps: {
+                                  className: '!fixed !z-[9999] !bg-white dark:!bg-slate-900 !border !border-gray-300 dark:!border-slate-700 !shadow-xl !max-h-60 !overflow-auto !rounded-lg',
+                                  style: getDropdownStyle(idx + 1),
+                                  listItemClassName: '!cursor-pointer !px-3 !py-2 hover:!bg-gray-100 dark:hover:!bg-slate-800 dark:!text-slate-200',
+                                },
+                              }}
+                              disableDialCodePrefill
+                              forceDialCode
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhone(idx + 1)}
+                            className="flex items-center justify-center w-10 h-10 text-red-500 transition-colors border border-red-200 rounded-full hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/15"
+                            title="Eliminar telefono"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </label>
                     ))}
-                  </div>
-                </div>
-
-                {phones.slice(1).map((phone, idx) => (
-                  <label key={idx} className="md:col-span-2">
-                    <span className={labelClasses}>Telefono adicional</span>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 relative" ref={registerField(idx + 1)}>
-                        <PhoneInput
-                          defaultCountry="pe"
-                          value={phone}
-                          onChange={(phone, meta) =>
-                            handleChange(idx + 1, phone, meta?.country?.iso2, cleaned => {
-                              setPhones((prev) => prev.map((p, i) => (i === idx + 1 ? cleaned : p)));
-                            })
-                          }
-                          inputClassName="!w-full !rounded-xl !border-gray-300 !px-3 !py-1.5 !text-gray-900 focus:!border-purple-500 focus:!outline-none focus:!ring-2 focus:!ring-purple-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:focus:!border-purple-300 dark:focus:!ring-purple-500/30"
-                          countrySelectorStyleProps={{
-                            buttonClassName: '!rounded-l-xl !border-gray-300 !px-2 hover:!bg-gray-50 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200 dark:hover:!bg-slate-800',
-                            dropdownStyleProps: {
-                              className: '!fixed !z-[9999] !bg-white dark:!bg-slate-900 !border !border-gray-300 dark:!border-slate-700 !shadow-xl !max-h-60 !overflow-auto !rounded-lg',
-                              style: getDropdownStyle(idx + 1),
-                              listItemClassName: '!cursor-pointer !px-3 !py-2 hover:!bg-gray-100 dark:hover:!bg-slate-800 dark:!text-slate-200',
-                            },
-                          }}
-                          disableDialCodePrefill
-                          forceDialCode
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemovePhone(idx + 1)}
-                        className="flex items-center justify-center w-10 h-10 text-red-500 transition-colors border border-red-200 rounded-full hover:bg-red-50 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/15"
-                        title="Eliminar telefono"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
                     </div>
-                  </label>
-                ))}
+                  </>
+                ) : (
+                  <div className="md:col-span-2">
+                    <ProviderBankAccountsSection
+                      bankAccounts={bankAccounts}
+                      setBankAccounts={setBankAccounts}
+                      handleAddBankAccount={handleAddBankAccount}
+                      handleRemoveBankAccount={handleRemoveBankAccount}
+                      labelClasses={labelClasses}
+                    />
+                  </div>
+                )}
               </div>
             </div>
+            </div>
 
-            <hr className="my-4 border-gray-200 dark:border-slate-800" />
+            <hr className="mx-4 my-4 flex-shrink-0 border-gray-200 dark:border-slate-800" />
 
-            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <div className="flex flex-shrink-0 flex-col gap-2 px-4 pb-4 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={handleDelete}

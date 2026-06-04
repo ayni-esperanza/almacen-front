@@ -6,8 +6,8 @@ import {
   AlertCircle,
   Mail,
   Search,
-  Landmark,
-  CreditCard,
+  Copy,
+  Check,
 } from "lucide-react";
 import { Provider } from "../features/providers/types";
 import { AddProviderModal } from "../features/providers/components/AddProviderModal";
@@ -17,6 +17,7 @@ import { useToast } from "../shared/hooks/useToast";
 import { Pagination } from "../shared/components/Pagination";
 import { usePagination } from "../shared/hooks/usePagination";
 import { ConfirmModal } from "../shared/components/ConfirmModal";
+import { BankLogo, getProviderBankAccounts } from "../features/providers/components/providerBanking";
 
 const ProvidersPage = () => {
   const {
@@ -41,6 +42,7 @@ const ProvidersPage = () => {
     provider: null,
   });
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (!loading) {
@@ -97,6 +99,21 @@ const ProvidersPage = () => {
     if (!sanitized) return;
     const url = `https://wa.me/${sanitized}`;
     window.open(url, "_blank");
+  };
+
+  const handleCopy = async (value: string, key: string) => {
+    if (!value || value === "N.A") return;
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedKey(key);
+      addToast("Dato copiado", "success");
+      window.setTimeout(() => {
+        setCopiedKey((current) => (current === key ? null : current));
+      }, 1600);
+    } catch (error) {
+      addToast("No se pudo copiar el dato", "error");
+      console.error("Error copying value:", error);
+    }
   };
 
   const handleAddProvider = async (newProvider: Omit<Provider, "id">) => {
@@ -373,20 +390,9 @@ const ProvidersPage = () => {
                         }}
                       >
                         <div className="flex flex-col gap-1">
-                          {(provider.bankAccounts?.length
-                            ? provider.bankAccounts
-                            : provider.banco || provider.cta || provider.cci
-                              ? [
-                                  {
-                                    banco: provider.banco || "N.A",
-                                    cta: provider.cta || "N.A",
-                                    cci: provider.cci || "N.A",
-                                  },
-                                ]
-                              : []
-                          ).map((account, index) => (
-                            <span key={`${account.banco}-${index}`} className="inline-flex items-center gap-1.5">
-                              <Landmark className="w-4 h-4 text-purple-500" />
+                          {getProviderBankAccounts(provider).map((account, index) => (
+                            <span key={`${account.banco}-${index}`} className="inline-flex items-center gap-2">
+                              <BankLogo bankName={account.banco || "N.A"} />
                               <span className="font-medium">{account.banco || "N.A"}</span>
                             </span>
                           ))}
@@ -400,23 +406,29 @@ const ProvidersPage = () => {
                         }}
                       >
                         <div className="flex flex-col gap-1">
-                          {(provider.bankAccounts?.length
-                            ? provider.bankAccounts
-                            : provider.banco || provider.cta || provider.cci
-                              ? [
-                                  {
-                                    banco: provider.banco || "N.A",
-                                    cta: provider.cta || "N.A",
-                                    cci: provider.cci || "N.A",
-                                  },
-                                ]
-                              : []
-                          ).map((account, index) => (
-                            <span key={`${account.cta}-${index}`} className="inline-flex items-center gap-1.5 font-mono text-xs">
-                              <CreditCard className="w-4 h-4 text-purple-500" />
-                              <span>{account.cta || "N.A"}</span>
-                            </span>
-                          ))}
+                          {getProviderBankAccounts(provider).map((account, index) => {
+                            const value = account.cta || "N.A";
+                            const key = `${provider.id}-cta-${index}`;
+                            const copied = copiedKey === key;
+                            return (
+                              <span key={key} className="inline-flex max-w-[180px] items-center gap-1.5 font-mono text-xs">
+                                <span className="truncate">{value}</span>
+                                {value !== "N.A" && (
+                                  <button
+                                    type="button"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleCopy(value, key);
+                                    }}
+                                    className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-purple-200 text-purple-600 transition-colors hover:bg-purple-50 dark:border-purple-500/30 dark:text-purple-200 dark:hover:bg-purple-500/10"
+                                    title="Copiar cuenta"
+                                  >
+                                    {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                                  </button>
+                                )}
+                              </span>
+                            );
+                          })}
                         </div>
                       </td>
                       <td
@@ -427,22 +439,29 @@ const ProvidersPage = () => {
                         }}
                       >
                         <div className="flex flex-col gap-1">
-                          {(provider.bankAccounts?.length
-                            ? provider.bankAccounts
-                            : provider.banco || provider.cta || provider.cci
-                              ? [
-                                  {
-                                    banco: provider.banco || "N.A",
-                                    cta: provider.cta || "N.A",
-                                    cci: provider.cci || "N.A",
-                                  },
-                                ]
-                              : []
-                          ).map((account, index) => (
-                            <span key={`${account.cci}-${index}`} className="font-mono text-xs">
-                              {account.cci || "N.A"}
-                            </span>
-                          ))}
+                          {getProviderBankAccounts(provider).map((account, index) => {
+                            const value = account.cci || "N.A";
+                            const key = `${provider.id}-cci-${index}`;
+                            const copied = copiedKey === key;
+                            return (
+                              <span key={key} className="inline-flex max-w-[180px] items-center gap-1.5 font-mono text-xs">
+                                <span className="truncate">{value}</span>
+                                {value !== "N.A" && (
+                                  <button
+                                    type="button"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleCopy(value, key);
+                                    }}
+                                    className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-purple-200 text-purple-600 transition-colors hover:bg-purple-50 dark:border-purple-500/30 dark:text-purple-200 dark:hover:bg-purple-500/10"
+                                    title="Copiar CCI"
+                                  >
+                                    {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                                  </button>
+                                )}
+                              </span>
+                            );
+                          })}
                         </div>
                       </td>
                     </tr>

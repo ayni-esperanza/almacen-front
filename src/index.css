@@ -105,6 +105,38 @@ body.dark .alerts-scroll::-webkit-scrollbar-thumb {
 	background-color: #334155;
 }
 
+.provider-modal-scroll {
+	scrollbar-width: thin;
+	scrollbar-color: #c4b5fd transparent;
+}
+
+body.dark .provider-modal-scroll {
+	scrollbar-color: #6d28d9 #020617;
+}
+
+.provider-modal-scroll::-webkit-scrollbar {
+	width: 8px;
+}
+
+.provider-modal-scroll::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+body.dark .provider-modal-scroll::-webkit-scrollbar-track {
+	background: #020617;
+}
+
+.provider-modal-scroll::-webkit-scrollbar-thumb {
+	background-color: #c4b5fd;
+	border: 2px solid transparent;
+	border-radius: 999px;
+	background-clip: content-box;
+}
+
+body.dark .provider-modal-scroll::-webkit-scrollbar-thumb {
+	background-color: #6d28d9;
+}
+
 /* Simple fade/slide for section transitions */
 .fade-section {
 	animation: fade-section 200ms ease-out;

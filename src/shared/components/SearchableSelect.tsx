@@ -5,6 +5,7 @@ import { ChevronDown, Search, Loader2 } from "lucide-react";
 type SelectOption = {
   label: string;
   value: string;
+  iconSrc?: string;
 };
 
 type RawSelectOption = string | SelectOption;
@@ -63,7 +64,8 @@ export const SearchableSelect = ({
       );
 
   // Mostrar el valor actual aunque no esté en options (para modo async antes de cargar)
-  const displayValue = options.find((opt) => opt.value === value)?.label || value;
+  const selectedOption = options.find((opt) => opt.value === value);
+  const displayValue = selectedOption?.label || value;
 
   // Cargar opciones iniciales en modo async solo cuando se abre el dropdown
   useEffect(() => {
@@ -310,12 +312,21 @@ export const SearchableSelect = ({
             }
           `}
         >
-          <span
-            className={
-              variant === "report" ? "truncate" : "truncate leading-tight"
-            }
-          >
-            {displayValue || placeholder}
+          <span className="flex min-w-0 items-center gap-2">
+            {selectedOption?.iconSrc && (
+              <img
+                src={selectedOption.iconSrc}
+                alt=""
+                className="h-5 w-5 flex-shrink-0 rounded-md object-contain"
+              />
+            )}
+            <span
+              className={
+                variant === "report" ? "truncate" : "truncate leading-tight"
+              }
+            >
+              {displayValue || placeholder}
+            </span>
           </span>
           <ChevronDown
             className={`w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform duration-200 flex-shrink-0 ${
@@ -370,7 +381,16 @@ export const SearchableSelect = ({
                       }
                     `}
                   >
-                    {option.label}
+                    <span className="flex min-w-0 items-center gap-2">
+                      {option.iconSrc && (
+                        <img
+                          src={option.iconSrc}
+                          alt=""
+                          className="h-6 w-6 flex-shrink-0 rounded-md object-contain"
+                        />
+                      )}
+                      <span className="truncate">{option.label}</span>
+                    </span>
                   </button>
                 ))
               )}
