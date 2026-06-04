@@ -378,12 +378,12 @@ export const MovementTable: React.FC<MovementTableProps> = ({
 
   const getSortIcon = (columnKey: SortKey) => {
     if (sortConfig.key !== columnKey) {
-      return <ArrowUpDown className="w-3 h-3 text-gray-400 opacity-50" />;
+      return <ArrowUpDown className="w-3 h-3 flex-shrink-0 text-gray-400 opacity-50 dark:text-slate-500" />;
     }
     return sortConfig.direction === "asc" ? (
-      <ArrowUp className="w-3 h-3 text-green-600 dark:text-green-400" />
+      <ArrowUp className="w-3 h-3 flex-shrink-0 text-green-600 dark:text-green-400" />
     ) : (
-      <ArrowDown className="w-3 h-3 text-green-600 dark:text-green-400" />
+      <ArrowDown className="w-3 h-3 flex-shrink-0 text-green-600 dark:text-green-400" />
     );
   };
 
@@ -939,7 +939,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                     </th>
                     <th
                       onClick={() => toggleSort("fecha")}
-                      className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                      className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
                     >
                       <div className="flex items-center gap-1">
                         Fecha
@@ -959,7 +959,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         </th>
                         <th
                           onClick={() => toggleSort("area")}
-                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
                         >
                           <div className="flex items-center gap-1">
                             Área
@@ -983,7 +983,7 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         </th>
                         <th
                           onClick={() => toggleSort("area")}
-                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 transition-colors cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                          className="px-3 py-3 text-xs font-semibold text-left text-gray-700 bg-gray-50 cursor-pointer select-none dark:bg-slate-900 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
                         >
                           <div className="flex items-center gap-1">
                             Área

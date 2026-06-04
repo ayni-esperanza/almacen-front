@@ -197,7 +197,8 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
         {/* Search Filter - Responsive - sticky */}
         <div className="sticky top-[109px] z-20 p-3 bg-white border-b border-gray-200/70 sm:p-4 dark:border-slate-800/70 dark:bg-slate-900 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="relative flex-1 w-full sm:max-w-md">
+            <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:w-auto">
+            <div className="relative flex-1 w-full sm:w-[28rem]">
               <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 sm:w-5 sm:h-5 dark:text-slate-500" />
               <input
                 type="text"
@@ -207,7 +208,6 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
                 className="w-full py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg outline-none focus:outline-none focus:border-blue-500 text-gray-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-blue-400"
               />
             </div>
-            <div className="flex flex-col items-start w-full gap-3 sm:flex-row sm:items-center sm:w-auto">
               <div className="inline-flex items-center p-1 border border-gray-200 rounded-lg bg-gray-50 dark:border-slate-700 dark:bg-slate-800/80">
                 <button
                   onClick={() => setViewMode('table')}
@@ -237,6 +237,9 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
                   <span className="sr-only">Cuadrícula</span>
                 </button>
               </div>
+            </div>
+
+            <div className="flex flex-col items-start w-full gap-3 sm:flex-row sm:items-center sm:w-auto">
 
               {showAllToggle}
               {onAddEquipment && (

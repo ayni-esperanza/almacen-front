@@ -255,7 +255,8 @@ const ProvidersPage = () => {
             {/* FILTROS sticky */}
             <div className="sticky top-[109px] z-20 p-4 border-b border-gray-200 bg-gray-50 dark:border-slate-800 dark:bg-slate-900 shadow-sm">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="relative flex-1 max-w-md">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative flex-1 sm:w-[28rem]">
               <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
               <input
                 type="text"
@@ -265,7 +266,6 @@ const ProvidersPage = () => {
                 className={searchInputClasses}
               />
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-950">
                 <button
                   type="button"
@@ -294,6 +294,7 @@ const ProvidersPage = () => {
                   <span className="sr-only">Cuadrícula</span>
                 </button>
               </div>
+            </div>
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="flex items-center justify-center flex-shrink-0 px-6 py-2 space-x-2 font-medium text-white transition-colors bg-purple-600 rounded-lg shadow-md hover:bg-purple-700 whitespace-nowrap"
@@ -303,7 +304,6 @@ const ProvidersPage = () => {
               </button>
             </div>
           </div>
-        </div>
 
         {filteredProviders.length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-slate-400">
