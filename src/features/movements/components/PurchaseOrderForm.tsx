@@ -28,6 +28,8 @@ export const PurchaseOrderForm = ({
   const [fecha, setFecha] = useState("");
   const [codigo, setCodigo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const inputClasses =
+    "w-full px-3 py-2 text-sm text-gray-900 placeholder:text-sm placeholder-gray-400 bg-white border border-gray-300 rounded-lg outline-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500 focus:border-orange-500 dark:focus:border-orange-400";
 
   useEffect(() => {
     if (order) {
@@ -105,8 +107,11 @@ export const PurchaseOrderForm = ({
               placeholderText="dd/mm/aaaa"
               required
               portalId="root"
+              calendarClassName="app-datepicker app-datepicker--orange"
+              popperClassName="app-datepicker-popper app-datepicker-popper--orange"
               fixedHeight
-                className="w-full px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 outline-none focus:border-orange-500 dark:focus:border-orange-400"
+              wrapperClassName="w-full"
+              className={inputClasses}
             />
           </div>
 
@@ -122,7 +127,7 @@ export const PurchaseOrderForm = ({
               placeholder="OC-001"
               required
               disabled={isEdit}
-              className="w-full px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`${inputClasses} disabled:opacity-50 disabled:cursor-not-allowed`}
             />
           </div>
 

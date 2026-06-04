@@ -788,6 +788,12 @@ body.dark .login-page {
 	--calendar-accent-strong: #15803d;
 }
 
+.app-datepicker--blue,
+.app-datepicker-popper--blue .react-datepicker {
+	--calendar-accent: #3b82f6;
+	--calendar-accent-strong: #2563eb;
+}
+
 .app-datepicker--orange,
 .app-datepicker-popper--orange .react-datepicker {
 	--calendar-accent: #f97316;

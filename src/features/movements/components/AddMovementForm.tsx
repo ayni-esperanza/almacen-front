@@ -372,6 +372,8 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                       dateFormat="dd/MM/yyyy"
                       locale={es}
                       portalId="root"
+                      calendarClassName="app-datepicker app-datepicker--green"
+                      popperClassName="app-datepicker-popper app-datepicker-popper--green"
                       fixedHeight
                       required
                     />
@@ -442,6 +444,8 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                       dateFormat="dd/MM/yyyy"
                       locale={es}
                       portalId="root"
+                      calendarClassName="app-datepicker app-datepicker--red"
+                      popperClassName="app-datepicker-popper app-datepicker-popper--red"
                       fixedHeight
                       required
                     />

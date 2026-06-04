@@ -362,6 +362,8 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
                   required
                   disabled={submitting}
                   portalId="root"
+                  calendarClassName="app-datepicker app-datepicker--blue"
+                  popperClassName="app-datepicker-popper app-datepicker-popper--blue"
                 />
               </label>
 
@@ -416,6 +418,8 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
                     className={inputClasses}
                     disabled={submitting}
                     portalId="root"
+                    calendarClassName="app-datepicker app-datepicker--blue"
+                    popperClassName="app-datepicker-popper app-datepicker-popper--blue"
                   />
                 </label>
 

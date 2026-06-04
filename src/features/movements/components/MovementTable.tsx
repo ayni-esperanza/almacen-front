@@ -420,6 +420,10 @@ export const MovementTable: React.FC<MovementTableProps> = ({
   const buttonColor = isEntry
     ? "bg-green-500 hover:bg-green-600"
     : "bg-red-500 hover:bg-red-600";
+  const exportButtonColor = isEntry
+    ? "bg-green-500 hover:bg-green-600"
+    : "bg-red-500 hover:bg-red-600";
+  const exportButtonLoadingColor = isEntry ? "bg-green-400" : "bg-red-400";
   const titleText = isEntry ? "Entradas de Productos" : "Salidas de Productos";
   const icon = isEntry ? (
     <TrendingUp className="w-6 h-6" />
@@ -635,8 +639,8 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                       title="Exportar a PDF"
                       className={`flex items-center justify-center p-2 text-sm font-medium text-white transition-all rounded-lg shadow-md sm:px-3 sm:py-2 h-[38px] ${
                         isExportingPdf
-                          ? "bg-green-400 cursor-not-allowed opacity-70"
-                          : "bg-green-500 hover:bg-green-600 hover:shadow-lg"
+                          ? `${exportButtonLoadingColor} cursor-not-allowed opacity-70`
+                          : `${exportButtonColor} hover:shadow-lg`
                       }`}
                     >
                       {isExportingPdf ? (

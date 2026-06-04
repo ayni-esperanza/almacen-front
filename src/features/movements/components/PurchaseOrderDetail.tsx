@@ -317,6 +317,8 @@ export const PurchaseOrderDetail = ({
                         placeholderText="dd/mm/aaaa"
                         required
                         portalId="root"
+                        calendarClassName="app-datepicker app-datepicker--orange"
+                        popperClassName="app-datepicker-popper app-datepicker-popper--orange"
                         className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded outline-none focus:outline-none focus:border-orange-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
                       />
                   </div>

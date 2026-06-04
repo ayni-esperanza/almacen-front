@@ -198,6 +198,8 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
                   locale={es}
                   disabled={submitting}
                   portalId="root"
+                  calendarClassName="app-datepicker app-datepicker--red"
+                  popperClassName="app-datepicker-popper app-datepicker-popper--red"
                   fixedHeight
                   required
                 />

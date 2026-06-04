@@ -405,6 +405,8 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
                   className={inputClasses}
                   required
                   portalId="root"
+                  calendarClassName="app-datepicker app-datepicker--blue"
+                  popperClassName="app-datepicker-popper app-datepicker-popper--blue"
                 />
               </label>
 
@@ -457,6 +459,8 @@ export const AddEquipmentForm: React.FC<AddEquipmentFormProps> = ({
                     placeholderText="dd/mm/aaaa"
                     className={inputClasses}
                     portalId="root"
+                    calendarClassName="app-datepicker app-datepicker--blue"
+                    popperClassName="app-datepicker-popper app-datepicker-popper--blue"
                   />
                 </label>
 
