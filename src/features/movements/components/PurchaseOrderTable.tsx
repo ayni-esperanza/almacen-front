@@ -326,7 +326,10 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                             maxDate={endDate ? parseFilterDate(endDate) : undefined}
                             fixedHeight
                             portalId="root"
-                            className="w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg outline-none focus:outline-none focus:border-orange-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400"
+                            wrapperClassName="date-field-wrapper block w-full"
+                            calendarClassName="app-datepicker app-datepicker--orange"
+                            popperClassName="app-datepicker-popper app-datepicker-popper--orange"
+                            className="app-field w-full rounded-lg border border-gray-300 py-2 pl-7 pr-2 text-sm leading-5 text-gray-700 outline-none focus:border-orange-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400"
                           />
                         </div>
                       </div>
@@ -350,7 +353,10 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                             minDate={startDate ? parseFilterDate(startDate) : undefined}
                             fixedHeight
                             portalId="root"
-                            className="w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg outline-none focus:outline-none focus:border-orange-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400"
+                            wrapperClassName="date-field-wrapper block w-full"
+                            calendarClassName="app-datepicker app-datepicker--orange"
+                            popperClassName="app-datepicker-popper app-datepicker-popper--orange"
+                            className="app-field w-full rounded-lg border border-gray-300 py-2 pl-7 pr-2 text-sm leading-5 text-gray-700 outline-none focus:border-orange-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400"
                           />
                         </div>
                       </div>
@@ -361,7 +367,8 @@ export const PurchaseOrderTable: React.FC<PurchaseOrderTableProps> = ({
                             onStartDateChange?.("");
                             onEndDateChange?.("");
                           }}
-                          className="p-2 text-gray-600 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800"
+                          aria-label="Limpiar filtros de fecha"
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                           title="Limpiar filtros de fecha"
                         >
                           <X className="w-4 h-4" />

@@ -312,9 +312,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       Costo U.
                     </th>
-                    <th className="px-3 py-3 text-xs font-semibold text-center text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
-                      Historial
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100 dark:divide-slate-800 dark:bg-slate-950">

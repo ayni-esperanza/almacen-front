@@ -3,11 +3,12 @@ import { createPortal } from "react-dom";
 import {
   CalendarDays,
   History,
-  RefreshCw,
   Search,
   TrendingUp,
   X,
 } from "lucide-react";
+import DatePicker from "react-datepicker";
+import { es } from "date-fns/locale";
 import {
   CartesianGrid,
   Legend,
@@ -32,6 +33,14 @@ interface PriceHistoryModalProps {
 }
 
 const formatCurrency = (value: number) => `S/ ${Number(value).toFixed(2)}`;
+
+const formatDateForApi = (value: Date | null) =>
+  value ? value.toISOString().split("T")[0] : "";
+
+const parseFilterDate = (value: string) => {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, (month || 1) - 1, day || 1);
+};
 
 const formatDateTime = (value: string) =>
   new Intl.DateTimeFormat("es-PE", {
@@ -69,7 +78,9 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
   const [history, setHistory] = useState<PriceHistoryRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const isDarkMode =
+    typeof document !== "undefined" &&
+    document.documentElement.classList.contains("dark");
   useEffect(() => {
     if (isOpen) {
       setProducto(initialProductCode);
@@ -100,9 +111,13 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
   }, [fechaFin, fechaInicio, producto]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return;
+
+    const timeoutId = window.setTimeout(() => {
       fetchHistory();
-    }
+    }, 250);
+
+    return () => window.clearTimeout(timeoutId);
   }, [fetchHistory, isOpen]);
 
   const chartData = useMemo(
@@ -119,6 +134,51 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
     [history],
   );
 
+  const resetFilters = () => {
+    setProducto(initialProductCode);
+    setFechaInicio("");
+    setFechaFin("");
+  };
+
+  const renderTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: Array<{ name: string; value: number; color: string }>;
+    label?: string;
+  }) => {
+    if (!active || !payload?.length) return null;
+
+    return (
+      <div
+        className={`min-w-[180px] rounded-xl border px-3 py-2 shadow-lg ${
+          isDarkMode
+            ? "border-slate-700 bg-slate-900 text-slate-100"
+            : "border-slate-200 bg-white text-slate-800"
+        }`}
+      >
+        <p className="mb-2 text-xs font-semibold">{label}</p>
+        {payload.map((entry) => (
+          <div
+            key={entry.name}
+            className="flex items-center justify-between gap-3 text-xs"
+          >
+            <span className="flex items-center gap-2">
+              <span
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: entry.color }}
+              />
+              {entry.name === "precioAnterior" ? "Precio anterior" : "Precio nuevo"}
+            </span>
+            <span className="font-semibold">{formatCurrency(Number(entry.value))}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   if (!isOpen) return null;
 
   const modalContent = (
@@ -127,7 +187,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
         ref={modalRef}
         className="flex w-full max-w-6xl max-h-[94vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950"
       >
-        <div className="flex items-center justify-between gap-4 px-5 py-4 text-white bg-gradient-to-r from-emerald-600 to-teal-600">
+        <div className="flex items-center justify-between gap-4 bg-gradient-to-r from-green-500 to-green-600 px-5 py-4 text-white">
           <div className="flex items-center gap-3">
             <History className="w-5 h-5" />
             <div>
@@ -146,8 +206,8 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="grid gap-3 p-4 border-b border-gray-200 bg-gray-50 md:grid-cols-[1.3fr_1fr_1fr_auto] dark:border-slate-800 dark:bg-slate-900">
+        <div className="alerts-scroll flex-1 overflow-y-auto">
+          <div className="grid gap-3 border-b border-gray-200 bg-gray-50 p-4 md:grid-cols-[1.3fr_1fr_1fr_auto] dark:border-slate-800 dark:bg-slate-900">
             <label className="block">
               <span className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                 <Search className="w-3.5 h-3.5" />
@@ -158,7 +218,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
                 value={producto}
                 onChange={(e) => setProducto(e.target.value)}
                 placeholder="Codigo del producto"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                className="app-field h-10 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm leading-5 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
               />
             </label>
             <label className="block">
@@ -166,34 +226,59 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
                 <CalendarDays className="w-3.5 h-3.5" />
                 Fecha inicio
               </span>
-              <input
-                type="date"
-                value={fechaInicio}
-                onChange={(e) => setFechaInicio(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-              />
+              <div className="relative">
+                <CalendarDays className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-green-600 dark:text-emerald-400" />
+                <DatePicker
+                  selected={fechaInicio ? parseFilterDate(fechaInicio) : null}
+                  onChange={(date: Date | null) => setFechaInicio(formatDateForApi(date))}
+                  dateFormat="dd/MM/yyyy"
+                  locale={es}
+                  placeholderText="dd/mm/aaaa"
+                  maxDate={fechaFin ? parseFilterDate(fechaFin) : undefined}
+                  fixedHeight
+                  portalId="root"
+                  wrapperClassName="date-field-wrapper block w-full"
+                  calendarClassName="app-datepicker app-datepicker--green"
+                  popperClassName="app-datepicker-popper app-datepicker-popper--green"
+                  className="app-field h-10 w-full rounded-lg border border-gray-300 py-2 pl-10 pr-3 text-sm leading-5 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                />
+              </div>
             </label>
             <label className="block">
               <span className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200">
                 <CalendarDays className="w-3.5 h-3.5" />
                 Fecha fin
               </span>
-              <input
-                type="date"
-                value={fechaFin}
-                onChange={(e) => setFechaFin(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-              />
+              <div className="relative">
+                <CalendarDays className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-green-600 dark:text-emerald-400" />
+                <DatePicker
+                  selected={fechaFin ? parseFilterDate(fechaFin) : null}
+                  onChange={(date: Date | null) => setFechaFin(formatDateForApi(date))}
+                  dateFormat="dd/MM/yyyy"
+                  locale={es}
+                  placeholderText="dd/mm/aaaa"
+                  minDate={fechaInicio ? parseFilterDate(fechaInicio) : undefined}
+                  fixedHeight
+                  portalId="root"
+                  wrapperClassName="date-field-wrapper block w-full"
+                  calendarClassName="app-datepicker app-datepicker--green"
+                  popperClassName="app-datepicker-popper app-datepicker-popper--green"
+                  className="app-field h-10 w-full rounded-lg border border-gray-300 py-2 pl-10 pr-3 text-sm leading-5 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                />
+              </div>
             </label>
-            <button
-              type="button"
-              onClick={fetchHistory}
-              disabled={loading}
-              className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-green-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-green-300 dark:bg-emerald-500 dark:hover:bg-emerald-400"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-              Filtrar
-            </button>
+            {(producto !== initialProductCode || Boolean(fechaInicio) || Boolean(fechaFin)) && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                disabled={loading}
+                aria-label="Limpiar filtros"
+                title="Limpiar filtros"
+                className="mt-5 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
           <div className="p-4">
@@ -220,15 +305,21 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="fecha" tick={{ fontSize: 11 }} minTickGap={20} />
-                    <YAxis tickFormatter={(value) => `S/ ${value}`} tick={{ fontSize: 11 }} />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={isDarkMode ? "#334155" : "#e5e7eb"}
+                    />
+                    <XAxis
+                      dataKey="fecha"
+                      tick={{ fontSize: 11, fill: isDarkMode ? "#cbd5e1" : "#475569" }}
+                      minTickGap={20}
+                    />
+                    <YAxis
+                      tickFormatter={(value) => `S/ ${value}`}
+                      tick={{ fontSize: 11, fill: isDarkMode ? "#cbd5e1" : "#475569" }}
+                    />
                     <Tooltip
-                      formatter={(value: number, name: string) => [
-                        formatCurrency(value),
-                        name === "precioAnterior" ? "Precio anterior" : "Precio nuevo",
-                      ]}
-                      labelFormatter={(label) => `Fecha: ${label}`}
+                      content={renderTooltip}
                     />
                     <Legend />
                     <Line

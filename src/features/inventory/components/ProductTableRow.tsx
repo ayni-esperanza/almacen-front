@@ -163,21 +163,21 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           onClick={handleRowClick}
           style={{ cursor: "pointer" }}
         >
-          S/ {product.costoUnitario?.toFixed(2) ?? "0.00"}
-        </td>
-        <td className="px-3 py-2 text-center">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowPriceHistory(true);
-            }}
-            title="Ver historial de precios"
-            aria-label={`Ver historial de precios de ${product.nombre}`}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-emerald-600 text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:focus:ring-offset-slate-950"
-          >
-            <History className="h-4 w-4" />
-          </button>
+          <div className="flex items-center justify-between gap-2">
+            <span>S/ {product.costoUnitario?.toFixed(2) ?? "0.00"}</span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPriceHistory(true);
+              }}
+              title="Ver historial de precios"
+              aria-label={`Ver historial de precios de ${product.nombre}`}
+              className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md text-emerald-600 transition-colors hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:text-emerald-400 dark:hover:text-emerald-300 dark:focus:ring-offset-slate-950"
+            >
+              <History className="h-4 w-4" />
+            </button>
+          </div>
         </td>
       </tr>
       {showEditModal && (

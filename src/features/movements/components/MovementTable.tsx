@@ -541,7 +541,16 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                             isClearable={false}
                             fixedHeight
                             portalId="root"
-                            className={`w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                            wrapperClassName="date-field-wrapper block w-full"
+                            calendarClassName={`app-datepicker ${
+                              isEntry ? "app-datepicker--green" : "app-datepicker--red"
+                            }`}
+                            popperClassName={`app-datepicker-popper ${
+                              isEntry
+                                ? "app-datepicker-popper--green"
+                                : "app-datepicker-popper--red"
+                            }`}
+                            className={`app-field w-full rounded-lg border border-gray-300 py-2 pl-7 pr-2 text-sm leading-5 text-gray-700 outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
                               isEntry
                                 ? "focus:border-green-500 dark:focus:border-emerald-400"
                                 : "focus:border-red-500 dark:focus:border-rose-400"
@@ -571,7 +580,16 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                             isClearable={false}
                             fixedHeight
                             portalId="root"
-                            className={`w-full py-2 pl-7 pr-2 text-sm text-gray-700 border border-gray-300 rounded-lg outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                            wrapperClassName="date-field-wrapper block w-full"
+                            calendarClassName={`app-datepicker ${
+                              isEntry ? "app-datepicker--green" : "app-datepicker--red"
+                            }`}
+                            popperClassName={`app-datepicker-popper ${
+                              isEntry
+                                ? "app-datepicker-popper--green"
+                                : "app-datepicker-popper--red"
+                            }`}
+                            className={`app-field w-full rounded-lg border border-gray-300 py-2 pl-7 pr-2 text-sm leading-5 text-gray-700 outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
                               isEntry
                                 ? "focus:border-green-500 dark:focus:border-emerald-400"
                                 : "focus:border-red-500 dark:focus:border-rose-400"
@@ -673,7 +691,16 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         isClearable={false}
                         fixedHeight
                         portalId="root"
-                        className={`w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                        wrapperClassName="date-field-wrapper block w-full"
+                        calendarClassName={`app-datepicker ${
+                          isEntry ? "app-datepicker--green" : "app-datepicker--red"
+                        }`}
+                        popperClassName={`app-datepicker-popper ${
+                          isEntry
+                            ? "app-datepicker-popper--green"
+                            : "app-datepicker-popper--red"
+                        }`}
+                        className={`app-field w-full rounded-lg border border-gray-300 py-2 pl-8 pr-3 text-sm leading-5 text-gray-700 outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
                           isEntry
                             ? "focus:border-green-500 dark:focus:border-emerald-400"
                             : "focus:border-red-500 dark:focus:border-rose-400"
@@ -703,7 +730,16 @@ export const MovementTable: React.FC<MovementTableProps> = ({
                         isClearable={false}
                         fixedHeight
                         portalId="root"
-                        className={`w-full py-2 pl-8 pr-3 text-sm text-gray-700 border border-gray-300 rounded-lg outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+                        wrapperClassName="date-field-wrapper block w-full"
+                        calendarClassName={`app-datepicker ${
+                          isEntry ? "app-datepicker--green" : "app-datepicker--red"
+                        }`}
+                        popperClassName={`app-datepicker-popper ${
+                          isEntry
+                            ? "app-datepicker-popper--green"
+                            : "app-datepicker-popper--red"
+                        }`}
+                        className={`app-field w-full rounded-lg border border-gray-300 py-2 pl-8 pr-3 text-sm leading-5 text-gray-700 outline-none focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
                           isEntry
                             ? "focus:border-green-500 dark:focus:border-emerald-400"
                             : "focus:border-red-500 dark:focus:border-rose-400"
