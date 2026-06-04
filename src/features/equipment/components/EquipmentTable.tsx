@@ -3,7 +3,7 @@ import { EquipmentReport } from '../types';
 import { Pagination } from '../../../shared/components/Pagination';
 import { usePagination } from '../../../shared/hooks/usePagination';
 import { useSelectableRowClick } from '../../../shared/hooks/useSelectableRowClick';
-import { Wrench, Search, Plus } from 'lucide-react';
+import { Grid3X3, Table2, Wrench, Search, Plus } from 'lucide-react';
 import { ReturnEquipmentData } from '../../../shared/services/equipment.service';
 
 interface EquipmentTableProps {
@@ -211,26 +211,30 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
               <div className="inline-flex items-center p-1 border border-gray-200 rounded-lg bg-gray-50 dark:border-slate-700 dark:bg-slate-800/80">
                 <button
                   onClick={() => setViewMode('table')}
-                  className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-colors ${
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-md text-xs font-medium transition-colors sm:text-sm ${
                     viewMode === 'table'
                       ? 'bg-blue-500 text-white'
                       : 'text-gray-600 hover:text-gray-800 dark:text-slate-300 dark:hover:text-slate-100'
                   }`}
+                  title="Vista tabla"
                 >
-                  Tabla
+                  <Table2 className="h-4 w-4" />
+                  <span className="sr-only">Tabla</span>
                 </button>
                 <button
                   onClick={() => {
                     setViewMode('grid');
                     setSelectedArea(null);
                   }}
-                  className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-colors ${
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-md text-xs font-medium transition-colors sm:text-sm ${
                     viewMode === 'grid'
                       ? 'bg-blue-500 text-white'
                       : 'text-gray-600 hover:text-gray-800 dark:text-slate-300 dark:hover:text-slate-100'
                   }`}
+                  title="Vista cuadrícula"
                 >
-                  Cuadrícula
+                  <Grid3X3 className="h-4 w-4" />
+                  <span className="sr-only">Cuadrícula</span>
                 </button>
               </div>
 
