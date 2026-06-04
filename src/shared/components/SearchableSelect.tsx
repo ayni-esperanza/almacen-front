@@ -286,8 +286,8 @@ export const SearchableSelect = ({
             ${
               isOpen
                 ? variant === "report"
-                  ? "border-green-500 ring-2 ring-green-100 dark:ring-green-500/30"
-                  : "border-blue-500 ring-2 ring-blue-100 dark:ring-blue-500/30"
+                  ? "border-green-500"
+                  : "border-blue-500"
                 : variant === "report"
                 ? "border-gray-300 dark:border-slate-700 hover:border-green-500 dark:hover:border-slate-600"
                 : "border-gray-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-slate-600"
@@ -301,8 +301,8 @@ export const SearchableSelect = ({
             focus:outline-none
             ${
               variant === "report"
-                ? "focus:border-green-500 focus:ring-2 focus:ring-green-100 dark:focus:border-green-400 dark:focus:ring-green-500/30"
-                : "focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:border-blue-400 dark:focus:ring-blue-500/30"
+                ? "focus:border-green-500 focus:ring-0 dark:focus:border-green-400"
+                : "focus:border-blue-500 focus:ring-0 dark:focus:border-blue-400"
             }
             disabled:cursor-not-allowed disabled:opacity-60
             ${
@@ -414,7 +414,7 @@ export const SearchableSelect = ({
                   placeholder={
                     isAsyncMode ? "Buscar en servidor..." : "Buscar..."
                   }
-                  className="w-full py-1.5 pl-9 pr-9 text-sm bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 focus:border-blue-500 dark:text-white dark:placeholder-slate-400"
+                  className="w-full py-1.5 pl-9 pr-9 text-sm bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:border-slate-600 focus:outline-none focus:ring-0 focus:border-blue-500 dark:text-white dark:placeholder-slate-400"
                   disabled={isLoading}
                 />
                 {isLoading && (

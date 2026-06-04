@@ -60,7 +60,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 name="username"
                 value={credentials.username}
                 onChange={handleChange}
-                className="w-full py-2.5 pl-10 pr-4 text-sm transition-all border border-gray-300 rounded-xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
+                className="app-field w-full py-2.5 pl-10 pr-4 text-sm transition-all border border-gray-300 rounded-xl outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:border-green-500 focus:ring-0 dark:focus:border-green-500"
                 placeholder="Ingresa tu usuario"
                 required
               />
@@ -78,7 +78,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 name="password"
                 value={credentials.password}
                 onChange={handleChange}
-                className="w-full py-2.5 pl-10 pr-12 text-sm transition-all border border-gray-300 rounded-xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-transparent"
+                className="app-field w-full py-2.5 pl-10 pr-12 text-sm transition-all border border-gray-300 rounded-xl outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:border-green-500 focus:ring-0 dark:focus:border-green-500"
                 placeholder="Ingresa tu contraseña"
                 required
               />

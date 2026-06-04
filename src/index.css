@@ -42,6 +42,26 @@ textarea::placeholder {
 	opacity: 1;
 }
 
+.app-field,
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+	background-color: #ffffff;
+}
+
+.app-field:hover,
+.app-field:focus,
+input:not([type="checkbox"]):not([type="radio"]):hover,
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:hover,
+select:focus,
+textarea:hover,
+textarea:focus {
+	background-color: #ffffff;
+	outline: none;
+	box-shadow: none !important;
+}
+
 .date-field-wrapper,
 .date-field-wrapper .react-datepicker-wrapper,
 .date-field-wrapper .react-datepicker__input-container {
@@ -66,6 +86,8 @@ body.dark select:focus,
 body.dark textarea:hover,
 body.dark textarea:focus {
 	background-color: #0f172a;
+	outline: none;
+	box-shadow: none !important;
 }
 
 /* Ocultar scrollbar pero mantener funcionalidad */
