@@ -125,6 +125,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
       [...history]
         .reverse()
         .map((record) => ({
+          pointKey: `${record.fechaCambio}-${record.id}`,
           fecha: formatDateTime(record.fechaCambio),
           precioAnterior: record.precioAnterior,
           precioNuevo: record.precioNuevo,
@@ -146,10 +147,17 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
     label,
   }: {
     active?: boolean;
-    payload?: Array<{ name: string; value: number; color: string }>;
+    payload?: Array<{
+      name: string;
+      value: number;
+      color: string;
+      dataKey?: string | number;
+      payload?: { fecha?: string };
+    }>;
     label?: string;
   }) => {
     if (!active || !payload?.length) return null;
+    const activeLabel = payload[0]?.payload?.fecha ?? label;
 
     return (
       <div
@@ -159,22 +167,29 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
             : "border-slate-200 bg-white text-slate-800"
         }`}
       >
-        <p className="mb-2 text-xs font-semibold">{label}</p>
-        {payload.map((entry) => (
-          <div
-            key={entry.name}
-            className="flex items-center justify-between gap-3 text-xs"
-          >
-            <span className="flex items-center gap-2">
-              <span
-                className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: entry.color }}
-              />
-              {entry.name === "precioAnterior" ? "Precio anterior" : "Precio nuevo"}
-            </span>
-            <span className="font-semibold">{formatCurrency(Number(entry.value))}</span>
-          </div>
-        ))}
+        <p className="mb-2 text-xs font-semibold">{activeLabel}</p>
+        {payload.map((entry) => {
+          const isPreviousPrice =
+            entry.dataKey === "precioAnterior" || entry.name === "Precio anterior";
+
+          return (
+            <div
+              key={`${entry.dataKey ?? entry.name}`}
+              className="flex items-center justify-between gap-3 text-xs"
+            >
+              <span className="flex items-center gap-2">
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: entry.color }}
+                />
+                {isPreviousPrice ? "Precio anterior" : "Precio nuevo"}
+              </span>
+              <span className="font-semibold">
+                {formatCurrency(Number(entry.value))}
+              </span>
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -310,7 +325,10 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
                       stroke={isDarkMode ? "#334155" : "#e5e7eb"}
                     />
                     <XAxis
-                      dataKey="fecha"
+                      dataKey="pointKey"
+                      tickFormatter={(value) =>
+                        chartData.find((item) => item.pointKey === value)?.fecha ?? ""
+                      }
                       tick={{ fontSize: 11, fill: isDarkMode ? "#cbd5e1" : "#475569" }}
                       minTickGap={20}
                     />

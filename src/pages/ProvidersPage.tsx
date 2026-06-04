@@ -595,9 +595,32 @@ const ProvidersPage = () => {
                           setEditModalOpen(true);
                         }}
                       >
-                        <span className="block truncate font-mono text-xs" title={provider.ruc || "N.A"}>
-                          {provider.ruc || "N.A"}
-                        </span>
+                        {(() => {
+                          const value = provider.ruc || "N.A";
+                          const key = `${provider.id}-ruc`;
+                          const copied = copiedKey === key;
+
+                          return (
+                            <span className="inline-flex max-w-full items-center gap-1.5 font-mono text-xs">
+                              <span className="min-w-0 truncate" title={value}>
+                                {value}
+                              </span>
+                              {value !== "N.A" && (
+                                <button
+                                  type="button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleCopy(value, key);
+                                  }}
+                                  className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-purple-200 text-purple-600 transition-colors hover:bg-purple-50 dark:border-purple-500/30 dark:text-purple-200 dark:hover:bg-purple-500/10"
+                                  title="Copiar RUC"
+                                >
+                                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                                </button>
+                              )}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td
                         className="px-3 py-3 cursor-pointer"
