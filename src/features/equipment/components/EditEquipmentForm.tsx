@@ -243,7 +243,7 @@ export const EditEquipmentForm: React.FC<EditEquipmentFormProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
+      <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-2 py-3 backdrop-blur-sm dark:bg-slate-950/70 sm:items-center sm:overflow-y-visible sm:p-4">
         <div
           ref={modalRef}
           className="w-full max-w-3xl max-h-95vh overflow-hidden rounded-3xl bg-white shadow-2xl transition-colors dark:bg-slate-950 flex flex-col"

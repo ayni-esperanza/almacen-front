@@ -227,7 +227,7 @@ export const EditProviderModal: React.FC<EditProviderModalProps> = ({
   if (!isOpen || !provider) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-2 py-3 backdrop-blur-sm dark:bg-slate-950/70 sm:items-center sm:overflow-y-visible sm:p-4">
       <div
         ref={modalRef}
         className={`flex w-full max-w-3xl flex-col overflow-hidden bg-white shadow-2xl rounded-3xl dark:border dark:border-slate-800 dark:bg-slate-950 ${
