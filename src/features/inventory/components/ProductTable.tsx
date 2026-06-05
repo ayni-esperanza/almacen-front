@@ -134,9 +134,14 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       uploadedAt: "17/12/2025",
     },
     {
-      title: "Nuevas Funcionalidades",
+      title: "Nuevas Funcionalidades pt. 1",
       youtubeUrl: "https://youtu.be/ag0Nuk1TYtU",
       uploadedAt: "26/05/2026",
+    },
+    {
+      title: "Nuevas Funcionalidades pt. 2",
+      youtubeUrl: "https://youtu.be/NoE0eEMnQxM",
+      uploadedAt: "04/06/2026",
     },
   ];
   const renderHeader = (className: string) => (

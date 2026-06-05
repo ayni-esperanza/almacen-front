@@ -56,8 +56,6 @@ export const InventoryPage = () => {
     <>
       <ProductTable
         {...inventoryData}
-        createUbicacion={handleCreateUbicacion}
-        createCategoria={handleCreateCategoria}
         onOpenCatalogManager={() => setShowCatalogManager(true)}
         onAddProduct={() => setShowAddForm(true)}
       />

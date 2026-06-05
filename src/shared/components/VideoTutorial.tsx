@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { X } from "lucide-react";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import { useModalScrollLock } from "../hooks/useModalScrollLock";
 
@@ -439,62 +440,67 @@ export const VideoTutorialSelectorModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 py-8 backdrop-blur-sm">
-      <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl dark:bg-slate-950">
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-slate-800">
-          <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">
-            Selecciona un video tutorial
-          </h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-8">
+      <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950">
+        <div className="flex flex-shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-slate-800 sm:px-5 sm:py-4">
+          <div>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">
+              Selecciona un video tutorial
+            </h3>
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">
+              {store.videos.length} videos disponibles
+            </p>
+          </div>
           <button
             type="button"
             onClick={closeModal}
             className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-900"
             aria-label="Cerrar"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="grid gap-4 p-5 sm:grid-cols-2">
-          {store.videos.map((video) => {
-            const videoId = getVideoId(video.youtubeUrl);
-            const thumbUrl = videoId
-              ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
-              : "";
-            return (
-              <button
-                key={`${video.youtubeUrl}-${video.title}`}
-                type="button"
-                onClick={() => handleSelectVideo(video)}
-                className="group overflow-hidden rounded-xl border border-gray-200 bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
-              >
-                <div className="aspect-video w-full bg-slate-900/10">
-                  {thumbUrl ? (
-                    <img
-                      src={thumbUrl}
-                      alt={`Miniatura de ${video.title}`}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-gray-500 dark:text-slate-400">
-                      Miniatura no disponible
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-1 px-4 py-3">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">
-                    {video.title}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-slate-400">
-                    {video.uploadedAt ? `Subido: ${video.uploadedAt}` : "Fecha no disponible"}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
+        <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
+          <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {store.videos.map((video) => {
+              const videoId = getVideoId(video.youtubeUrl);
+              const thumbUrl = videoId
+                ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+                : "";
+              return (
+                <button
+                  key={`${video.youtubeUrl}-${video.title}`}
+                  type="button"
+                  onClick={() => handleSelectVideo(video)}
+                  className="group flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+                >
+                  <div className="aspect-video w-full flex-shrink-0 bg-slate-900/10">
+                    {thumbUrl ? (
+                      <img
+                        src={thumbUrl}
+                        alt={`Miniatura de ${video.title}`}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xs text-gray-500 dark:text-slate-400">
+                        Miniatura no disponible
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between gap-2 px-4 py-3">
+                    <p className="line-clamp-2 text-sm font-semibold leading-5 text-gray-900 dark:text-slate-100">
+                      {video.title}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-slate-400">
+                      {video.uploadedAt ? `Subido: ${video.uploadedAt}` : "Fecha no disponible"}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
