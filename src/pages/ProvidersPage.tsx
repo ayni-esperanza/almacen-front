@@ -244,7 +244,9 @@ const ProvidersPage = () => {
             <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
             <p className="mb-4 text-red-600 dark:text-rose-300">{error}</p>
             <button
-              onClick={refetch}
+              onClick={() => {
+                void refetch();
+              }}
               className="px-4 py-2 text-white transition-colors bg-purple-600 rounded-lg hover:bg-purple-700"
             >
               Reintentar
@@ -510,19 +512,19 @@ const ProvidersPage = () => {
             ) : (
             <div
               key={`${currentPage}-${itemsPerPage}-${searchTerm}`}
-              className="max-w-full overflow-x-auto fade-section"
+              className="max-w-full overflow-x-auto fade-section lg:overflow-x-visible"
             >
-              <table className="min-w-[980px] table-fixed text-sm text-gray-700 dark:text-slate-200 lg:w-full">
+              <table className="min-w-[980px] table-fixed text-sm text-gray-700 dark:text-slate-200 lg:min-w-0 lg:w-full">
                 <colgroup>
-                  <col className="w-[56px]" />
-                  <col className="w-[190px]" />
-                  <col className="w-[130px]" />
-                  <col className="w-[150px]" />
-                  <col className="w-[180px]" />
-                  <col className="w-[210px]" />
-                  <col className="w-[150px]" />
-                  <col className="w-[150px]" />
-                  <col className="w-[150px]" />
+                  <col className="w-[56px] lg:w-[5%]" />
+                  <col className="w-[190px] lg:w-[14%]" />
+                  <col className="w-[130px] lg:w-[10%]" />
+                  <col className="w-[150px] lg:w-[13%]" />
+                  <col className="w-[180px] lg:w-[14%]" />
+                  <col className="w-[210px] lg:w-[18%]" />
+                  <col className="w-[150px] lg:w-[12%]" />
+                  <col className="w-[150px] lg:w-[7%]" />
+                  <col className="w-[150px] lg:w-[7%]" />
                 </colgroup>
                 {/* HEADER DE TABLA */}
                 <thead className="bg-gray-50 dark:bg-slate-900">
