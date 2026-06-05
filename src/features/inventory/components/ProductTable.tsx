@@ -200,9 +200,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       <div className="flex flex-col bg-white border border-transparent shadow-lg dark:border-slate-800 dark:bg-slate-950">
         {/* Search Filter sticky */}
         <div className="sticky top-[109px] z-30 p-4 bg-white border-b border-gray-200/70 dark:border-slate-800/70 dark:bg-slate-900 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center flex-1 gap-3">
-              <div className="relative flex-1 max-w-md">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center w-full gap-2 sm:flex-1 sm:gap-3">
+              <div className="relative flex-1 min-w-0 max-w-md">
                 <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
                 <input
                   type="text"
@@ -214,7 +214,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               </div>
               <button
                 onClick={() => setFilterEPP(!filterEPP)}
-                className={`flex items-center flex-shrink-0 px-4 py-2 font-medium transition-all rounded-lg shadow-md whitespace-nowrap ${
+                className={`flex h-10 items-center flex-shrink-0 px-3 py-2 font-medium transition-all rounded-lg shadow-md sm:px-4 whitespace-nowrap ${
                   filterEPP
                     ? "bg-green-500 text-white hover:bg-green-600"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
@@ -223,13 +223,13 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 <span>EPP</span>
               </button>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto sm:flex-nowrap sm:gap-3">
               {onOpenCatalogManager && (
                 <button
                   onClick={onOpenCatalogManager}
                   aria-label="Gestionar ubicaciones y categorías"
                   title="Gestionar ubicaciones y categorías"
-                  className="flex items-center justify-center p-2 text-sm font-medium text-gray-700 transition-all bg-white border border-gray-300 rounded-lg shadow-sm h-[38px] hover:bg-gray-50 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-800"
+                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center p-2 text-sm font-medium text-gray-700 transition-all bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-800"
                 >
                   <Settings2 className="w-4 h-4" />
                 </button>
@@ -246,10 +246,11 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               {onAddProduct && (
                 <button
                   onClick={onAddProduct}
-                  className="flex items-center flex-shrink-0 px-6 py-2 space-x-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 whitespace-nowrap"
+                  className="flex h-10 min-w-0 flex-1 items-center justify-center gap-2 px-4 py-2 font-medium text-white transition-colors bg-green-500 rounded-lg shadow-md hover:bg-green-600 sm:flex-none sm:px-6 whitespace-nowrap"
                 >
-                  <Plus className="w-4 h-4" />
-                  <span>Agregar Producto</span>
+                  <Plus className="w-4 h-4 flex-shrink-0" />
+                  <span className="sm:hidden">Agregar</span>
+                  <span className="hidden sm:inline">Agregar Producto</span>
                 </button>
               )}
             </div>
