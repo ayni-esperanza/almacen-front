@@ -875,9 +875,11 @@ body.dark .login-page {
 
 .dark .react-datepicker .react-datepicker__month-container,
 .dark .react-datepicker .react-datepicker__month,
+.dark .react-datepicker .react-datepicker__month-wrapper,
 .dark .react-datepicker .react-datepicker__day-names,
 .dark .app-datepicker .react-datepicker__month-container,
 .dark .app-datepicker .react-datepicker__month,
+.dark .app-datepicker .react-datepicker__month-wrapper,
 .dark .app-datepicker .react-datepicker__day-names {
 	background: var(--calendar-surface-dark) !important;
 }
@@ -885,9 +887,13 @@ body.dark .login-page {
 .dark .react-datepicker .react-datepicker__day,
 .dark .react-datepicker .react-datepicker__day-name,
 .dark .react-datepicker .react-datepicker__current-month,
+.dark .react-datepicker .react-datepicker__month-text,
+.dark .react-datepicker .react-datepicker__year-text,
 .dark .app-datepicker .react-datepicker__day,
 .dark .app-datepicker .react-datepicker__day-name,
-.dark .app-datepicker .react-datepicker__current-month {
+.dark .app-datepicker .react-datepicker__current-month,
+.dark .app-datepicker .react-datepicker__month-text,
+.dark .app-datepicker .react-datepicker__year-text {
 	color: #e2e8f0 !important;
 }
 
@@ -905,4 +911,24 @@ body.dark .login-page {
 .dark .react-datepicker .react-datepicker__day--outside-month,
 .dark .app-datepicker .react-datepicker__day--outside-month {
 	color: #64748b !important;
+}
+
+.dark .react-datepicker .react-datepicker__month-text--selected,
+.dark .react-datepicker .react-datepicker__month-text--keyboard-selected,
+.dark .react-datepicker .react-datepicker__month-text--selected:hover,
+.dark .react-datepicker .react-datepicker__month-text--keyboard-selected:hover,
+.dark .react-datepicker .react-datepicker__year-text--selected,
+.dark .react-datepicker .react-datepicker__year-text--keyboard-selected,
+.dark .react-datepicker .react-datepicker__year-text--selected:hover,
+.dark .react-datepicker .react-datepicker__year-text--keyboard-selected:hover,
+.dark .app-datepicker .react-datepicker__month-text--selected,
+.dark .app-datepicker .react-datepicker__month-text--keyboard-selected,
+.dark .app-datepicker .react-datepicker__month-text--selected:hover,
+.dark .app-datepicker .react-datepicker__month-text--keyboard-selected:hover,
+.dark .app-datepicker .react-datepicker__year-text--selected,
+.dark .app-datepicker .react-datepicker__year-text--keyboard-selected,
+.dark .app-datepicker .react-datepicker__year-text--selected:hover,
+.dark .app-datepicker .react-datepicker__year-text--keyboard-selected:hover {
+	background: var(--calendar-accent) !important;
+	color: #fff !important;
 }
