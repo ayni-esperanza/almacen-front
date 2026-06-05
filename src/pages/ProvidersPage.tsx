@@ -253,10 +253,10 @@ const ProvidersPage = () => {
         ) : (
           <>
             {/* FILTROS sticky */}
-            <div className="sticky top-[109px] z-20 p-4 border-b border-gray-200 bg-gray-50 dark:border-slate-800 dark:bg-slate-900 shadow-sm">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="relative flex-1 sm:w-[28rem]">
+            <div className="sticky top-[109px] z-20 p-3 border-b border-gray-200 bg-gray-50 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-4">
+          <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative min-w-0 flex-1 sm:w-[28rem]">
               <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2 dark:text-slate-500" />
               <input
                 type="text"
@@ -266,11 +266,11 @@ const ProvidersPage = () => {
                 className={searchInputClasses}
               />
             </div>
-              <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-950">
+              <div className="inline-flex w-full rounded-lg border border-gray-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-950 sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setViewMode("table")}
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold transition-colors ${
+                  className={`inline-flex h-9 flex-1 items-center justify-center rounded-md text-sm font-semibold transition-colors sm:w-9 sm:flex-none ${
                     viewMode === "table"
                       ? "bg-purple-600 text-white"
                       : "text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -283,7 +283,7 @@ const ProvidersPage = () => {
                 <button
                   type="button"
                   onClick={() => setViewMode("grid")}
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold transition-colors ${
+                  className={`inline-flex h-9 flex-1 items-center justify-center rounded-md text-sm font-semibold transition-colors sm:w-9 sm:flex-none ${
                     viewMode === "grid"
                       ? "bg-purple-600 text-white"
                       : "text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -297,7 +297,7 @@ const ProvidersPage = () => {
             </div>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center justify-center flex-shrink-0 px-6 py-2 space-x-2 font-medium text-white transition-colors bg-purple-600 rounded-lg shadow-md hover:bg-purple-700 whitespace-nowrap"
+                className="flex h-11 w-full items-center justify-center gap-2 px-4 py-2 font-medium text-white transition-colors bg-purple-600 rounded-lg shadow-md hover:bg-purple-700 sm:w-auto sm:px-6 whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
                 <span>Agregar Proveedor</span>
@@ -315,7 +315,7 @@ const ProvidersPage = () => {
             {viewMode === "grid" ? (
               <div
                 key={`${currentPage}-${itemsPerPage}-${searchTerm}-grid`}
-                className="grid gap-4 p-4 fade-section sm:grid-cols-2 xl:grid-cols-3"
+                className="grid min-w-0 grid-cols-1 gap-3 p-3 fade-section sm:grid-cols-2 sm:gap-4 sm:p-4 xl:grid-cols-3"
               >
                 {paginatedProviders.map((provider) => {
                   const activeCardTab = getProviderCardTab(provider.id);
@@ -324,13 +324,13 @@ const ProvidersPage = () => {
                   return (
                     <article
                       key={provider.id}
-                      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:border-purple-200 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-purple-500/40"
+                      className="min-w-0 overflow-hidden rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-colors hover:border-purple-200 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-purple-500/40 sm:p-4"
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex min-w-0 items-start gap-3">
                         <button
                           type="button"
                           onClick={() => openEditModal(provider)}
-                          className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-purple-200 bg-purple-50 dark:border-purple-500/30 dark:bg-purple-500/10"
+                          className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-purple-200 bg-purple-50 dark:border-purple-500/30 dark:bg-purple-500/10 sm:h-14 sm:w-14"
                           title="Editar proveedor"
                         >
                           {provider.photoUrl ? (
@@ -343,13 +343,13 @@ const ProvidersPage = () => {
                           <button
                             type="button"
                             onClick={() => openEditModal(provider)}
-                            className="block max-w-full truncate text-left text-base font-semibold text-gray-900 hover:text-purple-700 dark:text-slate-100 dark:hover:text-purple-200"
+                            className="block max-w-full text-left text-sm font-semibold leading-snug text-gray-900 hover:text-purple-700 line-clamp-2 dark:text-slate-100 dark:hover:text-purple-200 sm:text-base"
                             title={provider.name}
                           >
                             {provider.name}
                           </button>
-                          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
-                            <span className="font-mono">{provider.ruc || "N.A"}</span>
+                          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
+                            <span className="min-w-0 max-w-full truncate font-mono">{provider.ruc || "N.A"}</span>
                             <span className="h-1 w-1 rounded-full bg-gray-300 dark:bg-slate-600" />
                             <span>{accounts.length} cuenta{accounts.length === 1 ? "" : "s"}</span>
                           </div>
@@ -360,7 +360,7 @@ const ProvidersPage = () => {
                         <button
                           type="button"
                           onClick={() => setProviderCardTab(provider.id, "info")}
-                          className={`flex-1 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors ${
+                          className={`min-w-0 flex-1 rounded-md px-2 py-1.5 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
                             activeCardTab === "info"
                               ? "bg-white text-purple-700 shadow-sm dark:bg-slate-950 dark:text-purple-200"
                               : "text-gray-600 hover:bg-white/70 dark:text-slate-300 dark:hover:bg-slate-950/70"
@@ -371,7 +371,7 @@ const ProvidersPage = () => {
                         <button
                           type="button"
                           onClick={() => setProviderCardTab(provider.id, "banking")}
-                          className={`flex-1 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors ${
+                          className={`min-w-0 flex-1 rounded-md px-2 py-1.5 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
                             activeCardTab === "banking"
                               ? "bg-white text-purple-700 shadow-sm dark:bg-slate-950 dark:text-purple-200"
                               : "text-gray-600 hover:bg-white/70 dark:text-slate-300 dark:hover:bg-slate-950/70"
@@ -382,14 +382,14 @@ const ProvidersPage = () => {
                       </div>
 
                       {activeCardTab === "info" ? (
-                        <div className="mt-4 space-y-3 text-sm text-gray-700 dark:text-slate-300">
-                          <div className="flex items-center gap-2">
+                        <div className="mt-4 min-w-0 space-y-3 text-sm text-gray-700 dark:text-slate-300">
+                          <div className="flex min-w-0 items-center gap-2">
                             <Mail className="h-4 w-4 flex-shrink-0 text-purple-500" />
-                            <span className="truncate">{provider.email}</span>
+                            <span className="min-w-0 truncate">{provider.email}</span>
                           </div>
-                          <div className="flex items-start gap-2">
+                          <div className="flex min-w-0 items-start gap-2">
                             <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-purple-500" />
-                            <span className="line-clamp-2">{provider.address || "N.A"}</span>
+                            <span className="min-w-0 break-words line-clamp-3">{provider.address || "N.A"}</span>
                           </div>
                           <div className="flex flex-wrap gap-1.5">
                             {provider.phones.map((phone, idx) => (
@@ -397,16 +397,16 @@ const ProvidersPage = () => {
                                 key={`${provider.id}-grid-phone-${idx}`}
                                 type="button"
                                 onClick={() => openWhatsApp(phone)}
-                                className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800 transition-colors hover:bg-green-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
+                                className="inline-flex max-w-full items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800 transition-colors hover:bg-green-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
                               >
                                 <Phone className="h-3.5 w-3.5" />
-                                {phone}
+                                <span className="truncate">{phone}</span>
                               </button>
                             ))}
                           </div>
                         </div>
                       ) : (
-                        <div className="mt-4 space-y-3">
+                        <div className="mt-4 min-w-0 space-y-3">
                           {accounts.length === 0 ? (
                             <p className="text-sm text-gray-500 dark:text-slate-400">Sin cuentas bancarias</p>
                           ) : (() => {
@@ -421,7 +421,7 @@ const ProvidersPage = () => {
 
                             return (
                               <>
-                                <div className="flex flex-wrap items-center gap-1.5">
+                                <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                                   {availableBanks.map((bank) => {
                                     const bankOption = BANK_OPTIONS.find((option) => option.value === bank);
                                     return (
@@ -464,11 +464,11 @@ const ProvidersPage = () => {
                                 {visibleAccounts.map((account, index) => (
                               <div
                                 key={`${provider.id}-grid-account-${index}`}
-                                className="rounded-lg border border-gray-100 bg-gray-50 p-3 dark:border-slate-800 dark:bg-slate-900/70"
+                                 className="min-w-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50 p-3 dark:border-slate-800 dark:bg-slate-900/70"
                               >
-                                <div className="mb-2 flex items-center gap-2">
+                                 <div className="mb-2 flex min-w-0 items-center gap-2">
                                   <BankLogo bankName={account.banco || "N.A"} />
-                                  <span className="truncate text-sm font-semibold text-gray-900 dark:text-slate-100">
+                                   <span className="min-w-0 truncate text-sm font-semibold text-gray-900 dark:text-slate-100">
                                     {account.banco || "N.A"}
                                   </span>
                                 </div>
@@ -478,7 +478,7 @@ const ProvidersPage = () => {
                                 ].map((item) => {
                                   const copied = copiedKey === item.key;
                                   return (
-                                    <div key={item.key} className="flex items-center justify-between gap-2 py-1 text-xs">
+                                     <div key={item.key} className="flex min-w-0 items-center justify-between gap-2 py-1 text-xs">
                                       <span className="font-semibold text-gray-500 dark:text-slate-400">{item.label}</span>
                                       <span className="flex min-w-0 items-center gap-1.5 font-mono text-gray-700 dark:text-slate-200">
                                         <span className="truncate">{item.value}</span>
@@ -510,48 +510,48 @@ const ProvidersPage = () => {
             ) : (
             <div
               key={`${currentPage}-${itemsPerPage}-${searchTerm}`}
-              className="overflow-x-auto fade-section"
+              className="max-w-full overflow-x-auto fade-section"
             >
-              <table className="w-full table-fixed text-sm text-gray-700 dark:text-slate-200">
+              <table className="min-w-[980px] table-fixed text-sm text-gray-700 dark:text-slate-200 lg:w-full">
                 <colgroup>
-                  <col className="w-[4%]" />
-                  <col className="w-[12%]" />
-                  <col className="w-[8%]" />
-                  <col className="w-[13%]" />
-                  <col className="w-[14%]" />
-                  <col className="w-[17%]" />
-                  <col className="w-[12%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[10%]" />
+                  <col className="w-[56px]" />
+                  <col className="w-[190px]" />
+                  <col className="w-[130px]" />
+                  <col className="w-[150px]" />
+                  <col className="w-[180px]" />
+                  <col className="w-[210px]" />
+                  <col className="w-[150px]" />
+                  <col className="w-[150px]" />
+                  <col className="w-[150px]" />
                 </colgroup>
                 {/* HEADER DE TABLA */}
                 <thead className="bg-gray-50 dark:bg-slate-900">
                   <tr className="border-b border-gray-200 dark:border-slate-800">
-                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       Foto
                     </th>
-                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       Nombre
                     </th>
-                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       RUC
                     </th>
-                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       Teléfonos
                     </th>
-                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       Email
                     </th>
-                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       Dirección
                     </th>
-                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       Banco
                     </th>
-                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       Cuenta
                     </th>
-                    <th className="px-3 py-3 text-sm font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
+                    <th className="px-3 py-3 text-xs font-semibold text-left text-gray-700 shadow-sm bg-gray-50 dark:bg-slate-900 dark:text-slate-300">
                       CCI
                     </th>
                   </tr>
