@@ -177,7 +177,7 @@ export const EditExitMovementForm: React.FC<EditExitMovementFormProps> = ({
         <div className="flex-1 overflow-visible">
           <form
             onSubmit={handleSubmit}
-            className="px-4 pt-4 pb-4 space-y-2 transition-colors bg-white dark:bg-slate-950"
+            className="px-4 pt-4 pb-4 space-y-2 transition-colors bg-white rounded-b-3xl dark:bg-slate-950"
           >
             <div className="grid gap-3 md:grid-cols-2">
               <label className={labelClasses}>
