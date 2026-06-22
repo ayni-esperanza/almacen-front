@@ -47,6 +47,10 @@ export interface UseInventoryReturn {
 }
 
 export const useInventory = (): UseInventoryReturn => {
+  const notifyStockAlertsUpdated = () => {
+    window.dispatchEvent(new Event("stockAlertsUpdated"));
+  };
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -173,6 +177,7 @@ export const useInventory = (): UseInventoryReturn => {
       const newProduct = await inventoryService.createProduct(productData);
       if (newProduct) {
         await refetch({ silent: true });
+        notifyStockAlertsUpdated();
       }
       return newProduct;
     } catch (err) {
@@ -192,6 +197,7 @@ export const useInventory = (): UseInventoryReturn => {
       );
       if (updatedProduct) {
         await refetch({ silent: true });
+        notifyStockAlertsUpdated();
       }
       return updatedProduct;
     } catch (err) {
@@ -207,6 +213,7 @@ export const useInventory = (): UseInventoryReturn => {
       const success = await inventoryService.deleteProduct(id.toString());
       if (success) {
         await refetch({ silent: true });
+        notifyStockAlertsUpdated();
       }
       return success;
     } catch (err) {

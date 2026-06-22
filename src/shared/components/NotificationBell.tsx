@@ -148,6 +148,22 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
   });
   const pendingCount = pendingAlerts.length;
 
+  const handleOpenAllAlerts = () => {
+    setOpen(false);
+    onOpenAlertsCenter?.();
+
+    if (!alertsRoute) {
+      return;
+    }
+
+    const [pathname, searchParams] = alertsRoute.split('?');
+
+    navigate({
+      pathname,
+      search: searchParams ? `?${searchParams}` : '',
+    });
+  };
+
   return (
     <div className="relative" ref={containerRef}>
       <button
@@ -241,13 +257,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
 
           <button
             type="button"
-            onClick={() => {
-              if (alertsRoute) {
-                navigate(alertsRoute);
-              }
-              onOpenAlertsCenter?.();
-              setOpen(false);
-            }}
+            onClick={handleOpenAllAlerts}
             className="flex w-full items-center justify-between bg-gray-50 px-4 py-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-100 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Ver todas las alertas

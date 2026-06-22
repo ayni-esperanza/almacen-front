@@ -57,13 +57,15 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
     }
   };
 
+  const hasActiveStockAlert = product.stockActual <= product.stockMinimo;
+
   return (
     <>
       <tr
         className={`border-b border-gray-100 transition-colors hover:bg-green-50 dark:border-slate-800/70 dark:hover:bg-slate-900/60 ${
           isSelected
             ? "bg-green-100 dark:bg-green-900/30"
-            : product.stockActual === 0 || product.stockActual <= 3
+            : hasActiveStockAlert
               ? "bg-red-50 dark:bg-rose-500/15"
               : "bg-white dark:bg-slate-950/40"
         }`}

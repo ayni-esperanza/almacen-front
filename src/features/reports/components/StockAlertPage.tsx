@@ -63,14 +63,6 @@ export const StockAlertPage: React.FC = () => {
     };
   }, [loadFiltersData]);
 
-  useEffect(() => {
-    void loadStockAlerts();
-  }, [loadStockAlerts]);
-
-  useEffect(() => {
-    setFilteredAlerts(stockAlerts);
-  }, [stockAlerts, filters]);
-
   const loadStockAlerts = useCallback(async () => {
     try {
       setLoading(true);
@@ -83,6 +75,14 @@ export const StockAlertPage: React.FC = () => {
       setLoading(false);
     }
   }, [filters]);
+
+  useEffect(() => {
+    void loadStockAlerts();
+  }, [loadStockAlerts]);
+
+  useEffect(() => {
+    setFilteredAlerts(stockAlerts);
+  }, [stockAlerts, filters]);
 
   useEffect(() => {
     const handleStockAlertsUpdated = () => {
