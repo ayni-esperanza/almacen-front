@@ -36,7 +36,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     entradas: "0",
     salidas: "0",
     stockActual: "",
-    stockMinimo: "",
+    stockMinimo: "1",
     unidadMedida: "",
     marca: "",
     providerId: "",
@@ -89,7 +89,9 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
       costoUnitario: parseFloat(formData.costoUnitario) || 0,
       unidadMedida: formData.unidadMedida,
       stockActual: parseInt(formData.stockActual) || 0,
-      stockMinimo: parseInt(formData.stockMinimo) || 0,
+      stockMinimo: Number.isNaN(parseInt(formData.stockMinimo, 10))
+        ? 1
+        : parseInt(formData.stockMinimo, 10),
       providerId: parseInt(formData.providerId),
       marca: formData.marca,
       ubicacion: formData.ubicacion,
@@ -188,7 +190,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   onFocus={(e) => e.target.select()}
                   className={inputClasses}
                   min="0"
-                  placeholder="0"
+                  placeholder="1"
                   required
                 />
               </div>
@@ -260,7 +262,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                   onChange={handleChange}
                   className={inputClasses}
                   min="0"
-                  placeholder="0"
+                  placeholder="1"
                   required
                 />
               </div>

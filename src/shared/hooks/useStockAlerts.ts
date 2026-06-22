@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { stockAlertsService } from "../../features/reports/services/stock-alerts.service";
 import type { StockAlert } from "../../features/reports/types";
 import type { StockAlertNotification } from "../components/NotificationBell";
@@ -8,7 +8,7 @@ export const useStockAlerts = (refreshInterval = 60000) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     try {
       setError(null);
       // Obtener solo alertas críticas y de advertencia (stock bajo o crítico)
@@ -47,7 +47,7 @@ export const useStockAlerts = (refreshInterval = 60000) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAlerts();
@@ -56,7 +56,19 @@ export const useStockAlerts = (refreshInterval = 60000) => {
     const interval = setInterval(fetchAlerts, refreshInterval);
 
     return () => clearInterval(interval);
-  }, [refreshInterval]);
+  }, [fetchAlerts, refreshInterval]);
+
+  useEffect(() => {
+    const handleStockAlertsUpdated = () => {
+      void fetchAlerts();
+    };
+
+    window.addEventListener("stockAlertsUpdated", handleStockAlertsUpdated);
+
+    return () => {
+      window.removeEventListener("stockAlertsUpdated", handleStockAlertsUpdated);
+    };
+  }, [fetchAlerts]);
 
   return {
     alerts,

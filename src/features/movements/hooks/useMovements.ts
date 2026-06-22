@@ -72,6 +72,10 @@ export interface UseMovementsReturn {
 }
 
 export const useMovements = (): UseMovementsReturn => {
+  const notifyStockAlertsUpdated = () => {
+    window.dispatchEvent(new Event("stockAlertsUpdated"));
+  };
+
   const [entries, setEntries] = useState<MovementEntry[]>([]);
   const [exits, setExits] = useState<MovementExit[]>([]);
   const [loading, setLoading] = useState(true);
@@ -261,6 +265,7 @@ export const useMovements = (): UseMovementsReturn => {
       const newEntry = await movementsService.createMovementEntry(entryData);
       if (newEntry) {
         await refetchEntries({ silent: true });
+        notifyStockAlertsUpdated();
       }
       return newEntry;
     } catch (err) {
@@ -276,6 +281,7 @@ export const useMovements = (): UseMovementsReturn => {
       const newExit = await movementsService.createExit(exitData);
       if (newExit) {
         await refetchExits({ silent: true });
+        notifyStockAlertsUpdated();
       }
       return newExit;
     } catch (err) {
@@ -295,6 +301,7 @@ export const useMovements = (): UseMovementsReturn => {
       );
       if (updatedExit) {
         await refetchExits({ silent: true });
+        notifyStockAlertsUpdated();
       }
       return updatedExit;
     } catch (err) {
@@ -313,6 +320,7 @@ export const useMovements = (): UseMovementsReturn => {
       const updatedEntry = await movementsService.updateEntry(id, entryData);
       if (updatedEntry) {
         await refetchEntries({ silent: true });
+        notifyStockAlertsUpdated();
       }
       return updatedEntry;
     } catch (err) {
@@ -331,6 +339,7 @@ export const useMovements = (): UseMovementsReturn => {
       const updatedExit = await movementsService.updateExit(id, exitData);
       if (updatedExit) {
         await refetchExits({ silent: true });
+        notifyStockAlertsUpdated();
       }
       return updatedExit;
     } catch (err) {
@@ -345,6 +354,7 @@ export const useMovements = (): UseMovementsReturn => {
     try {
       await movementsService.deleteEntry(id);
       await refetchEntries({ silent: true });
+      notifyStockAlertsUpdated();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Error al eliminar entrada",
@@ -359,6 +369,7 @@ export const useMovements = (): UseMovementsReturn => {
     try {
       await movementsService.deleteExit(id);
       await refetchExits({ silent: true });
+      notifyStockAlertsUpdated();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al eliminar salida");
       throw err;

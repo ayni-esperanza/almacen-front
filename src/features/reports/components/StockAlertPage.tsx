@@ -64,27 +64,37 @@ export const StockAlertPage: React.FC = () => {
   }, [loadFiltersData]);
 
   useEffect(() => {
-    const loadStockAlerts = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await stockAlertsService.getStockAlerts(filters);
-        setStockAlerts(data);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Error al cargar alertas"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadStockAlerts();
-  }, [filters]);
+    void loadStockAlerts();
+  }, [loadStockAlerts]);
 
   useEffect(() => {
     setFilteredAlerts(stockAlerts);
   }, [stockAlerts, filters]);
+
+  const loadStockAlerts = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await stockAlertsService.getStockAlerts(filters);
+      setStockAlerts(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al cargar alertas");
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
+
+  useEffect(() => {
+    const handleStockAlertsUpdated = () => {
+      void loadStockAlerts();
+    };
+
+    window.addEventListener("stockAlertsUpdated", handleStockAlertsUpdated);
+
+    return () => {
+      window.removeEventListener("stockAlertsUpdated", handleStockAlertsUpdated);
+    };
+  }, [loadStockAlerts]);
 
   const updateFilters = useCallback(
     (newFilters: Partial<StockAlertFilters>) => {
@@ -101,6 +111,17 @@ export const StockAlertPage: React.FC = () => {
         return "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-amber-500/10 dark:text-amber-200 dark:border-amber-500/40";
       default:
         return "bg-green-100 text-green-800 border-green-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/40";
+    }
+  }, []);
+
+  const getStockTextColor = useCallback((estado: StockAlert["estado"]) => {
+    switch (estado) {
+      case "critico":
+        return "text-red-600 dark:text-rose-300";
+      case "bajo":
+        return "text-orange-600 dark:text-orange-300";
+      default:
+        return "text-gray-900 dark:text-slate-100";
     }
   }, []);
 
@@ -138,7 +159,7 @@ export const StockAlertPage: React.FC = () => {
 
   // Optimización: Memoizar generación del título dinámico
   const getTableTitle = useCallback(() => {
-    const parts: string[] = ["Productos con Stock"];
+      const parts: string[] = ["Alertas de Stock"];
 
     if (filters.estado) {
       const estadoTexto =
@@ -459,13 +480,9 @@ export const StockAlertPage: React.FC = () => {
                       </td>
                       <td className="px-3 py-2 text-xs text-gray-900 dark:text-slate-200">
                         <span
-                          className={`font-semibold ${
-                            alert.stockActual === 0
-                              ? "text-red-600 dark:text-rose-300"
-                              : alert.stockActual < 5
-                              ? "text-orange-600 dark:text-orange-300"
-                              : "text-gray-900 dark:text-slate-100"
-                          }`}
+                          className={`font-semibold ${getStockTextColor(
+                            alert.estado
+                          )}`}
                         >
                           {alert.stockActual}
                         </span>
@@ -532,13 +549,9 @@ export const StockAlertPage: React.FC = () => {
                           Stock Actual
                         </p>
                         <p
-                          className={`text-sm font-semibold ${
-                            alert.stockActual === 0
-                              ? "text-red-600 dark:text-rose-300"
-                              : alert.stockActual < 5
-                              ? "text-orange-600 dark:text-orange-300"
-                              : "text-gray-900 dark:text-slate-100"
-                          }`}
+                          className={`text-sm font-semibold ${getStockTextColor(
+                            alert.estado
+                          )}`}
                         >
                           {alert.stockActual}
                         </p>

@@ -45,7 +45,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   );
   const [ubicacion, setUbicacion] = useState(product?.ubicacion || "");
   const [stockActual, setStockActual] = useState(product?.stockActual || 0);
-  const [stockMinimo, setStockMinimo] = useState(product?.stockMinimo || 0);
+  const [stockMinimo, setStockMinimo] = useState(product?.stockMinimo ?? 1);
   const [unidadMedida, setUnidadMedida] = useState(product?.unidadMedida || "");
   const [providerId, setProviderId] = useState(product?.providerId || 0);
   const [marca, setMarca] = useState(product?.marca || "");
@@ -93,7 +93,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setCostoUnitario(product.costoUnitario);
       setUbicacion(product.ubicacion);
       setStockActual(product.stockActual);
-      setStockMinimo(product.stockMinimo || 0);
+      setStockMinimo(product.stockMinimo ?? 1);
       setUnidadMedida(product.unidadMedida);
       setProviderId(product.providerId);
       setMarca(product.marca || "");
