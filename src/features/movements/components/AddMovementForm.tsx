@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { X, Check, Loader2, AlertCircle } from "lucide-react";
+import { X, Check, Loader2, AlertCircle, ListPlus } from "lucide-react";
 import DatePicker from "react-datepicker";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -12,10 +12,13 @@ import {
   inventoryService,
   Product,
 } from "../../../shared/services/inventory.service";
+import { CreateExitData } from "../../../shared/services/movements.service";
+import { BulkExitMovementForm } from "./BulkExitMovementForm";
 
 interface AddMovementFormProps {
   type: "entrada" | "salida";
   onSubmit: (data: any) => void;
+  onSubmitMany?: (data: CreateExitData[]) => Promise<void>;
   onCancel: () => void;
   catalogs: ReferenceCatalogs;
 }
@@ -23,17 +26,19 @@ interface AddMovementFormProps {
 export const AddMovementForm: React.FC<AddMovementFormProps> = ({
   type,
   onSubmit,
+  onSubmitMany,
   onCancel,
   catalogs,
 }) => {
+  const [showBulkExitForm, setShowBulkExitForm] = useState(false);
   // Bloquear scroll de la ventana
   useModalScrollLock(true);
   // Cerrar modal con tecla ESC
-  useEscapeKey(onCancel, true);
+  useEscapeKey(onCancel, !showBulkExitForm);
   // Referencia para detectar clicks fuera de la modal
   const modalRef = useRef<HTMLDivElement>(null);
   // Cerrar modal al hacer click fuera
-  useClickOutside(modalRef, onCancel, true);
+  useClickOutside(modalRef, onCancel, !showBulkExitForm);
 
   const isEntry = type === "entrada";
   const [formData, setFormData] = useState(() => ({
@@ -252,6 +257,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
   const primaryButtonLabel = isEntry ? "Guardar" : "Agregar Producto";
 
   return (
+    <>
     <div className="system-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
@@ -586,7 +592,7 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
                   <div className="w-full">
                     <SearchableSelect
                       name="area"
-                      label="Área *"
+                      label="Área"
                       value={formData.area}
                       onChange={(value) =>
                         setFormData({ ...formData, area: value })
@@ -633,10 +639,20 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
             )}
 
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-200 dark:border-slate-800 sm:flex-row sm:justify-end">
+              {!isEntry && onSubmitMany && (
+                <button
+                  type="button"
+                  onClick={() => setShowBulkExitForm(true)}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-red-300 px-4 py-1.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 dark:border-red-500/50 dark:text-red-300 dark:hover:bg-red-500/10"
+                >
+                  <ListPlus className="h-4 w-4" />
+                  Agregar varios productos
+                </button>
+              )}
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors border border-gray-300 rounded-full hover:bg-gray-50"
+                className="px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors border border-gray-300 rounded-full hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
               >
                 Cancelar
               </button>
@@ -651,5 +667,13 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
         </div>
       </div>
     </div>
+    {showBulkExitForm && onSubmitMany && (
+      <BulkExitMovementForm
+        catalogs={catalogs}
+        onSubmit={onSubmitMany}
+        onCancel={() => setShowBulkExitForm(false)}
+      />
+    )}
+    </>
   );
 };

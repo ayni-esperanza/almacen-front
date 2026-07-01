@@ -102,6 +102,11 @@ export const MovementsPage = () => {
     }
   };
 
+  const handleAddMultipleExits = async (items: CreateExitData[]) => {
+    await movementsData.createExits(items);
+    setShowAddForm(false);
+  };
+
   const handleUpdateEntry = async (data: UpdateEntryData) => {
     if (!selectedEntry) return;
     try {
@@ -494,6 +499,9 @@ export const MovementsPage = () => {
         <AddMovementForm
           type={activeSubTab === "entradas" ? "entrada" : "salida"}
           onSubmit={handleAddMovement}
+          onSubmitMany={
+            activeSubTab === "salidas" ? handleAddMultipleExits : undefined
+          }
           onCancel={() => setShowAddForm(false)}
           catalogs={catalogData.catalogs}
         />

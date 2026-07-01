@@ -159,6 +159,34 @@ body.dark .provider-modal-scroll::-webkit-scrollbar-thumb {
 	background-color: #6d28d9;
 }
 
+.movement-modal-scroll {
+	scrollbar-width: thin;
+	scrollbar-color: #cbd5e1 transparent;
+}
+
+.movement-modal-scroll::-webkit-scrollbar {
+	width: 8px;
+}
+
+.movement-modal-scroll::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.movement-modal-scroll::-webkit-scrollbar-thumb {
+	background-color: #cbd5e1;
+	border: 2px solid transparent;
+	border-radius: 9999px;
+	background-clip: content-box;
+}
+
+body.dark .movement-modal-scroll {
+	scrollbar-color: #475569 transparent;
+}
+
+body.dark .movement-modal-scroll::-webkit-scrollbar-thumb {
+	background-color: #475569;
+}
+
 /* Simple fade/slide for section transitions */
 .system-modal-backdrop {
 	animation: system-modal-backdrop-in 200ms ease-out both;

@@ -42,6 +42,7 @@ export interface UseMovementsReturn {
   refetchExits: (options?: RefetchOptions) => Promise<void>;
   createEntry: (entryData: CreateEntryData) => Promise<MovementEntry | null>;
   createExit: (exitData: CreateExitData) => Promise<MovementExit | null>;
+  createExits: (exitItems: CreateExitData[]) => Promise<MovementExit[]>;
   updateExitQuantity: (
     id: number,
     quantityData: UpdateExitQuantityData,
@@ -290,6 +291,33 @@ export const useMovements = (): UseMovementsReturn => {
     }
   };
 
+  const createExits = async (
+    exitItems: CreateExitData[],
+  ): Promise<MovementExit[]> => {
+    const createdExits: MovementExit[] = [];
+    try {
+      for (const exitData of exitItems) {
+        const newExit = await movementsService.createExit(exitData);
+        if (newExit) createdExits.push(newExit);
+      }
+      return createdExits;
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : "Error al crear las salidas";
+      const message = createdExits.length
+        ? `Se registraron ${createdExits.length} de ${exitItems.length} salidas. ${detail}`
+        : detail;
+      setError(message);
+      const batchError = new Error(message) as Error & { createdCount: number };
+      batchError.createdCount = createdExits.length;
+      throw batchError;
+    } finally {
+      if (createdExits.length > 0) {
+        await refetchExits({ silent: true });
+        notifyStockAlertsUpdated();
+      }
+    }
+  };
+
   const updateExitQuantity = async (
     id: number,
     quantityData: UpdateExitQuantityData,
@@ -511,6 +539,7 @@ export const useMovements = (): UseMovementsReturn => {
     refetchExits,
     createEntry,
     createExit,
+    createExits,
     updateExitQuantity,
     updateEntry,
     updateExit,
