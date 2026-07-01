@@ -234,11 +234,11 @@ export const PurchaseOrderDetail = ({
   return (
     <>
       {/* Overlay de fondo */}
-      <div className="fixed inset-0 z-[100] bg-black/50" onClick={onClose} />
+      <div className="system-modal-backdrop fixed inset-0 z-[100] bg-black/50" onClick={onClose} />
 
       {/* Contenedor del modal */}
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
-        <div className="relative w-full max-w-5xl bg-white rounded-lg shadow-xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col pointer-events-auto">
+        <div className="system-modal-panel relative w-full max-w-5xl bg-white rounded-lg shadow-xl dark:bg-slate-900 max-h-[90vh] overflow-hidden flex flex-col pointer-events-auto">
           {/* Header con degradado */}
           <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700">
             <div>

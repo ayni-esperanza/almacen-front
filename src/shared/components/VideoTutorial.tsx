@@ -440,8 +440,8 @@ export const VideoTutorialSelectorModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-8">
-      <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950">
+    <div className="system-modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-8">
+      <div className="system-modal-panel flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950">
         <div className="flex flex-shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-slate-800 sm:px-5 sm:py-4">
           <div>
             <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">

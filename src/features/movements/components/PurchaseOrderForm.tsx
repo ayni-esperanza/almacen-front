@@ -75,8 +75,8 @@ export const PurchaseOrderForm = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-md overflow-hidden bg-white rounded-lg shadow-2xl dark:bg-slate-900">
+    <div className="system-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="system-modal-panel relative w-full max-w-md overflow-hidden bg-white rounded-lg shadow-2xl dark:bg-slate-900">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 border-orange-400/20">
           <h2 className="text-lg font-bold text-white">

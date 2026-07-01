@@ -91,12 +91,12 @@ export const AddOptionModal: React.FC<AddOptionModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[60] p-3"
+      className="system-modal-backdrop fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[60] p-3"
       onClick={(e) => e.stopPropagation()}
     >
       <div
         ref={modalRef}
-        className="w-full max-w-sm rounded-2xl bg-white shadow-xl transition dark:border dark:border-slate-800 dark:bg-slate-950"
+        className="system-modal-panel w-full max-w-sm rounded-2xl bg-white shadow-xl transition dark:border dark:border-slate-800 dark:bg-slate-950"
         onClick={(e) => e.stopPropagation()}
       >
         <div

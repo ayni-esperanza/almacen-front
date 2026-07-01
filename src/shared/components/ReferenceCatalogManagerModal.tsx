@@ -113,10 +113,10 @@ export const ReferenceCatalogManagerModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
+    <div className="system-modal-backdrop fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="w-full max-w-2xl max-h-[92vh] overflow-hidden rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col"
+        className="system-modal-panel w-full max-w-2xl max-h-[92vh] overflow-hidden rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col"
       >
         <div className="px-4 py-2 text-white bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center justify-between">

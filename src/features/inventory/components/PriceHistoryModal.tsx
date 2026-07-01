@@ -197,10 +197,10 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-2 py-3 backdrop-blur-sm dark:bg-slate-950/70 sm:items-center sm:overflow-y-visible sm:p-4">
+    <div className="system-modal-backdrop fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-2 py-3 backdrop-blur-sm dark:bg-slate-950/70 sm:items-center sm:overflow-y-visible sm:p-4">
       <div
         ref={modalRef}
-        className="flex w-full max-w-6xl max-h-[94vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950"
+        className="system-modal-panel flex w-full max-w-6xl max-h-[94vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950"
       >
         <div className="flex items-center justify-between gap-4 bg-gradient-to-r from-green-500 to-green-600 px-5 py-4 text-white">
           <div className="flex items-center gap-3">

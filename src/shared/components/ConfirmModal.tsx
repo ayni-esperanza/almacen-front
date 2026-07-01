@@ -44,7 +44,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4"
+      className="system-modal-backdrop fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4"
       onMouseDown={onCancel}
       role="dialog"
       aria-modal="true"
@@ -53,7 +53,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     >
       <div
         ref={dialogRef}
-        className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-900 dark:border dark:border-slate-700"
+        className="system-modal-panel w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-900 dark:border dark:border-slate-700"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="px-5 py-4 border-b border-red-200 bg-gradient-to-r from-red-500 to-red-600 text-white dark:border-rose-500/40">

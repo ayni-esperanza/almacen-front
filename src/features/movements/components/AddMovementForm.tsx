@@ -252,10 +252,10 @@ export const AddMovementForm: React.FC<AddMovementFormProps> = ({
   const primaryButtonLabel = isEntry ? "Guardar" : "Agregar Producto";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
+    <div className="system-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm dark:bg-slate-950/70">
       <div
         ref={modalRef}
-        className="w-full max-w-3xl max-h-[95vh] overflow-visible rounded-3xl bg-white shadow-2xl dark:bg-slate-950 dark:border dark:border-slate-800 flex flex-col"
+        className="system-modal-panel w-full max-w-3xl max-h-[95vh] overflow-visible rounded-3xl bg-white shadow-2xl dark:bg-slate-950 dark:border dark:border-slate-800 flex flex-col"
       >
         <div
           className={`flex items-center justify-between rounded-t-3xl bg-gradient-to-r ${gradientColor} px-4 py-2 text-white flex-shrink-0`}

@@ -25,6 +25,17 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsVisible(false);
+      return;
+    }
+    const frameId = requestAnimationFrame(() => setIsVisible(true));
+    return () => cancelAnimationFrame(frameId);
+  }, [isOpen]);
+
   // Bloquear scroll cuando la modal está abierta
   useModalScrollLock(isOpen);
   // Cerrar modal con tecla ESC
@@ -148,10 +159,12 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
 
   const modalContent = (
     <>
-      <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-2 py-3 backdrop-blur-sm dark:bg-slate-950/70 sm:items-center sm:overflow-y-visible sm:p-4">
+      <div
+        className={`fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-2 py-3 backdrop-blur-sm transition-opacity duration-200 dark:bg-slate-950/70 sm:items-center sm:overflow-y-visible sm:p-4 ${isVisible ? "opacity-100" : "opacity-0"}`}
+      >
         <div
           ref={modalRef}
-          className="w-full max-w-3xl max-h-[95vh] overflow-hidden rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col"
+          className={`flex w-full max-w-3xl max-h-[95vh] origin-center flex-col overflow-hidden rounded-3xl bg-white shadow-2xl transition-[opacity,transform] duration-200 ease-out dark:border dark:border-slate-800 dark:bg-slate-950 ${isVisible ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
         >
           <div className="flex-shrink-0 px-4 py-2 text-white rounded-t-3xl bg-gradient-to-r from-green-500 to-green-600">
             <div className="flex items-center justify-between">

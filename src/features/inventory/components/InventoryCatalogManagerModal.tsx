@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey";
 import { useClickOutside } from "../../../shared/hooks/useClickOutside";
@@ -37,6 +37,17 @@ export const InventoryCatalogManagerModal = ({
   onUpdateCategoria,
   onDeleteCategoria,
 }: InventoryCatalogManagerModalProps) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsVisible(false);
+      return;
+    }
+    const frameId = requestAnimationFrame(() => setIsVisible(true));
+    return () => cancelAnimationFrame(frameId);
+  }, [isOpen]);
+
   useModalScrollLock(isOpen);
   useEscapeKey(onClose, isOpen);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -155,10 +166,12 @@ export const InventoryCatalogManagerModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-slate-900/50 p-2 py-3 backdrop-blur-sm dark:bg-slate-950/70 sm:items-center sm:overflow-y-visible sm:p-4">
+    <div
+      className={`fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-slate-900/50 p-2 py-3 backdrop-blur-sm transition-opacity duration-200 dark:bg-slate-950/70 sm:items-center sm:overflow-y-visible sm:p-4 ${isVisible ? "opacity-100" : "opacity-0"}`}
+    >
       <div
         ref={modalRef}
-        className="w-full max-w-2xl max-h-[92vh] overflow-hidden rounded-3xl bg-white shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-950 flex flex-col"
+        className={`flex w-full max-w-2xl max-h-[92vh] origin-center flex-col overflow-hidden rounded-3xl bg-white shadow-2xl transition-[opacity,transform] duration-200 ease-out dark:border dark:border-slate-800 dark:bg-slate-950 ${isVisible ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
       >
         <div className="px-4 py-2 text-white bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center justify-between">

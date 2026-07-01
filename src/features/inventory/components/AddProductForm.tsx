@@ -20,6 +20,13 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const frameId = requestAnimationFrame(() => setIsVisible(true));
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+
   // Bloquear scroll de la ventana cuando está abierta la modal
   useModalScrollLock(true);
   // Cerrar modal con tecla ESC
@@ -127,10 +134,12 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   const dividerClasses = "border-t border-gray-200 pt-2 dark:border-slate-800";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-2 py-3 backdrop-blur-sm dark:bg-slate-950/70 sm:items-center sm:overflow-y-visible sm:p-4">
+    <div
+      className={`fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-2 py-3 backdrop-blur-sm transition-opacity duration-200 dark:bg-slate-950/70 sm:items-center sm:overflow-y-visible sm:p-4 ${isVisible ? "opacity-100" : "opacity-0"}`}
+    >
       <div
         ref={modalRef}
-        className="w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl bg-white shadow-2xl transition-colors dark:bg-slate-950"
+        className={`w-full max-w-3xl max-h-[95vh] origin-center overflow-y-auto rounded-3xl bg-white shadow-2xl transition-[opacity,transform,background-color] duration-200 ease-out dark:bg-slate-950 ${isVisible ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
       >
         <div className="px-4 py-2 text-white bg-gradient-to-r from-green-500 to-green-600">
           <div className="flex items-center justify-between">

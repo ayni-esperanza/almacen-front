@@ -160,6 +160,31 @@ body.dark .provider-modal-scroll::-webkit-scrollbar-thumb {
 }
 
 /* Simple fade/slide for section transitions */
+.system-modal-backdrop {
+	animation: system-modal-backdrop-in 200ms ease-out both;
+}
+
+.system-modal-panel {
+	animation: system-modal-panel-in 200ms ease-out both;
+	transform-origin: center;
+}
+
+@keyframes system-modal-backdrop-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes system-modal-panel-in {
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
 .fade-section {
 	animation: fade-section 200ms ease-out;
 }
